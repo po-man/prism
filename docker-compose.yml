@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: charity_grader_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Asia/Hong_Kong
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/home/node/workflows      # Mount local workflows for version control
+      - ./schemas:/home/node/schemas          # Mount schemas for validation
+      - ./data:/home/node/data                # Mount data for "Offline Sovereignty"
+    command: start
+
+volumes:
+  n8n_data:

@@ -1,0 +1,8 @@
+node_modules/
+public/
+resources/
+.env
+.DS_Store
+*.log
+n8n_data/
+
