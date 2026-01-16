@@ -14,7 +14,7 @@
 
 ## Web Layer (Frontend)
 - [x] Initialize new Hugo site in `web/`.
-- [ ] Configure Hugo `config.toml` to mount `../data` as a data source.
+- [x] Configure Hugo `hugo.yaml` to mount `../data` as a data source.
 - [x] Install Tailwind CSS module in `web/`.
 
 ## Orchestration Layer (n8n)
