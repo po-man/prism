@@ -13,10 +13,10 @@
 - [x] Add a `.gitkeep` file to preserve the directory structure.
 
 ## Web Layer (Frontend)
-- [ ] Initialize new Hugo site in `web/`.
+- [x] Initialize new Hugo site in `web/`.
 - [ ] Configure Hugo `config.toml` to mount `../data` as a data source.
-- [ ] Install Tailwind CSS module in `web/`.
+- [x] Install Tailwind CSS module in `web/`.
 
 ## Orchestration Layer (n8n)
 - [x] Create `docker-compose.yml` in root to spin up n8n.
-- [ ] Map local `workflows/` and `data/` volumes to the n8n container.
+- [x] Map local `workflows/` and `data/` volumes to the n8n container.
