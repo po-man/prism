@@ -3,7 +3,7 @@
 ## Purpose
 This specification defines the high-level directory structure, data flow, and separation of concerns for the CharityGrader system.
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Monorepo Directory Structure
 The project SHALL maintain a strict monorepo structure to separate orchestration, data definition, storage, and presentation.
