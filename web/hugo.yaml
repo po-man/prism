@@ -1,0 +1,17 @@
+baseURL: "http://localhost:1313/"
+languageCode: "en-us"
+title: "CharityGrader"
+theme: []
+
+module:
+  mounts:
+    - source: "content"
+      target: "content"
+    - source: "layouts"
+      target: "layouts"
+    - source: "assets"
+      target: "assets"
+    - source: "static"
+      target: "static"
+    - source: "../data"
+      target: "data"
