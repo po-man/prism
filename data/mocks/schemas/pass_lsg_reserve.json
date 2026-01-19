@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "charity_name": "Borderline Compliance Group",
+    "registration_number": "91/54321",
+    "financial_year_start": "2022-04-01",
+    "financial_year_end": "2023-03-31"
+  },
+  "financials": {
+    "income": {
+      "total": 20000000,
+      "donations": 15000000,
+      "government_grants": 4000000
+    },
+    "expenditure": {
+      "total": 19000000,
+      "program_services": 15000000,
+      "fundraising": 2000000,
+      "administration": 2000000
+    },
+    "lsg_specific": {
+      "lsg_reserve_amount": 5000000,
+      "provident_fund_reserve": 200000
+    },
+    "ratio_inputs": {
+      "net_current_assets": 8000000,
+      "monthly_operating_expenses": 1583333
+    }
+  },
+  "governance": {
+    "board_structure": {
+      "size": 8,
+      "independent_directors_count": 3,
+      "remuneration_disclosed": false
+    },
+    "lsg_compliance": {
+      "is_lsg_compliant": false
+    }
+  },
+  "impact": {
+    "scale": {
+      "beneficiaries_count": 1200,
+      "geographic_scope": "District"
+    },
+    "evidence_quality": "Anecdotal",
+    "transparency": {
+      "reports_publicly_available": false
+    }
+  },
+  "audit_trail": [
+    {
+      "url": "https://www.borderline-compliance.org.hk/reports/AR2023.pdf",
+      "fetched_at": "2024-01-16T15:00:00Z",
+      "snippet": "LSG reserve (HK$5,000,000) exceeds the 25% threshold of annual operating expenditure (HK$19,000,000)."
+    }
+  ]
+}
