@@ -5,4 +5,4 @@ resources/
 .DS_Store
 *.log
 n8n_data/
-
+__pycache__/
