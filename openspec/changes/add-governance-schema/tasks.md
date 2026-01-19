@@ -18,6 +18,6 @@
 - [x] 4.3 Define `impact.transparency`: `reports_publicly_available` (boolean).
 
 ## 5. Validation & Testing
-- [ ] 5.1 Create `tests/validate_schema.py` using the `jsonschema` library.
+- [x] 5.1 Create `tests/validate_schema.py` using the `jsonschema` library.
 - [x] 5.2 Create `data/mocks/pass_full_compliance.json` (Perfect NGO).
 - [x] 5.3 Create `data/mocks/fail_lsg_reserve.json` (Reserve > 25% violation).
