@@ -19,5 +19,5 @@
 
 ## 5. Validation & Testing
 - [ ] 5.1 Create `tests/validate_schema.py` using the `jsonschema` library.
-- [ ] 5.2 Create `data/mocks/pass_full_compliance.json` (Perfect NGO).
-- [ ] 5.3 Create `data/mocks/fail_lsg_reserve.json` (Reserve > 25% violation).
+- [x] 5.2 Create `data/mocks/pass_full_compliance.json` (Perfect NGO).
+- [x] 5.3 Create `data/mocks/fail_lsg_reserve.json` (Reserve > 25% violation).
