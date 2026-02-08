@@ -5,14 +5,15 @@ The static `governance.schema.json` requires an intelligent ingestion engine. Ho
 
 ## What Changes
 - **New Capability:** `audit-workflows`
-- **Architecture:** "Hub-and-Spoke" with **State Persistence**:
-    - **Scout Agent:** Locates Annual Reports. Caches result to `data/cache/{id}_scout.json`.
-    - **Extractor Agent:** Extracts Financials/LSG data. Caches result to `data/cache/{id}_extracted.json`.
-    - **Risk Agent:** Scans news. Caches result to `data/cache/{id}_risk.json`.
+- **Architecture:** "Hub-and-Spoke" with **PocketBase for State Persistence**:
+    - A local PocketBase datastore will be introduced to manage all intermediate state, replacing the file-based caching system. It provides a unified API for JSON data and binary file storage.
+    - **Scout Agent:** Locates Annual Reports. Caches result to a `scout_results` collection in PocketBase.
+    - **Extractor Agent:** Extracts Financials/LSG data. Caches structured data to an `extractor_results` collection and downloaded PDFs to a `source_artifacts` collection.
+    - **Risk Agent:** Scans news. Caches result to a `risk_results` collection.
 - **Scope Refinement:**
     - **REMOVED:** Cap 622 (Companies Ordinance) checks. The system will focus purely on Financial Health (Accounting Standards) and LSG Manual compliance.
 
 ## Impact
 - **Cost Efficiency:** Re-runs are effectively free for steps that have already passed.
-- **Debugging:** Developers can inspect the intermediate `data/cache/` files to isolate agent failures.
-- **Data Flow:** Intermediate JSONs are merged into the final `data/organisations/{id}.json`.
+- **Debugging:** Developers can use the PocketBase Admin UI to inspect and manage cached data, providing a much richer debugging experience than inspecting individual files.
+- **Data Flow:** The orchestrator will query the various PocketBase collections, merge the results, and write the final output to `data/organisations/{id}.json`.
