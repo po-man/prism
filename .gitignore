@@ -6,3 +6,4 @@ resources/
 *.log
 n8n_data/
 __pycache__/
+/data/cache/
