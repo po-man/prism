@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-11T10:21:53.566Z",
+  "updatedAt": "2026-02-13T09:27:57.321Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -420,7 +420,7 @@
           "conditions": [
             {
               "id": "34b56356-a643-4657-b229-9607b55d688b",
-              "leftValue": "={{ $json.domains == null }}",
+              "leftValue": "={{ $json.domains == null || $json.charity_name_chi == null }}",
               "rightValue": "={{ false }}",
               "operator": {
                 "type": "boolean",
@@ -441,92 +441,6 @@
       ],
       "id": "f6cfdb61-e715-47cd-90ed-767e55d15e31",
       "name": "Exists? (Domains)1"
-    },
-    {
-      "parameters": {
-        "messages": {
-          "message": [
-            {
-              "content": "=What are the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
-            }
-          ]
-        },
-        "simplify": true,
-        "options": {},
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-base.perplexity",
-      "typeVersion": 1,
-      "position": [
-        -896,
-        4064
-      ],
-      "id": "832c5779-3f40-412d-bd05-01d8e5747c65",
-      "name": "Find Domains1",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.message);\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -672,
-        4064
-      ],
-      "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
-      "name": "Parsed Content (Domains)1"
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "expand",
-              "value": "financial_report,annual_report,remuneration_package_review_report"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "domains",
-              "value": "={{ $json.parsedContentObject.domains }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -448,
-        4064
-      ],
-      "id": "f7d7d4c4-ac67-4f06-8d5b-2d26edd948ae",
-      "name": "Storage API - Update Charity - Domains",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
     },
     {
       "parameters": {
@@ -2203,7 +2117,7 @@
     },
     {
       "parameters": {
-        "numberInputs": 3
+        "numberInputs": 4
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
@@ -2242,6 +2156,230 @@
       ],
       "id": "c3dea347-fc34-425f-ada3-3bfb10c76729",
       "name": "Vars - PDF API"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $json.risk }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        5728
+      ],
+      "id": "e4440626-b37c-4592-84ef-97739246200a",
+      "name": "Exists? (Risk)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
+              "name": "system_prompt",
+              "value": "You are a Senior Forensic Risk Auditor for the Hong Kong charity sector. Your goal is to evaluate non-profit organizations for potential risks that would concern a donor practicing Effective Altruism.\n\nYour analysis must prioritize:\n1. VALUE FOR MONEY: Evidence of waste, lavish spending, or hoarding of LSG (Lump Sum Grant) reserves.\n2. INTEGRITY: Proven scandals involving fraud, abuse of beneficiaries, or legal breaches.\n3. GOVERNANCE: Controversies regarding excessive executive compensation (\"Fat Cat\" salaries) or lack of board oversight.\n\nRULES:\n- You must ignore generic \"low overhead\" criticisms unless they indicate mismanagement. We value impact over cheapness.\n- You must differentiate between \"allegations\" and \"proven facts.\"\n- You must prioritize recent data (last 5 years) but note historical severe scandals.\n- You must output strictly valid JSON.",
+              "type": "string"
+            },
+            {
+              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
+              "name": "user_prompt",
+              "value": "=Conduct a risk assessment for the charity \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}\" (Chinese: \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }}\").\n\nPerform a comprehensive search using the following specific search angles:\n1. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 醜聞\" (Scandal)\n2. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 薪酬\" (Salary/Compensation controversy)\n3. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 濫用\" (Misuse/Abuse)\n4. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 審計署\" (Audit Commission reports)\n5. \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}  fraud mismanagement\"\n\nBased on the search results, generate a JSON object adhering to the schema provided below. \n\nIf no negative news is found, explicitly state \"None\" in summaries and set flags to false. Do not hallucinate risks.\n\nRequired Output Schema:\n{\n  \"analysis_date\": \"YYYY-MM-DD\",\n  \"overall_risk_level\": \"LOW\" | \"MEDIUM\" | \"HIGH\",\n  \"risk_dimensions\": {\n    \"reputational\": { \"flagged\": boolean, \"severity\": string, \"summary\": string },\n    \"governance_executive\": { \"flagged\": boolean, \"summary\": string },\n    \"regulatory\": { \"flagged\": boolean, \"summary\": string }\n  },\n  \"key_incidents\": [\n    { \"year\": int, \"description\": string, \"source_url\": string, \"reliability\": \"HIGH\" }\n  ]\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        5728
+      ],
+      "id": "315149ce-f592-4b64-9be5-49a6ed647e5d",
+      "name": "Risk Prompts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.user_prompt) }}\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"false\",\n    \"temperature\": 0,\n    \"search_domain_filter\": {{ JSON.stringify($('Storage API - Get Charity').item.json.domains) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        5728
+      ],
+      "id": "57e87959-fd41-47e9-866b-20f7efe72841",
+      "name": "Extract Risk",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        5728
+      ],
+      "id": "068f9452-4446-4870-8368-ef369b4f4723",
+      "name": "Parsed Content (Risk)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "risk",
+              "value": "={{ { ...$('Parsed Content (Risk)').item.json.parsedContentObject, audit_trails: $json.search_results } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        5728
+      ],
+      "id": "2d914e5e-728f-4543-8d41-c89bf010b47a",
+      "name": "Storage API - Update Charity - Risk",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=What are:\n1. the Chinese name of the \"{{ $json.charity_name }}\"?\n2. the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"chinese_name\": string,   // return empty string if not available\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        4064
+      ],
+      "id": "832c5779-3f40-412d-bd05-01d8e5747c65",
+      "name": "Find Metadata",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.message);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        4064
+      ],
+      "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
+      "name": "Parsed Content (Metadata)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report,remuneration_package_review_report"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "domains",
+              "value": "={{ $json.parsedContentObject.domains }}"
+            },
+            {
+              "name": "charity_name_chi",
+              "value": "={{ $json.parsedContentObject.chinese_name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -448,
+        4064
+      ],
+      "id": "f7d7d4c4-ac67-4f06-8d5b-2d26edd948ae",
+      "name": "Storage API - Update Charity - Metadata",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
     }
   ],
   "connections": {
@@ -2423,29 +2561,7 @@
         ],
         [
           {
-            "node": "Find Domains1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Find Domains1": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Domains)1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parsed Content (Domains)1": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Domains",
+            "node": "Find Metadata",
             "type": "main",
             "index": 0
           }
@@ -2457,27 +2573,6 @@
         [
           {
             "node": "Extract Charity List item[0]",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - Update Charity - Domains": {
-      "main": [
-        [
-          {
-            "node": "Exists? (Financial Report)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Exists? (Annual Report)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Exists? (Rem. Pkg Review Report)",
             "type": "main",
             "index": 0
           }
@@ -2866,6 +2961,11 @@
             "node": "Exists? (Governance)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Exists? (Risk)",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -3230,6 +3330,111 @@
           }
         ]
       ]
+    },
+    "Exists? (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Risk Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Prompts": {
+      "main": [
+        [
+          {
+            "node": "Extract Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Risk": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Risk": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Find Metadata": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Metadata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Metadata)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Metadata": {
+      "main": [
+        [
+          {
+            "node": "Exists? (Financial Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Annual Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Rem. Pkg Review Report)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3241,27 +3446,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "ee6c6f19-aaa8-4aed-9ea7-e3e0fcd4c963",
+  "versionId": "a21765b1-bbc4-491d-a792-cfafa9e66ba3",
   "activeVersionId": null,
-  "versionCounter": 251,
+  "versionCounter": 253,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-11T09:57:35.804Z",
-      "createdAt": "2026-02-11T09:57:35.804Z",
+      "updatedAt": "2026-02-13T09:23:51.713Z",
+      "createdAt": "2026-02-13T09:23:51.713Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "yC36rpsgo1IrNlXe",
+      "projectId": "yzoV96zlopGk8fnw",
       "project": {
-        "updatedAt": "2026-02-11T09:57:48.350Z",
-        "createdAt": "2026-02-11T09:57:34.419Z",
-        "id": "yC36rpsgo1IrNlXe",
+        "updatedAt": "2026-02-13T09:24:11.066Z",
+        "createdAt": "2026-02-13T09:23:49.839Z",
+        "id": "yzoV96zlopGk8fnw",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "226efd2d-9170-482e-8da3-9e09ab909d07"
+        "creatorId": "afd21fd1-8929-4466-b0c6-3da878d32e37"
       }
     }
   ]

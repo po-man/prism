@@ -389,27 +389,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "8450e014-d447-40a3-8ad2-f9d0b68cd645",
+  "versionId": "4fb6eff6-2543-43cf-9537-273f3cfda894",
   "activeVersionId": null,
   "versionCounter": 36,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-11T09:57:35.805Z",
-      "createdAt": "2026-02-11T09:57:35.805Z",
+      "updatedAt": "2026-02-13T09:23:51.717Z",
+      "createdAt": "2026-02-13T09:23:51.717Z",
       "role": "workflow:owner",
       "workflowId": "dM945Azme2TNMwoX",
-      "projectId": "yC36rpsgo1IrNlXe",
+      "projectId": "yzoV96zlopGk8fnw",
       "project": {
-        "updatedAt": "2026-02-11T09:57:48.350Z",
-        "createdAt": "2026-02-11T09:57:34.419Z",
-        "id": "yC36rpsgo1IrNlXe",
+        "updatedAt": "2026-02-13T09:24:11.066Z",
+        "createdAt": "2026-02-13T09:23:49.839Z",
+        "id": "yzoV96zlopGk8fnw",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "226efd2d-9170-482e-8da3-9e09ab909d07"
+        "creatorId": "afd21fd1-8929-4466-b0c6-3da878d32e37"
       }
     }
   ]
