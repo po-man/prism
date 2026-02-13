@@ -1,0 +1,3473 @@
+{
+  "updatedAt": "2026-02-13T09:27:57.321Z",
+  "createdAt": "2026-01-21T04:40:29.603Z",
+  "id": "SUjUpjve9Vj6aJSbbuIWL",
+  "name": "Charity Analysis",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger (for testing)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2224,
+        3168
+      ],
+      "id": "e2c44924-cb15-49db-bf20-de7f09e13f8d",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "url": "https://www.swd.gov.hk/en/ngo/subventions/fm/afr/ngoafr/index.html",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -416,
+        3168
+      ],
+      "id": "ca3d68c6-8665-403e-b85d-99286dc878d0",
+      "name": "HTTP Request (SWD AFR List)"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "organisations",
+              "cssSelector": "td:nth-child(1)",
+              "returnArray": true
+            },
+            {
+              "key": "urls",
+              "cssSelector": "td:nth-child(2) a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        3168
+      ],
+      "id": "7b8b80f1-bbbc-4e34-9e1c-e731796b397c",
+      "name": "HTML (SWD AFR List)"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  item.json.orgReportUrls =\n    item.json.organisations.map(\n      function(organisation, idx) {\n        let url = item.json.urls[idx];\n        if (url.startsWith('/')) {\n          url = `https://www.swd.gov.hk${url}`;\n        }\n        return {\n          type: 'audited financial report',\n          organisation,\n          url,\n        };\n      }\n    );\n  delete item.json.organisations;\n  delete item.json.urls;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        3168
+      ],
+      "id": "abd89163-74c8-4518-927b-d2ae32aca9f7",
+      "name": "Transform (SWD AFR List)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.storage_api_host }}/collections/_superusers/auth-with-password",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1328,
+        3168
+      ],
+      "id": "934c210b-630c-45b3-909a-c4da1c7a6a5b",
+      "name": "Auth Storage API",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "OEvqdznOMAiGoZPr",
+          "name": "Storage API Get Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "(type='audited financial report')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -864,
+        3168
+      ],
+      "id": "8ee3473d-a375-4cbf-af05-e57e8c8e638b",
+      "name": "Storage API - List SWD NGO AFR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6dcc825a-ba44-47c1-beee-0e39b34fe55f",
+              "leftValue": "={{ $json.items.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -640,
+        3168
+      ],
+      "id": "bd9fec9e-95e7-48d1-91bf-1ba498d3e435",
+      "name": "If SWD NGO AFR is empty"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://storage_api:8090/api/batch",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "requests",
+              "value": "={{\n  $json.orgReportUrls.map((record) => ({\n      method: \"POST\",\n      url: \"/api/collections/reports/records\",\n      body: record\n    }))\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        256,
+        3168
+      ],
+      "id": "3ca08e4b-471a-4e81-9cbb-93f8ac363f2f",
+      "name": "Storage API - Batch create SWD NGO AFR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "(type='audited financial report')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        3168
+      ],
+      "id": "a31d2abd-180a-4049-9b8a-964520cef59c",
+      "name": "Storage API - List SWD NGO AFR again",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://storage_api:8090/api/collections/organisations/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "charity_name",
+              "value": "={{ $('Vars - Input Data').item.json.organization_name }}"
+            },
+            {
+              "name": "financial_year_end",
+              "value": "={{ $('Vars - Input Data').item.json.retrieval_year }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1808,
+        4048
+      ],
+      "id": "a50cd0b8-833b-465a-9162-dbfaed610310",
+      "name": "Storage API - Try to Create Charity Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "organization_name",
+              "value": "Chinese Rhenish Church Hong Kong Synod (The)"
+            },
+            {
+              "name": "retrieval_year",
+              "value": "2026"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Vars - Input Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -2000,
+        3168
+      ],
+      "id": "c4462a41-5410-449a-bf28-c0f414030e97"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "287a3eae-d459-488b-a8fc-1392ad6476b6",
+              "name": "perplexity_url",
+              "value": "https://api.perplexity.ai/chat/completions",
+              "type": "string"
+            },
+            {
+              "id": "19e98406-4d26-4cfc-a12c-1f2580beb280",
+              "name": "perplexity_api_key",
+              "value": "={{ $env.CREDENTIALS_PERPLEXITY_API_KEY }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1776,
+        3168
+      ],
+      "id": "4a71ebdb-507e-4a75-a16d-adafe65576aa",
+      "name": "Vars - Perplexity"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67a35460-e53f-49bd-8a59-11e6aa0a4a6f",
+              "name": "storage_api_host",
+              "value": "http://storage_api:8090/api",
+              "type": "string"
+            },
+            {
+              "id": "9180d8be-301e-4937-b0b0-6a09b1b73606",
+              "name": "storage_api_user",
+              "value": "admin@example.com",
+              "type": "string"
+            },
+            {
+              "id": "ed78706d-d660-48e8-b96c-748cc3a97668",
+              "name": "storage_api_password",
+              "value": "supersecret123",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1552,
+        3168
+      ],
+      "id": "5419c62a-708d-44c7-a740-24b3a8e1200f",
+      "name": "Vars - Storage API"
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/organisations/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "=(charity_name='{{ $('Vars - Input Data').item.json.organization_name.replaceAll(\"'\", \"\\\\'\") }}' && financial_year_end='{{ $('Vars - Input Data').item.json.retrieval_year }}')"
+            },
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report,remuneration_package_review_report"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1584,
+        4048
+      ],
+      "id": "36ee9752-8958-4050-a88c-d664baa0cc99",
+      "name": "Storage API - Get Charity Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "34b56356-a643-4657-b229-9607b55d688b",
+              "leftValue": "={{ $json.domains == null || $json.charity_name_chi == null }}",
+              "rightValue": "={{ false }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1136,
+        4048
+      ],
+      "id": "f6cfdb61-e715-47cd-90ed-767e55d15e31",
+      "name": "Exists? (Domains)1"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "=(type='audited financial report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        4064
+      ],
+      "id": "12802772-ae51-4471-85f7-0d0f921a0328",
+      "name": "Storage API - Get SWD NGO AFR Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Financials)').item.json.expand.financial_report.id }}/{{ $('Exists? (Financials)').item.json.expand.financial_report.raw }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -720,
+        4784
+      ],
+      "id": "a5fde436-3f8b-49cb-a50e-c678e047e003",
+      "name": "Storage API - Get Charity - Download Financial Report",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        4784
+      ],
+      "id": "1b44c12c-67f2-4ad8-b3ff-29299adb7621",
+      "name": "Base64 - Financial Report"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
+              "name": "system_prompt",
+              "value": "You are a specialist NGO Financial Auditor for the Hong Kong Social Welfare Department. \nYour expertise lies in parsing \"Annual Financial Reports\" (AFR) and \"Audited Financial Statements\" of Section 88 tax-exempt charities.\n\nYour task is to extract structured financial data from the provided PDF document. \nYou must strictly follow the provided JSON schema.\n\n### Domain Context:\n1. HK NGOs receiving Government subvention often follow the \"Lump Sum Grant\" (LSG) format.\n2. \"Personal Emoluments\" (PE) usually represent program-related staff costs but may include admin staff.\n3. The \"LSG Reserve\" is a specific cumulative surplus capped at 25% of operating expenditure.\n4. \"Section 88\" organizations may include both subvented and self-financing activities; prioritize figures that represent the organization as a whole unless specified as \"FSA-only\" (Funding and Service Agreement).\n\n### Extraction Rules:\n- Currency: All amounts must be in HKD.\n- Decimals: Round to the nearest whole number.\n- Missing Values: If a field is not found, return `0` or `null` (if allowed by schema), do not guess.\n- Language: The source may be in English, Traditional Chinese, or both. Map terms regardless of language.",
+              "type": "string"
+            },
+            {
+              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
+              "name": "user_prompt",
+              "value": "Please analyze the attached audited financial report for the most recent financial year and extract the data into the requested JSON format.\n\n### Field Mapping Guidance:\n\n{\n  \"financial_year\": string, // e.g. \"2024-25\"\n  \"income\": {\n    \"donations\": number, // Voluntary contributions, sponsorships, or public donations.\n    \"government_grants\": number, // Total SWD subvention, including LSG, Rent & Rates, and Central Items.\n    \"total\": number // Total Revenue/Income for the year (refer to the Statement of Profit or Loss).\n  },\n  \"expenditure\": {\n    \"administration\": number, // Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses.\n    \"fundraising\": number, // Costs related to appeals, flag days, or donation solicitations.\n    \"program_services\": number, // Costs directly attributed to welfare services. Include 'Direct Staff Costs' and 'Program Expenses'.\n    \"total\": number // Total Expenditure/Expenses for the year.\n  },\n  \"lsg_specifics\": {\n    \"lsg_reserve_amount\": number, // The cumulative balance of the LSG Reserve at the end of the year.\n    \"provident_fund_reserve\": number // The cumulative surplus of the Provident Fund (PF) Reserve.\n  },\n  \"ratio_inputs\": {\n    \"monthly_operating_expenses\": number, // Total Operating Expenses divided by 12. If not explicitly stated, calculate using (Total Expenditure - One-off Capital Expenditure) / 12.\n    \"net_current_assets\": number // Current Assets minus Current Liabilities.\n  }\n}\n\nPlease output the result as a single JSON object.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        4784
+      ],
+      "id": "39848e72-43f7-48b3-9396-401b284f1495",
+      "name": "Financials Prompts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Financials Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Financials Prompts').item.json.user_prompt) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Base64 - Financial Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        4784
+      ],
+      "id": "d0960106-b05f-404b-b1bd-081bdc67d113",
+      "name": "Extract Financials",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        4784
+      ],
+      "id": "3333d458-13cd-4ba2-8999-793ac197f545",
+      "name": "Parsed Content (Financials)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "financials",
+              "value": "={{ $json.search_results.length > 0 ? $('Parsed Content (Financials)').item.json.parsedContentObject : {} }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        4784
+      ],
+      "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
+      "name": "Storage API - Update Charity - Financials",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $json.financials }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        4784
+      ],
+      "id": "e407b29a-e2a8-45bc-927a-83225e401d5e",
+      "name": "Exists? (Financials)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "34b56356-a643-4657-b229-9607b55d688b",
+              "leftValue": "={{ $json.financial_report }}",
+              "rightValue": "={{ false }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        4064
+      ],
+      "id": "10e700bb-f722-4ee0-abbf-8f197fed7196",
+      "name": "Exists? (Financial Report)"
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "=(type='annual report' && organisation='{{ $('Vars - Input Data').item.json.organization_name.replaceAll(\"'\", \"\\\\'\") }}')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -864,
+        2944
+      ],
+      "id": "94944080-b66a-43e3-87a8-83f3172f175f",
+      "name": "Storage API - List NGO Annual Reports",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        704,
+        3152
+      ],
+      "id": "a6c94c62-2476-414e-972f-a4f9c8b03900",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { json: { items: ar_urls } } = $input.all()[0];\nconst { json: { items: afr_urls } } = $input.all()[1];\nconst { json: { items: rr_urls } } = $input.all()[2];\n\nreturn {\n  ...$input.first(),\n  json: {\n    afr_urls, ar_urls, rr_urls\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        3168
+      ],
+      "id": "9d1bb3d8-fa2b-4efa-9e2e-c5b9d3272a92",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "34b56356-a643-4657-b229-9607b55d688b",
+              "leftValue": "={{ $json.annual_report }}",
+              "rightValue": "={{ false }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        3840
+      ],
+      "id": "0fa06927-77e8-476d-a8a4-63f6d3b004bd",
+      "name": "Exists? (Annual Report)"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "=(type='annual report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        3840
+      ],
+      "id": "eb53c80d-a89b-432e-b329-d7d89cc3afed",
+      "name": "Storage API - Get NGO AR Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $json.impact }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        4976
+      ],
+      "id": "2a34d71c-08c4-4214-9ce1-8b7c010ec0f6",
+      "name": "Exists? (Impact)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = {\n    ...item.json.items[0]\n  };\n}\n\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1360,
+        4048
+      ],
+      "id": "07f180b7-6bf9-40ec-afd6-0cdcd0302d1a",
+      "name": "Extract Charity List item[0]"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Impact Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Impact Prompts').item.json.user_prompt) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Binary to base64 - Annual Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        4976
+      ],
+      "id": "3b153656-50e1-4b7f-ab43-8e6ead591696",
+      "name": "Extract Impact Metrics",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
+              "name": "system_prompt",
+              "value": "You are an Analyst specialized in charity evaluation using the Importance, Tractability, and Neglectedness (ITN) framework. Your task is to research and provide objective, verifiable information to support an ITN scoring analysis of charities. \n\n**Your Principles:**\n1. **Conservative Extraction:** If a number is ambiguous (e.g., \"countless lives\"), do not guess. If it says \"over 50,000\", extract 50000.\n2. **Hierarchy of Evidence:** You must rigorously classify the quality of impact evidence provided. You do not treat a \"testimonial\" as equal to a \"study.\"\n3. **Local Context:** You understand Hong Kong geography (Districts vs. Territory-wide) and the difference between local service and international aid.\n4. **Output:** You only output valid JSON. Do not include markdown formatting or conversational text in the final output.",
+              "type": "string"
+            },
+            {
+              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
+              "name": "user_prompt",
+              "value": "Please analyze the attached annual report for impact metrics and respond in the requested JSON format.\n\n### Field Mapping Guidance:\n\n{\n  \"impact\": {\n    \"importance_factors\": {\n      \"beneficiaries_demographic\": array<{\n        \"location\": string,  // e.g. \"HK\", \"Tai Po\", \"North Point\", ...\n        \"gender\": string, // \"male\", \"female\", \"non-specific\"\n        \"age_range\": string, // e.g. \"18-35\"\n        \"population\": number,\n        \"beneficiary_type\": string, // \"human\" or \"non-human\"\n      }>,\n      \"problem_profile\": {\n        \"problem_name\": \"String\",\n        \"target_population\": \"String\",\n        \"severity_dimensions\": array<{\n          \"dimension\": \"Enum: [Health, Economic, Psycho-Social, Environmental]\",\n          \"metric_name\": \"String\",\n          \"quantitative_data\": {\n            \"value\": \"Number\",\n            \"unit\": \"String\",\n            \"duration\": \"String (optional)\n          },\n          \"context_qualifier\": \"String (e.g., per person, per year)\",\n          \"counterfactual_baseline\": {\n            \"description\": \"String\",\n            \"value\": \"Number (optional)\"\n          },\n          \"evidence_quality\": \"Enum: [High, Medium, Low, Speculative]\",\n          \"source_citation\": \"String (URI or Title)\"\n        }>\n      }\n    },\n    \"tractability_factors\": {\n      \"significant_events\": array<{ // list of key recent events, interventions, or campaigns\n        \"event_name\": string,\n        \"summary\": string\n      }>,\n      \"evaluation_systems\": string // description of evidence/monitoring programs or evaluation mechanisms\n    },\n    \"neglectedness_factors\": {\n      \"funding_sources\": array<string>, // \"government grant\", \"private fund\", \"public donation\", ...\n      \"funding_landscape\": string // context about sector funding, competition, gaps or room for additional funding\n    }\n  }\n}\n\nPlease output the result as a single JSON object.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        4976
+      ],
+      "id": "b689a817-a5f6-4499-b100-eb4fe11c902c",
+      "name": "Impact Prompts"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Impact)').item.json.expand.annual_report.id }}/{{ $('Exists? (Impact)').item.json.expand.annual_report.text }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -720,
+        4976
+      ],
+      "id": "a230bca6-512a-4582-bc77-3150bfb8d8e4",
+      "name": "Storage API - Get Charity - Download Annual Report",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        4976
+      ],
+      "id": "b31de61b-d8c1-4441-af01-5608c4874865",
+      "name": "Text to Binary - Annual Report"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        4976
+      ],
+      "id": "43955617-7dda-42a2-a2fe-5e6394b52e81",
+      "name": "Binary to base64 - Annual Report"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        4976
+      ],
+      "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
+      "name": "Parsed Content (Impact Metrics)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "impact",
+              "value": "={{ $json.search_results.length > 0 ? $('Parsed Content (Impact Metrics)').item.json.parsedContentObject : {} }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        4976
+      ],
+      "id": "11eed72d-0760-4c49-a86d-d9684350d124",
+      "name": "Storage API - Update Charity - Impact",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "(type='remuneration package review report')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        3392
+      ],
+      "id": "41cc4bd7-feec-4818-acee-d454e2588829",
+      "name": "Storage API - List SWD NGO AFR again1",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "(type='remuneration package review report')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -864,
+        3392
+      ],
+      "id": "0772aeb3-0b63-48fc-b507-ac5ec234de40",
+      "name": "Storage API - List SWD NGO RR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6dcc825a-ba44-47c1-beee-0e39b34fe55f",
+              "leftValue": "={{ $json.items.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -640,
+        3392
+      ],
+      "id": "f44b1970-62c7-48d0-87e1-20a2e220c7c8",
+      "name": "If SWD NGO RR is empty"
+    },
+    {
+      "parameters": {
+        "url": "https://www.swd.gov.hk/en/ngo/subventions/suballoc/subvention/rr/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -416,
+        3392
+      ],
+      "id": "1aaaf21a-e70c-4c76-a69d-37a143e5ee55",
+      "name": "HTTP Request (SWD RR List)"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "rows",
+              "cssSelector": "tr",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        3392
+      ],
+      "id": "4bd90d35-cb74-4327-b064-d29dc390bc2b",
+      "name": "HTML (SWD RR List)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const rows = item.json.rows || [];\n  // Loop through each HTML string in the 'rows' array\n  for (const rowHtml of rows) {\n    \n    // 1. SKIP HEADERS: If the row doesn't contain a <td>, it's likely a header (<th>), so we skip it.\n    if (!rowHtml.includes('<td')) {\n      continue;\n    }\n\n    // 2. EXTRACT NAME: \n    const nameMatch = rowHtml.match(/<td>(.*?)<\\/td>/);\n    let name = nameMatch ? nameMatch[1] : null;\n    if (name) name = name.trim();\n\n    // 3. EXTRACT URL:\n    const urlMatch = rowHtml.match(/href=\"([^\"]+)\"/);\n    let url = urlMatch ? urlMatch[1] : null;\n\n    if (url?.startsWith('/')) {\n      url = `https://www.swd.gov.hk${url}`;\n    }\n\n    results.push({\n      type: 'remuneration package review report',\n      organisation: name,\n      url\n    });\n  }\n}\n\n// Return the cleaned data\nreturn [{json: {orgReportUrls: results}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        3392
+      ],
+      "id": "a07c409f-14bd-4c65-8d3c-e861b42a2040",
+      "name": "Transform (SWD RR List)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://storage_api:8090/api/batch",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "requests",
+              "value": "={{\n  $json.orgReportUrls.map((record) => ({\n      method: \"POST\",\n      url: \"/api/collections/reports/records\",\n      body: record\n    }))\n}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        256,
+        3392
+      ],
+      "id": "b979be16-e245-4c6a-af42-bdf1ef9099f5",
+      "name": "Storage API - Batch create SWD NGO RR",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report,rem_pkg_review_report"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1392,
+        4976
+      ],
+      "id": "28387461-e581-4a38-a6e0-1d4757b0c40b",
+      "name": "Storage API - Get Charity",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "34b56356-a643-4657-b229-9607b55d688b",
+              "leftValue": "={{ $json.rem_pkg_review_report }}",
+              "rightValue": "={{ false }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        4288
+      ],
+      "id": "a59f96c7-7277-4ecf-87e8-b4a0b4cbf101",
+      "name": "Exists? (Rem. Pkg Review Report)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "annual_report",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        3840
+      ],
+      "id": "a8d9b084-0abe-4aa2-9180-3849c50232d2",
+      "name": "Storage API - Update Charity - Annual Report",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "financial_report",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        4064
+      ],
+      "id": "ffe05908-58d7-40b6-90b8-a657600a09c8",
+      "name": "Storage API - Update Charity - Financial Report1",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "rem_pkg_review_report",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        4288
+      ],
+      "id": "bcc3e7f4-b041-4a16-b70d-4a05e6144132",
+      "name": "Storage API - Update Charity - Rem. Pkg Review Report",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a53a09dd-76ca-49f3-bc5a-8a7f2f2208cf",
+              "leftValue": "={{ $json.items[0].url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        3840
+      ],
+      "id": "7d72a4b6-22e6-4458-9141-f69e622b11ba",
+      "name": "if (Annual Report) URL exists"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dM945Azme2TNMwoX",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
+          "cachedResultName": "Download PDF & Extract Text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
+            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
+            "download_url": "={{ $json.items[0].url }}",
+            "output_text_format": "text"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "pdf_api_host",
+              "displayName": "pdf_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "download_url",
+              "displayName": "download_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output_text_format",
+              "displayName": "output_text_format",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        3840
+      ],
+      "id": "23d0729e-823a-4a40-bcae-2af0b986dbee",
+      "name": "Download PDF & OCR (Annual Report)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a53a09dd-76ca-49f3-bc5a-8a7f2f2208cf",
+              "leftValue": "={{ $json.items[0].url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        4064
+      ],
+      "id": "d323101f-1c02-4ae1-84ed-3aa8ddcfccde",
+      "name": "if (Financial Report) URL exists"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dM945Azme2TNMwoX",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
+          "cachedResultName": "Download PDF & Extract Text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
+            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
+            "download_url": "={{ $json.items[0].url }}",
+            "output_text_format": "text"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "pdf_api_host",
+              "displayName": "pdf_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "download_url",
+              "displayName": "download_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output_text_format",
+              "displayName": "output_text_format",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        4064
+      ],
+      "id": "f687c2ea-0792-46a5-95d1-5c6d47ca6dda",
+      "name": "Download PDF & OCR (Financial Report)"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/reports/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "=(type='remuneration package review report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -16,
+        4288
+      ],
+      "id": "72c767b2-f0ce-44d7-a110-45ee7edfe1c6",
+      "name": "Storage API - Get SWD NGO RR Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a53a09dd-76ca-49f3-bc5a-8a7f2f2208cf",
+              "leftValue": "={{ $json.items[0].url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        4288
+      ],
+      "id": "6173b6af-780a-4eff-91e9-314f1ed8dcbb",
+      "name": "if (Rem. Pkg Review Report) URL exists"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "dM945Azme2TNMwoX",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
+          "cachedResultName": "Download PDF & Extract Text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
+            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
+            "download_url": "={{ $json.items[0].url }}",
+            "output_text_format": "text"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "pdf_api_host",
+              "displayName": "pdf_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "download_url",
+              "displayName": "download_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output_text_format",
+              "displayName": "output_text_format",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        4288
+      ],
+      "id": "3cc487e8-fe4c-425d-a2e8-dd21701a6de3",
+      "name": "Download PDF & OCR (Rem. Pkg Review Report)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $json.governance }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        5376
+      ],
+      "id": "6d63b165-80b5-4a01-be6f-f1267976a394",
+      "name": "Exists? (Governance)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
+              "name": "system_prompt",
+              "value": "You are a Governance Risk Auditor for Hong Kong NGOs. Your task is to extract structured governance data strictly from the provided financial and administrative reports.\n\n**Your Source Material:**\nYou will be provided with one or both of the following documents:\n1.  **Annual Report:** Contains board lists, committee structures, and policy statements.\n2.  **Review Report on Remuneration Packages for Staff in the Top Three Tiers (Remuneration Report):** A standardized form mandated by the Social Welfare Department (SWD) detailing executive pay.\n\n**Extraction Rules:**\n1.  **Strict Source Adherence:** Extract data *only* if it is explicitly stated in the provided text. If a piece of information (e.g., a specific policy) is missing, return `null` or `false` based on the field type. Do not hallucinate or guess.\n2.  **Role Distinction:** You must distinguish between the **Board of Directors** (voluntary governance) and **Senior Management** (paid operations).\n    * *Hint:* Board members are often listed under \"Patronage\", \"Council\", \"Executive Committee\", or \"Board\". Management is often under \"Key Personnel\" or \"Senior Staff\".\n3.  **Financial Precision:** When extracting remuneration figures from the *Remuneration Report*, ensure you capture the \"Total Annual Staff Costs\" (including salary, provident fund, and cash allowances) for the top tier.\n\n**Output:**\nReturn strictly valid JSON. No markdown formatting or conversational filler.",
+              "type": "string"
+            },
+            {
+              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
+              "name": "user_prompt",
+              "value": "Please analyze the attached document(s) (Annual Report and/or Remuneration Report) and extract the governance data into the requested JSON format.\n\n**Extraction Logic:**\n\n**1. From the Annual Report:**\n   * **Structure:** Count the total number of directors/board members. List the top 5 key office-holders (Chairperson, Vice-Chair, Treasurer, Secretary).\n   * **Committees:** Look for mentions of sub-committees like \"Audit\", \"Finance\", \"HR\", or \"Nomination\".\n   * **Leadership:** Identify the highest-ranking *paid* staff member (often \"CEO\", \"Director General\", or \"Chief Executive\").\n   * **Policies:** Scan for keywords to confirm if these specific policies exist:\n       * \"Conflict of Interest\" (or \"Declaration of Interest\")\n       * \"Whistleblowing\"\n       * \"Investment\" (or \"Reserves Policy\")\n       * \"Procurement\" (or \"Tender\")\n\n**2. From the \"Review Report on Remuneration Packages\" (if provided):**\n   * **Remuneration:** Extract the total annual remuneration for the Top Tier (Tier 1), Second Tier (Tier 2), and Third Tier (Tier 3) staff.\n   * *Note:* If the report provides a range, extract the *maximum* value of that range. If exact figures are provided, use those.\n   * **Date:** Extract the \"Review Date\" or the fiscal year end date from the report.\n\n**JSON Schema:**\n\n{\n  \"governance\": {\n    \"structure\": {\n      \"board_size\": \"Number (Count of names in the Director/Council list)\",\n      \"board_members\": [\n        {\n          \"name\": \"String\",\n          \"title\": \"String (e.g., Chairperson)\",\n          \"is_executive\": \"Boolean (Set to true ONLY if the text explicitly says they are paid staff)\"\n        }\n        // Limit to top 5\n      ],\n      \"committees\": [\"Array of Strings (e.g., 'Audit Committee', 'Finance Committee')\"]\n    },\n    \"leadership\": {\n      \"ceo_name\": \"String\",\n      \"ceo_title\": \"String (e.g., Chief Executive)\"\n    },\n    \"remuneration_disclosure\": {\n      \"source_document_present\": \"Boolean (True if Remuneration Report was found)\",\n      \"top_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 1)\",\n      \"second_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 2)\",\n      \"third_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 3)\",\n      \"review_date\": \"YYYY-MM-DD\"\n    },\n    \"policies\": {\n      \"has_conflict_of_interest\": \"Boolean\",\n      \"has_whistleblowing\": \"Boolean\",\n      \"has_investment_policy\": \"Boolean\",\n      \"has_procurement_policy\": \"Boolean\"\n    }\n  }\n}\n\nOutput only the JSON object.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        5376
+      ],
+      "id": "13d186b6-98f7-4809-a2d7-90fc677d41a4",
+      "name": "Governance Prompts"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.id }}/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.raw }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -496,
+        5264
+      ],
+      "id": "323dc7fa-7303-4039-b362-c95fc9c2f138",
+      "name": "Storage API - Get Charity - Download Rem. Pkg Review Report",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        5376
+      ],
+      "id": "a16fade8-3b94-4557-b663-67691c01f82a",
+      "name": "Parsed Content (Governance Metrics)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "governance",
+              "value": "={{ $json.search_results.length > 0 ? $('Parsed Content (Governance Metrics)').item.json.parsedContentObject : {} }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        5376
+      ],
+      "id": "1094f1fd-6fa2-499a-b001-39250786d8fa",
+      "name": "Storage API - Update Charity - Governance",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Governance)').item.json.expand.annual_report.id }}/{{ $('Exists? (Governance)').item.json.expand.annual_report.text }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -496,
+        5504
+      ],
+      "id": "0471d184-9c7f-4891-bdec-3301283e1e18",
+      "name": "Storage API - Get Charity - Download Annual Report1",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        5504
+      ],
+      "id": "a5a8c7e0-2cdb-49c0-b499-039b1b83f7ef",
+      "name": "Text to Binary - Annual Report1"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        5504
+      ],
+      "id": "b52a768e-64ee-42df-874d-096124c8ce0a",
+      "name": "Binary to base64 - Annual Report1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { json: { data: ar_data } } = $input.all()[0];\nconst { json: { data: rr_data } } = $input.all()[1];\n\nconst format_attachment = (data) => {\n  return `,\n    {\n      \"type\": \"file_url\",\n      \"file_url\": {\n        \"url\": \"${data}\"\n      }\n    }\n  `;\n}\n\nreturn {\n  ...$input.first(),\n  json: {\n    ar_data: ar_data ? format_attachment(ar_data) : \"\",\n    rr_data: rr_data ? format_attachment(rr_data) : \"\",\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        5376
+      ],
+      "id": "89b64f90-d0a7-40d9-951e-a1e489af3ec3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Governance Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Governance Prompts').item.json.user_prompt) }}\n                }{{ $json.ar_data }}{{ $json.rr_data }}\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        624,
+        5376
+      ],
+      "id": "259cb633-e98f-451d-a358-73dd831038e6",
+      "name": "Extract Governance Metrics",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
+              "leftValue": "={{ $('Exists? (Governance)').item.json.rem_pkg_review_report }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -720,
+        5264
+      ],
+      "id": "32c4115b-2e96-4afd-88af-6a3d389cd519",
+      "name": "If Rem.Pkg Review Report exists"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
+              "leftValue": "={{ $('Exists? (Governance)').item.json.annual_report }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -720,
+        5504
+      ],
+      "id": "f7be0011-c457-4fbe-8eb9-fc73baa2a331",
+      "name": "If Annual Report exists"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        5264
+      ],
+      "id": "55bb274f-2bb3-4623-9e5f-cb3fdaf42bb5",
+      "name": "Base64 - Rem. Pkg Review Report"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        4048
+      ],
+      "id": "6194ad4e-4816-4192-a0ab-4f9847cd22e2",
+      "name": "Wait until all downloads done"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        176,
+        5376
+      ],
+      "id": "32fca4ee-a800-496a-93f1-2f28687bb8b4",
+      "name": "Wait until all data ready"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1312,
+        4976
+      ],
+      "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
+      "name": "Wait until all analysis done"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67a35460-e53f-49bd-8a59-11e6aa0a4a6f",
+              "name": "pdf_api_host",
+              "value": "http://pdf_api:8080",
+              "type": "string"
+            },
+            {
+              "id": "ed78706d-d660-48e8-b96c-748cc3a97668",
+              "name": "pdf_api_key",
+              "value": "={{ $env.CREDENTIALS_PDF_API_KEY }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        3168
+      ],
+      "id": "c3dea347-fc34-425f-ada3-3bfb10c76729",
+      "name": "Vars - PDF API"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $json.risk }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1168,
+        5728
+      ],
+      "id": "e4440626-b37c-4592-84ef-97739246200a",
+      "name": "Exists? (Risk)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
+              "name": "system_prompt",
+              "value": "You are a Senior Forensic Risk Auditor for the Hong Kong charity sector. Your goal is to evaluate non-profit organizations for potential risks that would concern a donor practicing Effective Altruism.\n\nYour analysis must prioritize:\n1. VALUE FOR MONEY: Evidence of waste, lavish spending, or hoarding of LSG (Lump Sum Grant) reserves.\n2. INTEGRITY: Proven scandals involving fraud, abuse of beneficiaries, or legal breaches.\n3. GOVERNANCE: Controversies regarding excessive executive compensation (\"Fat Cat\" salaries) or lack of board oversight.\n\nRULES:\n- You must ignore generic \"low overhead\" criticisms unless they indicate mismanagement. We value impact over cheapness.\n- You must differentiate between \"allegations\" and \"proven facts.\"\n- You must prioritize recent data (last 5 years) but note historical severe scandals.\n- You must output strictly valid JSON.",
+              "type": "string"
+            },
+            {
+              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
+              "name": "user_prompt",
+              "value": "=Conduct a risk assessment for the charity \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}\" (Chinese: \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }}\").\n\nPerform a comprehensive search using the following specific search angles:\n1. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 醜聞\" (Scandal)\n2. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 薪酬\" (Salary/Compensation controversy)\n3. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 濫用\" (Misuse/Abuse)\n4. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 審計署\" (Audit Commission reports)\n5. \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}  fraud mismanagement\"\n\nBased on the search results, generate a JSON object adhering to the schema provided below. \n\nIf no negative news is found, explicitly state \"None\" in summaries and set flags to false. Do not hallucinate risks.\n\nRequired Output Schema:\n{\n  \"analysis_date\": \"YYYY-MM-DD\",\n  \"overall_risk_level\": \"LOW\" | \"MEDIUM\" | \"HIGH\",\n  \"risk_dimensions\": {\n    \"reputational\": { \"flagged\": boolean, \"severity\": string, \"summary\": string },\n    \"governance_executive\": { \"flagged\": boolean, \"summary\": string },\n    \"regulatory\": { \"flagged\": boolean, \"summary\": string }\n  },\n  \"key_incidents\": [\n    { \"year\": int, \"description\": string, \"source_url\": string, \"reliability\": \"HIGH\" }\n  ]\n}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        5728
+      ],
+      "id": "315149ce-f592-4b64-9be5-49a6ed647e5d",
+      "name": "Risk Prompts"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "perplexityApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.user_prompt) }}\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"false\",\n    \"temperature\": 0,\n    \"search_domain_filter\": {{ JSON.stringify($('Storage API - Get Charity').item.json.domains) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        5728
+      ],
+      "id": "57e87959-fd41-47e9-866b-20f7efe72841",
+      "name": "Extract Risk",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        5728
+      ],
+      "id": "068f9452-4446-4870-8368-ef369b4f4723",
+      "name": "Parsed Content (Risk)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "risk",
+              "value": "={{ { ...$('Parsed Content (Risk)').item.json.parsedContentObject, audit_trails: $json.search_results } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        400,
+        5728
+      ],
+      "id": "2d914e5e-728f-4543-8d41-c89bf010b47a",
+      "name": "Storage API - Update Charity - Risk",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=What are:\n1. the Chinese name of the \"{{ $json.charity_name }}\"?\n2. the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"chinese_name\": string,   // return empty string if not available\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        4064
+      ],
+      "id": "832c5779-3f40-412d-bd05-01d8e5747c65",
+      "name": "Find Metadata",
+      "credentials": {
+        "perplexityApi": {
+          "id": "34NJqJKPAmGAmUtT",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.message);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        4064
+      ],
+      "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
+      "name": "Parsed Content (Metadata)"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report,remuneration_package_review_report"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "domains",
+              "value": "={{ $json.parsedContentObject.domains }}"
+            },
+            {
+              "name": "charity_name_chi",
+              "value": "={{ $json.parsedContentObject.chinese_name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -448,
+        4064
+      ],
+      "id": "f7d7d4c4-ac67-4f06-8d5b-2d26edd948ae",
+      "name": "Storage API - Update Charity - Metadata",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger (for testing)": {
+      "main": [
+        [
+          {
+            "node": "Vars - Input Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request (SWD AFR List)": {
+      "main": [
+        [
+          {
+            "node": "HTML (SWD AFR List)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML (SWD AFR List)": {
+      "main": [
+        [
+          {
+            "node": "Transform (SWD AFR List)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform (SWD AFR List)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Batch create SWD NGO AFR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Storage API": {
+      "main": [
+        [
+          {
+            "node": "Vars - PDF API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - List SWD NGO AFR": {
+      "main": [
+        [
+          {
+            "node": "If SWD NGO AFR is empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If SWD NGO AFR is empty": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (SWD AFR List)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - Batch create SWD NGO AFR": {
+      "main": [
+        [
+          {
+            "node": "Storage API - List SWD NGO AFR again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - List SWD NGO AFR again": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - Try to Create Charity Record": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Storage API - Get Charity Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vars - Input Data": {
+      "main": [
+        [
+          {
+            "node": "Vars - Perplexity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vars - Perplexity": {
+      "main": [
+        [
+          {
+            "node": "Vars - Storage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vars - Storage API": {
+      "main": [
+        [
+          {
+            "node": "Auth Storage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Domains)1": {
+      "main": [
+        [
+          {
+            "node": "Exists? (Financial Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Annual Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Rem. Pkg Review Report)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity Record": {
+      "main": [
+        [
+          {
+            "node": "Extract Charity List item[0]",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get SWD NGO AFR Record": {
+      "main": [
+        [
+          {
+            "node": "if (Financial Report) URL exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity - Download Financial Report": {
+      "main": [
+        [
+          {
+            "node": "Base64 - Financial Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 - Financial Report": {
+      "main": [
+        [
+          {
+            "node": "Extract Financials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Financials Prompts": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Financial Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Financials": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Financials)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Financials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Financials)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Financials Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Financials": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Financial Report)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Storage API - Get SWD NGO AFR Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - List NGO Annual Reports": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Try to Create Charity Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Annual Report)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Storage API - Get NGO AR Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get NGO AR Record": {
+      "main": [
+        [
+          {
+            "node": "if (Annual Report) URL exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Impact)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Impact Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Charity List item[0]": {
+      "main": [
+        [
+          {
+            "node": "Exists? (Domains)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Impact Metrics": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Impact Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Impact Prompts": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Annual Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity - Download Annual Report": {
+      "main": [
+        [
+          {
+            "node": "Text to Binary - Annual Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Binary - Annual Report": {
+      "main": [
+        [
+          {
+            "node": "Binary to base64 - Annual Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to base64 - Annual Report": {
+      "main": [
+        [
+          {
+            "node": "Extract Impact Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Impact Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Impact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Impact": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - List SWD NGO RR": {
+      "main": [
+        [
+          {
+            "node": "If SWD NGO RR is empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If SWD NGO RR is empty": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (SWD RR List)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Request (SWD RR List)": {
+      "main": [
+        [
+          {
+            "node": "HTML (SWD RR List)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML (SWD RR List)": {
+      "main": [
+        [
+          {
+            "node": "Transform (SWD RR List)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform (SWD RR List)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Batch create SWD NGO RR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Batch create SWD NGO RR": {
+      "main": [
+        [
+          {
+            "node": "Storage API - List SWD NGO AFR again1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - List SWD NGO AFR again1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity": {
+      "main": [
+        [
+          {
+            "node": "Exists? (Financials)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Impact)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Governance)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Rem. Pkg Review Report)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 2
+          }
+        ],
+        [
+          {
+            "node": "Storage API - Get SWD NGO RR Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Annual Report": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Financial Report1": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Rem. Pkg Review Report": {
+      "main": [
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "if (Annual Report) URL exists": {
+      "main": [
+        [
+          {
+            "node": "Download PDF & OCR (Annual Report)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download PDF & OCR (Annual Report)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Annual Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if (Financial Report) URL exists": {
+      "main": [
+        [
+          {
+            "node": "Download PDF & OCR (Financial Report)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Download PDF & OCR (Financial Report)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Financial Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get SWD NGO RR Record": {
+      "main": [
+        [
+          {
+            "node": "if (Rem. Pkg Review Report) URL exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if (Rem. Pkg Review Report) URL exists": {
+      "main": [
+        [
+          {
+            "node": "Download PDF & OCR (Rem. Pkg Review Report)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait until all downloads done",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Download PDF & OCR (Rem. Pkg Review Report)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Rem. Pkg Review Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Governance)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 2
+          }
+        ],
+        [
+          {
+            "node": "Governance Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Governance Prompts": {
+      "main": [
+        [
+          {
+            "node": "If Rem.Pkg Review Report exists",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If Annual Report exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity - Download Rem. Pkg Review Report": {
+      "main": [
+        [
+          {
+            "node": "Base64 - Rem. Pkg Review Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Governance Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Governance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Governance": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity - Download Annual Report1": {
+      "main": [
+        [
+          {
+            "node": "Text to Binary - Annual Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Binary - Annual Report1": {
+      "main": [
+        [
+          {
+            "node": "Binary to base64 - Annual Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to base64 - Annual Report1": {
+      "main": [
+        [
+          {
+            "node": "Wait until all data ready",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Extract Governance Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Governance Metrics": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Governance Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Rem.Pkg Review Report exists": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Rem. Pkg Review Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait until all data ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Annual Report exists": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Annual Report1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait until all data ready",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Base64 - Rem. Pkg Review Report": {
+      "main": [
+        [
+          {
+            "node": "Wait until all data ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until all downloads done": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until all data ready": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vars - PDF API": {
+      "main": [
+        [
+          {
+            "node": "Storage API - List NGO Annual Reports",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Storage API - List SWD NGO AFR",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Storage API - List SWD NGO RR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exists? (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 3
+          }
+        ],
+        [
+          {
+            "node": "Risk Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Prompts": {
+      "main": [
+        [
+          {
+            "node": "Extract Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Risk": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Risk": {
+      "main": [
+        [
+          {
+            "node": "Wait until all analysis done",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Find Metadata": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Metadata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Metadata)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Metadata": {
+      "main": [
+        [
+          {
+            "node": "Exists? (Financial Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Annual Report)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Exists? (Rem. Pkg Review Report)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "a21765b1-bbc4-491d-a792-cfafa9e66ba3",
+  "activeVersionId": null,
+  "versionCounter": 253,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-13T09:23:51.713Z",
+      "createdAt": "2026-02-13T09:23:51.713Z",
+      "role": "workflow:owner",
+      "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
+      "projectId": "yzoV96zlopGk8fnw",
+      "project": {
+        "updatedAt": "2026-02-13T09:24:11.066Z",
+        "createdAt": "2026-02-13T09:23:49.839Z",
+        "id": "yzoV96zlopGk8fnw",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "afd21fd1-8929-4466-b0c6-3da878d32e37"
+      }
+    }
+  ]
+}

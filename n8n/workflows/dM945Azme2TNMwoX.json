@@ -1,0 +1,416 @@
+{
+  "updatedAt": "2026-02-11T10:20:20.323Z",
+  "createdAt": "2026-01-31T19:05:16.465Z",
+  "id": "dM945Azme2TNMwoX",
+  "name": "Download PDF & Extract Text",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1792,
+        3328
+      ],
+      "id": "3444c831-311a-4f9d-a03a-cd7c150c948a",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "storage_api_host"
+            },
+            {
+              "name": "pdf_api_host"
+            },
+            {
+              "name": "download_url"
+            },
+            {
+              "name": "output_text_format"
+            }
+          ]
+        }
+      },
+      "id": "4fe0072e-7413-4e16-9041-ea768087eeb6",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        448,
+        3360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Start').item.json.download_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        3360
+      ],
+      "id": "148f5469-b1ba-4c05-8a6a-c5a1494f84c4",
+      "name": "Download PDF"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f817ca1f-59bf-48eb-8821-dabf49901f9d",
+              "leftValue": "={{ $('Start').item.json.output_text_format }}",
+              "rightValue": "markdown",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        3424
+      ],
+      "id": "0a23b168-a43a-4d80-93bc-cbb886726c21",
+      "name": "If output markdown"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/convert/pdf/markdown",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "fileInput",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1568,
+        3328
+      ],
+      "id": "92bc7d1f-5350-4b8f-ae4d-fa72df7d5d19",
+      "name": "PDF to Markdown",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "XbZGAytHUvqqfEGj",
+          "name": "PDF API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/convert/pdf/text",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "fileInput",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "outputFormat",
+              "value": "txt"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1344,
+        3520
+      ],
+      "id": "0a322337-9e6b-4bc7-9da4-fde24cf4867a",
+      "name": "PDF to Text",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "XbZGAytHUvqqfEGj",
+          "name": "PDF API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        3520
+      ],
+      "id": "66c53d64-4453-4cb9-8639-d98dcd79c79b",
+      "name": "Text to Binary"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records ",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=url",
+              "value": "={{ $('Start').item.json.download_url }}"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "raw",
+              "inputDataFieldName": "=pdf"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "text",
+              "inputDataFieldName": "md"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2240,
+        3328
+      ],
+      "id": "25b0ddac-089b-49ad-9fe7-358b1f80e1e3",
+      "name": "Storage API - Create Downloaded-Files Record",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "CYK1lbsQqtbIDet9",
+          "name": "storage_api credential"
+        },
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const { binary: { data: pdf } } = $input.all()[0];\nconst { binary: { data: md } } = $input.all()[1];\n\nreturn {\n  ...$input.first(),\n  binary: {\n    pdf, md\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        3328
+      ],
+      "id": "6b940140-1c85-413a-b4b7-92698288f4cc",
+      "name": "Merge Binary"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.storage_api_host }}/collections/_superusers/auth-with-password",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        3360
+      ],
+      "id": "0353456d-0c7c-4a7b-b4cd-d86699582210",
+      "name": "Auth Storage API",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "OEvqdznOMAiGoZPr",
+          "name": "Storage API Get Token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Merge Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Auth Storage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download PDF": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If output markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If output markdown": {
+      "main": [
+        [
+          {
+            "node": "PDF to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PDF to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF to Markdown": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "PDF to Text": {
+      "main": [
+        [
+          {
+            "node": "Text to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text to Binary": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - Create Downloaded-Files Record": {
+      "main": [
+        []
+      ]
+    },
+    "Merge Binary": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Create Downloaded-Files Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Storage API": {
+      "main": [
+        [
+          {
+            "node": "Download PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "4fb6eff6-2543-43cf-9537-273f3cfda894",
+  "activeVersionId": null,
+  "versionCounter": 36,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-13T09:23:51.717Z",
+      "createdAt": "2026-02-13T09:23:51.717Z",
+      "role": "workflow:owner",
+      "workflowId": "dM945Azme2TNMwoX",
+      "projectId": "yzoV96zlopGk8fnw",
+      "project": {
+        "updatedAt": "2026-02-13T09:24:11.066Z",
+        "createdAt": "2026-02-13T09:23:49.839Z",
+        "id": "yzoV96zlopGk8fnw",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "afd21fd1-8929-4466-b0c6-3da878d32e37"
+      }
+    }
+  ]
+}

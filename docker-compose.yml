@@ -1,9 +1,8 @@
 version: '3.8'
 
 services:
-  n8n:
+  workflows:
     image: n8nio/n8n:latest
-    container_name: charity_grader_n8n
     restart: unless-stopped
     ports:
       - "5678:5678"
@@ -12,14 +11,55 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - NODE_ENV=production
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - WEBHOOK_URL=http://localhost:5678/
       - GENERIC_TIMEZONE=Asia/Hong_Kong
+      - CREDENTIALS_PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - CREDENTIALS_PDF_API_KEY=${PDF_API_KEY}
+      - CREDENTIALS_PB_USERNAME=${PB_ADMIN_EMAIL}
+      - CREDENTIALS_PB_PASSWORD=${PB_ADMIN_PASSWORD}
     volumes:
-      - n8n_data:/home/node/.n8n
-      - ./workflows:/home/node/workflows      # Mount local workflows for version control
-      - ./schemas:/home/node/schemas          # Mount schemas for validation
-      - ./data:/home/node/data                # Mount data for "Offline Sovereignty"
-    command: start
+      - ./n8n/credentials:/home/node/.n8n-files/credentials  # Mount credentials
+      - ./n8n/workflows:/home/node/.n8n-files/workflows      # Mount local workflows for version control
+      - ./n8n/schemas:/home/node/.n8n-files/schemas          # Mount schemas for validation
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      n8n import:credentials --all --separate --decrypted --input=/home/node/.n8n-files/credentials &&
+      n8n import:workflow --all --separate --input=/home/node/.n8n-files/workflows &&
+      n8n start
+      "
 
-volumes:
-  n8n_data:
+  storage_api:
+    image: ghcr.io/muchobien/pocketbase:latest
+    ports:
+      - 8090:8090
+    environment:
+      - PB_HOST=0.0.0.0
+      - PB_PORT=8090
+      - PB_ADMIN_EMAIL=${PB_ADMIN_EMAIL}
+      - PB_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
+    volumes:
+      - ./pocketbase/data:/pb_data
+      - ./pocketbase/migrations:/pb_migrations
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8090/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  pdf_api:
+    image: stirlingtools/stirling-pdf:1.6.0
+    ports:
+      - 8080:8080
+    environment:
+      - SECURITY_CUSTOMGLOBALAPIKEY=${PDF_API_KEY}
