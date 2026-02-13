@@ -27,10 +27,10 @@
 - [x] 3.5 Save structured data to the `organisations` collection in PocketBase.
 
 ## 4. Risk Agent (Reputation Check)
-- [ ] 4.1 Create `workflows/sub_risk.json`.
-- [ ] 4.2 **Implement Caching**: Query the `risk_results` collection before searching.
-- [ ] 4.3 Implement Search API -> Sentiment Filter.
-- [ ] 4.4 Save flags to the `risk_results` collection.
+- [x] 4.1 Logic integrated into the main `Charity Analysis` workflow.
+- [x] 4.2 **Implement Caching**: The "Query-or-Run" pattern checks if the `risk` field in the `organisations` collection already exists.
+- [x] 4.3 Implement Perplexity AI search to find negative news or reputational flags.
+- [x] 4.4 Save structured results to the `risk` field in the `organisations` collection.
 
 ## 5. Orchestration & Merge
 - [x] 5.1 Create `workflows/SUjUpjve9Vj6aJSbbuIWL.json` as the main orchestrator.
