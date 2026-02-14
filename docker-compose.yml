@@ -21,7 +21,7 @@ services:
     volumes:
       - ./n8n/credentials:/home/node/.n8n-files/credentials  # Mount credentials
       - ./n8n/workflows:/home/node/.n8n-files/workflows      # Mount local workflows for version control
-      - ./n8n/schemas:/home/node/.n8n-files/schemas          # Mount schemas for validation
+      - ./schemas:/home/node/.n8n-files/schemas              # Mount schemas for prompt injection
     entrypoint: /bin/sh
     command: >
       -c "

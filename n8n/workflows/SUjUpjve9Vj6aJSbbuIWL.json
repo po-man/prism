@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-13T09:27:57.321Z",
+  "updatedAt": "2026-02-14T16:46:28.313Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -493,7 +493,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -720,
+        -304,
         4784
       ],
       "id": "a5fde436-3f8b-49cb-a50e-c678e047e003",
@@ -517,7 +517,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -272,
+        144,
         4784
       ],
       "id": "1b44c12c-67f2-4ad8-b3ff-29299adb7621",
@@ -536,7 +536,7 @@
             {
               "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
               "name": "user_prompt",
-              "value": "Please analyze the attached audited financial report for the most recent financial year and extract the data into the requested JSON format.\n\n### Field Mapping Guidance:\n\n{\n  \"financial_year\": string, // e.g. \"2024-25\"\n  \"income\": {\n    \"donations\": number, // Voluntary contributions, sponsorships, or public donations.\n    \"government_grants\": number, // Total SWD subvention, including LSG, Rent & Rates, and Central Items.\n    \"total\": number // Total Revenue/Income for the year (refer to the Statement of Profit or Loss).\n  },\n  \"expenditure\": {\n    \"administration\": number, // Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses.\n    \"fundraising\": number, // Costs related to appeals, flag days, or donation solicitations.\n    \"program_services\": number, // Costs directly attributed to welfare services. Include 'Direct Staff Costs' and 'Program Expenses'.\n    \"total\": number // Total Expenditure/Expenses for the year.\n  },\n  \"lsg_specifics\": {\n    \"lsg_reserve_amount\": number, // The cumulative balance of the LSG Reserve at the end of the year.\n    \"provident_fund_reserve\": number // The cumulative surplus of the Provident Fund (PF) Reserve.\n  },\n  \"ratio_inputs\": {\n    \"monthly_operating_expenses\": number, // Total Operating Expenses divided by 12. If not explicitly stated, calculate using (Total Expenditure - One-off Capital Expenditure) / 12.\n    \"net_current_assets\": number // Current Assets minus Current Liabilities.\n  }\n}\n\nPlease output the result as a single JSON object.",
+              "value": "=Please analyze the attached audited financial report for the most recent financial year and extract the data into the requested JSON format.\n\n### Field Mapping Guidance:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Financials)').item.json.data) }}\n\nPlease output the result as a single JSON object.",
               "type": "string"
             }
           ]
@@ -546,7 +546,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -944,
+        -528,
         4784
       ],
       "id": "39848e72-43f7-48b3-9396-401b284f1495",
@@ -566,7 +566,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -48,
+        368,
         4784
       ],
       "id": "d0960106-b05f-404b-b1bd-081bdc67d113",
@@ -585,7 +585,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        176,
+        592,
         4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -611,7 +611,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        400,
+        816,
         4784
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -886,7 +886,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -48,
+        368,
         4976
       ],
       "id": "3b153656-50e1-4b7f-ab43-8e6ead591696",
@@ -911,7 +911,7 @@
             {
               "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
               "name": "user_prompt",
-              "value": "Please analyze the attached annual report for impact metrics and respond in the requested JSON format.\n\n### Field Mapping Guidance:\n\n{\n  \"impact\": {\n    \"importance_factors\": {\n      \"beneficiaries_demographic\": array<{\n        \"location\": string,  // e.g. \"HK\", \"Tai Po\", \"North Point\", ...\n        \"gender\": string, // \"male\", \"female\", \"non-specific\"\n        \"age_range\": string, // e.g. \"18-35\"\n        \"population\": number,\n        \"beneficiary_type\": string, // \"human\" or \"non-human\"\n      }>,\n      \"problem_profile\": {\n        \"problem_name\": \"String\",\n        \"target_population\": \"String\",\n        \"severity_dimensions\": array<{\n          \"dimension\": \"Enum: [Health, Economic, Psycho-Social, Environmental]\",\n          \"metric_name\": \"String\",\n          \"quantitative_data\": {\n            \"value\": \"Number\",\n            \"unit\": \"String\",\n            \"duration\": \"String (optional)\n          },\n          \"context_qualifier\": \"String (e.g., per person, per year)\",\n          \"counterfactual_baseline\": {\n            \"description\": \"String\",\n            \"value\": \"Number (optional)\"\n          },\n          \"evidence_quality\": \"Enum: [High, Medium, Low, Speculative]\",\n          \"source_citation\": \"String (URI or Title)\"\n        }>\n      }\n    },\n    \"tractability_factors\": {\n      \"significant_events\": array<{ // list of key recent events, interventions, or campaigns\n        \"event_name\": string,\n        \"summary\": string\n      }>,\n      \"evaluation_systems\": string // description of evidence/monitoring programs or evaluation mechanisms\n    },\n    \"neglectedness_factors\": {\n      \"funding_sources\": array<string>, // \"government grant\", \"private fund\", \"public donation\", ...\n      \"funding_landscape\": string // context about sector funding, competition, gaps or room for additional funding\n    }\n  }\n}\n\nPlease output the result as a single JSON object.",
+              "value": "=Please analyze the attached annual report for impact metrics and respond in the requested JSON format.\n\n### Field Mapping Guidance:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Impact)').item.json.data) }}\n\nPlease output the result as a single JSON object.",
               "type": "string"
             }
           ]
@@ -921,7 +921,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -944,
+        -528,
         4976
       ],
       "id": "b689a817-a5f6-4499-b100-eb4fe11c902c",
@@ -943,7 +943,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -720,
+        -304,
         4976
       ],
       "id": "a230bca6-512a-4582-bc77-3150bfb8d8e4",
@@ -968,7 +968,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        -496,
+        -80,
         4976
       ],
       "id": "b31de61b-d8c1-4441-af01-5608c4874865",
@@ -982,7 +982,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -272,
+        144,
         4976
       ],
       "id": "43955617-7dda-42a2-a2fe-5e6394b52e81",
@@ -995,7 +995,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        176,
+        592,
         4976
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
@@ -1021,7 +1021,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        400,
+        816,
         4976
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -1807,7 +1807,7 @@
             {
               "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
               "name": "user_prompt",
-              "value": "Please analyze the attached document(s) (Annual Report and/or Remuneration Report) and extract the governance data into the requested JSON format.\n\n**Extraction Logic:**\n\n**1. From the Annual Report:**\n   * **Structure:** Count the total number of directors/board members. List the top 5 key office-holders (Chairperson, Vice-Chair, Treasurer, Secretary).\n   * **Committees:** Look for mentions of sub-committees like \"Audit\", \"Finance\", \"HR\", or \"Nomination\".\n   * **Leadership:** Identify the highest-ranking *paid* staff member (often \"CEO\", \"Director General\", or \"Chief Executive\").\n   * **Policies:** Scan for keywords to confirm if these specific policies exist:\n       * \"Conflict of Interest\" (or \"Declaration of Interest\")\n       * \"Whistleblowing\"\n       * \"Investment\" (or \"Reserves Policy\")\n       * \"Procurement\" (or \"Tender\")\n\n**2. From the \"Review Report on Remuneration Packages\" (if provided):**\n   * **Remuneration:** Extract the total annual remuneration for the Top Tier (Tier 1), Second Tier (Tier 2), and Third Tier (Tier 3) staff.\n   * *Note:* If the report provides a range, extract the *maximum* value of that range. If exact figures are provided, use those.\n   * **Date:** Extract the \"Review Date\" or the fiscal year end date from the report.\n\n**JSON Schema:**\n\n{\n  \"governance\": {\n    \"structure\": {\n      \"board_size\": \"Number (Count of names in the Director/Council list)\",\n      \"board_members\": [\n        {\n          \"name\": \"String\",\n          \"title\": \"String (e.g., Chairperson)\",\n          \"is_executive\": \"Boolean (Set to true ONLY if the text explicitly says they are paid staff)\"\n        }\n        // Limit to top 5\n      ],\n      \"committees\": [\"Array of Strings (e.g., 'Audit Committee', 'Finance Committee')\"]\n    },\n    \"leadership\": {\n      \"ceo_name\": \"String\",\n      \"ceo_title\": \"String (e.g., Chief Executive)\"\n    },\n    \"remuneration_disclosure\": {\n      \"source_document_present\": \"Boolean (True if Remuneration Report was found)\",\n      \"top_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 1)\",\n      \"second_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 2)\",\n      \"third_tier_total_salary\": \"Number (Total Annual Staff Costs for Tier 3)\",\n      \"review_date\": \"YYYY-MM-DD\"\n    },\n    \"policies\": {\n      \"has_conflict_of_interest\": \"Boolean\",\n      \"has_whistleblowing\": \"Boolean\",\n      \"has_investment_policy\": \"Boolean\",\n      \"has_procurement_policy\": \"Boolean\"\n    }\n  }\n}\n\nOutput only the JSON object.",
+              "value": "=Please analyze the attached document(s) (Annual Report and/or Remuneration Report) and extract the governance data into the requested JSON format.\n\n**Extraction Logic:**\n\n**1. From the Annual Report:**\n   * **Structure:** Count the total number of directors/board members. List the top 5 key office-holders (Chairperson, Vice-Chair, Treasurer, Secretary).\n   * **Committees:** Look for mentions of sub-committees like \"Audit\", \"Finance\", \"HR\", or \"Nomination\".\n   * **Leadership:** Identify the highest-ranking *paid* staff member (often \"CEO\", \"Director General\", or \"Chief Executive\").\n   * **Policies:** Scan for keywords to confirm if these specific policies exist:\n       * \"Conflict of Interest\" (or \"Declaration of Interest\")\n       * \"Whistleblowing\"\n       * \"Investment\" (or \"Reserves Policy\")\n       * \"Procurement\" (or \"Tender\")\n\n**2. From the \"Review Report on Remuneration Packages\" (if provided):**\n   * **Remuneration:** Extract the total annual remuneration for the Top Tier (Tier 1), Second Tier (Tier 2), and Third Tier (Tier 3) staff.\n   * *Note:* If the report provides a range, extract the *maximum* value of that range. If exact figures are provided, use those.\n   * **Date:** Extract the \"Review Date\" or the fiscal year end date from the report.\n\n**JSON Schema:**\n\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data) }}\n\nOutput only the JSON object.",
               "type": "string"
             }
           ]
@@ -1817,7 +1817,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -944,
+        -528,
         5376
       ],
       "id": "13d186b6-98f7-4809-a2d7-90fc677d41a4",
@@ -1839,7 +1839,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -496,
+        -80,
         5264
       ],
       "id": "323dc7fa-7303-4039-b362-c95fc9c2f138",
@@ -1862,7 +1862,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        848,
+        1264,
         5376
       ],
       "id": "a16fade8-3b94-4557-b663-67691c01f82a",
@@ -1888,7 +1888,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1072,
+        1488,
         5376
       ],
       "id": "1094f1fd-6fa2-499a-b001-39250786d8fa",
@@ -1920,7 +1920,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -496,
+        -80,
         5504
       ],
       "id": "0471d184-9c7f-4891-bdec-3301283e1e18",
@@ -1945,7 +1945,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        -272,
+        144,
         5504
       ],
       "id": "a5a8c7e0-2cdb-49c0-b499-039b1b83f7ef",
@@ -1959,7 +1959,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -48,
+        368,
         5504
       ],
       "id": "b52a768e-64ee-42df-874d-096124c8ce0a",
@@ -1972,7 +1972,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        400,
+        816,
         5376
       ],
       "id": "89b64f90-d0a7-40d9-951e-a1e489af3ec3",
@@ -1992,7 +1992,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        624,
+        1040,
         5376
       ],
       "id": "259cb633-e98f-451d-a358-73dd831038e6",
@@ -2032,7 +2032,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -720,
+        -304,
         5264
       ],
       "id": "32c4115b-2e96-4afd-88af-6a3d389cd519",
@@ -2066,7 +2066,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -720,
+        -304,
         5504
       ],
       "id": "f7be0011-c457-4fbe-8eb9-fc73baa2a331",
@@ -2080,7 +2080,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -48,
+        368,
         5264
       ],
       "id": "55bb274f-2bb3-4623-9e5f-cb3fdaf42bb5",
@@ -2109,7 +2109,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        176,
+        592,
         5376
       ],
       "id": "32fca4ee-a800-496a-93f1-2f28687bb8b4",
@@ -2122,7 +2122,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1312,
+        1728,
         4976
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -2204,7 +2204,7 @@
             {
               "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
               "name": "user_prompt",
-              "value": "=Conduct a risk assessment for the charity \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}\" (Chinese: \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }}\").\n\nPerform a comprehensive search using the following specific search angles:\n1. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 醜聞\" (Scandal)\n2. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 薪酬\" (Salary/Compensation controversy)\n3. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 濫用\" (Misuse/Abuse)\n4. \"{{ $json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 審計署\" (Audit Commission reports)\n5. \"{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}  fraud mismanagement\"\n\nBased on the search results, generate a JSON object adhering to the schema provided below. \n\nIf no negative news is found, explicitly state \"None\" in summaries and set flags to false. Do not hallucinate risks.\n\nRequired Output Schema:\n{\n  \"analysis_date\": \"YYYY-MM-DD\",\n  \"overall_risk_level\": \"LOW\" | \"MEDIUM\" | \"HIGH\",\n  \"risk_dimensions\": {\n    \"reputational\": { \"flagged\": boolean, \"severity\": string, \"summary\": string },\n    \"governance_executive\": { \"flagged\": boolean, \"summary\": string },\n    \"regulatory\": { \"flagged\": boolean, \"summary\": string }\n  },\n  \"key_incidents\": [\n    { \"year\": int, \"description\": string, \"source_url\": string, \"reliability\": \"HIGH\" }\n  ]\n}",
+              "value": "=Conduct a risk assessment for the charity \"{{ $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\") }}\" (Chinese: \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }}\").\n\nPerform a comprehensive search using the following specific search angles:\n1. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 醜聞\" (Scandal)\n2. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 薪酬\" (Salary/Compensation controversy)\n3. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 濫用\" (Misuse/Abuse)\n4. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 審計署\" (Audit Commission reports)\n5. \"{{ $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\") }}  fraud mismanagement\"\n\nBased on the search results, generate a JSON object adhering to the schema provided below. \n\nIf no negative news is found, explicitly state \"None\" in summaries and set flags to false. Do not hallucinate risks.\n\nRequired Output Schema:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Risk)').item.json.data) }}",
               "type": "string"
             }
           ]
@@ -2214,7 +2214,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -944,
+        -528,
         5728
       ],
       "id": "315149ce-f592-4b64-9be5-49a6ed647e5d",
@@ -2380,6 +2380,118 @@
           "name": "Storage API"
         }
       }
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/schemas/v1/financials.schema.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -960,
+        4784
+      ],
+      "id": "c8573093-d3b1-4b1e-a668-99f76de7611d",
+      "name": "Read JSON schema (Finanicals)"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        4784
+      ],
+      "id": "43f2d83d-2dab-4a2f-ad97-eb96e1a57b7c",
+      "name": "Binary to Text (JSON schema, Financials)"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/schemas/v1/impact.schema.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -960,
+        4976
+      ],
+      "id": "873391a7-de81-422e-aa1e-00095b8d5bfd",
+      "name": "Read JSON schema (Impact)"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        4976
+      ],
+      "id": "42eca936-3a6c-42ca-8515-5cb8b0b0fff0",
+      "name": "Binary to Text (JSON schema, Impact)"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/schemas/v1/governance.schema.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -960,
+        5376
+      ],
+      "id": "a9287eb2-e97d-4296-ba13-23f7bf4162bf",
+      "name": "Read JSON schema (Governance)"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        5376
+      ],
+      "id": "1a59c23d-5020-4380-968d-45954ca59d69",
+      "name": "Binary to Text (JSON schema, Governance)"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/schemas/v1/risk.schema.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -960,
+        5728
+      ],
+      "id": "19745ac5-6ace-4044-adea-b1df3d3bd992",
+      "name": "Read JSON schema (Risk)"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        5728
+      ],
+      "id": "0cccc52b-0366-4317-8be6-2a532da023e1",
+      "name": "Binary to Text (JSON schema, Risk)"
     }
   ],
   "connections": {
@@ -2656,7 +2768,7 @@
         ],
         [
           {
-            "node": "Financials Prompts",
+            "node": "Read JSON schema (Finanicals)",
             "type": "main",
             "index": 0
           }
@@ -2765,7 +2877,7 @@
         ],
         [
           {
-            "node": "Impact Prompts",
+            "node": "Read JSON schema (Impact)",
             "type": "main",
             "index": 0
           }
@@ -3130,7 +3242,7 @@
         ],
         [
           {
-            "node": "Governance Prompts",
+            "node": "Read JSON schema (Governance)",
             "type": "main",
             "index": 0
           }
@@ -3342,7 +3454,7 @@
         ],
         [
           {
-            "node": "Risk Prompts",
+            "node": "Read JSON schema (Risk)",
             "type": "main",
             "index": 0
           }
@@ -3435,6 +3547,94 @@
           }
         ]
       ]
+    },
+    "Read JSON schema (Finanicals)": {
+      "main": [
+        [
+          {
+            "node": "Binary to Text (JSON schema, Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to Text (JSON schema, Financials)": {
+      "main": [
+        [
+          {
+            "node": "Financials Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read JSON schema (Impact)": {
+      "main": [
+        [
+          {
+            "node": "Binary to Text (JSON schema, Impact)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to Text (JSON schema, Impact)": {
+      "main": [
+        [
+          {
+            "node": "Impact Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read JSON schema (Governance)": {
+      "main": [
+        [
+          {
+            "node": "Binary to Text (JSON schema, Governance)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to Text (JSON schema, Governance)": {
+      "main": [
+        [
+          {
+            "node": "Governance Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read JSON schema (Risk)": {
+      "main": [
+        [
+          {
+            "node": "Binary to Text (JSON schema, Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to Text (JSON schema, Risk)": {
+      "main": [
+        [
+          {
+            "node": "Risk Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3446,27 +3646,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "a21765b1-bbc4-491d-a792-cfafa9e66ba3",
+  "versionId": "78c9a618-9810-4907-8ec1-0e6777ad554f",
   "activeVersionId": null,
-  "versionCounter": 253,
+  "versionCounter": 258,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-13T09:23:51.713Z",
-      "createdAt": "2026-02-13T09:23:51.713Z",
+      "updatedAt": "2026-02-14T07:24:42.937Z",
+      "createdAt": "2026-02-14T07:24:42.937Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "yzoV96zlopGk8fnw",
+      "projectId": "nLM2GwAqwtjCNij2",
       "project": {
-        "updatedAt": "2026-02-13T09:24:11.066Z",
-        "createdAt": "2026-02-13T09:23:49.839Z",
-        "id": "yzoV96zlopGk8fnw",
+        "updatedAt": "2026-02-14T07:24:59.020Z",
+        "createdAt": "2026-02-14T07:24:40.744Z",
+        "id": "nLM2GwAqwtjCNij2",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "afd21fd1-8929-4466-b0c6-3da878d32e37"
+        "creatorId": "e8fe8e9e-8bf3-48a0-9a55-19ef75676263"
       }
     }
   ]
