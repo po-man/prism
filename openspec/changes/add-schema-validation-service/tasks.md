@@ -53,3 +53,37 @@ This section focuses on modifying the `Charity Analysis` workflow (`SUjUpjve9Vj6
 - [ ] 4.1. Update `openspec/project.md` to mention the new validation service in the architecture section.
 - [ ] 4.2. Create unit tests for the validation service, including tests for valid data, invalid data (e.g., missing required field, wrong type), and non-existent schemas.
 - [ ] 4.3. Manually run the updated n8n workflow to confirm that the validation steps work as expected for both success and failure cases.
+
+## 5. Update Docker Configuration
+
+- [ ] 5.1. Modify the `docker-compose.yml` file (or equivalent deployment script).
+- [ ] 5.2. In the service definition for n8n, add a volume mount that maps the host's `./schemas` directory to a path inside the container, such as `/schemas`.
+  ```yaml
+  # Example for docker-compose.yml
+  services:
+    n8n:
+      # ... other config
+      volumes:
+        - ./schemas:/schemas:ro # Mount as read-only
+  ```
+
+## 6. Refactor n8n Workflow (`SUjUpjve9Vj6aJSbbuIWL.json`)
+
+For each data extraction block (Financials, Impact, Governance, Risk):
+
+- [ ] 6.1. **Financials:**
+  - [ ] 6.1.1. Before the "Financials Prompts" node, add a "Read File" node named "Read Financials Schema".
+  - [ ] 6.1.2. Configure it to read the file at path `/schemas/v1/financials.schema.json` and output the content as a string.
+  - [ ] 6.1.3. Modify the "Financials Prompts" node. In the `user_prompt`, replace the hardcoded JSON schema with an expression that injects the output from the "Read Financials Schema" node.
+
+- [ ] 6.2. **Impact:**
+  - [ ] 6.2.1. Add a "Read File" node for `/schemas/v1/impact.schema.json` before "Impact Prompts".
+  - [ ] 6.2.2. Update the "Impact Prompts" node to use the dynamically loaded schema.
+
+- [ ] 6.3. **Governance:**
+  - [ ] 6.3.1. Add a "Read File" node for `/schemas/v1/governance.schema.json` before "Governance Prompts".
+  - [ ] 6.3.2. Update the "Governance Prompts" node to use the dynamically loaded schema.
+
+- [ ] 6.4. **Risk:**
+  - [ ] 6.4.1. Add a "Read File" node for `/schemas/v1/risk.schema.json` before "Risk Prompts".
+  - [ ] 6.4.2. Update the "Risk Prompts" node to use the dynamically loaded schema.

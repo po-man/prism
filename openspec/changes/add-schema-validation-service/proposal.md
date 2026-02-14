@@ -8,7 +8,7 @@ This change introduces a dedicated validation service to act as a gatekeeper, en
 ## What Changes
 - **Architecture:** A new Python-based microservice (e.g., using FastAPI) will be created to provide schema validation via a REST API.
 - **Schemas:** All schemas will be extracted from the n8n workflows and centralized in the `/schemas` directory, which will become the single source of truth. The existing `governance.schema.json` will be updated and potentially split into more granular schemas (financials, impact, etc.).
-- **Workflows:** The `Charity Analysis` workflow (`SUjUpjve9Vj6aJSbbuIWL.json`) will be modified. After each data extraction call to the Perplexity API, a new step will call the validation service. The workflow will only proceed to save the data to PocketBase if validation is successful.
+- **Workflows:** The `Charity Analysis` workflow (`SUjUpjve9Vj6aJSbbuIWL.json`) will be modified. Before each data extraction all to the Perplexity API, a new step will read the schema in order in construct the prompt. After each data extraction call to the Perplexity API, a new step will call the validation service. The workflow will only proceed to save the data to PocketBase if validation is successful.
 
 ## Impact
 - **Affected Specs:**
