@@ -1,10 +1,10 @@
 ## 1. Schema Centralization
 
-- [ ] 1.1. Create a new versioned directory for schemas: `schemas/v1/`.
-- [ ] 1.2. Extract the `financials` JSON schema from the "Financials Prompts" node in `SUjUpjve9Vj6aJSbbuIWL.json` and save it as `schemas/v1/financials.schema.json`.
-- [ ] 1.3. Extract the `impact` JSON schema from the "Impact Prompts" node and save it as `schemas/v1/impact.schema.json`.
-- [ ] 1.4. Extract the `governance` JSON schema from the "Governance Prompts" node and save it as `schemas/v1/governance.schema.json`.
-- [ ] 1.5. Extract the `risk` JSON schema from the "Risk Prompts" node and save it as `schemas/v1/risk.schema.json`.
+- [x] 1.1. Create a new versioned directory for schemas: `schemas/v1/`.
+- [x] 1.2. Extract the `financials` JSON schema from the "Financials Prompts" node in `SUjUpjve9Vj6aJSbbuIWL.json` and save it as `schemas/v1/financials.schema.json`.
+- [x] 1.3. Extract the `impact` JSON schema from the "Impact Prompts" node and save it as `schemas/v1/impact.schema.json`.
+- [x] 1.4. Extract the `governance` JSON schema from the "Governance Prompts" node and save it as `schemas/v1/governance.schema.json`.
+- [x] 1.5. Extract the `risk` JSON schema from the "Risk Prompts" node and save it as `schemas/v1/risk.schema.json`.
 - [ ] 1.6. Archive the old `schemas/governance.schema.json` as it is now superseded by the more granular, up-to-date schemas.
 
 ## 2. Create Validation Service
@@ -71,19 +71,19 @@ This section focuses on modifying the `Charity Analysis` workflow (`SUjUpjve9Vj6
 
 For each data extraction block (Financials, Impact, Governance, Risk):
 
-- [ ] 6.1. **Financials:**
-  - [ ] 6.1.1. Before the "Financials Prompts" node, add a "Read File" node named "Read Financials Schema".
-  - [ ] 6.1.2. Configure it to read the file at path `/schemas/v1/financials.schema.json` and output the content as a string.
-  - [ ] 6.1.3. Modify the "Financials Prompts" node. In the `user_prompt`, replace the hardcoded JSON schema with an expression that injects the output from the "Read Financials Schema" node.
+- [x] 6.1. **Financials:**
+  - [x] 6.1.1. Before the "Financials Prompts" node, add a "Read File" node named "Read Financials Schema".
+  - [x] 6.1.2. Configure it to read the file at path `/schemas/v1/financials.schema.json` and output the content as a string.
+  - [x] 6.1.3. Modify the "Financials Prompts" node. In the `user_prompt`, replace the hardcoded JSON schema with an expression that injects the output from the "Read Financials Schema" node.
 
-- [ ] 6.2. **Impact:**
-  - [ ] 6.2.1. Add a "Read File" node for `/schemas/v1/impact.schema.json` before "Impact Prompts".
-  - [ ] 6.2.2. Update the "Impact Prompts" node to use the dynamically loaded schema.
+- [x] 6.2. **Impact:**
+  - [x] 6.2.1. Add a "Read File" node for `/schemas/v1/impact.schema.json` before "Impact Prompts".
+  - [x] 6.2.2. Update the "Impact Prompts" node to use the dynamically loaded schema.
 
-- [ ] 6.3. **Governance:**
-  - [ ] 6.3.1. Add a "Read File" node for `/schemas/v1/governance.schema.json` before "Governance Prompts".
-  - [ ] 6.3.2. Update the "Governance Prompts" node to use the dynamically loaded schema.
+- [x] 6.3. **Governance:**
+  - [x] 6.3.1. Add a "Read File" node for `/schemas/v1/governance.schema.json` before "Governance Prompts".
+  - [x] 6.3.2. Update the "Governance Prompts" node to use the dynamically loaded schema.
 
-- [ ] 6.4. **Risk:**
-  - [ ] 6.4.1. Add a "Read File" node for `/schemas/v1/risk.schema.json` before "Risk Prompts".
-  - [ ] 6.4.2. Update the "Risk Prompts" node to use the dynamically loaded schema.
+- [x] 6.4. **Risk:**
+  - [x] 6.4.1. Add a "Read File" node for `/schemas/v1/risk.schema.json` before "Risk Prompts".
+  - [x] 6.4.2. Update the "Risk Prompts" node to use the dynamically loaded schema.
