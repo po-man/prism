@@ -54,6 +54,25 @@ Prioritize **"Counterfactual Impact"** (what happened vs. what would have happen
 * **Program Expense Ratio:** `Program Expenses / Total Expenses`.
     * *Benchmark:* > 70-80%.
 
+## Product Design: The Audit Checklist Model
+
+### Core Logic
+Instead of a single aggregate score, the system evaluates charities through a **Binary Audit Checklist**.
+- **Check-Items:** Atomic validation functions (e.g., `check_reserve_cap`, `check_unmodified_audit`).
+- **Results:** Each item returns a `pass` or `fail` status.
+- **Metadata:** Each item includes:
+    - `significance`: [HIGH | MEDIUM | LOW]
+    - `details`: Narrative explaining the formula and data source snippets.
+    - `category`: [Financial Health | Governance | Impact Awareness].
+
+### UI Ranking & Display
+- **Priority Sorting:** Failed items with 'HIGH' significance are bubbled to the top of the stack.
+- **Transparency:** Every item is expandable to show the exact calculation (e.g., "$HKD X (Reserve) / $HKD Y (Expenses) = 28%").
+
+### Implementation Strategy
+- **Logic Layer (utils_api):** The Python validation service is expanded to include a registry of audit functions.
+- **Data Persistence:** The `analytics` JSON field in PocketBase stores the array of check-item results.
+
 ## Important Constraints
 * **No Hallucinations:** Extracted data must cite a `source_url` and `text_snippet`. If data is missing, return `null`; do not guess.
 * **Offline First:** No external CDNs (Google Fonts, JSDelivr) in the final HTML. All assets must be bundled.
