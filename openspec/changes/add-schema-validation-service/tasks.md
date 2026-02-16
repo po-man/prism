@@ -48,7 +48,7 @@ This section focuses on modifying the `Charity Analysis` workflow (`SUjUpjve9Vj6
 
 ## 4. Documentation and Testing
 
-- [ ] 4.1. Update `openspec/project.md` to mention the new validation service in the architecture section.
+- [x] 4.1. Update `openspec/project.md` to mention the new validation service in the architecture section.
 - [ ] 4.2. Create unit tests for the validation service, including tests for valid data, invalid data (e.g., missing required field, wrong type), and non-existent schemas.
 - [x] 4.3. Manually run the updated n8n workflow to confirm that the validation steps work as expected for both success and failure cases.
 
