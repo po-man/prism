@@ -23,14 +23,16 @@ The CharityGrader project aims to democratize and automate philanthropic due dil
 ### Architecture Patterns
 * **OpenSpec Native:** No code without specs. Cycle: `Proposal -> Spec -> Tasks -> Implementation`.
 * **Separation of Concerns:**
-    * *Auditor Core:* Fetches and cleans data.
-    * *Data Vault:* Stores validated JSON.
-    * *Renderer:* Visualizes data.
+    * *Orchestrator (n8n):* Manages the data extraction and processing workflow.
+    * *Intelligence (LLM):* Extracts unstructured data from documents into JSON.
+    * *Validation Service (Python/FastAPI):* A microservice that ensures all extracted data conforms to centralized JSON schemas before persistence.
+    * *Data Vault (PocketBase):* Stores validated JSON artifacts and source documents.
+    * *Renderer (Hugo):* Visualizes the final data as static report cards.
 * **Offline Sovereignty:** The final build must function without a backend, database, or internet connection.
 * **Human-in-the-Loop:** Subjective AI judgments (e.g., "High Risk") are flagged for review via `warnings.log`, not auto-published.
 
 ### Testing Strategy
-* **Schema Validation:** The primary "test" is strict adherence to the JSON schema during the extraction phase.
+* **Schema Validation:** A dedicated validation microservice strictly enforces adherence to centralized JSON schemas for all data before it is persisted.
 * **Logic Verification:** Unit tests for financial ratio calculations (e.g., Liquidity Ratio, Program Expense Ratio).
 * **Build Integrity:** Hugo build fails if data templates encounter missing required fields.
 
