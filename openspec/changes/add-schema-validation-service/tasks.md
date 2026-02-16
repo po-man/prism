@@ -5,7 +5,7 @@
 - [x] 1.3. Extract the `impact` JSON schema from the "Impact Prompts" node and save it as `schemas/v1/impact.schema.json`.
 - [x] 1.4. Extract the `governance` JSON schema from the "Governance Prompts" node and save it as `schemas/v1/governance.schema.json`.
 - [x] 1.5. Extract the `risk` JSON schema from the "Risk Prompts" node and save it as `schemas/v1/risk.schema.json`.
-- [ ] 1.6. Archive the old `schemas/governance.schema.json` as it is now superseded by the more granular, up-to-date schemas.
+- [x] 1.6. Archive the old `schemas/governance.schema.json` as it is now superseded by the more granular, up-to-date schemas.
 
 ## 2. Create Validation Service
 
@@ -49,7 +49,7 @@ This section focuses on modifying the `Charity Analysis` workflow (`SUjUpjve9Vj6
 ## 4. Documentation and Testing
 
 - [x] 4.1. Update `openspec/project.md` to mention the new validation service in the architecture section.
-- [ ] 4.2. Create unit tests for the validation service, including tests for valid data, invalid data (e.g., missing required field, wrong type), and non-existent schemas.
+- [x] 4.2. Create unit tests for the validation service, including tests for valid data, invalid data (e.g., missing required field, wrong type), and non-existent schemas.
 - [x] 4.3. Manually run the updated n8n workflow to confirm that the validation steps work as expected for both success and failure cases.
 
 ## 5. Update Docker Configuration
