@@ -1,8 +1,8 @@
 # Implementation Tasks
 
 ## 1. Schema & Data Structure
-- [ ] 1.1 Create `schemas/v1/analytics.schema.json` defining the checklist array (pass/fail, significance, details).
-- [ ] 1.2 Update PocketBase `organisations` collection to include the `analytics` JSON field.
+- [x] 1.1 Create `schemas/v1/analytics.schema.json` defining the checklist array (pass/fail, significance, details).
+- [x] 1.2 Update PocketBase `organisations` collection to include the `analytics` JSON field.
 
 ## 2. Logic Layer (utils_api) Enhancement
 - [ ] 2.1 Implement `/audit` endpoint in `utils_api/app/main.py`.
