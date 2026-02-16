@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analytics Check-Item Schema",
+  "description": "Schema for the results of the pass/fail audit checklist.",
+  "type": "object",
+  "properties": {
+    "analytics": {
+      "type": "array",
+      "description": "A list of audit check-item results.",
+      "items": {
+        "$ref": "#/definitions/checkItem"
+      }
+    }
+  },
+  "required": ["analytics"],
+  "definitions": {
+    "checkItem": {
+      "type": "object",
+      "description": "A single audit check-item result.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug for the check-item (e.g., 'check_reserve_cap')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The result status of the check.",
+          "enum": ["pass", "fail", "warning", "null"]
+        },
+        "significance": {
+          "type": "string",
+          "description": "The priority or importance of the check.",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "category": {
+          "type": "string",
+          "description": "The domain of the audit check.",
+          "enum": [
+            "Financial Health",
+            "Governance",
+            "Impact Awareness",
+            "Risk Management"
+          ]
+        },
+        "details": {
+          "type": "object",
+          "description": "Transparent details about how the result was obtained.",
+          "properties": {
+            "formula": {
+              "type": "string",
+              "description": "The generic formula used for the check."
+            },
+            "calculation": {
+              "type": "string",
+              "description": "The specific calculation with values for this charity."
+            },
+            "source_snippets": {
+              "type": "array",
+              "description": "Snippets from source documents providing evidence.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string", "format": "uri" },
+                  "page": { "type": "integer" },
+                  "snippet": { "type": "string" }
+                },
+                "required": ["url", "page", "snippet"]
+              }
+            }
+          },
+          "required": ["formula", "calculation", "source_snippets"]
+        }
+      },
+      "required": ["id", "status", "significance", "category", "details"]
+    }
+  }
+}
