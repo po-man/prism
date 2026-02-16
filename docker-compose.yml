@@ -63,3 +63,16 @@ services:
       - 8080:8080
     environment:
       - SECURITY_CUSTOMGLOBALAPIKEY=${PDF_API_KEY}
+
+  utils_api:
+    build:
+      context: ./utils_api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./schemas:/schemas:ro # Mount schemas read-only
+    environment:
+      - SCHEMA_DIR=/schemas
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
