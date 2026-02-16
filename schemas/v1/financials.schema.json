@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Charity Financials",
+  "description": "Schema for financial data extracted from a charity's annual financial report.",
+  "type": "object",
+  "properties": {
+    "financial_year": {
+      "type": "string",
+      "description": "The financial year of the report, e.g., '2024-25'."
+    },
+    "income": {
+      "type": "object",
+      "description": "Breakdown of income sources.",
+      "properties": {
+        "donations": {
+          "type": ["number", "null"],
+          "description": "Voluntary contributions, sponsorships, or public donations."
+        },
+        "government_grants": {
+          "type": ["number", "null"],
+          "description": "Total SWD subvention, including LSG, Rent & Rates, and Central Items."
+        },
+        "total": {
+          "type": ["number", "null"],
+          "description": "Total Revenue/Income for the year."
+        }
+      },
+      "required": ["donations", "government_grants", "total"]
+    },
+    "expenditure": {
+      "type": "object",
+      "description": "Breakdown of expenditures.",
+      "properties": {
+        "administration": {
+          "type": ["number", "null"],
+          "description": "Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses."
+        },
+        "fundraising": {
+          "type": ["number", "null"],
+          "description": "Costs related to appeals, flag days, or donation solicitations."
+        },
+        "program_services": {
+          "type": ["number", "null"],
+          "description": "Costs directly attributed to welfare services."
+        },
+        "total": {
+          "type": ["number", "null"],
+          "description": "Total Expenditure/Expenses for the year."
+        }
+      },
+      "required": ["administration", "fundraising", "program_services", "total"]
+    },
+    "lsg_specifics": {
+      "type": "object",
+      "description": "Lump Sum Grant (LSG) specific figures.",
+      "properties": {
+        "lsg_reserve_amount": { "type": ["number", "null"] },
+        "provident_fund_reserve": { "type": ["number", "null"] }
+      },
+      "required": ["lsg_reserve_amount", "provident_fund_reserve"]
+    },
+    "ratio_inputs": {
+      "type": "object",
+      "description": "Inputs for calculating financial ratios.",
+      "properties": {
+        "monthly_operating_expenses": { "type": ["number", "null"] },
+        "net_current_assets": { "type": ["number", "null"] }
+      },
+      "required": ["monthly_operating_expenses", "net_current_assets"]
+    }
+  },
+  "required": ["financial_year", "income", "expenditure", "lsg_specifics", "ratio_inputs"]
+}
