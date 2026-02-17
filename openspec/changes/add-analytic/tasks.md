@@ -5,12 +5,12 @@
 - [x] 1.2 Update PocketBase `organisations` collection to include the `analytics` JSON field.
 
 ## 2. Logic Layer (utils_api) Enhancement
-- [ ] 2.1 Implement `/audit` endpoint in `utils_api/app/main.py`.
+- [x] 2.1 Implement `/audit` endpoint in `utils_api/app/main.py`.
 - [ ] 2.2 Develop core audit functions:
     - `check_reserve_cap`: `lsg_reserve_amount / operating_expenditure` (Fail if > 0.25).
     - `check_liquidity`: `net_current_assets / monthly_operating_expenses` (Fail if < 3).
     - `check_remuneration`: Check for presence of `rem_pkg_review_report`.
-- [ ] 2.3 Implement the registry pattern to execute all checks and return a unified result object.
+- [x] 2.3 Implement the registry pattern to execute all checks and return a unified result object.
 
 ## 3. n8n Workflow Integration
 - [ ] 3.1 Add an HTTP node "Compute Audit Analytics" after the final extraction merge.
