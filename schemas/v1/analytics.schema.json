@@ -53,22 +53,9 @@
             "calculation": {
               "type": "string",
               "description": "The specific calculation with values for this charity."
-            },
-            "source_snippets": {
-              "type": "array",
-              "description": "Snippets from source documents providing evidence.",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "url": { "type": "string", "format": "uri" },
-                  "page": { "type": "integer" },
-                  "snippet": { "type": "string" }
-                },
-                "required": ["url", "page", "snippet"]
-              }
             }
           },
-          "required": ["formula", "calculation", "source_snippets"]
+          "required": ["formula", "calculation"]
         }
       },
       "required": ["id", "status", "significance", "category", "details"]
