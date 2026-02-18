@@ -48,12 +48,12 @@ def test_run_audit_with_full_data(client: TestClient):
     assert response.status_code == 200
     result = response.json()
 
-    assert "analytics" in result
-    assert isinstance(result["analytics"], list)
-    assert len(result["analytics"]) == 3  # Based on current registry
+    assert "check_items" in result
+    assert isinstance(result["check_items"], list)
+    assert len(result["check_items"]) == 3  # Based on current registry
 
     # Check for the IDs of the registered audit checks
-    check_ids = {item["id"] for item in result["analytics"]}
+    check_ids = {item["id"] for item in result["check_items"]}
     assert "check_reserve_cap" in check_ids
     assert "check_liquidity" in check_ids
     assert "check_remuneration" in check_ids
@@ -67,4 +67,4 @@ def test_run_audit_with_empty_data(client: TestClient):
     response = client.post("/audit", json={})
     assert response.status_code == 200
     result = response.json()
-    assert len(result["analytics"]) == 3
+    assert len(result["check_items"]) == 3
