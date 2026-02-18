@@ -13,44 +13,40 @@ VALID_FINANCIALS = {
 }
 
 VALID_IMPACT = {
-    "impact": {
-        "importance_factors": {
-            "beneficiaries_demographic": [{
-                "location": "HK", "gender": "female", "age_range": "20-30",
-                "population": 100, "beneficiary_type": "human"
-            }],
-            "problem_profile": {
-                "problem_name": "Problem X", "target_population": "Group Y",
-                "severity_dimensions": [{
-                    "dimension": "Health", "metric_name": "QALY",
-                    "quantitative_data": {"value": 10, "unit": "years"},
-                    "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline"},
-                    "evidence_quality": "High", "source_citation": "Source Z"
-                }]
-            }
-        },
-        "tractability_factors": {"significant_events": [{"event_name": "E1", "summary": "S1"}], "evaluation_systems": "System A"},
-        "neglectedness_factors": {"funding_sources": ["Gov"], "funding_landscape": "Crowded"}
-    }
+    "importance_factors": {
+        "beneficiaries_demographic": [{
+            "location": "HK", "gender": "female", "age_range": "20-30",
+            "population": 100, "beneficiary_type": "human"
+        }],
+        "problem_profile": {
+            "problem_name": "Problem X", "target_population": "Group Y",
+            "severity_dimensions": [{
+                "dimension": "Health", "metric_name": "QALY",
+                "quantitative_data": {"value": 10, "unit": "years"},
+                "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline"},
+                "evidence_quality": "High", "source_citation": "Source Z"
+            }]
+        }
+    },
+    "tractability_factors": {"significant_events": [{"event_name": "E1", "summary": "S1"}], "evaluation_systems": "System A"},
+    "neglectedness_factors": {"funding_sources": ["Gov"], "funding_landscape": "Crowded"}
 }
 
 VALID_GOVERNANCE = {
-    "governance": {
-        "structure": {
-            "board_size": 10,
-            "board_members": [{"name": "John Doe", "title": "Chairman", "is_executive": False}],
-            "committees": ["Audit"]
-        },
-        "leadership": {"ceo_name": "Jane Doe", "ceo_title": "CEO"},
-        "remuneration_disclosure": {
-            "source_document_present": True, "top_tier_total_salary": 100000,
-            "second_tier_total_salary": 80000, "third_tier_total_salary": 60000,
-            "review_date": "2023-01-01"
-        },
-        "policies": {
-            "has_conflict_of_interest": True, "has_whistleblowing": True,
-            "has_investment_policy": True, "has_procurement_policy": False
-        }
+    "structure": {
+        "board_size": 10,
+        "board_members": [{"name": "John Doe", "title": "Chairman", "is_executive": False}],
+        "committees": ["Audit"]
+    },
+    "leadership": {"ceo_name": "Jane Doe", "ceo_title": "CEO"},
+    "remuneration_disclosure": {
+        "source_document_present": True, "top_tier_total_salary": 100000,
+        "second_tier_total_salary": 80000, "third_tier_total_salary": 60000,
+        "review_date": "2023-01-01"
+    },
+    "policies": {
+        "has_conflict_of_interest": True, "has_whistleblowing": True,
+        "has_investment_policy": True, "has_procurement_policy": False
     }
 }
 
@@ -89,23 +85,18 @@ def test_validate_valid_data(client, schema_name, valid_data):
     }, "'income' is a required property"),
     # Impact: wrong type for a nested field
     ("v1/impact.schema.json", {
-        "impact": {
-            **VALID_IMPACT["impact"],
-            "importance_factors": {
-                **VALID_IMPACT["impact"]["importance_factors"],
-                "beneficiaries_demographic": "not-an-array"
-            }
+        **VALID_IMPACT,
+        "importance_factors": {
+            **VALID_IMPACT["importance_factors"],
+            "beneficiaries_demographic": "not-an-array"
         }
     }, "is not of type 'array'"),
     # Governance: missing a required field in a nested object
     ("v1/governance.schema.json", {
         **VALID_GOVERNANCE,
-        "governance": {
-            **VALID_GOVERNANCE["governance"],
-            "structure": {
-                k: v for k, v in VALID_GOVERNANCE["governance"]["structure"].items()
-                if k != "board_members"
-            }
+        "structure": {
+            k: v for k, v in VALID_GOVERNANCE["structure"].items()
+            if k != "board_members"
         }
     }, "'board_members' is a required property"),
     # Risk: wrong enum value
