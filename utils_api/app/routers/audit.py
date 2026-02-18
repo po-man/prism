@@ -17,4 +17,4 @@ async def run_audit(record: OrganisationRecord = Body(...)):
     """
     results: List[AuditCheckItem] = [check(record) for check in AUDIT_CHECKS]
 
-    return AuditResult(analytics=results)
+    return AuditResult(check_items=results)

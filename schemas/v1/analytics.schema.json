@@ -4,7 +4,7 @@
   "description": "Schema for the results of the pass/fail audit checklist.",
   "type": "object",
   "properties": {
-    "analytics": {
+    "check_items": {
       "type": "array",
       "description": "A list of audit check-item results.",
       "items": {
@@ -12,7 +12,7 @@
       }
     }
   },
-  "required": ["analytics"],
+  "required": ["check_items"],
   "definitions": {
     "checkItem": {
       "type": "object",
