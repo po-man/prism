@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-18T13:35:45.553Z",
+  "updatedAt": "2026-02-18T15:53:55.018Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2667,6 +2667,11 @@
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2779,6 +2784,35 @@
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
       "name": "Schema Validation (Analytics)"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        6320
+      ],
+      "id": "2305608b-3a7a-4308-b756-d42e84750744",
+      "name": "Convert to File (output Organisation)"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/home/node/.n8n-files/data/organisations/{{ $('Storage API - Update Charity - Analytics').item.json.id }}.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        6320
+      ],
+      "id": "2f997672-e136-41b1-978a-5f70efc0c365",
+      "name": "Write to data/organisations/{id}.json"
     }
   ],
   "connections": {
@@ -4025,6 +4059,28 @@
           }
         ]
       ]
+    },
+    "Storage API - Update Charity - Analytics": {
+      "main": [
+        [
+          {
+            "node": "Convert to File (output Organisation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File (output Organisation)": {
+      "main": [
+        [
+          {
+            "node": "Write to data/organisations/{id}.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4036,27 +4092,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "80888497-cf70-4f51-a02b-cd7fe7ba19c1",
+  "versionId": "990985fa-6916-4631-be58-4705570a63a2",
   "activeVersionId": null,
-  "versionCounter": 265,
+  "versionCounter": 267,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-14T07:24:42.937Z",
-      "createdAt": "2026-02-14T07:24:42.937Z",
+      "updatedAt": "2026-02-18T15:52:42.515Z",
+      "createdAt": "2026-02-18T15:52:42.515Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "nLM2GwAqwtjCNij2",
+      "projectId": "kBOAoX0Qe57IJvq3",
       "project": {
-        "updatedAt": "2026-02-14T07:24:59.020Z",
-        "createdAt": "2026-02-14T07:24:40.744Z",
-        "id": "nLM2GwAqwtjCNij2",
+        "updatedAt": "2026-02-18T15:52:53.130Z",
+        "createdAt": "2026-02-18T15:52:41.104Z",
+        "id": "kBOAoX0Qe57IJvq3",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "e8fe8e9e-8bf3-48a0-9a55-19ef75676263"
+        "creatorId": "6e3be0d9-fe85-4c24-a71b-fe69260440f8"
       }
     }
   ]
