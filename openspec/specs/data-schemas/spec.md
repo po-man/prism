@@ -6,11 +6,10 @@ TBD - created by archiving change add-governance-schema. Update Purpose after ar
 ### Requirement: Master Governance Schema
 The system SHALL utilize a set of strict, centralized JSON Schemas to validate all charity audit data. These schemas MUST be the single source of truth for data structure.
 
-#### Scenario: Validating audit output
-- **GIVEN** an AI agent has extracted data from a document for a specific domain (e.g., financials)
-- **WHEN** the data is passed to the validation service
-- **THEN** the service MUST load the corresponding schema from the `/schemas` directory (e.g., `schemas/v1/financials.schema.json`) to perform validation.
-- **AND** the output MUST validate against that schema.
+#### Scenario: Validating analytic output
+- **GIVEN** the analytical engine has completed the check-item processing
+- **WHEN** the results are passed to the validation service
+- **THEN** the service MUST load `schemas/v1/analytics.schema.json` to perform validation.
 
 ### Requirement: Traceability & Provenance
 Every extracted data point MUST include a direct citation to its source to ensure auditability.
@@ -48,4 +47,22 @@ The schema SHALL structure impact data according to the "Hierarchy of Evidence" 
   - `"Pre-Post"` (Before/After comparison only)
   - `"Anecdotal"` (Stories/Testimonials only)
   - `"None"` (No data provided)
+
+### Requirement: Analytics Check-Item Schema
+The system SHALL define a schema for the `analytics` field that captures the results of the pass/fail audit checklist.
+
+#### Scenario: Validating a Check-Item Result
+- **THEN** the schema MUST require the following properties for each item:
+  - `id`: Unique slug (e.g., `check_reserve_cap`).
+  - `status`: Enum `["pass", "fail", "warning", "null"]`.
+  - `significance`: Enum `["HIGH", "MEDIUM", "LOW"]`.
+  - `category`: Enum `["Financial Health", "Governance", "Impact Awareness", "Risk Management"]`.
+  - `details`: Object containing `formula`, `calculation`, and `source_snippets`.
+
+### Requirement: Formula Transparency
+Every analytical check-item MUST provide the raw arithmetic used to reach its conclusion to ensure user-verifiability.
+
+#### Scenario: Explaining the Reserve Ratio
+- **WHEN** the `check_reserve_cap` fails
+- **THEN** the `details.calculation` MUST stringify the values: `"($HKD 1,000,000 / $HKD 3,000,000) = 33.3% > 25% cap"`.
 

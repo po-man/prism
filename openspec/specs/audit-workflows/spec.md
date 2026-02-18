@@ -6,10 +6,10 @@ TBD - created by archiving change add-audit-workflows. Update Purpose after arch
 ### Requirement: Idempotent Execution & State Persistence
 The system SHALL employ a checkpointing strategy to ensure that high-cost operations are not repeated unnecessarily.
 
-#### Scenario: Cache Hit (Skip Execution)
-- **WHEN** a sub-workflow is triggered
-- **AND** a valid cache file exists
-- **THEN** the system MUST read and return the data from the file.
+#### Scenario: Analytical Re-run
+- **WHEN** raw data (financials/governance) exists in PocketBase
+- **AND** only the audit logic in `utils_api` has changed
+- **THEN** the system MUST be able to re-run the analytics phase without re-extracting data from PDFs.
 
 ### Requirement: Source Artifact Persistence
 The system SHALL download and store the raw source documents (PDFs) locally to ensure audit reproducibility and offline availability.
@@ -45,4 +45,13 @@ The system SHALL NOT infer data that is not explicitly present in the text.
 #### Scenario: Ambiguous Financials
 - **WHEN** the document does not explicitly state "Program Expenses"
 - **THEN** the agent MUST return `null`.
+
+### Requirement: Binary Audit Computation
+The system MUST compute a series of pass/fail check-items based on extracted statutory and financial data.
+
+#### Scenario: Reserve Cap Validation
+- **GIVEN** an NGO has a cumulative LSG reserve of $1M and operating expenses of $3M
+- **WHEN** the audit logic calculates the ratio (0.33)
+- **THEN** the `check_reserve_cap` item MUST return `status: "fail"`
+- **AND** include the calculation details in the `details` field.
 
