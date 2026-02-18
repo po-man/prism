@@ -1,16 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional
 
-class OrganisationFinancials(BaseModel):
-    """Schema for an organisation's financial data."""
-    lsg_reserve_amount: Optional[float] = None
-    operating_expenditure: Optional[float] = None
-    net_current_assets: Optional[float] = None
-    monthly_operating_expenses: Optional[float] = None
+from app.services.model_generator import create_dynamic_model
 
-class OrganisationGovernance(BaseModel):
-    """Schema for an organisation's governance data."""
-    rem_pkg_review_report_present: Optional[bool] = Field(None, alias="rem_pkg_review_report")
+
+# Dynamically create Pydantic models from JSON schemas
+OrganisationFinancials = create_dynamic_model("v1/financials.schema.json")
+OrganisationGovernance = create_dynamic_model("v1/governance.schema.json")
 
 class OrganisationRecord(BaseModel):
     """
