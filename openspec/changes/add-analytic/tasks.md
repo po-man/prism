@@ -6,7 +6,7 @@
 
 ## 2. Logic Layer (utils_api) Enhancement
 - [x] 2.1 Implement `/audit` endpoint in `utils_api/app/main.py`.
-- [ ] 2.2 Develop core audit functions:
+- [x] 2.2 Develop core audit functions:
     - `check_reserve_cap`: `lsg_reserve_amount / operating_expenditure` (Fail if > 0.25).
     - `check_liquidity`: `net_current_assets / monthly_operating_expenses` (Fail if < 3).
     - `check_remuneration`: Check for presence of `rem_pkg_review_report`.
