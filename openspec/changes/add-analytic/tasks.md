@@ -17,6 +17,6 @@
 - [x] 3.2 Update "Update Charity" nodes to persist the returned audit results.
 
 ## 4. UI Layer (Hugo)
-- [ ] 4.1 Create Tailwind CSS components for the expandable checklist items.
-- [ ] 4.2 Implement Hugo template logic to sort items by significance (HIGH > MEDIUM > LOW) and status (FAILED first).
-- [ ] 4.3 Add visual "Traffic Light" indicators for HIGH-significance failures.
+- [x] 4.1 Create Tailwind CSS components for the expandable checklist items.
+- [x] 4.2 Implement Hugo template logic to sort items by significance (HIGH > MEDIUM > LOW) and status (FAILED first).
+- [x] 4.3 Add visual "Traffic Light" indicators for HIGH-significance failures.
