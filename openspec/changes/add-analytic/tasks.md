@@ -13,8 +13,8 @@
 - [x] 2.3 Implement the registry pattern to execute all checks and return a unified result object.
 
 ## 3. n8n Workflow Integration
-- [ ] 3.1 Add an HTTP node "Compute Audit Analytics" after the final extraction merge.
-- [ ] 3.2 Update "Update Charity" nodes to persist the returned audit results.
+- [x] 3.1 Add an HTTP node "Compute Audit Analytics" after the final extraction merge.
+- [x] 3.2 Update "Update Charity" nodes to persist the returned audit results.
 
 ## 4. UI Layer (Hugo)
 - [ ] 4.1 Create Tailwind CSS components for the expandable checklist items.
