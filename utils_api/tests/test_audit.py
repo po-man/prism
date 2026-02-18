@@ -1,15 +1,6 @@
-import pytest
 from fastapi.testclient import TestClient
 
 from app.schemas.organisation import OrganisationRecord
-
-
-@pytest.fixture(scope="module")
-def client():
-    """A TestClient fixture that imports the app after the environment is set."""
-    from app.main import app  # Import here to ensure SCHEMA_DIR is set
-    with TestClient(app) as c:
-        yield c
 
 
 def test_run_audit_with_full_data(client: TestClient):

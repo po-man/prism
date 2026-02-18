@@ -1,28 +1,6 @@
-import os
-from pathlib import Path
-
 import pytest
 from fastapi.testclient import TestClient
 
-
-@pytest.fixture(scope="session", autouse=True)
-def set_schema_dir():
-    """
-    Set the SCHEMA_DIR environment variable before any tests run.
-    This fixture is autouse=True and session-scoped to ensure it runs once
-    at the beginning of the test session, before any modules are imported by fixtures.
-    """
-    # The project root for utils_api is the parent of the 'tests' directory
-    utils_api_root = Path(__file__).parent.parent
-    os.environ["SCHEMA_DIR"] = str(utils_api_root.parent / "schemas")
-
-
-@pytest.fixture(scope="module")
-def client():
-    """A TestClient fixture that imports the app after the environment is set."""
-    from app.main import app  # Import here to ensure SCHEMA_DIR is set
-    with TestClient(app) as c:
-        yield c
 
 # --- Test Data ---
 
@@ -140,8 +118,6 @@ def test_validate_invalid_data(client, schema_name, invalid_data, expected_error
     result = response.json()
     assert result["valid"] is False
     assert "details" in result
-    print("message")
-    print(result["details"]["message"])
     assert expected_error_part in result["details"]["message"]
 
 
