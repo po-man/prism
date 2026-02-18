@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-16T10:42:50.800Z",
+  "updatedAt": "2026-02-18T13:35:45.553Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2117,7 +2117,10 @@
     },
     {
       "parameters": {
-        "numberInputs": 4
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
@@ -2526,6 +2529,12 @@
               "name": "risk_schema",
               "value": "v1/risk.schema.json",
               "type": "string"
+            },
+            {
+              "id": "3c26dc4b-0871-480a-ac8b-4ce09a5291f9",
+              "name": "analytics_schema",
+              "value": "v1/analytics.schema.json",
+              "type": "string"
             }
           ]
         },
@@ -2651,6 +2660,125 @@
       ],
       "id": "d92bea68-280c-408b-9104-a2103a4d3803",
       "name": "Schema Validation (Governance)"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        6320
+      ],
+      "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
+      "name": "Storage API - Get Charity for analytics",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/audit",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "financials",
+              "value": "={{ $json.financials.data }}"
+            },
+            {
+              "name": "governance",
+              "value": "={{ $json.governance.data }}"
+            },
+            {
+              "name": "impact",
+              "value": "={{ $json.impact.data }}"
+            },
+            {
+              "name": "risk",
+              "value": "={{ $json.risk.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -560,
+        6320
+      ],
+      "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
+      "name": "Analytics"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "analytics",
+              "value": "={{ $('Analytics').item.json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        6320
+      ],
+      "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
+      "name": "Storage API - Update Charity - Analytics",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "schema_name",
+              "value": "={{ $('Vars - Utils API & Schemas').item.json.analytics_schema }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -336,
+        6320
+      ],
+      "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
+      "name": "Schema Validation (Analytics)"
     }
   ],
   "connections": {
@@ -3853,6 +3981,50 @@
         ],
         []
       ]
+    },
+    "Wait until all analysis done": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity for analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity for analytics": {
+      "main": [
+        [
+          {
+            "node": "Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analytics": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Analytics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schema Validation (Analytics)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3864,9 +4036,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "c6db238b-0e74-4605-b971-3db6356bedc5",
+  "versionId": "80888497-cf70-4f51-a02b-cd7fe7ba19c1",
   "activeVersionId": null,
-  "versionCounter": 264,
+  "versionCounter": 265,
   "triggerCount": 0,
   "tags": [],
   "shared": [
