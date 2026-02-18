@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-16T10:42:50.800Z",
+  "updatedAt": "2026-02-18T15:53:55.018Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2117,7 +2117,10 @@
     },
     {
       "parameters": {
-        "numberInputs": 4
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
@@ -2526,6 +2529,12 @@
               "name": "risk_schema",
               "value": "v1/risk.schema.json",
               "type": "string"
+            },
+            {
+              "id": "3c26dc4b-0871-480a-ac8b-4ce09a5291f9",
+              "name": "analytics_schema",
+              "value": "v1/analytics.schema.json",
+              "type": "string"
             }
           ]
         },
@@ -2651,6 +2660,159 @@
       ],
       "id": "d92bea68-280c-408b-9104-a2103a4d3803",
       "name": "Schema Validation (Governance)"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        6320
+      ],
+      "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
+      "name": "Storage API - Get Charity for analytics",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/audit",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "financials",
+              "value": "={{ $json.financials.data }}"
+            },
+            {
+              "name": "governance",
+              "value": "={{ $json.governance.data }}"
+            },
+            {
+              "name": "impact",
+              "value": "={{ $json.impact.data }}"
+            },
+            {
+              "name": "risk",
+              "value": "={{ $json.risk.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -560,
+        6320
+      ],
+      "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
+      "name": "Analytics"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "analytics",
+              "value": "={{ $('Analytics').item.json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        6320
+      ],
+      "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
+      "name": "Storage API - Update Charity - Analytics",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "schema_name",
+              "value": "={{ $('Vars - Utils API & Schemas').item.json.analytics_schema }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -336,
+        6320
+      ],
+      "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
+      "name": "Schema Validation (Analytics)"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        96,
+        6320
+      ],
+      "id": "2305608b-3a7a-4308-b756-d42e84750744",
+      "name": "Convert to File (output Organisation)"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/home/node/.n8n-files/data/organisations/{{ $('Storage API - Update Charity - Analytics').item.json.id }}.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        6320
+      ],
+      "id": "2f997672-e136-41b1-978a-5f70efc0c365",
+      "name": "Write to data/organisations/{id}.json"
     }
   ],
   "connections": {
@@ -3853,6 +4015,72 @@
         ],
         []
       ]
+    },
+    "Wait until all analysis done": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity for analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity for analytics": {
+      "main": [
+        [
+          {
+            "node": "Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analytics": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Analytics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schema Validation (Analytics)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Analytics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Charity - Analytics": {
+      "main": [
+        [
+          {
+            "node": "Convert to File (output Organisation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File (output Organisation)": {
+      "main": [
+        [
+          {
+            "node": "Write to data/organisations/{id}.json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3864,27 +4092,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "c6db238b-0e74-4605-b971-3db6356bedc5",
+  "versionId": "990985fa-6916-4631-be58-4705570a63a2",
   "activeVersionId": null,
-  "versionCounter": 264,
+  "versionCounter": 267,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-14T07:24:42.937Z",
-      "createdAt": "2026-02-14T07:24:42.937Z",
+      "updatedAt": "2026-02-18T15:52:42.515Z",
+      "createdAt": "2026-02-18T15:52:42.515Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "nLM2GwAqwtjCNij2",
+      "projectId": "kBOAoX0Qe57IJvq3",
       "project": {
-        "updatedAt": "2026-02-14T07:24:59.020Z",
-        "createdAt": "2026-02-14T07:24:40.744Z",
-        "id": "nLM2GwAqwtjCNij2",
+        "updatedAt": "2026-02-18T15:52:53.130Z",
+        "createdAt": "2026-02-18T15:52:41.104Z",
+        "id": "kBOAoX0Qe57IJvq3",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "e8fe8e9e-8bf3-48a0-9a55-19ef75676263"
+        "creatorId": "6e3be0d9-fe85-4c24-a71b-fe69260440f8"
       }
     }
   ]

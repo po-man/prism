@@ -4,77 +4,71 @@
   "description": "Schema for governance data extracted from a charity's annual and remuneration reports.",
   "type": "object",
   "properties": {
-    "governance": {
+    "structure": {
       "type": "object",
       "properties": {
-        "structure": {
-          "type": "object",
-          "properties": {
-            "board_size": {
-              "type": ["number", "null"]
+        "board_size": {
+          "type": ["number", "null"]
+        },
+        "board_members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "title": { "type": "string" },
+              "is_executive": { "type": "boolean" }
             },
-            "board_members": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "name": { "type": "string" },
-                  "title": { "type": "string" },
-                  "is_executive": { "type": "boolean" }
-                },
-                "required": ["name", "title", "is_executive"]
-              }
-            },
-            "committees": {
-              "type": "array",
-              "items": { "type": "string" }
-            }
-          },
-          "required": ["board_size", "board_members", "committees"]
+            "required": ["name", "title", "is_executive"]
+          }
         },
-        "leadership": {
-          "type": "object",
-          "properties": {
-            "ceo_name": { "type": ["string", "null"] },
-            "ceo_title": { "type": ["string", "null"] }
-          },
-          "required": ["ceo_name", "ceo_title"]
-        },
-        "remuneration_disclosure": {
-          "type": "object",
-          "properties": {
-            "source_document_present": { "type": "boolean" },
-            "top_tier_total_salary": { "type": ["number", "null"] },
-            "second_tier_total_salary": { "type": ["number", "null"] },
-            "third_tier_total_salary": { "type": ["number", "null"] },
-            "review_date": { "type": ["string", "null"], "format": "date" }
-          },
-          "required": [
-            "source_document_present",
-            "top_tier_total_salary",
-            "second_tier_total_salary",
-            "third_tier_total_salary",
-            "review_date"
-          ]
-        },
-        "policies": {
-          "type": "object",
-          "properties": {
-            "has_conflict_of_interest": { "type": "boolean" },
-            "has_whistleblowing": { "type": "boolean" },
-            "has_investment_policy": { "type": "boolean" },
-            "has_procurement_policy": { "type": "boolean" }
-          },
-          "required": [
-            "has_conflict_of_interest",
-            "has_whistleblowing",
-            "has_investment_policy",
-            "has_procurement_policy"
-          ]
+        "committees": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       },
-      "required": ["structure", "leadership", "remuneration_disclosure", "policies"]
+      "required": ["board_size", "board_members", "committees"]
+    },
+    "leadership": {
+      "type": "object",
+      "properties": {
+        "ceo_name": { "type": ["string", "null"] },
+        "ceo_title": { "type": ["string", "null"] }
+      },
+      "required": ["ceo_name", "ceo_title"]
+    },
+    "remuneration_disclosure": {
+      "type": "object",
+      "properties": {
+        "source_document_present": { "type": "boolean" },
+        "top_tier_total_salary": { "type": ["number", "null"] },
+        "second_tier_total_salary": { "type": ["number", "null"] },
+        "third_tier_total_salary": { "type": ["number", "null"] },
+        "review_date": { "type": ["string", "null"], "format": "date" }
+      },
+      "required": [
+        "source_document_present",
+        "top_tier_total_salary",
+        "second_tier_total_salary",
+        "third_tier_total_salary",
+        "review_date"
+      ]
+    },
+    "policies": {
+      "type": "object",
+      "properties": {
+        "has_conflict_of_interest": { "type": "boolean" },
+        "has_whistleblowing": { "type": "boolean" },
+        "has_investment_policy": { "type": "boolean" },
+        "has_procurement_policy": { "type": "boolean" }
+      },
+      "required": [
+        "has_conflict_of_interest",
+        "has_whistleblowing",
+        "has_investment_policy",
+        "has_procurement_policy"
+      ]
     }
   },
-  "required": ["governance"]
+  "required": ["structure", "leadership", "remuneration_disclosure", "policies"]
 }

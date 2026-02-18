@@ -4,94 +4,88 @@
   "description": "Schema for impact metrics based on the Importance, Tractability, and Neglectedness (ITN) framework.",
   "type": "object",
   "properties": {
-    "impact": {
+    "importance_factors": {
       "type": "object",
       "properties": {
-        "importance_factors": {
+        "beneficiaries_demographic": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "location": { "type": "string" },
+              "gender": { "type": "string", "enum": ["male", "female", "non-specific"] },
+              "age_range": { "type": "string" },
+              "population": { "type": ["number", "null"] },
+              "beneficiary_type": { "type": "string", "enum": ["human", "non-human"] }
+            },
+            "required": ["location", "gender", "age_range", "population", "beneficiary_type"]
+          }
+        },
+        "problem_profile": {
           "type": "object",
           "properties": {
-            "beneficiaries_demographic": {
+            "problem_name": { "type": "string" },
+            "target_population": { "type": "string" },
+            "severity_dimensions": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
-                  "location": { "type": "string" },
-                  "gender": { "type": "string", "enum": ["male", "female", "non-specific"] },
-                  "age_range": { "type": "string" },
-                  "population": { "type": ["number", "null"] },
-                  "beneficiary_type": { "type": "string", "enum": ["human", "non-human"] }
-                },
-                "required": ["location", "gender", "age_range", "population", "beneficiary_type"]
-              }
-            },
-            "problem_profile": {
-              "type": "object",
-              "properties": {
-                "problem_name": { "type": "string" },
-                "target_population": { "type": "string" },
-                "severity_dimensions": {
-                  "type": "array",
-                  "items": {
+                  "dimension": { "type": "string", "enum": ["Health", "Economic", "Psycho-Social", "Environmental"] },
+                  "metric_name": { "type": "string" },
+                  "quantitative_data": {
                     "type": "object",
                     "properties": {
-                      "dimension": { "type": "string", "enum": ["Health", "Economic", "Psycho-Social", "Environmental"] },
-                      "metric_name": { "type": "string" },
-                      "quantitative_data": {
-                        "type": "object",
-                        "properties": {
-                          "value": { "type": ["number", "null"] },
-                          "unit": { "type": "string" },
-                          "duration": { "type": ["string", "null"] }
-                        },
-                        "required": ["value", "unit"]
-                      },
-                      "context_qualifier": { "type": "string" },
-                      "counterfactual_baseline": {
-                        "type": "object",
-                        "properties": {
-                          "description": { "type": "string" },
-                          "value": { "type": ["number", "null"] }
-                        },
-                        "required": ["description"]
-                      },
-                      "evidence_quality": { "type": "string", "enum": ["High", "Medium", "Low", "Speculative"] },
-                      "source_citation": { "type": "string" }
+                      "value": { "type": ["number", "null"] },
+                      "unit": { "type": "string" },
+                      "duration": { "type": ["string", "null"] }
                     },
-                    "required": ["dimension", "metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "source_citation"]
-                  }
-                }
-              },
-              "required": ["problem_name", "target_population", "severity_dimensions"]
+                    "required": ["value", "unit"]
+                  },
+                  "context_qualifier": { "type": "string" },
+                  "counterfactual_baseline": {
+                    "type": "object",
+                    "properties": {
+                      "description": { "type": "string" },
+                      "value": { "type": ["number", "null"] }
+                    },
+                    "required": ["description"]
+                  },
+                  "evidence_quality": { "type": "string", "enum": ["High", "Medium", "Low", "Speculative"] },
+                  "source_citation": { "type": "string" }
+                },
+                "required": ["dimension", "metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "source_citation"]
+              }
             }
           },
-          "required": ["beneficiaries_demographic", "problem_profile"]
-        },
-        "tractability_factors": {
-          "type": "object",
-          "properties": {
-            "significant_events": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": { "event_name": { "type": "string" }, "summary": { "type": "string" } },
-                "required": ["event_name", "summary"]
-              }
-            },
-            "evaluation_systems": { "type": "string" }
-          },
-          "required": ["significant_events", "evaluation_systems"]
-        },
-        "neglectedness_factors": {
-          "type": "object",
-          "properties": {
-            "funding_sources": { "type": "array", "items": { "type": "string" } },
-            "funding_landscape": { "type": "string" }
-          },
-          "required": ["funding_sources", "funding_landscape"]
+          "required": ["problem_name", "target_population", "severity_dimensions"]
         }
       },
-      "required": ["importance_factors", "tractability_factors", "neglectedness_factors"]
+      "required": ["beneficiaries_demographic", "problem_profile"]
+    },
+    "tractability_factors": {
+      "type": "object",
+      "properties": {
+        "significant_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "event_name": { "type": "string" }, "summary": { "type": "string" } },
+            "required": ["event_name", "summary"]
+          }
+        },
+        "evaluation_systems": { "type": "string" }
+      },
+      "required": ["significant_events", "evaluation_systems"]
+    },
+    "neglectedness_factors": {
+      "type": "object",
+      "properties": {
+        "funding_sources": { "type": "array", "items": { "type": "string" } },
+        "funding_landscape": { "type": "string" }
+      },
+      "required": ["funding_sources", "funding_landscape"]
     }
   },
-  "required": ["impact"]
+  "required": ["importance_factors", "tractability_factors", "neglectedness_factors"]
 }
