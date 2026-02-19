@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-18T15:53:55.018Z",
+  "updatedAt": "2026-02-19T07:35:50.390Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -493,7 +493,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -96,
+        112,
         4784
       ],
       "id": "a5fde436-3f8b-49cb-a50e-c678e047e003",
@@ -517,40 +517,11 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        352,
+        560,
         4784
       ],
       "id": "1b44c12c-67f2-4ad8-b3ff-29299adb7621",
       "name": "Base64 - Financial Report"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
-              "name": "system_prompt",
-              "value": "You are a specialist NGO Financial Auditor for the Hong Kong Social Welfare Department. \nYour expertise lies in parsing \"Annual Financial Reports\" (AFR) and \"Audited Financial Statements\" of Section 88 tax-exempt charities.\n\nYour task is to extract structured financial data from the provided PDF document. \nYou must strictly follow the provided JSON schema.\n\n### Domain Context:\n1. HK NGOs receiving Government subvention often follow the \"Lump Sum Grant\" (LSG) format.\n2. \"Personal Emoluments\" (PE) usually represent program-related staff costs but may include admin staff.\n3. The \"LSG Reserve\" is a specific cumulative surplus capped at 25% of operating expenditure.\n4. \"Section 88\" organizations may include both subvented and self-financing activities; prioritize figures that represent the organization as a whole unless specified as \"FSA-only\" (Funding and Service Agreement).\n\n### Extraction Rules:\n- Currency: All amounts must be in HKD.\n- Decimals: Round to the nearest whole number.\n- Missing Values: If a field is not found, return `0` or `null` (if allowed by schema), do not guess.\n- Language: The source may be in English, Traditional Chinese, or both. Map terms regardless of language.",
-              "type": "string"
-            },
-            {
-              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
-              "name": "user_prompt",
-              "value": "=Please analyze the attached audited financial report for the most recent financial year and extract the data into the requested JSON format.\n\n### Field Mapping Guidance:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Financials)').item.json.data) }}\n\nPlease output the result as a single JSON object.",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -320,
-        4784
-      ],
-      "id": "39848e72-43f7-48b3-9396-401b284f1495",
-      "name": "Financials Prompts"
     },
     {
       "parameters": {
@@ -560,13 +531,13 @@
         "nodeCredentialType": "perplexityApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Financials Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Financials Prompts').item.json.user_prompt) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Base64 - Financial Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[1]) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Base64 - Financial Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        576,
+        784,
         4784
       ],
       "id": "d0960106-b05f-404b-b1bd-081bdc67d113",
@@ -585,7 +556,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
+        1008,
         4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -611,7 +582,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1232,
+        1440,
         4784
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -880,13 +851,13 @@
         "nodeCredentialType": "perplexityApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Impact Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Impact Prompts').item.json.user_prompt) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Binary to base64 - Annual Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[1]) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Binary to base64 - Annual Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        576,
+        784,
         4976
       ],
       "id": "3b153656-50e1-4b7f-ab43-8e6ead591696",
@@ -897,35 +868,6 @@
           "name": "Perplexity"
         }
       }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
-              "name": "system_prompt",
-              "value": "You are an Analyst specialized in charity evaluation using the Importance, Tractability, and Neglectedness (ITN) framework. Your task is to research and provide objective, verifiable information to support an ITN scoring analysis of charities. \n\n**Your Principles:**\n1. **Conservative Extraction:** If a number is ambiguous (e.g., \"countless lives\"), do not guess. If it says \"over 50,000\", extract 50000.\n2. **Hierarchy of Evidence:** You must rigorously classify the quality of impact evidence provided. You do not treat a \"testimonial\" as equal to a \"study.\"\n3. **Local Context:** You understand Hong Kong geography (Districts vs. Territory-wide) and the difference between local service and international aid.\n4. **Output:** You only output valid JSON. Do not include markdown formatting or conversational text in the final output.",
-              "type": "string"
-            },
-            {
-              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
-              "name": "user_prompt",
-              "value": "=Please analyze the attached annual report for impact metrics and respond in the requested JSON format.\n\n### Field Mapping Guidance:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Impact)').item.json.data) }}\n\nPlease output the result as a single JSON object.",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -320,
-        4976
-      ],
-      "id": "b689a817-a5f6-4499-b100-eb4fe11c902c",
-      "name": "Impact Prompts"
     },
     {
       "parameters": {
@@ -943,7 +885,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -96,
+        112,
         4976
       ],
       "id": "a230bca6-512a-4582-bc77-3150bfb8d8e4",
@@ -968,7 +910,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        128,
+        336,
         4976
       ],
       "id": "b31de61b-d8c1-4441-af01-5608c4874865",
@@ -982,7 +924,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        352,
+        560,
         4976
       ],
       "id": "43955617-7dda-42a2-a2fe-5e6394b52e81",
@@ -995,7 +937,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
+        1008,
         4976
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
@@ -1021,7 +963,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1232,
+        1440,
         4976
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -1796,35 +1738,6 @@
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
-              "name": "system_prompt",
-              "value": "You are a Governance Risk Auditor for Hong Kong NGOs. Your task is to extract structured governance data strictly from the provided financial and administrative reports.\n\n**Your Source Material:**\nYou will be provided with one or both of the following documents:\n1.  **Annual Report:** Contains board lists, committee structures, and policy statements.\n2.  **Review Report on Remuneration Packages for Staff in the Top Three Tiers (Remuneration Report):** A standardized form mandated by the Social Welfare Department (SWD) detailing executive pay.\n\n**Extraction Rules:**\n1.  **Strict Source Adherence:** Extract data *only* if it is explicitly stated in the provided text. If a piece of information (e.g., a specific policy) is missing, return `null` or `false` based on the field type. Do not hallucinate or guess.\n2.  **Role Distinction:** You must distinguish between the **Board of Directors** (voluntary governance) and **Senior Management** (paid operations).\n    * *Hint:* Board members are often listed under \"Patronage\", \"Council\", \"Executive Committee\", or \"Board\". Management is often under \"Key Personnel\" or \"Senior Staff\".\n3.  **Financial Precision:** When extracting remuneration figures from the *Remuneration Report*, ensure you capture the \"Total Annual Staff Costs\" (including salary, provident fund, and cash allowances) for the top tier.\n\n**Output:**\nReturn strictly valid JSON. No markdown formatting or conversational filler.",
-              "type": "string"
-            },
-            {
-              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
-              "name": "user_prompt",
-              "value": "=Please analyze the attached document(s) (Annual Report and/or Remuneration Report) and extract the governance data into the requested JSON format.\n\n**Extraction Logic:**\n\n**1. From the Annual Report:**\n   * **Structure:** Count the total number of directors/board members. List the top 5 key office-holders (Chairperson, Vice-Chair, Treasurer, Secretary).\n   * **Committees:** Look for mentions of sub-committees like \"Audit\", \"Finance\", \"HR\", or \"Nomination\".\n   * **Leadership:** Identify the highest-ranking *paid* staff member (often \"CEO\", \"Director General\", or \"Chief Executive\").\n   * **Policies:** Scan for keywords to confirm if these specific policies exist:\n       * \"Conflict of Interest\" (or \"Declaration of Interest\")\n       * \"Whistleblowing\"\n       * \"Investment\" (or \"Reserves Policy\")\n       * \"Procurement\" (or \"Tender\")\n\n**2. From the \"Review Report on Remuneration Packages\" (if provided):**\n   * **Remuneration:** Extract the total annual remuneration for the Top Tier (Tier 1), Second Tier (Tier 2), and Third Tier (Tier 3) staff.\n   * *Note:* If the report provides a range, extract the *maximum* value of that range. If exact figures are provided, use those.\n   * **Date:** Extract the \"Review Date\" or the fiscal year end date from the report.\n\n**JSON Schema:**\n\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data) }}\n\nOutput only the JSON object.",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -320,
-        5376
-      ],
-      "id": "13d186b6-98f7-4809-a2d7-90fc677d41a4",
-      "name": "Governance Prompts"
-    },
-    {
-      "parameters": {
         "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.id }}/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.raw }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
@@ -1986,7 +1899,7 @@
         "nodeCredentialType": "perplexityApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Governance Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Governance Prompts').item.json.user_prompt) }}\n                }{{ $json.ar_data }}{{ $json.rr_data }}\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[1]) }}\n                }{{ $json.ar_data }}{{ $json.rr_data }}\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2125,7 +2038,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2144,
+        2352,
         4976
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -2196,42 +2109,13 @@
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "d21bcd86-5e2e-4a98-87a6-8b3b68d4be93",
-              "name": "system_prompt",
-              "value": "You are a Senior Forensic Risk Auditor for the Hong Kong charity sector. Your goal is to evaluate non-profit organizations for potential risks that would concern a donor practicing Effective Altruism.\n\nYour analysis must prioritize:\n1. VALUE FOR MONEY: Evidence of waste, lavish spending, or hoarding of LSG (Lump Sum Grant) reserves.\n2. INTEGRITY: Proven scandals involving fraud, abuse of beneficiaries, or legal breaches.\n3. GOVERNANCE: Controversies regarding excessive executive compensation (\"Fat Cat\" salaries) or lack of board oversight.\n\nRULES:\n- You must ignore generic \"low overhead\" criticisms unless they indicate mismanagement. We value impact over cheapness.\n- You must differentiate between \"allegations\" and \"proven facts.\"\n- You must prioritize recent data (last 5 years) but note historical severe scandals.\n- You must output strictly valid JSON.",
-              "type": "string"
-            },
-            {
-              "id": "02dd32ca-a3ed-409a-9cc4-b16508474453",
-              "name": "user_prompt",
-              "value": "=Conduct a risk assessment for the charity \"{{ $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\") }}\" (Chinese: \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }}\").\n\nPerform a comprehensive search using the following specific search angles:\n1. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 醜聞\" (Scandal)\n2. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 薪酬\" (Salary/Compensation controversy)\n3. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 濫用\" (Misuse/Abuse)\n4. \"{{ $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\") }} 審計署\" (Audit Commission reports)\n5. \"{{ $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\") }}  fraud mismanagement\"\n\nBased on the search results, generate a JSON object adhering to the schema provided below. \n\nIf no negative news is found, explicitly state \"None\" in summaries and set flags to false. Do not hallucinate risks.\n\nRequired Output Schema:\n\n{{ JSON.stringify($('Binary to Text (JSON schema, Risk)').item.json.data) }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -320,
-        5728
-      ],
-      "id": "315149ce-f592-4b64-9be5-49a6ed647e5d",
-      "name": "Risk Prompts"
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "perplexityApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.system_prompt) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Risk Prompts').item.json.user_prompt) }}\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"false\",\n    \"temperature\": 0,\n    \"search_domain_filter\": {{ JSON.stringify($('Storage API - Get Charity').item.json.domains) }}\n}",
+        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[1]) }}\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"false\",\n    \"temperature\": 0,\n    \"search_domain_filter\": {{ JSON.stringify($('Storage API - Get Charity').item.json.domains) }}\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2571,7 +2455,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1008,
+        1216,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -2599,7 +2483,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1008,
+        1216,
         4976
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
@@ -2677,7 +2561,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -784,
+        -576,
         6320
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
@@ -2719,7 +2603,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -560,
+        -352,
         6320
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
@@ -2745,7 +2629,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -112,
+        96,
         6320
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
@@ -2779,7 +2663,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -336,
+        -128,
         6320
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
@@ -2793,7 +2677,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        96,
+        304,
         6320
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
@@ -2808,11 +2692,219 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        304,
+        512,
         6320
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
       "name": "Write to data/organisations/{id}.json"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prompt Injection"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/financials.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/financials.user.md\"\n] }}",
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Financials)').item.json.data)\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        4784
+      ],
+      "id": "c30db9fc-4f48-49bc-b042-6d5a6296227f",
+      "name": "Call 'Prompt Injection' - Financials"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prompt Injection"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/impact.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/impact.user.md\"\n] }}",
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Impact)').item.json.data)\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        4976
+      ],
+      "id": "0dd9bc57-8100-44ec-bb28-791c8e08ea1c",
+      "name": "Call 'Prompt Injection' - Impact"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prompt Injection"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/governance.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/governance.user.md\"\n] }}",
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data)\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        5376
+      ],
+      "id": "3c71ce18-e884-40fe-96d6-d9c2f3a0cbd6",
+      "name": "Call 'Prompt Injection' - Governance"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prompt Injection"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/risk.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/risk.user.md\"\n] }}",
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').item.json.data),\n  CHARITY_NAME: $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\")\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        5728
+      ],
+      "id": "5e6872a8-efe8-494a-858a-ed5620a89205",
+      "name": "Call 'Prompt Injection' - Risk"
     }
   ],
   "connections": {
@@ -3045,17 +3137,6 @@
         ]
       ]
     },
-    "Financials Prompts": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Financial Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract Financials": {
       "main": [
         [
@@ -3221,17 +3302,6 @@
         [
           {
             "node": "Parsed Content (Impact Metrics)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Impact Prompts": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Annual Report",
             "type": "main",
             "index": 0
           }
@@ -3570,22 +3640,6 @@
         ]
       ]
     },
-    "Governance Prompts": {
-      "main": [
-        [
-          {
-            "node": "If Rem.Pkg Review Report exists",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If Annual Report exists",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Storage API - Get Charity - Download Rem. Pkg Review Report": {
       "main": [
         [
@@ -3782,17 +3836,6 @@
         ]
       ]
     },
-    "Risk Prompts": {
-      "main": [
-        [
-          {
-            "node": "Extract Risk",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract Risk": {
       "main": [
         [
@@ -3884,7 +3927,7 @@
       "main": [
         [
           {
-            "node": "Financials Prompts",
+            "node": "Call 'Prompt Injection' - Financials",
             "type": "main",
             "index": 0
           }
@@ -3906,7 +3949,7 @@
       "main": [
         [
           {
-            "node": "Impact Prompts",
+            "node": "Call 'Prompt Injection' - Impact",
             "type": "main",
             "index": 0
           }
@@ -3928,7 +3971,7 @@
       "main": [
         [
           {
-            "node": "Governance Prompts",
+            "node": "Call 'Prompt Injection' - Governance",
             "type": "main",
             "index": 0
           }
@@ -3950,7 +3993,7 @@
       "main": [
         [
           {
-            "node": "Risk Prompts",
+            "node": "Call 'Prompt Injection' - Risk",
             "type": "main",
             "index": 0
           }
@@ -4081,6 +4124,55 @@
           }
         ]
       ]
+    },
+    "Call 'Prompt Injection' - Financials": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Financial Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Impact": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity - Download Annual Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Governance": {
+      "main": [
+        [
+          {
+            "node": "If Rem.Pkg Review Report exists",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If Annual Report exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Risk": {
+      "main": [
+        [
+          {
+            "node": "Extract Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4092,27 +4184,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "990985fa-6916-4631-be58-4705570a63a2",
+  "versionId": "66d9d672-4515-4c70-aba8-afb726ab1532",
   "activeVersionId": null,
-  "versionCounter": 267,
+  "versionCounter": 271,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-18T15:52:42.515Z",
-      "createdAt": "2026-02-18T15:52:42.515Z",
+      "updatedAt": "2026-02-19T06:39:58.522Z",
+      "createdAt": "2026-02-19T06:39:58.522Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "kBOAoX0Qe57IJvq3",
+      "projectId": "RbxkH7uoCsnWmfLq",
       "project": {
-        "updatedAt": "2026-02-18T15:52:53.130Z",
-        "createdAt": "2026-02-18T15:52:41.104Z",
-        "id": "kBOAoX0Qe57IJvq3",
+        "updatedAt": "2026-02-19T06:40:13.892Z",
+        "createdAt": "2026-02-19T06:39:57.063Z",
+        "id": "RbxkH7uoCsnWmfLq",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "6e3be0d9-fe85-4c24-a71b-fe69260440f8"
+        "creatorId": "4b6ac7aa-ee0e-40b5-a4b1-2f0e5649bfb2"
       }
     }
   ]
