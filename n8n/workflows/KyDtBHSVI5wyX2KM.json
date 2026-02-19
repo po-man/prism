@@ -4,7 +4,7 @@
   "id": "KyDtBHSVI5wyX2KM",
   "name": "Prompt Injection",
   "description": null,
-  "active": true,
+  "active": false,
   "isArchived": false,
   "nodes": [
     {
@@ -174,27 +174,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "a3c912d2-905a-4039-9da6-ec33f58c8c81",
-  "activeVersionId": "a3c912d2-905a-4039-9da6-ec33f58c8c81",
+  "versionId": "05499c1b-3629-4664-8228-8c2c52461ffd",
+  "activeVersionId": null,
   "versionCounter": 9,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-19T06:39:58.519Z",
-      "createdAt": "2026-02-19T06:39:58.519Z",
+      "updatedAt": "2026-02-19T14:38:54.841Z",
+      "createdAt": "2026-02-19T14:38:54.841Z",
       "role": "workflow:owner",
       "workflowId": "KyDtBHSVI5wyX2KM",
-      "projectId": "RbxkH7uoCsnWmfLq",
+      "projectId": "0uO9hTn0MkhQcyOi",
       "project": {
-        "updatedAt": "2026-02-19T06:40:13.892Z",
-        "createdAt": "2026-02-19T06:39:57.063Z",
-        "id": "RbxkH7uoCsnWmfLq",
+        "updatedAt": "2026-02-19T14:39:22.463Z",
+        "createdAt": "2026-02-19T14:38:53.454Z",
+        "id": "0uO9hTn0MkhQcyOi",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "4b6ac7aa-ee0e-40b5-a4b1-2f0e5649bfb2"
+        "creatorId": "eb0526ab-d38b-4e49-aa94-413643c6597c"
       }
     }
   ]

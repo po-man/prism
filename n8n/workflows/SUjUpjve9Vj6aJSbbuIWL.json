@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-19T07:35:50.390Z",
+  "updatedAt": "2026-02-19T17:05:03.829Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -310,35 +310,6 @@
         "assignments": {
           "assignments": [
             {
-              "id": "287a3eae-d459-488b-a8fc-1392ad6476b6",
-              "name": "perplexity_url",
-              "value": "https://api.perplexity.ai/chat/completions",
-              "type": "string"
-            },
-            {
-              "id": "19e98406-4d26-4cfc-a12c-1f2580beb280",
-              "name": "perplexity_api_key",
-              "value": "={{ $env.CREDENTIALS_PERPLEXITY_API_KEY }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1776,
-        3168
-      ],
-      "id": "4a71ebdb-507e-4a75-a16d-adafe65576aa",
-      "name": "Vars - Perplexity"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
               "id": "67a35460-e53f-49bd-8a59-11e6aa0a4a6f",
               "name": "storage_api_host",
               "value": "http://storage_api:8090/api",
@@ -461,7 +432,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        192,
+        560,
         4064
       ],
       "id": "12802772-ae51-4471-85f7-0d0f921a0328",
@@ -493,7 +464,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        112,
+        480,
         4784
       ],
       "id": "a5fde436-3f8b-49cb-a50e-c678e047e003",
@@ -511,52 +482,12 @@
     },
     {
       "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        560,
-        4784
-      ],
-      "id": "1b44c12c-67f2-4ad8-b3ff-29299adb7621",
-      "name": "Base64 - Financial Report"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "perplexityApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[1]) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Base64 - Financial Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        784,
-        4784
-      ],
-      "id": "d0960106-b05f-404b-b1bd-081bdc67d113",
-      "name": "Extract Financials",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1008,
+        1376,
         4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -582,7 +513,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1440,
+        1808,
         4784
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -626,7 +557,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -960,
+        -592,
         4784
       ],
       "id": "e407b29a-e2a8-45bc-927a-83225e401d5e",
@@ -660,7 +591,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -32,
+        336,
         4064
       ],
       "id": "10e700bb-f722-4ee0-abbf-8f197fed7196",
@@ -755,7 +686,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -32,
+        336,
         3840
       ],
       "id": "0fa06927-77e8-476d-a8a4-63f6d3b004bd",
@@ -780,7 +711,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        192,
+        560,
         3840
       ],
       "id": "eb53c80d-a89b-432e-b329-d7d89cc3afed",
@@ -824,7 +755,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -960,
+        -592,
         4976
       ],
       "id": "2a34d71c-08c4-4214-9ce1-8b7c010ec0f6",
@@ -845,32 +776,6 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "perplexityApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[1]) }}\n                },\n                {\n                    \"type\": \"file_url\",\n                    \"file_url\": {\n                        \"url\": \"{{ $('Binary to base64 - Annual Report').item.json.data }}\"\n                    }\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        784,
-        4976
-      ],
-      "id": "3b153656-50e1-4b7f-ab43-8e6ead591696",
-      "name": "Extract Impact Metrics",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
-    },
-    {
-      "parameters": {
         "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Impact)').item.json.expand.annual_report.id }}/{{ $('Exists? (Impact)').item.json.expand.annual_report.text }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
@@ -885,7 +790,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        112,
+        480,
         4976
       ],
       "id": "a230bca6-512a-4582-bc77-3150bfb8d8e4",
@@ -910,7 +815,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        336,
+        704,
         4976
       ],
       "id": "b31de61b-d8c1-4441-af01-5608c4874865",
@@ -918,26 +823,12 @@
     },
     {
       "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        560,
-        4976
-      ],
-      "id": "43955617-7dda-42a2-a2fe-5e6394b52e81",
-      "name": "Binary to base64 - Annual Report"
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1008,
+        1376,
         4976
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
@@ -963,7 +854,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1440,
+        1808,
         4976
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -1188,7 +1079,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1184,
+        -816,
         4976
       ],
       "id": "28387461-e581-4a38-a6e0-1d4757b0c40b",
@@ -1232,7 +1123,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -32,
+        336,
         4288
       ],
       "id": "a59f96c7-7277-4ecf-87e8-b4a0b4cbf101",
@@ -1258,7 +1149,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        864,
+        1232,
         3840
       ],
       "id": "a8d9b084-0abe-4aa2-9180-3849c50232d2",
@@ -1294,7 +1185,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        864,
+        1232,
         4064
       ],
       "id": "ffe05908-58d7-40b6-90b8-a657600a09c8",
@@ -1330,7 +1221,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        864,
+        1232,
         4288
       ],
       "id": "bcc3e7f4-b041-4a16-b70d-4a05e6144132",
@@ -1373,7 +1264,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        416,
+        784,
         3840
       ],
       "id": "7d72a4b6-22e6-4458-9141-f69e622b11ba",
@@ -1447,7 +1338,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        640,
+        1008,
         3840
       ],
       "id": "23d0729e-823a-4a40-bcae-2af0b986dbee",
@@ -1480,7 +1371,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        416,
+        784,
         4064
       ],
       "id": "d323101f-1c02-4ae1-84ed-3aa8ddcfccde",
@@ -1554,7 +1445,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        640,
+        1008,
         4064
       ],
       "id": "f687c2ea-0792-46a5-95d1-5c6d47ca6dda",
@@ -1579,7 +1470,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        192,
+        560,
         4288
       ],
       "id": "72c767b2-f0ce-44d7-a110-45ee7edfe1c6",
@@ -1622,7 +1513,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        416,
+        784,
         4288
       ],
       "id": "6173b6af-780a-4eff-91e9-314f1ed8dcbb",
@@ -1696,7 +1587,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        640,
+        1008,
         4288
       ],
       "id": "3cc487e8-fe4c-425d-a2e8-dd21701a6de3",
@@ -1730,7 +1621,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -960,
+        -592,
         5376
       ],
       "id": "6d63b165-80b5-4a01-be6f-f1267976a394",
@@ -1752,7 +1643,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        128,
+        496,
         5264
       ],
       "id": "323dc7fa-7303-4039-b362-c95fc9c2f138",
@@ -1770,12 +1661,12 @@
     },
     {
       "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.candidates[0].content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
+        1840,
         5376
       ],
       "id": "a16fade8-3b94-4557-b663-67691c01f82a",
@@ -1801,7 +1692,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1824,
+        2192,
         5376
       ],
       "id": "1094f1fd-6fa2-499a-b001-39250786d8fa",
@@ -1833,7 +1724,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        128,
+        496,
         5504
       ],
       "id": "0471d184-9c7f-4891-bdec-3301283e1e18",
@@ -1858,7 +1749,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        352,
+        720,
         5504
       ],
       "id": "a5a8c7e0-2cdb-49c0-b499-039b1b83f7ef",
@@ -1872,7 +1763,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        576,
+        944,
         5504
       ],
       "id": "b52a768e-64ee-42df-874d-096124c8ce0a",
@@ -1880,42 +1771,16 @@
     },
     {
       "parameters": {
-        "jsCode": "const { json: { data: ar_data } } = $input.all()[0];\nconst { json: { data: rr_data } } = $input.all()[1];\n\nconst format_attachment = (data) => {\n  return `,\n    {\n      \"type\": \"file_url\",\n      \"file_url\": {\n        \"url\": \"${data}\"\n      }\n    }\n  `;\n}\n\nreturn {\n  ...$input.first(),\n  json: {\n    ar_data: ar_data ? format_attachment(ar_data) : \"\",\n    rr_data: rr_data ? format_attachment(rr_data) : \"\",\n  }\n};"
+        "jsCode": "const { json: { data: ar_data } } = $input.all()[0];\nconst { json: { data: rr_data } } = $input.all()[1];\n\nconst format_attachment = (data, mimetype) => {\n  return `,\n    {\n      \"inline_data\": {\n        \"mime_type\": \"${mimetype}\",\n        \"data\": \"${data}\"\n      }\n    }\n  `;\n}\n\nreturn {\n  ...$input.first(),\n  json: {\n    ar_data: ar_data ? format_attachment(ar_data, \"application/pdf\") : \"\",\n    rr_data: rr_data ? format_attachment(rr_data, \"text/plain\") : \"\",\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1024,
+        1392,
         5376
       ],
       "id": "89b64f90-d0a7-40d9-951e-a1e489af3ec3",
       "name": "Code in JavaScript1"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "perplexityApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[1]) }}\n                }{{ $json.ar_data }}{{ $json.rr_data }}\n            ]\n        }\n    ],\n    \"disable_search\": \"true\",\n    \"temperature\": 0\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1248,
-        5376
-      ],
-      "id": "259cb633-e98f-451d-a358-73dd831038e6",
-      "name": "Extract Governance Metrics",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
     },
     {
       "parameters": {
@@ -1945,7 +1810,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -96,
+        272,
         5264
       ],
       "id": "32c4115b-2e96-4afd-88af-6a3d389cd519",
@@ -1979,7 +1844,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -96,
+        272,
         5504
       ],
       "id": "f7be0011-c457-4fbe-8eb9-fc73baa2a331",
@@ -1993,7 +1858,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        576,
+        944,
         5264
       ],
       "id": "55bb274f-2bb3-4623-9e5f-cb3fdaf42bb5",
@@ -2011,7 +1876,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1088,
+        1456,
         4048
       ],
       "id": "6194ad4e-4816-4192-a0ab-4f9847cd22e2",
@@ -2022,7 +1887,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        800,
+        1168,
         5376
       ],
       "id": "32fca4ee-a800-496a-93f1-2f28687bb8b4",
@@ -2038,7 +1903,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2352,
+        2720,
         4976
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -2101,7 +1966,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -960,
+        -592,
         5728
       ],
       "id": "e4440626-b37c-4592-84ef-97739246200a",
@@ -2109,38 +1974,12 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Perplexity').item.json.perplexity_url }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "perplexityApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n    \"model\": \"sonar\",\n    \"messages\": [\n        {\n            \"role\": \"system\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[0]) }}\n                }\n            ]\n        },\n        {\n            \"role\": \"user\",\n            \"content\": [\n                {\n                    \"type\": \"text\",\n                    \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[1]) }}\n                }\n            ]\n        }\n    ],\n    \"disable_search\": \"false\",\n    \"temperature\": 0,\n    \"search_domain_filter\": {{ JSON.stringify($('Storage API - Get Charity').item.json.domains) }}\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        160,
-        5728
-      ],
-      "id": "57e87959-fd41-47e9-866b-20f7efe72841",
-      "name": "Extract Risk",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.choices[0].message.content);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        384,
+        1360,
         5728
       ],
       "id": "068f9452-4446-4870-8368-ef369b4f4723",
@@ -2166,7 +2005,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        816,
+        1792,
         5728
       ],
       "id": "2d914e5e-728f-4543-8d41-c89bf010b47a",
@@ -2180,40 +2019,12 @@
     },
     {
       "parameters": {
-        "messages": {
-          "message": [
-            {
-              "content": "=What are:\n1. the Chinese name of the \"{{ $json.charity_name }}\"?\n2. the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"chinese_name\": string,   // return empty string if not available\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
-            }
-          ]
-        },
-        "simplify": true,
-        "options": {},
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-base.perplexity",
-      "typeVersion": 1,
-      "position": [
-        -688,
-        4064
-      ],
-      "id": "832c5779-3f40-412d-bd05-01d8e5747c65",
-      "name": "Find Metadata",
-      "credentials": {
-        "perplexityApi": {
-          "id": "34NJqJKPAmGAmUtT",
-          "name": "Perplexity"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.message);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -464,
+        -96,
         4064
       ],
       "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
@@ -2252,7 +2063,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -240,
+        128,
         4064
       ],
       "id": "f7d7d4c4-ac67-4f06-8d5b-2d26edd948ae",
@@ -2276,7 +2087,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -752,
+        -384,
         4784
       ],
       "id": "c8573093-d3b1-4b1e-a668-99f76de7611d",
@@ -2290,7 +2101,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -544,
+        -176,
         4784
       ],
       "id": "43f2d83d-2dab-4a2f-ad97-eb96e1a57b7c",
@@ -2304,7 +2115,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -752,
+        -384,
         4976
       ],
       "id": "873391a7-de81-422e-aa1e-00095b8d5bfd",
@@ -2318,7 +2129,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -544,
+        -176,
         4976
       ],
       "id": "42eca936-3a6c-42ca-8515-5cb8b0b0fff0",
@@ -2332,7 +2143,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -752,
+        -384,
         5376
       ],
       "id": "a9287eb2-e97d-4296-ba13-23f7bf4162bf",
@@ -2346,7 +2157,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -544,
+        -176,
         5376
       ],
       "id": "1a59c23d-5020-4380-968d-45954ca59d69",
@@ -2360,7 +2171,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -752,
+        -384,
         5728
       ],
       "id": "19745ac5-6ace-4044-adea-b1df3d3bd992",
@@ -2374,7 +2185,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -544,
+        -176,
         5728
       ],
       "id": "0cccc52b-0366-4317-8be6-2a532da023e1",
@@ -2455,7 +2266,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1216,
+        1584,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -2483,7 +2294,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1216,
+        1584,
         4976
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
@@ -2511,7 +2322,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        592,
+        1568,
         5728
       ],
       "id": "a01a78b3-92a9-42d5-9ee7-e5c565f274a9",
@@ -2539,7 +2350,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1632,
+        2000,
         5376
       ],
       "id": "d92bea68-280c-408b-9104-a2103a4d3803",
@@ -2561,7 +2372,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -576,
+        -208,
         6320
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
@@ -2603,7 +2414,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
+        16,
         6320
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
@@ -2629,7 +2440,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        96,
+        464,
         6320
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
@@ -2663,7 +2474,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -128,
+        240,
         6320
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
@@ -2677,7 +2488,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        304,
+        672,
         6320
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
@@ -2692,7 +2503,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        512,
+        880,
         6320
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
@@ -2744,7 +2555,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -112,
+        48,
         4784
       ],
       "id": "c30db9fc-4f48-49bc-b042-6d5a6296227f",
@@ -2796,7 +2607,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -112,
+        48,
         4976
       ],
       "id": "0dd9bc57-8100-44ec-bb28-791c8e08ea1c",
@@ -2848,7 +2659,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -320,
+        48,
         5376
       ],
       "id": "3c71ce18-e884-40fe-96d6-d9c2f3a0cbd6",
@@ -2900,11 +2711,188 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -320,
+        48,
         5728
       ],
       "id": "5e6872a8-efe8-494a-858a-ed5620a89205",
       "name": "Call 'Prompt Injection' - Risk"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=What are:\n1. the Chinese name of the \"{{ $json.charity_name }}\"?\n2. the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"chinese_name\": string,   // return empty string if not available\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {
+          "googleSearch": true
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -592,
+        4064
+      ],
+      "id": "10e19ddb-bb47-4936-9fcf-7cd33dab55d6",
+      "name": "Find Metadata",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
+          "mode": "id"
+        },
+        "text": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[1] }}\n</user prompt>",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        4784
+      ],
+      "id": "75210d75-2398-4824-9265-4ec17ab41e26",
+      "name": "Extract Financials",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
+          "mode": "id"
+        },
+        "text": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[1] }}\n</user prompt>",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        4976
+      ],
+      "id": "344c7d5b-8898-4b5d-8398-d7c1f41b1c1a",
+      "name": "Extract Impact Metrics",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[1] }}\n</user prompt>"
+            }
+          ]
+        },
+        "builtInTools": {
+          "googleSearch": true
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        5728
+      ],
+      "id": "2d574742-2501-42bd-88a7-1f118a55c12a",
+      "name": "Extract Risk",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Gemini').item.json.gemini_url }}/{{ $('Vars - Gemini').item.json.gemini_model }}:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[1]) }} }\n        {{ $json.ar_data }}{{ $json.rr_data }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1616,
+        5376
+      ],
+      "id": "9c5ce8a5-71a2-4567-be25-2393e77038b5",
+      "name": "Extract Governance Metrics",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "287a3eae-d459-488b-a8fc-1392ad6476b6",
+              "name": "gemini_url",
+              "value": "https://generativelanguage.googleapis.com/v1beta",
+              "type": "string"
+            },
+            {
+              "id": "19e98406-4d26-4cfc-a12c-1f2580beb280",
+              "name": "gemini_model",
+              "value": "models/gemini-2.5-flash-lite",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1776,
+        3168
+      ],
+      "id": "4a71ebdb-507e-4a75-a16d-adafe65576aa",
+      "name": "Vars - Gemini"
     }
   ],
   "connections": {
@@ -3036,18 +3024,7 @@
       "main": [
         [
           {
-            "node": "Vars - Perplexity",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Vars - Perplexity": {
-      "main": [
-        [
-          {
-            "node": "Vars - Storage API",
+            "node": "Vars - Gemini",
             "type": "main",
             "index": 0
           }
@@ -3119,29 +3096,7 @@
       "main": [
         [
           {
-            "node": "Base64 - Financial Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Base64 - Financial Report": {
-      "main": [
-        [
-          {
             "node": "Extract Financials",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Financials": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Financials)",
             "type": "main",
             "index": 0
           }
@@ -3297,17 +3252,6 @@
         ]
       ]
     },
-    "Extract Impact Metrics": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Impact Metrics)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Storage API - Get Charity - Download Annual Report": {
       "main": [
         [
@@ -3320,17 +3264,6 @@
       ]
     },
     "Text to Binary - Annual Report": {
-      "main": [
-        [
-          {
-            "node": "Binary to base64 - Annual Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to base64 - Annual Report": {
       "main": [
         [
           {
@@ -3717,17 +3650,6 @@
         ]
       ]
     },
-    "Extract Governance Metrics": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Governance Metrics)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If Rem.Pkg Review Report exists": {
       "main": [
         [
@@ -3836,17 +3758,6 @@
         ]
       ]
     },
-    "Extract Risk": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Risk)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Parsed Content (Risk)": {
       "main": [
         [
@@ -3865,17 +3776,6 @@
             "node": "Wait until all analysis done",
             "type": "main",
             "index": 3
-          }
-        ]
-      ]
-    },
-    "Find Metadata": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Metadata)",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -4173,6 +4073,72 @@
           }
         ]
       ]
+    },
+    "Find Metadata": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Metadata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Financials": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Impact Metrics": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Impact Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Risk": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Risk)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Governance Metrics": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Governance Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vars - Gemini": {
+      "main": [
+        [
+          {
+            "node": "Vars - Storage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4184,27 +4150,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "66d9d672-4515-4c70-aba8-afb726ab1532",
+  "versionId": "046d0b2a-42a9-4d63-a741-aa6eb60834cf",
   "activeVersionId": null,
-  "versionCounter": 271,
+  "versionCounter": 280,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-19T06:39:58.522Z",
-      "createdAt": "2026-02-19T06:39:58.522Z",
+      "updatedAt": "2026-02-19T14:38:54.843Z",
+      "createdAt": "2026-02-19T14:38:54.843Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "RbxkH7uoCsnWmfLq",
+      "projectId": "0uO9hTn0MkhQcyOi",
       "project": {
-        "updatedAt": "2026-02-19T06:40:13.892Z",
-        "createdAt": "2026-02-19T06:39:57.063Z",
-        "id": "RbxkH7uoCsnWmfLq",
+        "updatedAt": "2026-02-19T14:39:22.463Z",
+        "createdAt": "2026-02-19T14:38:53.454Z",
+        "id": "0uO9hTn0MkhQcyOi",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "4b6ac7aa-ee0e-40b5-a4b1-2f0e5649bfb2"
+        "creatorId": "eb0526ab-d38b-4e49-aa94-413643c6597c"
       }
     }
   ]
