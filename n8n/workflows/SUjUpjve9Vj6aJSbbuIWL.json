@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-19T18:03:14.385Z",
+  "updatedAt": "2026-02-19T18:19:35.582Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -292,6 +292,12 @@
               "name": "retrieval_year",
               "value": "={{ $json.query.retrieval_year }}"
             }
+          ],
+          "boolean": [
+            {
+              "name": "force_rerun",
+              "value": "={{ $json.query.force_rerun || false }}"
+            }
           ]
         },
         "options": {}
@@ -548,6 +554,16 @@
                 "operation": "exists",
                 "singleValue": true
               }
+            },
+            {
+              "id": "55fffb24-7792-4c5a-9af8-5bd5c0454671",
+              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -744,6 +760,16 @@
               "operator": {
                 "type": "object",
                 "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eda34bd4-85c4-4834-9c6a-49c42e066794",
+              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
                 "singleValue": true
               }
             }
@@ -1612,6 +1638,16 @@
                 "operation": "exists",
                 "singleValue": true
               }
+            },
+            {
+              "id": "e414f9c9-cd56-479c-b7d4-3d12407324ca",
+              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -1955,6 +1991,16 @@
               "operator": {
                 "type": "object",
                 "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "6fcfc4b2-e6e8-449d-beba-7b886d2b3a18",
+              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
                 "singleValue": true
               }
             }
@@ -4172,27 +4218,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "95e4fbec-ea78-4605-9b09-b99668415666",
-  "activeVersionId": "c6e54b90-d8f4-4144-ab39-44be3187989a",
-  "versionCounter": 284,
-  "triggerCount": 0,
+  "versionId": "144651c6-b3eb-4f49-a0fc-fd32d1930df1",
+  "activeVersionId": "75cb7924-662d-4386-b7a3-ea6644396008",
+  "versionCounter": 287,
+  "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-19T14:38:54.843Z",
-      "createdAt": "2026-02-19T14:38:54.843Z",
+      "updatedAt": "2026-02-19T18:09:19.326Z",
+      "createdAt": "2026-02-19T18:09:19.326Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "0uO9hTn0MkhQcyOi",
+      "projectId": "8o5wnFIoEzXDSqz7",
       "project": {
-        "updatedAt": "2026-02-19T14:39:22.463Z",
-        "createdAt": "2026-02-19T14:38:53.454Z",
-        "id": "0uO9hTn0MkhQcyOi",
+        "updatedAt": "2026-02-19T18:11:03.048Z",
+        "createdAt": "2026-02-19T18:09:17.999Z",
+        "id": "8o5wnFIoEzXDSqz7",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "eb0526ab-d38b-4e49-aa94-413643c6597c"
+        "creatorId": "018f57af-bd41-4d29-85d8-a7119d33707a"
       }
     }
   ]
