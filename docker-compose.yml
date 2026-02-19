@@ -19,10 +19,11 @@ services:
       - CREDENTIALS_PB_USERNAME=${PB_ADMIN_EMAIL}
       - CREDENTIALS_PB_PASSWORD=${PB_ADMIN_PASSWORD}
     volumes:
-      - ./n8n/credentials:/home/node/.n8n-files/credentials  # Mount credentials
-      - ./n8n/workflows:/home/node/.n8n-files/workflows      # Mount local workflows for version control
-      - ./schemas:/home/node/.n8n-files/schemas              # Mount schemas for prompt injection
-      - ./data:/home/node/.n8n-files/data                    # Mount data folder for static page generation
+      - ./n8n/credentials:/home/node/.n8n-files/credentials           # Mount credentials
+      - ./n8n/workflows:/home/node/.n8n-files/workflows               # Mount local workflows for version control
+      - ./n8n/prompt-templates:/home/node/.n8n-files/prompt-templates # Mount prompt templates
+      - ./schemas:/home/node/.n8n-files/schemas                       # Mount schemas for prompt injection
+      - ./data:/home/node/.n8n-files/data                             # Mount data folder for static page generation
     entrypoint: /bin/sh
     command: >
       -c "

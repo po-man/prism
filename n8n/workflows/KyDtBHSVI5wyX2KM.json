@@ -1,0 +1,201 @@
+{
+  "updatedAt": "2026-02-19T07:06:59.771Z",
+  "createdAt": "2026-02-19T06:26:38.190Z",
+  "id": "KyDtBHSVI5wyX2KM",
+  "name": "Prompt Injection",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prompt_file_paths",
+              "type": "array"
+            },
+            {
+              "name": "injection_dict",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "id": "889996b7-df23-45de-ab4e-271a473528ba",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -2400,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.prompt_file_paths }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1952,
+        5072
+      ],
+      "id": "c01b9307-d86e-4e02-baf0-5e53107c5f14",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "template_text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1728,
+        5072
+      ],
+      "id": "fe2f37fe-1992-400b-a7a4-8859f56425cf",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "prompt_file_paths",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -2176,
+        5072
+      ],
+      "id": "04bae59b-4960-4d70-9da5-58e3de41456f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "template_text",
+              "renameField": true,
+              "outputFieldName": "template_texts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1504,
+        5072
+      ],
+      "id": "3243920f-76cf-4daf-aabe-e6986e5afde0",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "function inject(template_text, injection_dict) {\n  let template = template_text;\n  const injectionDict = injection_dict || {};\n\n  for (const [key, value] of Object.entries(injectionDict)) {\n    const regex = new RegExp(`\\\\{\\\\{${key}\\\\}\\\\}`, 'g');\n    template = template.replace(regex, String(value));\n  }\n\n  return template;\n}\n\nconst zip = (arr1, arr2) => arr1.map((val, i) => [val, arr2[i]]);\n\nfor (const [item, startItem] of zip($input.all(), $('Start').all())) {\n  item.json.injected_prompts = item.json.template_texts.map(\n    template_text => inject(\n      template_text,\n      startItem.json.injection_dict\n    )\n  );\n  delete item.json.template_texts;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1280,
+        5072
+      ],
+      "id": "a07c052d-963b-4857-b625-771965b7255d",
+      "name": "Inject"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Inject",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "a3c912d2-905a-4039-9da6-ec33f58c8c81",
+  "activeVersionId": "a3c912d2-905a-4039-9da6-ec33f58c8c81",
+  "versionCounter": 9,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-19T06:39:58.519Z",
+      "createdAt": "2026-02-19T06:39:58.519Z",
+      "role": "workflow:owner",
+      "workflowId": "KyDtBHSVI5wyX2KM",
+      "projectId": "RbxkH7uoCsnWmfLq",
+      "project": {
+        "updatedAt": "2026-02-19T06:40:13.892Z",
+        "createdAt": "2026-02-19T06:39:57.063Z",
+        "id": "RbxkH7uoCsnWmfLq",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "4b6ac7aa-ee0e-40b5-a4b1-2f0e5649bfb2"
+      }
+    }
+  ]
+}
