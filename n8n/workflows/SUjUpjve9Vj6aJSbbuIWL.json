@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-02-19T17:05:03.829Z",
+  "updatedAt": "2026-02-19T18:03:14.385Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
   "description": null,
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -286,11 +286,11 @@
           "string": [
             {
               "name": "organization_name",
-              "value": "Chinese Rhenish Church Hong Kong Synod (The)"
+              "value": "={{ $json.query.organisation_name }}"
             },
             {
               "name": "retrieval_year",
-              "value": "2026"
+              "value": "={{ $json.query.retrieval_year }}"
             }
           ]
         },
@@ -2893,18 +2893,29 @@
       ],
       "id": "4a71ebdb-507e-4a75-a16d-adafe65576aa",
       "name": "Vars - Gemini"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "charity-analysis",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2208,
+        3408
+      ],
+      "id": "191c9cf1-b0a1-42ec-b285-543770263887",
+      "name": "Webhook",
+      "webhookId": "85e5816d-e14c-46af-806e-37989476e2e5"
     }
   ],
   "connections": {
     "Manual Trigger (for testing)": {
       "main": [
-        [
-          {
-            "node": "Vars - Input Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "HTTP Request (SWD AFR List)": {
@@ -4139,6 +4150,17 @@
           }
         ]
       ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Vars - Input Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4150,9 +4172,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "046d0b2a-42a9-4d63-a741-aa6eb60834cf",
-  "activeVersionId": null,
-  "versionCounter": 280,
+  "versionId": "95e4fbec-ea78-4605-9b09-b99668415666",
+  "activeVersionId": "c6e54b90-d8f4-4144-ab39-44be3187989a",
+  "versionCounter": 284,
   "triggerCount": 0,
   "tags": [],
   "shared": [
