@@ -15,3 +15,4 @@ You must strictly follow the provided JSON schema.
 - Decimals: Round to the nearest whole number.
 - Missing Values: If a field is not found, return `0` or `null` (if allowed by schema), do not guess.
 - Language: The source may be in English, Traditional Chinese, or both. Map terms regardless of language.
+- When looking for Net Current Assets, examine the Balance Sheet / Statement of Financial Position. If 'Net Current Assets' is not explicitly calculated, extract the total 'Current Assets' and 'Current Liabilities' so the system can calculate it.
