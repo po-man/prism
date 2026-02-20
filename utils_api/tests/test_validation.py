@@ -9,7 +9,12 @@ VALID_FINANCIALS = {
     "income": {"donations": 100, "government_grants": 200, "total": 300},
     "expenditure": {"administration": 50, "fundraising": 20, "program_services": 150, "total": 220},
     "lsg_specifics": {"lsg_reserve_amount": 10, "provident_fund_reserve": 5},
-    "ratio_inputs": {"monthly_operating_expenses": 18, "net_current_assets": 40},
+    "ratio_inputs": {
+        "monthly_operating_expenses": 18,
+        "net_current_assets": 40,
+        "current_assets": 50,
+        "current_liabilities": 10
+    },
 }
 
 VALID_IMPACT = {

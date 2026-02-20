@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-02-11T10:20:20.323Z",
+  "updatedAt": "2026-02-20T08:49:37.000Z",
   "createdAt": "2026-01-31T19:05:16.465Z",
   "id": "dM945Azme2TNMwoX",
   "name": "Download PDF & Extract Text",
   "description": null,
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -389,27 +389,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "693c2fb9-d781-4068-8a66-4224b569dc32",
-  "activeVersionId": null,
-  "versionCounter": 36,
+  "versionId": "54b027db-4168-4148-97dc-d135d059bb59",
+  "activeVersionId": "54b027db-4168-4148-97dc-d135d059bb59",
+  "versionCounter": 40,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-19T18:09:19.328Z",
-      "createdAt": "2026-02-19T18:09:19.328Z",
+      "updatedAt": "2026-02-20T08:49:35.294Z",
+      "createdAt": "2026-02-20T08:49:35.294Z",
       "role": "workflow:owner",
       "workflowId": "dM945Azme2TNMwoX",
-      "projectId": "8o5wnFIoEzXDSqz7",
+      "projectId": "I2PTxje8rXigcddt",
       "project": {
-        "updatedAt": "2026-02-19T18:11:03.048Z",
-        "createdAt": "2026-02-19T18:09:17.999Z",
-        "id": "8o5wnFIoEzXDSqz7",
+        "updatedAt": "2026-02-20T08:49:50.216Z",
+        "createdAt": "2026-02-20T08:49:33.461Z",
+        "id": "I2PTxje8rXigcddt",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "018f57af-bd41-4d29-85d8-a7119d33707a"
+        "creatorId": "3c8ec4fd-12f5-4b2f-ae76-a781b76c737d"
       }
     }
   ]

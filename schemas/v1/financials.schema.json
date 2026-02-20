@@ -64,9 +64,11 @@
       "description": "Inputs for calculating financial ratios.",
       "properties": {
         "monthly_operating_expenses": { "type": ["number", "null"] },
-        "net_current_assets": { "type": ["number", "null"] }
+        "net_current_assets": { "type": ["number", "null"] },
+        "current_assets": { "type": ["number", "null"] },
+        "current_liabilities": { "type": ["number", "null"] }
       },
-      "required": ["monthly_operating_expenses", "net_current_assets"]
+      "required": ["monthly_operating_expenses", "net_current_assets", "current_assets", "current_liabilities"]
     }
   },
   "required": ["financial_year", "income", "expenditure", "lsg_specifics", "ratio_inputs"]
