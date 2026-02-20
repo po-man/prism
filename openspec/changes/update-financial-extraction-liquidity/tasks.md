@@ -14,5 +14,5 @@
 - [x] 3.3 Ensure the `details.calculation` string correctly reflects whether the dynamic fallback was used (e.g., `"(($5,000,000 - $2,000,000) / $1,000,000) = 3.0 months"`).
 
 ## 4. Testing & Validation
-- [ ] 4.1 Update `utils_api/tests/test_validation.py` to include `current_assets` and `current_liabilities` in the mock `VALID_FINANCIALS` payload.
-- [ ] 4.2 Update `utils_api/tests/test_audit.py` to test the new fallback logic: pass a payload with missing `net_current_assets` but populated components, and assert `check_liquidity` returns a `pass` or `fail` instead of `null`.
+- [x] 4.1 Update `utils_api/tests/test_validation.py` to include `current_assets` and `current_liabilities` in the mock `VALID_FINANCIALS` payload.
+- [x] 4.2 Update `utils_api/tests/test_audit.py` to test the new fallback logic: pass a payload with missing `net_current_assets` but populated components, and assert `check_liquidity` returns a `pass` or `fail` instead of `null`.
