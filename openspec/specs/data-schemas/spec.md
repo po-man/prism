@@ -22,11 +22,21 @@ Every extracted data point MUST include a direct citation to its source to ensur
   - `snippet`: The exact text extracted (e.g., "Total Income: $45,200,300").
 
 ### Requirement: Financial Health Definitions
-The schema SHALL enforce standard financial accounting definitions suitable for ratio analysis.
+The schema SHALL enforce standard financial accounting definitions suitable for ratio analysis and provide component-level fallbacks to ensure data resilience.
 
 #### Scenario: Liquidity Inputs
 - **WHEN** extracting balance sheet data
-- **THEN** the schema MUST require `net_current_assets` and `monthly_operating_expenses`.
+- **THEN** the schema MUST require `monthly_operating_expenses`.
+- **AND** the schema MUST accept either `net_current_assets` OR a combination of `current_assets` and `current_liabilities`.
+
+#### Scenario: Grading Evidence Quality
+- **WHEN** extracting impact data
+- **THEN** the `evidence_quality` field MUST be an Enum restricted to:
+  - `"RCT/Meta-Analysis"` (Gold standard)
+  - `"Quasi-Experimental"` (Control groups used)
+  - `"Pre-Post"` (Before/After comparison only)
+  - `"Anecdotal"` (Stories/Testimonials only)
+  - `"None"` (No data provided)
 
 ### Requirement: LSG Regulatory Compliance
 The schema SHALL capture specific regulatory compliance flags mandated by the Social Welfare Department (SWD).
