@@ -56,17 +56,24 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
         id="check_liquidity", status="null", significance="MEDIUM", category="Financial Health", details=base_details
     )
 
-    if (
-        not record.financials
-        or not record.financials.ratio_inputs
-        or record.financials.ratio_inputs.net_current_assets is None
-        or record.financials.ratio_inputs.monthly_operating_expenses is None
-    ):
+    if not record.financials or not record.financials.ratio_inputs:
         base_item.details.calculation = "Required financial data is missing."
         return base_item
 
+    ratio_inputs = record.financials.ratio_inputs
     assets = record.financials.ratio_inputs.net_current_assets
-    monthly_expenses = record.financials.ratio_inputs.monthly_operating_expenses
+    monthly_expenses = ratio_inputs.monthly_operating_expenses
+    calculation_string = ""
+
+    if assets is None and getattr(ratio_inputs, 'current_assets', None) is not None and getattr(ratio_inputs, 'current_liabilities', None) is not None:
+        current_assets = ratio_inputs.current_assets
+        current_liabilities = ratio_inputs.current_liabilities
+        assets = current_assets - current_liabilities
+        calculation_string = f"((${current_assets:,.0f} - ${current_liabilities:,.0f}) / ${monthly_expenses:,.0f})"
+
+    if assets is None or monthly_expenses is None:
+        base_item.details.calculation = "Required financial data is missing."
+        return base_item
 
     if monthly_expenses <= 0:
         # Assuming monthly_expenses can be 0, but not negative.
@@ -78,7 +85,10 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
     threshold = 3
 
     truncated_ratio = int(ratio * 10) / 10.0
-    base_item.details.calculation = f"(${assets:,.0f} / ${monthly_expenses:,.0f}) = {truncated_ratio:.1f} months"
+    if not calculation_string:
+        calculation_string = f"(${assets:,.0f} / ${monthly_expenses:,.0f})"
+
+    base_item.details.calculation = f"{calculation_string} = {truncated_ratio:.1f} months"
 
     if ratio < threshold:
         base_item.status = "fail"
