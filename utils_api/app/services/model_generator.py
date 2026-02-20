@@ -10,4 +10,4 @@ def create_dynamic_model(schema_name: str) -> Type[BaseModel]:
     Loads a JSON schema and generates a Pydantic model from it.
     """
     schema = load_schema(schema_name)
-    return create_model(schema)
+    return create_model(schema, allow_undefined_type=True)
