@@ -1,6 +1,5 @@
 ## 1. Schema Updates
-- [ ] 1.1 Modify `schemas/v1/financials.schema.json`. Under `properties.ratio_inputs.properties`, add `current_assets` (type: number/null) and `current_liabilities` (type: number/null).
-- [ ] 1.2 Update the `required` array in `ratio_inputs` to ensure backward compatibility (e.g., keeping `monthly_operating_expenses` required, but allowing flexibility on the asset fields).
+- [x] 1.1 Modify `schemas/v1/financials.schema.json`. Under `properties.ratio_inputs.properties`, add `current_assets` (type: number/null) and `current_liabilities` (type: number/null).
 
 ## 2. Extraction/Prompt Layer (LLM Prompts)
 - [ ] 2.1 Open `n8n/prompt-templates/financials.system.md`.
