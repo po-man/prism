@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-19T18:19:35.582Z",
+  "updatedAt": "2026-02-20T09:48:41.935Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2790,6 +2790,8 @@
       ],
       "id": "10e19ddb-bb47-4936-9fcf-7cd33dab55d6",
       "name": "Find Metadata",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "googlePalmApi": {
           "id": "7EY3kWdzHSKXrfnm",
@@ -2817,6 +2819,8 @@
       ],
       "id": "75210d75-2398-4824-9265-4ec17ab41e26",
       "name": "Extract Financials",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "googlePalmApi": {
           "id": "7EY3kWdzHSKXrfnm",
@@ -2844,6 +2848,8 @@
       ],
       "id": "344c7d5b-8898-4b5d-8398-d7c1f41b1c1a",
       "name": "Extract Impact Metrics",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "googlePalmApi": {
           "id": "7EY3kWdzHSKXrfnm",
@@ -2878,6 +2884,8 @@
       ],
       "id": "2d574742-2501-42bd-88a7-1f118a55c12a",
       "name": "Extract Risk",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "googlePalmApi": {
           "id": "7EY3kWdzHSKXrfnm",
@@ -2904,6 +2912,8 @@
       ],
       "id": "9c5ce8a5-71a2-4567-be25-2393e77038b5",
       "name": "Extract Governance Metrics",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "googlePalmApi": {
           "id": "7EY3kWdzHSKXrfnm",
@@ -2924,7 +2934,7 @@
             {
               "id": "19e98406-4d26-4cfc-a12c-1f2580beb280",
               "name": "gemini_model",
-              "value": "models/gemini-2.5-flash-lite",
+              "value": "models/gemini-2.5-flash",
               "type": "string"
             }
           ]
@@ -4218,27 +4228,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "144651c6-b3eb-4f49-a0fc-fd32d1930df1",
-  "activeVersionId": "75cb7924-662d-4386-b7a3-ea6644396008",
-  "versionCounter": 287,
+  "versionId": "d963a155-f6ad-4be7-81df-feb2b373d19d",
+  "activeVersionId": "f32b4969-a58a-4803-a297-6c580790d20c",
+  "versionCounter": 293,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-19T18:09:19.326Z",
-      "createdAt": "2026-02-19T18:09:19.326Z",
+      "updatedAt": "2026-02-20T08:49:35.292Z",
+      "createdAt": "2026-02-20T08:49:35.292Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "8o5wnFIoEzXDSqz7",
+      "projectId": "I2PTxje8rXigcddt",
       "project": {
-        "updatedAt": "2026-02-19T18:11:03.048Z",
-        "createdAt": "2026-02-19T18:09:17.999Z",
-        "id": "8o5wnFIoEzXDSqz7",
+        "updatedAt": "2026-02-20T08:49:50.216Z",
+        "createdAt": "2026-02-20T08:49:33.461Z",
+        "id": "I2PTxje8rXigcddt",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "018f57af-bd41-4d29-85d8-a7119d33707a"
+        "creatorId": "3c8ec4fd-12f5-4b2f-ae76-a781b76c737d"
       }
     }
   ]

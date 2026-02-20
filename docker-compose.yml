@@ -30,6 +30,8 @@ services:
       n8n import:credentials --all --separate --decrypted --input=/home/node/.n8n-files/credentials &&
       n8n import:workflow --all --separate --input=/home/node/.n8n-files/workflows &&
       n8n publish:workflow --id=SUjUpjve9Vj6aJSbbuIWL &&
+      n8n publish:workflow --id=dM945Azme2TNMwoX &&
+      n8n publish:workflow --id=KyDtBHSVI5wyX2KM &&
       n8n start
       "
 
