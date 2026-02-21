@@ -4,6 +4,13 @@
 ### Requirement: Cloud-Native Artifact Caching for Intelligence Processing
 The system SHALL utilize cloud-native file APIs (e.g., the Gemini File API) for processing large documents to bypass inline payload limits, and SHALL cache these remote references locally to minimize redundant network uploads, reduce latency, and respect API rate limits.
 
+#### Scenario: Processing a large document for the first time
+- **GIVEN** a source artifact for a PDF larger than 50MB exists in the local datastore
+- **AND** it has no `gemini_file_uri`
+- **WHEN** the main workflow triggers an extraction task for this artifact
+- **THEN** the system MUST upload the file to the Gemini File API
+- **AND** persist the returned `gemini_file_uri` and the current timestamp to the `source_artifacts` record for future use.
+
 ### Requirement: Modular URI Resolution
 The logic for checking cloud URI expiration and re-uploading documents SHALL be isolated in a dedicated sub-workflow to maintain the idempotency and readability of the main orchestrator.
 
