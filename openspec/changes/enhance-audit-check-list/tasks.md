@@ -1,8 +1,8 @@
 # openspec/changes/enhance-audit-check-list/tasks.md
 
 ## 1. Schema Updates (data-schemas)
-- [ ] 1.1 Modify `schemas/v1/impact.schema.json` to update the `evidence_quality` enum to reflect the new EA hierarchy: `["RCT/Meta-Analysis", "Quasi-Experimental", "Pre-Post", "Anecdotal", "None"]` (replacing the old High/Medium/Low).
-- [ ] 1.2 Modify `schemas/v1/impact.schema.json` to add `maxLength` constraints (e.g., `maxLength: 150`) to narrative fields like `context_qualifier` and `counterfactual_baseline.description` to programmatically enforce UI-friendly brevity.
+- [x] 1.1 Modify `schemas/v1/impact.schema.json` to update the `evidence_quality` enum to reflect the new EA hierarchy: `["RCT/Meta-Analysis", "Quasi-Experimental", "Pre-Post", "Anecdotal", "None"]` (replacing the old High/Medium/Low).
+- [x] 1.2 Modify `schemas/v1/impact.schema.json` to add `maxLength` constraints (e.g., `maxLength: 150`) to narrative fields like `context_qualifier` and `counterfactual_baseline.description` to programmatically enforce UI-friendly brevity.
 
 ## 2. Prompt Engineering (n8n)
 - [ ] 2.1 Update `n8n/prompt-templates/impact.system.md` to instruct the LLM to generate concise, short-string summaries for `context_qualifier` and `description` fields to comply with the new schema limits.
