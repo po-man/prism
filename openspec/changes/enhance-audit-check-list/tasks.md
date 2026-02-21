@@ -9,11 +9,11 @@
 - [x] 2.2 Update `n8n/prompt-templates/impact.user.md` to reinforce the extraction of specific target populations rather than vague statements, and ensure it maps exactly to the new `evidence_quality` enums.
 
 ## 3. Audit Logic Implementation (utils_api)
-- [ ] 3.1 Create `utils_api/app/audits/impact.py`.
-- [ ] 3.2 Implement `check_evidence_quality(record)`. Scan `severity_dimensions`; pass if at least one is `"RCT/Meta-Analysis"` or `"Quasi-Experimental"`, flag as warning if only `"Anecdotal"` or `"None"`. Set significance to HIGH.
-- [ ] 3.3 Implement `check_counterfactual_baseline(record)`. Pass if `counterfactual_baseline.description` and `value` are non-null and logically populated. Set significance to MEDIUM.
-- [ ] 3.4 Implement `check_cost_per_outcome(record)`. Divide `financials.data.expenditure.program_services` by the highest `population` or `quantitative_data.value`. Handle `ZeroDivisionError` and missing data gracefully. Set status to `null` (informational only).
-- [ ] 3.5 Implement `check_funding_neglectedness(record)`. Calculate `income.government_grants / income.total`. Flag as warning ("Low Neglectedness") if > 80%. Pass ("High Neglectedness") if < 40%. Set significance to MEDIUM.
+- [x] 3.1 Create `utils_api/app/audits/impact.py`.
+- [x] 3.2 Implement `check_evidence_quality(record)`. Scan `severity_dimensions`; pass if at least one is `"RCT/Meta-Analysis"` or `"Quasi-Experimental"`, flag as warning if only `"Anecdotal"` or `"None"`. Set significance to HIGH.
+- [x] 3.3 Implement `check_counterfactual_baseline(record)`. Pass if `counterfactual_baseline.description` and `value` are non-null and logically populated. Set significance to MEDIUM.
+- [x] 3.4 Implement `check_cost_per_outcome(record)`. Divide `financials.data.expenditure.program_services` by the highest `population` or `quantitative_data.value`. Handle `ZeroDivisionError` and missing data gracefully. Set status to `null` (informational only).
+- [x] 3.5 Implement `check_funding_neglectedness(record)`. Calculate `income.government_grants / income.total`. Flag as warning ("Low Neglectedness") if > 80%. Pass ("High Neglectedness") if < 40%. Set significance to MEDIUM.
 
 ## 4. Orchestration & Testing
 - [ ] 4.1 Register the 4 new functions in `utils_api/app/audits/registry.py` under a new "Impact Awareness" block.
