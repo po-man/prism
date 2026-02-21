@@ -1,8 +1,8 @@
 ## 1. Database Schema Updates (PocketBase)
-- [ ] 1.1 Create a new migration file in `pocketbase/migrations/` to update the `source_artifacts` collection.
-- [ ] 1.2 Add a new text field: `gemini_file_uri` (pattern: URI).
-- [ ] 1.3 Add a new date field: `gemini_file_uploaded_at`.
-- [ ] 1.4 Apply the migration and verify the fields appear in the PocketBase Admin UI.
+- [x] 1.1 Create a new migration file in `pocketbase/migrations/` to update the `source_artifacts` collection.
+- [x] 1.2 Add a new text field: `gemini_file_uri` (pattern: URI).
+- [x] 1.3 Add a new date field: `gemini_file_uploaded`.
+- [x] 1.4 Apply the migration and verify the fields appear in the PocketBase Admin UI.
 
 ## 2. Create Sub-Workflow: `Ensure Gemini URI`
 - [ ] 2.1 Create a new n8n workflow. Add an `Execute Workflow Trigger` node that accepts `artifact_id` and `file_name` as inputs.
