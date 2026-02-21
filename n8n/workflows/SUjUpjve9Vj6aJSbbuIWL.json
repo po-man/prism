@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-20T15:07:05.022Z",
+  "updatedAt": "2026-02-21T10:05:59.000Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -461,7 +461,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1760,
+        656,
         4656
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -470,7 +470,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -478,7 +478,7 @@
           "parameters": [
             {
               "name": "financials",
-              "value": "={{\n  {\n    data: $('Parsed Content (Financials)').item.json.parsedContentObject,\n    schema: $('Schema Validation (Financials)').item.json,\n    audit_trails: $('Parsed Content (Financials)').item.json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Parsed Content (Financials)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Financials)').first().json,\n    audit_trails: $('Parsed Content (Financials)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -487,7 +487,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2208,
+        1104,
         4656
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -750,7 +750,7 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        4976
+        4848
       ],
       "id": "2a34d71c-08c4-4214-9ce1-8b7c010ec0f6",
       "name": "Exists? (Impact)"
@@ -770,60 +770,13 @@
     },
     {
       "parameters": {
-        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Impact)').item.json.expand.annual_report.id }}/{{ $('Exists? (Impact)').item.json.expand.annual_report.text }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "text"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        480,
-        4976
-      ],
-      "id": "a230bca6-512a-4582-bc77-3150bfb8d8e4",
-      "name": "Storage API - Get Charity - Download Annual Report",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "toText",
-        "sourceProperty": "data",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.convertToFile",
-      "typeVersion": 1.1,
-      "position": [
-        704,
-        4976
-      ],
-      "id": "b31de61b-d8c1-4441-af01-5608c4874865",
-      "name": "Text to Binary - Annual Report"
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.candidates[0].content.parts[0].text);\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1376,
-        4976
+        656,
+        4848
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
       "name": "Parsed Content (Impact Metrics)"
@@ -831,7 +784,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -839,7 +792,7 @@
           "parameters": [
             {
               "name": "impact",
-              "value": "={{\n  {\n    data: $('Parsed Content (Impact Metrics)').item.json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').item.json,\n    audit_trails: $('Parsed Content (Impact Metrics)').item.json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Parsed Content (Impact Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').first().json,\n    audit_trails: $('Parsed Content (Impact Metrics)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -848,8 +801,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1808,
-        4976
+        1104,
+        4848
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
       "name": "Storage API - Update Charity - Impact",
@@ -1056,7 +1009,7 @@
     },
     {
       "parameters": {
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendQuery": true,
@@ -1126,7 +1079,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -1162,7 +1115,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -1198,7 +1151,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -1626,42 +1579,10 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        5376
+        5040
       ],
       "id": "6d63b165-80b5-4a01-be6f-f1267976a394",
       "name": "Exists? (Governance)"
-    },
-    {
-      "parameters": {
-        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.id }}/{{ $('Exists? (Governance)').item.json.expand.rem_pkg_review_report.raw }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "file"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        496,
-        5264
-      ],
-      "id": "323dc7fa-7303-4039-b362-c95fc9c2f138",
-      "name": "Storage API - Get Charity - Download Rem. Pkg Review Report",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
     },
     {
       "parameters": {
@@ -1670,8 +1591,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1840,
-        5376
+        656,
+        5040
       ],
       "id": "a16fade8-3b94-4557-b663-67691c01f82a",
       "name": "Parsed Content (Governance Metrics)"
@@ -1679,7 +1600,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -1687,7 +1608,7 @@
           "parameters": [
             {
               "name": "governance",
-              "value": "={{\n  {\n    data: $('Parsed Content (Governance Metrics)').item.json.parsedContentObject,\n    schema: $('Schema Validation (Governance)').item.json,\n    audit_trails: $('Parsed Content (Governance Metrics)').item.json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Parsed Content (Governance Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Governance)').first().json,\n    audit_trails: $('Parsed Content (Governance Metrics)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -1696,8 +1617,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2192,
-        5376
+        1104,
+        5040
       ],
       "id": "1094f1fd-6fa2-499a-b001-39250786d8fa",
       "name": "Storage API - Update Charity - Governance",
@@ -1711,162 +1632,6 @@
           "name": "Storage API"
         }
       }
-    },
-    {
-      "parameters": {
-        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Governance)').item.json.expand.annual_report.id }}/{{ $('Exists? (Governance)').item.json.expand.annual_report.text }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "text"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        496,
-        5504
-      ],
-      "id": "0471d184-9c7f-4891-bdec-3301283e1e18",
-      "name": "Storage API - Get Charity - Download Annual Report1",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "toText",
-        "sourceProperty": "data",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.convertToFile",
-      "typeVersion": 1.1,
-      "position": [
-        720,
-        5504
-      ],
-      "id": "a5a8c7e0-2cdb-49c0-b499-039b1b83f7ef",
-      "name": "Text to Binary - Annual Report1"
-    },
-    {
-      "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        944,
-        5504
-      ],
-      "id": "b52a768e-64ee-42df-874d-096124c8ce0a",
-      "name": "Binary to base64 - Annual Report1"
-    },
-    {
-      "parameters": {
-        "jsCode": "const { json: { data: ar_data } } = $input.all()[0];\nconst { json: { data: rr_data } } = $input.all()[1];\n\nconst format_attachment = (data, mimetype) => {\n  return `,\n    {\n      \"inline_data\": {\n        \"mime_type\": \"${mimetype}\",\n        \"data\": \"${data}\"\n      }\n    }\n  `;\n}\n\nreturn {\n  ...$input.first(),\n  json: {\n    ar_data: ar_data ? format_attachment(ar_data, \"application/pdf\") : \"\",\n    rr_data: rr_data ? format_attachment(rr_data, \"text/plain\") : \"\",\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1392,
-        5376
-      ],
-      "id": "89b64f90-d0a7-40d9-951e-a1e489af3ec3",
-      "name": "Code in JavaScript1"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
-              "leftValue": "={{ $('Exists? (Governance)').item.json.rem_pkg_review_report }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        272,
-        5264
-      ],
-      "id": "32c4115b-2e96-4afd-88af-6a3d389cd519",
-      "name": "If Rem.Pkg Review Report exists"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
-              "leftValue": "={{ $('Exists? (Governance)').item.json.annual_report }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        272,
-        5504
-      ],
-      "id": "f7be0011-c457-4fbe-8eb9-fc73baa2a331",
-      "name": "If Annual Report exists"
-    },
-    {
-      "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        944,
-        5264
-      ],
-      "id": "55bb274f-2bb3-4623-9e5f-cb3fdaf42bb5",
-      "name": "Base64 - Rem. Pkg Review Report"
     },
     {
       "parameters": {
@@ -1887,17 +1652,6 @@
       "name": "Wait until all downloads done"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1168,
-        5376
-      ],
-      "id": "32fca4ee-a800-496a-93f1-2f28687bb8b4",
-      "name": "Wait until all data ready"
-    },
-    {
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
@@ -1907,8 +1661,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2720,
-        4976
+        1536,
+        4912
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
       "name": "Wait until all analysis done"
@@ -1981,7 +1735,7 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        5728
+        5248
       ],
       "id": "e4440626-b37c-4592-84ef-97739246200a",
       "name": "Exists? (Risk)"
@@ -1993,8 +1747,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1360,
-        5728
+        656,
+        5248
       ],
       "id": "068f9452-4446-4870-8368-ef369b4f4723",
       "name": "Parsed Content (Risk)"
@@ -2002,7 +1756,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -2010,7 +1764,7 @@
           "parameters": [
             {
               "name": "risk",
-              "value": "={{\n  {\n    data: $('Parsed Content (Risk)').item.json.parsedContentObject,\n    schema: $('Schema Validation (Risk)').item.json,\n    audit_trails: $('Parsed Content (Risk)').item.json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Parsed Content (Risk)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Risk)').first().json,\n    audit_trails: $('Parsed Content (Risk)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -2019,8 +1773,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1792,
-        5728
+        1104,
+        5248
       ],
       "id": "2d914e5e-728f-4543-8d41-c89bf010b47a",
       "name": "Storage API - Update Charity - Risk",
@@ -2095,13 +1849,13 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').item.json.financials_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.financials_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -384,
+        -368,
         4656
       ],
       "id": "c8573093-d3b1-4b1e-a668-99f76de7611d",
@@ -2115,7 +1869,7 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
+        -144,
         4656
       ],
       "id": "43f2d83d-2dab-4a2f-ad97-eb96e1a57b7c",
@@ -2123,14 +1877,14 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').item.json.impact_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.impact_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -384,
-        4976
+        -368,
+        4848
       ],
       "id": "873391a7-de81-422e-aa1e-00095b8d5bfd",
       "name": "Read JSON schema (Impact)"
@@ -2143,22 +1897,22 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
-        4976
+        -144,
+        4848
       ],
       "id": "42eca936-3a6c-42ca-8515-5cb8b0b0fff0",
       "name": "Binary to Text (JSON schema, Impact)"
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').item.json.governance_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.governance_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -384,
-        5376
+        -368,
+        5040
       ],
       "id": "a9287eb2-e97d-4296-ba13-23f7bf4162bf",
       "name": "Read JSON schema (Governance)"
@@ -2171,22 +1925,22 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
-        5376
+        -144,
+        5040
       ],
       "id": "1a59c23d-5020-4380-968d-45954ca59d69",
       "name": "Binary to Text (JSON schema, Governance)"
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').item.json.risk_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.risk_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -384,
-        5728
+        -368,
+        5248
       ],
       "id": "19745ac5-6ace-4044-adea-b1df3d3bd992",
       "name": "Read JSON schema (Risk)"
@@ -2199,8 +1953,8 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        -176,
-        5728
+        -144,
+        5248
       ],
       "id": "0cccc52b-0366-4317-8be6-2a532da023e1",
       "name": "Binary to Text (JSON schema, Risk)"
@@ -2261,17 +2015,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').item.json.financials_schema }}"
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.financials_schema }}"
             },
             {
               "name": "data",
-              "value": "={{$('Parsed Content (Financials)').item.json.parsedContentObject}}"
+              "value": "={{$('Parsed Content (Financials)').first().json.parsedContentObject}}"
             }
           ]
         },
@@ -2280,7 +2034,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1984,
+        880,
         4656
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -2289,17 +2043,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').item.json.impact_schema }}"
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.impact_schema }}"
             },
             {
               "name": "data",
-              "value": "={{$('Parsed Content (Impact Metrics)').item.json.parsedContentObject}}"
+              "value": "={{$('Parsed Content (Impact Metrics)').first().json.parsedContentObject}}"
             }
           ]
         },
@@ -2308,8 +2062,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1584,
-        4976
+        880,
+        4848
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
       "name": "Schema Validation (Impact)"
@@ -2317,17 +2071,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').item.json.risk_schema }}"
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.risk_schema }}"
             },
             {
               "name": "data",
-              "value": "={{$('Parsed Content (Risk)').item.json.parsedContentObject}}"
+              "value": "={{$('Parsed Content (Risk)').first().json.parsedContentObject}}"
             }
           ]
         },
@@ -2336,8 +2090,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1568,
-        5728
+        880,
+        5248
       ],
       "id": "a01a78b3-92a9-42d5-9ee7-e5c565f274a9",
       "name": "Schema Validation (Risk)"
@@ -2345,17 +2099,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').item.json.governance_schema }}"
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.governance_schema }}"
             },
             {
               "name": "data",
-              "value": "={{$('Parsed Content (Governance Metrics)').item.json.parsedContentObject}}"
+              "value": "={{$('Parsed Content (Governance Metrics)').first().json.parsedContentObject}}"
             }
           ]
         },
@@ -2364,15 +2118,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2000,
-        5376
+        880,
+        5040
       ],
       "id": "d92bea68-280c-408b-9104-a2103a4d3803",
       "name": "Schema Validation (Governance)"
     },
     {
       "parameters": {
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendQuery": true,
@@ -2386,8 +2140,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -208,
-        6320
+        80,
+        5792
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
       "name": "Storage API - Get Charity for analytics",
@@ -2401,7 +2155,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/audit",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/audit",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -2428,8 +2182,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        16,
-        6320
+        304,
+        5792
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
       "name": "Analytics"
@@ -2437,7 +2191,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -2445,7 +2199,7 @@
           "parameters": [
             {
               "name": "analytics",
-              "value": "={{ $('Analytics').item.json }}"
+              "value": "={{ $('Analytics').first().json }}"
             }
           ]
         },
@@ -2454,8 +2208,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        464,
-        6320
+        752,
+        5792
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
       "name": "Storage API - Update Charity - Analytics",
@@ -2469,13 +2223,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').item.json.utils_api_host }}/validate",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').item.json.analytics_schema }}"
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.analytics_schema }}"
             },
             {
               "name": "data",
@@ -2488,8 +2242,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        240,
-        6320
+        528,
+        5792
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
       "name": "Schema Validation (Analytics)"
@@ -2502,8 +2256,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        672,
-        6320
+        960,
+        5792
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
       "name": "Convert to File (output Organisation)"
@@ -2511,14 +2265,14 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "=/home/node/.n8n-files/data/organisations/{{ $('Storage API - Update Charity - Analytics').item.json.id }}.json",
+        "fileName": "=/home/node/.n8n-files/data/organisations/{{ $('Storage API - Update Charity - Analytics').first().json.id }}.json",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        880,
-        6320
+        1168,
+        5792
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
       "name": "Write to data/organisations/{id}.json"
@@ -2536,7 +2290,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/financials.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/financials.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Financials)').item.json.data)\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Financials)').first().json.data)\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2569,7 +2323,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        48,
+        80,
         4656
       ],
       "id": "c30db9fc-4f48-49bc-b042-6d5a6296227f",
@@ -2588,7 +2342,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/impact.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/impact.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Impact)').item.json.data)\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Impact)').first().json.data)\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2621,8 +2375,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        48,
-        4976
+        80,
+        4848
       ],
       "id": "0dd9bc57-8100-44ec-bb28-791c8e08ea1c",
       "name": "Call 'Prompt Injection' - Impact"
@@ -2640,7 +2394,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/governance.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/governance.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data)\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Governance)').first().json.data)\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2673,8 +2427,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        48,
-        5376
+        80,
+        5040
       ],
       "id": "3c71ce18-e884-40fe-96d6-d9c2f3a0cbd6",
       "name": "Call 'Prompt Injection' - Governance"
@@ -2692,7 +2446,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/risk.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/risk.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').item.json.data),\n  CHARITY_NAME: $('Exists? (Risk)').item.json.charity_name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').item.json.charity_name_chi.replaceAll(\"'\", \"\\\\'\")\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').first().json.data),\n  CHARITY_NAME: $('Exists? (Risk)').first().json.charity_name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').first().json.charity_name_chi.replaceAll(\"'\", \"\\\\'\")\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2725,8 +2479,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        48,
-        5728
+        80,
+        5248
       ],
       "id": "5e6872a8-efe8-494a-858a-ed5620a89205",
       "name": "Call 'Prompt Injection' - Risk"
@@ -2769,44 +2523,15 @@
     },
     {
       "parameters": {
-        "resource": "document",
         "modelId": {
           "__rl": true,
-          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
-          "mode": "id"
-        },
-        "text": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact').item.json.injected_prompts[1] }}\n</user prompt>",
-        "inputType": "binary",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        1152,
-        4976
-      ],
-      "id": "344c7d5b-8898-4b5d-8398-d7c1f41b1c1a",
-      "name": "Extract Impact Metrics",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "7EY3kWdzHSKXrfnm",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
+          "value": "={{ $('Vars - Gemini').first().json.gemini_model }}",
           "mode": "id"
         },
         "messages": {
           "values": [
             {
-              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').item.json.injected_prompts[1] }}\n</user prompt>"
+              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').first().json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Risk').first().json.injected_prompts[1] }}\n</user prompt>"
             }
           ]
         },
@@ -2818,8 +2543,8 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        288,
-        5728
+        304,
+        5248
       ],
       "id": "2d574742-2501-42bd-88a7-1f118a55c12a",
       "name": "Extract Risk",
@@ -2835,19 +2560,19 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Gemini').item.json.gemini_url }}/{{ $('Vars - Gemini').item.json.gemini_model }}:generateContent",
+        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').item.json.injected_prompts[1]) }} }\n        {{ $json.ar_data }}{{ $json.rr_data }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Governance)').item.json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').first().json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n{{ $('Storage API - Get Charity').first().json.rem_pkg_review_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.rem_pkg_review_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Governance)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1616,
-        5376
+        304,
+        5040
       ],
       "id": "9c5ce8a5-71a2-4567-be25-2393e77038b5",
       "name": "Extract Governance Metrics",
@@ -2908,199 +2633,262 @@
     },
     {
       "parameters": {
-        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Financials)').item.json.expand.annual_report.id }}/{{ $('Exists? (Financials)').item.json.expand.annual_report.raw }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "file"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        512,
-        4784
-      ],
-      "id": "23c5b549-ec22-47e0-905f-6671604b70ca",
-      "name": "Storage API - Get Charity - Download Annual Report2",
-      "credentials": {
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        736,
-        4784
-      ],
-      "id": "2e88d817-10b9-4448-95d6-cc7a0b78e8f8",
-      "name": "Binary to base64 - Annual Report"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
-              "leftValue": "={{ $('Exists? (Financials)').item.json.annual_report }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        288,
-        4784
-      ],
-      "id": "18cc4d2c-f381-4501-8e30-24435cb0bd8a",
-      "name": "If Annual Report exists1"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1088,
-        4656
-      ],
-      "id": "9f61e7af-3b8b-4bca-beb8-746bdba14b1b",
-      "name": "Wait until all data ready1"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "7a78c542-5a0b-4089-9ef8-281137000023",
-              "leftValue": "={{ $('Exists? (Financials)').item.json.financial_report }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        288,
-        4544
-      ],
-      "id": "6bbd0713-062f-41ca-9f84-52886621e76f",
-      "name": "If Financial Report exists"
-    },
-    {
-      "parameters": {
-        "url": "=http://storage_api:8090/api/files/source_artifacts/{{ $('Exists? (Financials)').item.json.expand.financial_report.id }}/{{ $('Exists? (Financials)').item.json.expand.financial_report.raw }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "file"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        512,
-        4544
-      ],
-      "id": "81f36a30-bb9b-4d73-823c-97fa52962426",
-      "name": "Storage API - Get Charity - Download Financial Report1",
-      "credentials": {
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "binaryToPropery",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        736,
-        4544
-      ],
-      "id": "15012060-7cb2-478e-9e15-30105dcee968",
-      "name": "Base64 - Financials Report"
-    },
-    {
-      "parameters": {
-        "jsCode": "const { json: { data: ar_data } } = $input.all()[0];\nconst { json: { data: fr_data } } = $input.all()[1];\n\nconst format_attachment = (data, mimetype) => {\n  return `,\n    {\n      \"inline_data\": {\n        \"mime_type\": \"${mimetype}\",\n        \"data\": \"${data}\"\n      }\n    }\n  `;\n}\n\nreturn {\n  ...$input.first(),\n  json: {\n    ar_data: ar_data ? format_attachment(ar_data, \"application/pdf\") : \"\",\n    fr_data: fr_data ? format_attachment(fr_data, \"application/pdf\") : \"\",\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1312,
-        4656
-      ],
-      "id": "106f95a9-4480-43e0-8938-20c487eb6dbe",
-      "name": "Code in JavaScript2"
-    },
-    {
-      "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Gemini').item.json.gemini_url }}/{{ $('Vars - Gemini').item.json.gemini_model }}:generateContent",
+        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').item.json.injected_prompts[1]) }} }\n        {{ $json.ar_data }}{{ $json.fr_data }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Financials)').item.json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').first().json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n{{ $('Storage API - Get Charity').first().json.financial_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.financial_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Financials)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1536,
+        304,
         4656
       ],
       "id": "f74f320f-326c-4e5f-a53a-fdc2f4a168b0",
       "name": "Extract Financials",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report,rem_pkg_review_report"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1664,
+        4064
+      ],
+      "id": "a13d6d1e-8b73-4c43-b1cd-47b0f6c38502",
+      "name": "Storage API - Get Charity1",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "7WmUvPfyMRFCI864",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/7WmUvPfyMRFCI864",
+          "cachedResultName": "Ensure File is on Gemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "artifact_id": "={{ $json.expand.financial_report.id }}",
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
+          },
+          "matchingColumns": [
+            "expand_financial_report_id"
+          ],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "artifact_id",
+              "displayName": "artifact_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        4064
+      ],
+      "name": "Call Ensure File is on Gemini",
+      "id": "47395209-3b5e-4360-bb57-3c0bd7a4ce12"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "7WmUvPfyMRFCI864",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/7WmUvPfyMRFCI864",
+          "cachedResultName": "Ensure File is on Gemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "artifact_id": "={{ $json.expand.annual_report.id }}",
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
+          },
+          "matchingColumns": [
+            "expand_financial_report_id"
+          ],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "artifact_id",
+              "displayName": "artifact_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        3872
+      ],
+      "name": "Call Ensure File is on Gemini1",
+      "id": "ba391319-554e-4e59-969c-d57eaa7dca37"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "7WmUvPfyMRFCI864",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/7WmUvPfyMRFCI864",
+          "cachedResultName": "Ensure File is on Gemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "artifact_id": "={{ $json.expand.rem_pkg_review_report.id }}",
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
+          },
+          "matchingColumns": [
+            "expand_financial_report_id"
+          ],
+          "schema": [
+            {
+              "id": "storage_api_host",
+              "displayName": "storage_api_host",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "artifact_id",
+              "displayName": "artifact_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        4240
+      ],
+      "name": "Call Ensure File is on Gemini2",
+      "id": "8de4b536-81e5-4fb0-a87e-0cc5c393d7f1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2272,
+        4048
+      ],
+      "id": "6aebec43-0ee5-4c18-892c-f4396be962f0",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').item.json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        304,
+        4848
+      ],
+      "id": "17616abf-1a5c-46b0-a946-1ef333a7c234",
+      "name": "Extract Impact Metrics",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
       "credentials": {
@@ -3451,28 +3239,6 @@
         ]
       ]
     },
-    "Storage API - Get Charity - Download Annual Report": {
-      "main": [
-        [
-          {
-            "node": "Text to Binary - Annual Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Text to Binary - Annual Report": {
-      "main": [
-        [
-          {
-            "node": "Extract Impact Metrics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Parsed Content (Impact Metrics)": {
       "main": [
         [
@@ -3772,17 +3538,6 @@
         ]
       ]
     },
-    "Storage API - Get Charity - Download Rem. Pkg Review Report": {
-      "main": [
-        [
-          {
-            "node": "Base64 - Rem. Pkg Review Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Parsed Content (Governance Metrics)": {
       "main": [
         [
@@ -3805,113 +3560,11 @@
         ]
       ]
     },
-    "Storage API - Get Charity - Download Annual Report1": {
-      "main": [
-        [
-          {
-            "node": "Text to Binary - Annual Report1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Text to Binary - Annual Report1": {
-      "main": [
-        [
-          {
-            "node": "Binary to base64 - Annual Report1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to base64 - Annual Report1": {
-      "main": [
-        [
-          {
-            "node": "Wait until all data ready",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript1": {
-      "main": [
-        [
-          {
-            "node": "Extract Governance Metrics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Rem.Pkg Review Report exists": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Rem. Pkg Review Report",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait until all data ready",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Annual Report exists": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Annual Report1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait until all data ready",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Base64 - Rem. Pkg Review Report": {
-      "main": [
-        [
-          {
-            "node": "Wait until all data ready",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Wait until all downloads done": {
       "main": [
         [
           {
-            "node": "Storage API - Get Charity",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait until all data ready": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript1",
+            "node": "Storage API - Get Charity1",
             "type": "main",
             "index": 0
           }
@@ -4228,12 +3881,7 @@
       "main": [
         [
           {
-            "node": "If Financial Report exists",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If Annual Report exists1",
+            "node": "Extract Financials",
             "type": "main",
             "index": 0
           }
@@ -4244,7 +3892,7 @@
       "main": [
         [
           {
-            "node": "Storage API - Get Charity - Download Annual Report",
+            "node": "Extract Impact Metrics",
             "type": "main",
             "index": 0
           }
@@ -4255,12 +3903,7 @@
       "main": [
         [
           {
-            "node": "If Rem.Pkg Review Report exists",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "If Annual Report exists",
+            "node": "Extract Governance Metrics",
             "type": "main",
             "index": 0
           }
@@ -4283,17 +3926,6 @@
         [
           {
             "node": "Parsed Content (Metadata)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Impact Metrics": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Impact Metrics)",
             "type": "main",
             "index": 0
           }
@@ -4344,118 +3976,87 @@
         ]
       ]
     },
-    "Storage API - Get Charity - Download Annual Report2": {
-      "main": [
-        [
-          {
-            "node": "Binary to base64 - Annual Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to base64 - Annual Report": {
-      "main": [
-        [
-          {
-            "node": "Wait until all data ready1",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "If Annual Report exists1": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Annual Report2",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait until all data ready1",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "If Financial Report exists": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Get Charity - Download Financial Report1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait until all data ready1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - Get Charity - Download Financial Report1": {
-      "main": [
-        [
-          {
-            "node": "Base64 - Financials Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Base64 - Financials Report": {
-      "main": [
-        [
-          {
-            "node": "Wait until all data ready1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript2": {
-      "main": [
-        [
-          {
-            "node": "Extract Financials",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Upload a file to a File Search store",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait until all data ready1": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract Financials": {
       "main": [
         [
           {
             "node": "Parsed Content (Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Charity1": {
+      "main": [
+        [
+          {
+            "node": "Call Ensure File is on Gemini",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call Ensure File is on Gemini1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call Ensure File is on Gemini2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ensure File is on Gemini": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Call Ensure File is on Gemini1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ensure File is on Gemini2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Impact Metrics": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Impact Metrics)",
             "type": "main",
             "index": 0
           }
@@ -4472,27 +4073,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "bfa9a9aa-ab4f-4439-a650-1bdb3a0e3e74",
-  "activeVersionId": "43d10663-2dc4-4aad-93c7-2a11d0f28698",
-  "versionCounter": 309,
+  "versionId": "40e23ee4-addc-489e-aae7-5f14c7a97dc5",
+  "activeVersionId": "40e23ee4-addc-489e-aae7-5f14c7a97dc5",
+  "versionCounter": 339,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-20T08:49:35.292Z",
-      "createdAt": "2026-02-20T08:49:35.292Z",
+      "updatedAt": "2026-02-21T10:05:58.324Z",
+      "createdAt": "2026-02-21T10:05:58.324Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "I2PTxje8rXigcddt",
+      "projectId": "K62MH6uOjpLq8Vkf",
       "project": {
-        "updatedAt": "2026-02-20T08:49:50.216Z",
-        "createdAt": "2026-02-20T08:49:33.461Z",
-        "id": "I2PTxje8rXigcddt",
+        "updatedAt": "2026-02-21T10:07:25.336Z",
+        "createdAt": "2026-02-21T10:05:56.851Z",
+        "id": "K62MH6uOjpLq8Vkf",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "3c8ec4fd-12f5-4b2f-ae76-a781b76c737d"
+        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
       }
     }
   ]

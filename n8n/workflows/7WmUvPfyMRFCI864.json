@@ -1,0 +1,333 @@
+{
+  "updatedAt": "2026-02-21T10:06:02.000Z",
+  "createdAt": "2026-02-21T04:29:00.999Z",
+  "id": "7WmUvPfyMRFCI864",
+  "name": "Ensure File is on Gemini",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "11b93258-89d4-4b38-9909-1cd9f5bc678d",
+              "leftValue": "={{ $json.gemini_file_uploaded }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "feb1715e-7949-4df5-b8fc-63a2aa05c0c2",
+              "leftValue": "={{ new Date($now).getTime() - new Date($json.gemini_file_uploaded || $now).getTime() > 46*60*60*1000}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2384,
+        3792
+      ],
+      "id": "45f76489-72f3-48b8-ba29-c7f16885bd63",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "inputType": "binary"
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2832,
+        3792
+      ],
+      "id": "bbe4892a-87e5-46de-a349-fe0eb5eae7d0",
+      "name": "Upload a media file",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Start').item.json.storage_api_host }}/files/source_artifacts/{{ $json.id }}/{{ $json.raw }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2608,
+        3792
+      ],
+      "id": "94a8b796-445f-442a-8a8c-f552a70f3b2f",
+      "name": "Storage API - Download",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "storage_api_host"
+            },
+            {
+              "name": "artifact_id"
+            }
+          ]
+        }
+      },
+      "id": "5a92265e-88d3-440d-b756-7c2ad8bff31d",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1712,
+        3792
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.storage_api_host }}/collections/_superusers/auth-with-password",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1936,
+        3792
+      ],
+      "id": "34225c50-1a60-4c10-a9f1-10455f268a6d",
+      "name": "Auth Storage API",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "OEvqdznOMAiGoZPr",
+          "name": "Storage API Get Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records/{{ $('Start').item.json.artifact_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2160,
+        3792
+      ],
+      "id": "6042f003-3617-4738-9de4-2358898fd963",
+      "name": "Storage API - Get Artifact",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records/{{ $('If').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "gemini_file_uri",
+              "value": "={{ $json.fileUri }}"
+            },
+            {
+              "name": "gemini_file_uploaded",
+              "value": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3056,
+        3792
+      ],
+      "id": "a9412fd2-eed0-4c5f-ae72-e95c77c0a50c",
+      "name": "Storage API - Update Artifact",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3056,
+        4048
+      ],
+      "id": "bc474514-fbf6-4dc2-9af7-5aaf853b63e9",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Download",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Storage API - Download": {
+      "main": [
+        [
+          {
+            "node": "Upload a media file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a media file": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Artifact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Auth Storage API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Storage API": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Artifact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Artifact": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Update Artifact": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "0b082959-2954-4fd9-aebb-96ffa91852f9",
+  "activeVersionId": "0b082959-2954-4fd9-aebb-96ffa91852f9",
+  "versionCounter": 14,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-21T10:05:58.320Z",
+      "createdAt": "2026-02-21T10:05:58.320Z",
+      "role": "workflow:owner",
+      "workflowId": "7WmUvPfyMRFCI864",
+      "projectId": "K62MH6uOjpLq8Vkf",
+      "project": {
+        "updatedAt": "2026-02-21T10:07:25.336Z",
+        "createdAt": "2026-02-21T10:05:56.851Z",
+        "id": "K62MH6uOjpLq8Vkf",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
+      }
+    }
+  ]
+}

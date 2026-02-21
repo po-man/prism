@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-20T08:49:37.000Z",
+  "updatedAt": "2026-02-21T10:06:00.000Z",
   "createdAt": "2026-01-31T19:05:16.465Z",
   "id": "dM945Azme2TNMwoX",
   "name": "Download PDF & Extract Text",
@@ -12,8 +12,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1792,
-        3328
+        2464,
+        3376
       ],
       "id": "3444c831-311a-4f9d-a03a-cd7c150c948a",
       "name": "Merge"
@@ -58,7 +58,8 @@
         3360
       ],
       "id": "148f5469-b1ba-4c05-8a6a-c5a1494f84c4",
-      "name": "Download PDF"
+      "name": "Download PDF",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -87,8 +88,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1120,
-        3424
+        1792,
+        3472
       ],
       "id": "0a23b168-a43a-4d80-93bc-cbb886726c21",
       "name": "If output markdown"
@@ -115,8 +116,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1568,
-        3328
+        2240,
+        3376
       ],
       "id": "92bc7d1f-5350-4b8f-ae4d-fa72df7d5d19",
       "name": "PDF to Markdown",
@@ -153,8 +154,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1344,
-        3520
+        2016,
+        3568
       ],
       "id": "0a322337-9e6b-4bc7-9da4-fde24cf4867a",
       "name": "PDF to Text",
@@ -174,8 +175,8 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1568,
-        3520
+        2240,
+        3568
       ],
       "id": "66c53d64-4453-4cb9-8639-d98dcd79c79b",
       "name": "Text to Binary"
@@ -211,8 +212,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2240,
-        3328
+        2912,
+        3376
       ],
       "id": "25b0ddac-089b-49ad-9fe7-358b1f80e1e3",
       "name": "Storage API - Create Downloaded-Files Record",
@@ -234,8 +235,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2016,
-        3328
+        2688,
+        3376
       ],
       "id": "6b940140-1c85-413a-b4b7-92698288f4cc",
       "name": "Merge Binary"
@@ -260,6 +261,168 @@
         "httpCustomAuth": {
           "id": "OEvqdznOMAiGoZPr",
           "name": "Storage API Get Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const buffer = await this.helpers.getBinaryDataBuffer(0, 'data');\n\nreturn {\n  bufferSize: buffer.length\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        3088
+      ],
+      "id": "dec6d348-b29a-4c47-8c99-199e656227da",
+      "name": "Get File Size (in Bytes)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/misc/compress-pdf",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "fileInput",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "expectedOutputSize",
+              "value": "40MB"
+            },
+            {
+              "name": "optimizeLevel",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2016,
+        3088
+      ],
+      "id": "691fc8e0-ea04-4907-814e-f8434d94ae92",
+      "name": "Compress PDF",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "XbZGAytHUvqqfEGj",
+          "name": "PDF API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0fe56d48-d563-4239-b8f3-24d116277adb",
+              "leftValue": "={{ $json.bufferSize }}",
+              "rightValue": "={{ 40 * 1024 * 1024 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        3168
+      ],
+      "id": "58bcb187-980e-4060-b11d-d59c3ae5952d",
+      "name": "If size > 40MB"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        3168
+      ],
+      "id": "516e8d00-f6f3-447f-b1ba-416515afd9c9",
+      "name": "Pass PDF Binary"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2240,
+        3168
+      ],
+      "id": "f79a497f-1644-4909-b16f-0891aeb38f17",
+      "name": "PDF (Compressed of not)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/misc/flatten",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "fileInput",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "flattenOnlyForms",
+              "value": "false"
+            },
+            {
+              "name": "renderDpi",
+              "value": "150"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1120,
+        3168
+      ],
+      "id": "2ded1401-eae8-4a14-b71f-5c261113da1e",
+      "name": "Flatten PDF",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "XbZGAytHUvqqfEGj",
+          "name": "PDF API"
         }
       }
     }
@@ -291,7 +454,7 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Flatten PDF",
             "type": "main",
             "index": 0
           },
@@ -380,6 +543,84 @@
           }
         ]
       ]
+    },
+    "Get File Size (in Bytes)": {
+      "main": [
+        [
+          {
+            "node": "Pass PDF Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress PDF": {
+      "main": [
+        [
+          {
+            "node": "PDF (Compressed of not)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If size > 40MB": {
+      "main": [
+        [
+          {
+            "node": "Compress PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PDF (Compressed of not)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Pass PDF Binary": {
+      "main": [
+        [
+          {
+            "node": "If size > 40MB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF (Compressed of not)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten PDF": {
+      "main": [
+        [
+          {
+            "node": "Get File Size (in Bytes)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Pass PDF Binary",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -389,27 +630,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "54b027db-4168-4148-97dc-d135d059bb59",
-  "activeVersionId": "54b027db-4168-4148-97dc-d135d059bb59",
-  "versionCounter": 40,
+  "versionId": "f651b1f8-461f-4c5f-8f55-55caff22f2bf",
+  "activeVersionId": "f651b1f8-461f-4c5f-8f55-55caff22f2bf",
+  "versionCounter": 58,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-20T08:49:35.294Z",
-      "createdAt": "2026-02-20T08:49:35.294Z",
+      "updatedAt": "2026-02-21T10:05:58.326Z",
+      "createdAt": "2026-02-21T10:05:58.326Z",
       "role": "workflow:owner",
       "workflowId": "dM945Azme2TNMwoX",
-      "projectId": "I2PTxje8rXigcddt",
+      "projectId": "K62MH6uOjpLq8Vkf",
       "project": {
-        "updatedAt": "2026-02-20T08:49:50.216Z",
-        "createdAt": "2026-02-20T08:49:33.461Z",
-        "id": "I2PTxje8rXigcddt",
+        "updatedAt": "2026-02-21T10:07:25.336Z",
+        "createdAt": "2026-02-21T10:05:56.851Z",
+        "id": "K62MH6uOjpLq8Vkf",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "3c8ec4fd-12f5-4b2f-ae76-a781b76c737d"
+        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
       }
     }
   ]
