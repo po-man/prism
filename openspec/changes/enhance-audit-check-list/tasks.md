@@ -5,8 +5,8 @@
 - [x] 1.2 Modify `schemas/v1/impact.schema.json` to add `maxLength` constraints (e.g., `maxLength: 150`) to narrative fields like `context_qualifier` and `counterfactual_baseline.description` to programmatically enforce UI-friendly brevity.
 
 ## 2. Prompt Engineering (n8n)
-- [ ] 2.1 Update `n8n/prompt-templates/impact.system.md` to instruct the LLM to generate concise, short-string summaries for `context_qualifier` and `description` fields to comply with the new schema limits.
-- [ ] 2.2 Update `n8n/prompt-templates/impact.user.md` to reinforce the extraction of specific target populations rather than vague statements, and ensure it maps exactly to the new `evidence_quality` enums.
+- [x] 2.1 Update `n8n/prompt-templates/impact.system.md` to instruct the LLM to generate concise, short-string summaries for `context_qualifier` and `description` fields to comply with the new schema limits.
+- [x] 2.2 Update `n8n/prompt-templates/impact.user.md` to reinforce the extraction of specific target populations rather than vague statements, and ensure it maps exactly to the new `evidence_quality` enums.
 
 ## 3. Audit Logic Implementation (utils_api)
 - [ ] 3.1 Create `utils_api/app/audits/impact.py`.
