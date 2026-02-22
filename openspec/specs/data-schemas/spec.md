@@ -47,7 +47,7 @@ The schema SHALL capture specific regulatory compliance flags mandated by the So
 - **AND** if `lsg_reserve_percent` > 25.0, a `compliance_warning` flag MUST be set to true.
 
 ### Requirement: Impact Evidence Standards
-The schema SHALL structure impact data according to the "Hierarchy of Evidence" based on self-reported data.
+The schema SHALL structure impact data according to the "Hierarchy of Evidence" based on self-reported data, and MUST enforce brevity to ensure downstream presentation layers remain scannable.
 
 #### Scenario: Grading Evidence Quality
 - **WHEN** extracting impact data
@@ -57,6 +57,7 @@ The schema SHALL structure impact data according to the "Hierarchy of Evidence" 
   - `"Pre-Post"` (Before/After comparison only)
   - `"Anecdotal"` (Stories/Testimonials only)
   - `"None"` (No data provided)
+- **AND** narrative fields such as `context_qualifier` and `counterfactual_baseline.description` MUST be synthesized into concise, UI-friendly strings.
 
 ### Requirement: Analytics Check-Item Schema
 The system SHALL define a schema for the `analytics` field that captures the results of the pass/fail audit checklist.
