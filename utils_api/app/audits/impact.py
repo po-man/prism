@@ -17,7 +17,12 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
         id="check_evidence_quality", status="null", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.importance_factors or not record.impact.importance_factors.problem_profile or not record.impact.importance_factors.problem_profile.severity_dimensions:
+    if (
+        not record.impact
+        or not record.impact.importance_factors
+        or not record.impact.importance_factors.problem_profile
+        or record.impact.importance_factors.problem_profile.severity_dimensions is None
+    ):
         base_item.details.calculation = "Impact data with severity dimensions is missing."
         return base_item
 
