@@ -4,6 +4,7 @@ from app.schemas.organisation import OrganisationRecord
 
 
 def test_run_audit_with_full_data(client: TestClient):
+    from app.audits.registry import AUDIT_CHECKS
     """
     Tests the /audit endpoint with a complete OrganisationRecord.
     It expects a successful response and checks the structure of the result.
@@ -43,6 +44,25 @@ def test_run_audit_with_full_data(client: TestClient):
                 "has_investment_policy": True,
                 "has_procurement_policy": True
             }
+        },
+        "impact": {
+            "importance_factors": {
+                "beneficiaries_demographic": [{
+                    "location": "HK", "gender": "female", "age_range": "20-30",
+                    "population": 100, "beneficiary_type": "human"
+                }],
+                "problem_profile": {
+                    "problem_name": "Problem X", "target_population": "Group Y",
+                    "severity_dimensions": [{
+                        "dimension": "Health", "metric_name": "QALY",
+                        "quantitative_data": {"value": 10, "unit": "years"},
+                        "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline", "value": 1},
+                        "evidence_quality": "RCT/Meta-Analysis", "source_citation": "Source Z"
+                    }]
+                }
+            },
+            "tractability_factors": {"significant_events": [{"event_name": "E1", "summary": "S1"}], "evaluation_systems": "System A"},
+            "neglectedness_factors": {"funding_sources": ["Gov"], "funding_landscape": "Crowded"}
         }
     }
     # Validate with the Pydantic model before sending
@@ -55,16 +75,16 @@ def test_run_audit_with_full_data(client: TestClient):
 
     assert "check_items" in result
     assert isinstance(result["check_items"], list)
-    assert len(result["check_items"]) == 3  # Based on current registry
+    assert len(result["check_items"]) == len(AUDIT_CHECKS)  # Based on current registry
 
     # Check for the IDs of the registered audit checks
     check_ids = {item["id"] for item in result["check_items"]}
-    assert "check_reserve_cap" in check_ids
-    assert "check_liquidity" in check_ids
-    assert "check_remuneration" in check_ids
+    expected_ids = {check.__name__ for check in AUDIT_CHECKS}
+    assert check_ids == expected_ids
 
 
 def test_run_audit_with_empty_data(client: TestClient):
+    from app.audits.registry import AUDIT_CHECKS
     """
     Tests the /audit endpoint with an empty object.
     The endpoint should still run the checks, which will gracefully handle missing data.
@@ -72,7 +92,9 @@ def test_run_audit_with_empty_data(client: TestClient):
     response = client.post("/audit", json={})
     assert response.status_code == 200
     result = response.json()
-    assert len(result["check_items"]) == 3
+    assert "check_items" in result
+    assert isinstance(result["check_items"], list)
+    assert len(result["check_items"]) == len(AUDIT_CHECKS)
 
 
 def test_run_audit_with_liquidity_fallback(client: TestClient):
