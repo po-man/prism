@@ -31,6 +31,9 @@
             {{ end }}
           </div>
 
+          {{/* Render the ITN Scorecard partial, passing the organisation context */}}
+          {{ partial "itn-scorecard.html" $org }}
+
           {{ with $org.analytics.check_items }}
             <div class="mt-6">
               <h3 class="text-xl font-semibold text-gray-700 mb-4">Audit Checklist</h3>

@@ -1,10 +1,10 @@
 # Implementation Tasks
 
 ## 1. ITN Scorecard Implementation (Hugo/HTML)
-- [ ] 1.1 In `web/layouts/_default/single.html`, add a new "ITN Scorecard" grid section below the Charity Name header.
-- [ ] 1.2 Bind **Importance**: Display `impact.data.importance_factors.problem_profile.problem_name` and the largest `population` count.
-- [ ] 1.3 Bind **Tractability**: Display the highest `evidence_quality` found in the severity dimensions array.
-- [ ] 1.4 Bind **Neglectedness**: Render a visual progress bar (HTML/Tailwind) comparing `government_grants` to `donations` using data from `financials.data.income`.
+- [x] 1.1 In `web/layouts/_default/single.html`, add a new "ITN Scorecard" grid section below the Charity Name header.
+- [x] 1.2 Bind **Importance**: Display `impact.data.importance_factors.problem_profile.problem_name` and the largest `population` count.
+- [x] 1.3 Bind **Tractability**: Display the highest `evidence_quality` found in the severity dimensions array.
+- [x] 1.4 Bind **Neglectedness**: Render a visual progress bar (HTML/Tailwind) comparing `government_grants` to `donations` using data from `financials.data.income`.
 
 ## 2. Impact Pathway Component (Logic Model)
 - [ ] 2.1 Build a horizontal flexbox/grid flowchart component in `single.html`.
