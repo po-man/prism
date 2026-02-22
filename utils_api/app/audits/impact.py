@@ -100,8 +100,8 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
         base_item.details.calculation = "Impact data is missing."
         return base_item
 
-    populations = [b.population for b in record.impact.importance_factors.beneficiaries_demographic if b.population]
-    quant_values = [d.quantitative_data.value for d in record.impact.importance_factors.problem_profile.severity_dimensions if d.quantitative_data and d.quantitative_data.value]
+    populations = [b.population for b in record.impact.importance_factors.beneficiaries_demographic if b.population is not None]
+    quant_values = [d.quantitative_data.value for d in record.impact.importance_factors.problem_profile.severity_dimensions if d.quantitative_data and d.quantitative_data.value is not None]
     
     all_outcomes = populations + quant_values
     if not all_outcomes:
@@ -111,7 +111,7 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
     primary_outcome = max(all_outcomes)
 
     if primary_outcome <= 0:
-        base_item.details.calculation = f"Primary outcome value ({primary_outcome}) is not a positive number."
+        base_item.details.calculation = f"Primary outcome value ({primary_outcome:g}) is not a positive number."
         return base_item
 
     cost_per = program_spend / primary_outcome
