@@ -16,5 +16,5 @@
 - [x] 3.5 Implement `check_funding_neglectedness(record)`. Calculate `income.government_grants / income.total`. Flag as warning ("Low Neglectedness") if > 80%. Pass ("High Neglectedness") if < 40%. Set significance to MEDIUM.
 
 ## 4. Orchestration & Testing
-- [ ] 4.1 Register the 4 new functions in `utils_api/app/audits/registry.py` under a new "Impact Awareness" block.
-- [ ] 4.2 Add unit tests in `utils_api/tests/test_audit.py` to verify the new impact checks handle edge cases (e.g., missing `impact` data, zero program expenses, and the new schema enum values).
+- [x] 4.1 Register the 4 new functions in `utils_api/app/audits/registry.py` under a new "Impact Awareness" block.
+- [x] 4.2 Add unit tests in `utils_api/tests/test_audit_impact.py` to verify the new impact checks handle edge cases (e.g., missing `impact` data, zero program expenses, and the new schema enum values).
