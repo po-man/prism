@@ -42,16 +42,31 @@
                     },
                     "required": ["value", "unit"]
                   },
-                  "context_qualifier": { "type": "string" },
+                  "context_qualifier": {
+                    "type": "string",
+                    "maxLength": 150
+                  },
                   "counterfactual_baseline": {
                     "type": "object",
                     "properties": {
-                      "description": { "type": "string" },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 150
+                      },
                       "value": { "type": ["number", "null"] }
                     },
                     "required": ["description"]
                   },
-                  "evidence_quality": { "type": "string", "enum": ["High", "Medium", "Low", "Speculative"] },
+                  "evidence_quality": {
+                    "type": "string",
+                    "enum": [
+                      "RCT/Meta-Analysis",
+                      "Quasi-Experimental",
+                      "Pre-Post",
+                      "Anecdotal",
+                      "None"
+                    ]
+                  },
                   "source_citation": { "type": "string" }
                 },
                 "required": ["dimension", "metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "source_citation"]

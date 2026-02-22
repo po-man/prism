@@ -29,7 +29,7 @@ VALID_IMPACT = {
                 "dimension": "Health", "metric_name": "QALY",
                 "quantitative_data": {"value": 10, "unit": "years"},
                 "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline"},
-                "evidence_quality": "High", "source_citation": "Source Z"
+                "evidence_quality": "RCT/Meta-Analysis", "source_citation": "Source Z"
             }]
         }
     },
