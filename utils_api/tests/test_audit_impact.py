@@ -2,31 +2,7 @@ from copy import deepcopy
 from fastapi.testclient import TestClient
 
 # A valid base record to ensure requests pass Pydantic validation.
-# We will modify this for each test case.
-VALID_BASE_RECORD = {
-    "financials": {
-        "financial_year": "2023-24",
-        "income": {"donations": 500000, "government_grants": 250000, "total": 750000},
-        "expenditure": {"administration": 100000, "fundraising": 50000, "program_services": 400000, "total": 550000},
-        "lsg_specifics": {"lsg_reserve_amount": 50000, "provident_fund_reserve": 10000},
-        "ratio_inputs": {"monthly_operating_expenses": 20000, "net_current_assets": 60000, "current_assets": 80000, "current_liabilities": 20000},
-    },
-    "impact": {
-        "importance_factors": {
-            "beneficiaries_demographic": [{"location": "HK", "gender": "female", "age_range": "20-30", "population": 500, "beneficiary_type": "human"}],
-            "problem_profile": {
-                "problem_name": "Problem X", "target_population": "Group Y",
-                "severity_dimensions": [{
-                    "dimension": "Health", "metric_name": "QALY", "quantitative_data": {"value": 1000, "unit": "years"},
-                    "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline", "value": 1},
-                    "evidence_quality": "RCT/Meta-Analysis", "source_citation": "Source Z"
-                }]
-            }
-        },
-        "tractability_factors": {"significant_events": [{"event_name": "E1", "summary": "S1"}], "evaluation_systems": "System A"},
-        "neglectedness_factors": {"funding_sources": ["Gov"], "funding_landscape": "Crowded"}
-    }
-}
+from tests.shared import VALID_BASE_RECORD
 
 
 def get_audit_item(response_json: dict, item_id: str):

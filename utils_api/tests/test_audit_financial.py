@@ -1,6 +1,8 @@
+from copy import deepcopy
 from fastapi.testclient import TestClient
 
 from app.schemas.organisation import OrganisationRecord
+from tests.shared import VALID_BASE_RECORD
 
 
 def test_run_audit_with_liquidity_fallback(client: TestClient):
@@ -8,20 +10,10 @@ def test_run_audit_with_liquidity_fallback(client: TestClient):
     Tests that check_liquidity uses the fallback calculation when net_current_assets
     is missing but its component parts are present.
     """
-    record_data = {
-        "financials": {
-            "financial_year": "2023-24",
-            "income": {"donations": 500000, "government_grants": 250000, "total": 750000},
-            "expenditure": {"administration": 100000, "fundraising": 50000, "program_services": 400000, "total": 550000},
-            "lsg_specifics": {"lsg_reserve_amount": 50000, "provident_fund_reserve": 10000},
-            "ratio_inputs": {
-                "monthly_operating_expenses": 20000,
-                "net_current_assets": None,  # Explicitly missing
-                "current_assets": 80000,
-                "current_liabilities": 20000
-            },
-        }
-    }
+    record_data = deepcopy(VALID_BASE_RECORD)
+    # Explicitly set net_current_assets to None to test the fallback
+    record_data["financials"]["ratio_inputs"]["net_current_assets"] = None
+
     OrganisationRecord.model_validate(record_data)
 
     response = client.post("/audit", json=record_data)
