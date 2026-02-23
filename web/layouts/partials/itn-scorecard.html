@@ -1,0 +1,84 @@
+{{/*
+  ITN Scorecard Partial
+  This partial displays a top-level summary of the charity's profile using the
+  Importance, Tractability, and Neglectedness (ITN) framework.
+
+  @context Page (.)
+
+  @access public
+*/}}
+
+{{ $impact := .impact.data }}
+{{ $financials := .financials.data }}
+{{ $s := newScratch }}
+
+{{/* Task 1.2: Logic to find the largest population count for Importance */}}
+{{ $s.Set "maxPop" (float 0) }}
+
+{{ range $i, $item := $impact.importance_factors.beneficiaries_demographic }}
+  {{ if and .population (gt .population ($s.Get "maxPop")) }}
+    {{ $s.Set "maxPop" .population }}
+  {{ end }}
+{{ end }}
+{{ $maxPop := $s.Get "maxPop" }}
+
+{{/* Task 1.3: Logic to find the highest evidence quality for Tractability */}}
+{{ $s.Set "evidenceOrder" (dict "RCT/Meta-Analysis" 5 "Quasi-Experimental" 4 "Pre-Post" 3 "Anecdotal" 2 "None" 1) }}
+{{ $s.Set "highestEvidence" "None" }}
+{{ $s.Set "maxEvidenceScore" 1 }}
+{{ range $impact.importance_factors.problem_profile.severity_dimensions }}
+  {{ $currentScore := index ($s.Get "evidenceOrder") .evidence_quality | default 1 }}
+  {{ if gt $currentScore ($s.Get "maxEvidenceScore") }}
+    {{ $s.Set "maxEvidenceScore" $currentScore }}
+    {{ $s.Set "highestEvidence" .evidence_quality }}
+  {{ end }}
+{{ end }}
+{{ $highestEvidence := $s.Get "highestEvidence" }}
+
+{{/* Task 1.4: Logic to calculate funding percentages for Neglectedness */}}
+{{ $donations := $financials.income.donations | default 0.0 }}
+{{ $gov_grants := $financials.income.government_grants | default 0.0 }}
+{{ $total_funding := add $donations $gov_grants }}
+{{ $donations_pct := 0 }}
+{{ $gov_grants_pct := 0 }}
+{{ if gt $total_funding 0 }}
+  {{ $donations_pct = mul (div $donations $total_funding) 100 }}
+  {{ $gov_grants_pct = mul (div $gov_grants $total_funding) 100 }}
+{{ end }}
+
+<div class="my-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+  <h2 class="text-2xl font-bold text-gray-800 mb-4">ITN Scorecard</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Importance -->
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h3 class="font-bold text-lg text-gray-700">Importance</h3>
+      <p class="text-sm text-gray-500 mb-2">Scale of the problem</p>
+      <p class="text-xl font-semibold text-gray-900">{{ $impact.importance_factors.problem_profile.problem_name | default "N/A" }}</p>
+      <p class="text-gray-600">Affects up to <span class="font-bold">{{ if gt $maxPop 0 }}{{ $maxPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</span> individuals.</p>
+    </div>
+
+    <!-- Tractability -->
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h3 class="font-bold text-lg text-gray-700">Tractability</h3>
+      <p class="text-sm text-gray-500 mb-2">Rigor of evidence</p>
+      <p class="text-xl font-semibold text-gray-900">{{ $highestEvidence }}</p>
+      <p class="text-gray-600">Highest quality of evidence found.</p>
+    </div>
+
+    <!-- Neglectedness -->
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
+      <p class="text-sm text-gray-500 mb-2">Funding sources breakdown</p>
+      <div class="w-full bg-gray-200 rounded-full h-4 my-2 flex overflow-hidden">
+        <div class="bg-blue-500 h-4" style="width: {{ $donations_pct }}%;" title="Donations: {{ $donations_pct | lang.FormatNumber 2 }}%"></div>
+        <div class="bg-green-500 h-4" style="width: {{ $gov_grants_pct }}%;" title="Government Grants: {{ $gov_grants_pct | lang.FormatNumber 2 }}%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-600">
+        <span><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span>Donations</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>Gov. Grants</span>
+      </div>
+    </div>
+
+  </div>
+</div>
