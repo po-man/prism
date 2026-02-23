@@ -20,5 +20,5 @@
 - [x] 3.4 Add an educational tooltip or blockquote explaining that investing in infrastructure (admin) is often required to achieve rigorous outcomes.
 
 ## 4. Audit Checklist Refactoring
-- [ ] 4.1 Update the Go template `range` loops in `single.html` to group `check_items` by their `category` (Financial Health, Governance, Impact Awareness).
-- [ ] 4.2 Render a distinct sub-header for each category to improve scannability, maintaining the existing pass/fail traffic light system.
+- [x] 4.1 Update the Go template `range` loops in `single.html` to group `check_items` by their `category` (Financial Health, Governance, Impact Awareness).
+- [x] 4.2 Render a distinct sub-header for each category to improve scannability, maintaining the existing pass/fail traffic light system.
