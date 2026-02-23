@@ -37,6 +37,9 @@
           {{/* Render the Impact Pathway partial */}}
           {{ partial "impact-pathway.html" $org }}
 
+          {{/* Render the Overhead vs. Impact Myth-Buster partial */}}
+          {{ partial "myth-buster.html" $org }}
+
           {{ with $org.analytics.check_items }}
             <div class="mt-6">
               <h3 class="text-xl font-semibold text-gray-700 mb-4">Audit Checklist</h3>

@@ -14,10 +14,10 @@
 - [x] 2.5 Add a highlighted callout box rendering the `counterfactual_baseline.description` to explicitly answer "What happens without them?".
 
 ## 3. The "Overhead vs. Impact" Myth-Buster
-- [ ] 3.1 Create a two-column UI card.
-- [ ] 3.2 In the left column, display the Administrative vs. Program expenses ratio using a simple CSS/SVG pie chart or segmented progress bar.
-- [ ] 3.3 In the right column, extract the `details.calculation` string from the `check_cost_per_outcome` item inside `analytics.check_items`.
-- [ ] 3.4 Add an educational tooltip or blockquote explaining that investing in infrastructure (admin) is often required to achieve rigorous outcomes.
+- [x] 3.1 Create a two-column UI card.
+- [x] 3.2 In the left column, display the Program, Admin, and Fundraising expenses as a percentage of total expenditure, using a segmented progress bar.
+- [x] 3.3 In the right column, extract the `details.calculation` string from the `check_cost_per_outcome` item inside `analytics.check_items`.
+- [x] 3.4 Add an educational tooltip or blockquote explaining that investing in infrastructure (admin) is often required to achieve rigorous outcomes.
 
 ## 4. Audit Checklist Refactoring
 - [ ] 4.1 Update the Go template `range` loops in `single.html` to group `check_items` by their `category` (Financial Health, Governance, Impact Awareness).
