@@ -1,14 +1,14 @@
 ## 1. Schema Updates
-- [ ] 1.1 Update `schemas/v1/impact.schema.json` to replace human-centric demographics with animal species types (`companion`, `farmed`, `wild`) and intervention methods.
-- [ ] 1.2 Update `schemas/v1/financials.schema.json` to generalize reserve parameters (remove strict SWD LSG requirements).
-- [ ] 1.3 Delete `schemas/v1/governance.schema.json`.
+- [x] 1.1 Update `schemas/v1/impact.schema.json` to replace human-centric demographics with animal species types (`companion`, `farmed`, `wild`) and intervention methods.
+- [x] 1.2 Update `schemas/v1/financials.schema.json` to generalize reserve parameters (remove strict SWD LSG requirements).
+- [x] 1.3 Delete `schemas/v1/governance.schema.json`.
 - [ ] 1.4 Update `utils_api/app/schemas/organisation.py` to remove the `governance` property and validate the updated `impact` and `financials` models.
 
 ## 2. Prompt Engineering
-- [ ] 2.1 Rewrite `n8n/prompt-templates/impact.system.md` to establish the EA/Animal Advocacy persona and ITN evidence hierarchy.
-- [ ] 2.2 Rewrite `n8n/prompt-templates/impact.user.md` to guide Gemini on extracting animal welfare metrics.
-- [ ] 2.3 Rewrite `n8n/prompt-templates/financials.system.md` to remove SWD-specific instructions and focus on general Section 88 reporting.
-- [ ] 2.4 Delete `n8n/prompt-templates/governance.system.md` and `governance.user.md`.
+- [x] 2.1 Rewrite `n8n/prompt-templates/impact.system.md` to establish the EA/Animal Advocacy persona and ITN evidence hierarchy.
+- [x] 2.2 Rewrite `n8n/prompt-templates/impact.user.md` to guide Gemini on extracting animal welfare metrics.
+- [x] 2.3 Rewrite `n8n/prompt-templates/financials.system.md` to remove SWD-specific instructions and focus on general Section 88 reporting.
+- [x] 2.4 Delete `n8n/prompt-templates/governance.system.md` and `governance.user.md`.
 
 ## 3. Python Audit Engine (`utils_api`)
 - [ ] 3.1 Implement `check_cause_area_neglectedness` in `utils_api/app/audits/impact.py` focusing on species neglectedness.

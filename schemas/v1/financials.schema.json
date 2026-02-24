@@ -51,13 +51,20 @@
       "required": ["administration", "fundraising", "program_services", "total"]
     },
     "lsg_specifics": {
-      "type": "object",
+      "type": ["object", "null"],
       "description": "Lump Sum Grant (LSG) specific figures.",
       "properties": {
         "lsg_reserve_amount": { "type": ["number", "null"] },
         "provident_fund_reserve": { "type": ["number", "null"] }
       },
       "required": ["lsg_reserve_amount", "provident_fund_reserve"]
+    },
+    "reserves": {
+      "type": ["object", "null"],
+      "description": "General reserves for non-subvented charities.",
+      "properties": {
+        "total_reserves": { "type": ["number", "null"], "description": "Total unrestricted reserves or fund balance at year end." }
+      }
     },
     "ratio_inputs": {
       "type": "object",
@@ -71,5 +78,5 @@
       "required": ["monthly_operating_expenses", "net_current_assets", "current_assets", "current_liabilities"]
     }
   },
-  "required": ["financial_year", "income", "expenditure", "lsg_specifics", "ratio_inputs"]
+  "required": ["financial_year", "income", "expenditure", "ratio_inputs"]
 }
