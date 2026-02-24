@@ -2,7 +2,7 @@
 - [x] 1.1 Update `schemas/v1/impact.schema.json` to replace human-centric demographics with animal species types (`companion`, `farmed`, `wild`) and intervention methods.
 - [x] 1.2 Update `schemas/v1/financials.schema.json` to generalize reserve parameters (remove strict SWD LSG requirements).
 - [x] 1.3 Delete `schemas/v1/governance.schema.json`.
-- [ ] 1.4 Update `utils_api/app/schemas/organisation.py` to remove the `governance` property and validate the updated `impact` and `financials` models.
+- [x] 1.4 Update `utils_api/app/schemas/organisation.py` to remove the `governance` property and validate the updated `impact` and `financials` models.
 
 ## 2. Prompt Engineering
 - [x] 2.1 Rewrite `n8n/prompt-templates/impact.system.md` to establish the EA/Animal Advocacy persona and ITN evidence hierarchy.
