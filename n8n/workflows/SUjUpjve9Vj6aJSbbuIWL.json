@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-25T06:28:25.826Z",
+  "updatedAt": "2026-02-25T09:43:34.928Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -1363,10 +1363,6 @@
             {
               "name": "financials",
               "value": "={{ $json.financials.data }}"
-            },
-            {
-              "name": "governance",
-              "value": "={{ $json.governance.data }}"
             },
             {
               "name": "impact",
@@ -3005,9 +3001,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "fc659908-3ca4-49fd-a6c3-765b2c7e557d",
+  "versionId": "695b3d26-0be2-4c9b-b661-a1e956f319e6",
   "activeVersionId": "6b847f33-b5a3-4948-82c7-d178a05c4b29",
-  "versionCounter": 349,
+  "versionCounter": 350,
   "triggerCount": 1,
   "tags": [],
   "shared": [
