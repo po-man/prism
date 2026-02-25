@@ -29,6 +29,6 @@
   - [x] 4.2.3 Ensure "If" nodes robustly handle missing `financial_report` or `annual_report` (Impact) URLs, passing empty JSON to the `utils_api` payload if skipped, preventing pipeline failure.
 
 ## 5. UI/UX (Hugo)
-- [ ] 5.1 Update `web/layouts/partials/itn-scorecard.html` to visualize the new animal beneficiary data and EA neglectedness logic.
-- [ ] 5.2 Update `web/layouts/partials/impact-pathway.html` to gracefully handle animal metrics.
-- [ ] 5.3 Ensure `web/layouts/partials/audit-checklist.html` no longer expects or breaks on missing Governance data.
+- [x] 5.1 Update `web/layouts/partials/itn-scorecard.html` to visualize the new animal beneficiary data and EA neglectedness logic.
+- [x] 5.2 Update `web/layouts/partials/impact-pathway.html` to gracefully handle animal metrics.
+- [x] 5.3 Ensure `web/layouts/partials/audit-checklist.html` no longer expects or breaks on missing Governance data.

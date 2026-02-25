@@ -12,7 +12,7 @@
 
 {{/* Find the first available counterfactual description for the callout */}}
 {{ $counterfactual := "" }}
-{{ range $impact.importance_factors.problem_profile.severity_dimensions }}
+{{ range $impact.metrics }}
   {{ if and (not $counterfactual) .counterfactual_baseline.description }}
     {{ $counterfactual = .counterfactual_baseline.description }}
   {{ end }}
@@ -50,8 +50,8 @@
       <h3 class="font-bold text-lg text-gray-700">Activities & Outputs</h3>
       <p class="text-sm text-gray-500 mb-2">What they do</p>
       <div class="space-y-3 mt-4">
-        {{/* Task 2.3: Map significant events */}}
-        {{ range $impact.tractability_factors.significant_events }}
+        {{/* Map significant events */}}
+        {{ range $impact.significant_events }}
           <div class="flex items-start p-2 bg-gray-50 rounded-md border border-gray-200">
             <svg class="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -69,8 +69,8 @@
       <h3 class="font-bold text-lg text-gray-700">Outcomes</h3>
       <p class="text-sm text-gray-500 mb-2">The change that occurs</p>
       <div class="space-y-3 mt-4">
-        {{/* Task 2.4: Map severity dimensions */}}
-        {{ range $impact.importance_factors.problem_profile.severity_dimensions }}
+        {{/* Map impact metrics */}}
+        {{ range $impact.metrics }}
           <div class="flex items-start p-2 bg-gray-50 rounded-md border border-gray-200">
             <svg class="w-5 h-5 text-gray-800 mr-2 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" />
