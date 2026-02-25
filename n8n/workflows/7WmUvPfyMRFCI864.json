@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-21T10:06:02.000Z",
+  "updatedAt": "2026-02-25T06:26:38.952Z",
   "createdAt": "2026-02-21T04:29:00.999Z",
   "id": "7WmUvPfyMRFCI864",
   "name": "Ensure File is on Gemini",
@@ -28,7 +28,7 @@
             },
             {
               "id": "feb1715e-7949-4df5-b8fc-63a2aa05c0c2",
-              "leftValue": "={{ new Date($now).getTime() - new Date($json.gemini_file_uploaded || $now).getTime() > 46*60*60*1000}}",
+              "leftValue": "={{ new Date($now).getTime() - new Date($json.gemini_file_uploaded || $now).getTime() > ($('Start').first().json.gemini_file_lifetime_hr || 46)*60*60*1000}}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -72,7 +72,7 @@
     },
     {
       "parameters": {
-        "url": "={{ $('Start').item.json.storage_api_host }}/files/source_artifacts/{{ $json.id }}/{{ $json.raw }}",
+        "url": "={{ $('Start').first().json.storage_api_host }}/files/source_artifacts/{{ $json.id }}/{{ $json.raw }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "options": {
@@ -107,6 +107,10 @@
             },
             {
               "name": "artifact_id"
+            },
+            {
+              "name": "gemini_file_lifetime_hr",
+              "type": "number"
             }
           ]
         }
@@ -145,7 +149,7 @@
     },
     {
       "parameters": {
-        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records/{{ $('Start').item.json.artifact_id }}",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/source_artifacts/records/{{ $('Start').first().json.artifact_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "options": {}
@@ -168,7 +172,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records/{{ $('If').item.json.id }}",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/source_artifacts/records/{{ $('If').first().json.id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
         "sendBody": true,
@@ -306,27 +310,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "0b082959-2954-4fd9-aebb-96ffa91852f9",
-  "activeVersionId": "0b082959-2954-4fd9-aebb-96ffa91852f9",
-  "versionCounter": 14,
+  "versionId": "f5295f3b-daa4-4f72-bbc3-7a65d93f1523",
+  "activeVersionId": "f5295f3b-daa4-4f72-bbc3-7a65d93f1523",
+  "versionCounter": 19,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-21T10:05:58.320Z",
-      "createdAt": "2026-02-21T10:05:58.320Z",
+      "updatedAt": "2026-02-24T15:31:37.641Z",
+      "createdAt": "2026-02-24T15:31:37.641Z",
       "role": "workflow:owner",
       "workflowId": "7WmUvPfyMRFCI864",
-      "projectId": "K62MH6uOjpLq8Vkf",
+      "projectId": "WF5JYzstr3wvgt36",
       "project": {
-        "updatedAt": "2026-02-21T10:07:25.336Z",
-        "createdAt": "2026-02-21T10:05:56.851Z",
-        "id": "K62MH6uOjpLq8Vkf",
+        "updatedAt": "2026-02-24T15:53:03.896Z",
+        "createdAt": "2026-02-24T15:31:35.715Z",
+        "id": "WF5JYzstr3wvgt36",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
+        "creatorId": "ff0d1850-94c4-4b5b-976a-8741d5d8d996"
       }
     }
   ]

@@ -18,15 +18,12 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
     )
 
     if (
-        not record.impact
-        or not record.impact.importance_factors
-        or not record.impact.importance_factors.problem_profile
-        or record.impact.importance_factors.problem_profile.severity_dimensions is None
+        not record.impact or not record.impact.metrics
     ):
-        base_item.details.calculation = "Impact data with severity dimensions is missing."
+        base_item.details.calculation = "Impact data with metrics is missing."
         return base_item
 
-    evidence_levels = [dim.evidence_quality for dim in record.impact.importance_factors.problem_profile.severity_dimensions if dim.evidence_quality]
+    evidence_levels = [metric.evidence_quality for metric in record.impact.metrics if metric.evidence_quality]
 
     if not evidence_levels:
         base_item.status = "warning"
@@ -63,12 +60,12 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
         id="check_counterfactual_baseline", status="null", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.importance_factors or not record.impact.importance_factors.problem_profile or not record.impact.importance_factors.problem_profile.severity_dimensions:
-        base_item.details.calculation = "Impact data with severity dimensions is missing."
+    if not record.impact or not record.impact.metrics:
+        base_item.details.calculation = "Impact data with metrics is missing."
         return base_item
 
-    for dim in record.impact.importance_factors.problem_profile.severity_dimensions:
-        if dim.counterfactual_baseline and dim.counterfactual_baseline.description and dim.counterfactual_baseline.value is not None:
+    for metric in record.impact.metrics:
+        if metric.counterfactual_baseline and metric.counterfactual_baseline.description and metric.counterfactual_baseline.value is not None:
             base_item.status = "pass"
             base_item.details.calculation = "A quantified counterfactual baseline was provided."
             return base_item
@@ -96,12 +93,12 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
 
     program_spend = record.financials.expenditure.program_services
     
-    if not record.impact or not record.impact.importance_factors:
-        base_item.details.calculation = "Impact data is missing."
+    if not record.impact or not record.impact.beneficiaries or not record.impact.metrics:
+        base_item.details.calculation = "Impact data with beneficiaries and metrics is missing."
         return base_item
 
-    populations = [b.population for b in record.impact.importance_factors.beneficiaries_demographic if b.population is not None]
-    quant_values = [d.quantitative_data.value for d in record.impact.importance_factors.problem_profile.severity_dimensions if d.quantitative_data and d.quantitative_data.value is not None]
+    populations = [b.population for b in record.impact.beneficiaries if b.population is not None]
+    quant_values = [m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None]
     
     all_outcomes = populations + quant_values
     if not all_outcomes:
@@ -151,5 +148,43 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
         base_item.status = "pass" # High Neglectedness
     else:
         base_item.status = "pass" # Medium Neglectedness, still a pass
+
+    return base_item
+
+
+def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
+    """
+    Checks the neglectedness of the charity's cause area based on beneficiary type.
+    Pass for 'farmed_animals' or 'wild_animals'.
+    Warning for 'companion_animals'.
+    """
+    base_details = AuditDetails(
+        formula="Evaluation of beneficiary_type against EA principles for animal advocacy",
+        calculation="Not computed",
+    )
+    base_item = AuditCheckItem(
+        id="check_cause_area_neglectedness", status="null", significance="HIGH", category="Impact Awareness", details=base_details
+    )
+
+    if not record.impact or not hasattr(record.impact, "beneficiaries") or not record.impact.beneficiaries:
+        base_item.details.calculation = "Impact data with beneficiary types is missing."
+        return base_item
+
+    beneficiary_types = {b.beneficiary_type for b in record.impact.beneficiaries if b.beneficiary_type}
+
+    if not beneficiary_types:
+        base_item.details.calculation = "No beneficiary types were specified in the impact data."
+        return base_item
+
+    high_neglectedness = {"farmed_animals", "wild_animals"}
+    low_neglectedness = {"companion_animals"}
+
+    high_neglectedness_found = beneficiary_types.intersection(high_neglectedness)
+    if high_neglectedness_found:
+        base_item.status = "pass"
+        base_item.details.calculation = f"Operates in high-neglectedness area(s): {', '.join(high_neglectedness_found)}."
+    elif beneficiary_types.issubset(low_neglectedness):
+        base_item.status = "warning"
+        base_item.details.calculation = "Operates in a low-neglectedness / saturated area (companion animals)."
 
     return base_item
