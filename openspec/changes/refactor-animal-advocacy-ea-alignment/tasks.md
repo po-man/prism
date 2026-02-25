@@ -23,10 +23,10 @@
   - [x] 4.1.2 Remove the `charity_name_chi` field from the `organisations` collection.
   - [x] 4.1.3 Remove the `financial_year_end` field from the `organisations` collection.
   - [x] 4.1.4 Remove the `governance` field from the `organisations` collection.
-- [ ] 4.2 Modify `n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json` (Main Pipeline):
-  - [ ] 4.2.1 Delete the SWD HTTP/HTML scraper nodes and replace with a node that queries the PocketBase `target_registry`.
-  - [ ] 4.2.2 Delete all governance-related branches (`Call 'Prompt Injection' - Governance`, `Extract Governance Metrics`, `Schema Validation (Governance)`).
-  - [ ] 4.2.3 Ensure "If" nodes robustly handle missing `financial_report` or `annual_report` (Impact) URLs, passing empty JSON to the `utils_api` payload if skipped, preventing pipeline failure.
+- [x] 4.2 Modify `n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json` (Main Pipeline):
+  - [x] 4.2.1 Delete the SWD HTTP/HTML scraper nodes.
+  - [x] 4.2.2 Delete all governance-related branches (`Call 'Prompt Injection' - Governance`, `Extract Governance Metrics`, `Schema Validation (Governance)`).
+  - [x] 4.2.3 Ensure "If" nodes robustly handle missing `financial_report` or `annual_report` (Impact) URLs, passing empty JSON to the `utils_api` payload if skipped, preventing pipeline failure.
 
 ## 5. UI/UX (Hugo)
 - [ ] 5.1 Update `web/layouts/partials/itn-scorecard.html` to visualize the new animal beneficiary data and EA neglectedness logic.

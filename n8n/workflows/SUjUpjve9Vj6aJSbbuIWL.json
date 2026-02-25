@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-21T10:05:59.000Z",
+  "updatedAt": "2026-02-25T06:28:25.826Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -7,75 +7,6 @@
   "active": true,
   "isArchived": false,
   "nodes": [
-    {
-      "parameters": {},
-      "name": "Manual Trigger (for testing)",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -2224,
-        3168
-      ],
-      "id": "e2c44924-cb15-49db-bf20-de7f09e13f8d",
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "url": "https://www.swd.gov.hk/en/ngo/subventions/fm/afr/ngoafr/index.html",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -208,
-        3168
-      ],
-      "id": "ca3d68c6-8665-403e-b85d-99286dc878d0",
-      "name": "HTTP Request (SWD AFR List)"
-    },
-    {
-      "parameters": {
-        "operation": "extractHtmlContent",
-        "extractionValues": {
-          "values": [
-            {
-              "key": "organisations",
-              "cssSelector": "td:nth-child(1)",
-              "returnArray": true
-            },
-            {
-              "key": "urls",
-              "cssSelector": "td:nth-child(2) a",
-              "returnValue": "attribute",
-              "attribute": "href",
-              "returnArray": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.html",
-      "typeVersion": 1.2,
-      "position": [
-        16,
-        3168
-      ],
-      "id": "7b8b80f1-bbbc-4e34-9e1c-e731796b397c",
-      "name": "HTML (SWD AFR List)"
-    },
-    {
-      "parameters": {
-        "jsCode": "for (const item of $input.all()) {\n  item.json.orgReportUrls =\n    item.json.organisations.map(\n      function(organisation, idx) {\n        let url = item.json.urls[idx];\n        if (url.startsWith('/')) {\n          url = `https://www.swd.gov.hk${url}`;\n        }\n        return {\n          type: 'audited financial report',\n          organisation,\n          url,\n        };\n      }\n    );\n  delete item.json.organisations;\n  delete item.json.urls;\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        240,
-        3168
-      ],
-      "id": "abd89163-74c8-4518-927b-d2ae32aca9f7",
-      "name": "Transform (SWD AFR List)"
-    },
     {
       "parameters": {
         "method": "POST",
@@ -87,8 +18,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1328,
-        3168
+        -1376,
+        2736
       ],
       "id": "934c210b-630c-45b3-909a-c4da1c7a6a5b",
       "name": "Auth Storage API",
@@ -96,145 +27,6 @@
         "httpCustomAuth": {
           "id": "OEvqdznOMAiGoZPr",
           "name": "Storage API Get Token"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "(type='audited financial report')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -656,
-        3168
-      ],
-      "id": "8ee3473d-a375-4cbf-af05-e57e8c8e638b",
-      "name": "Storage API - List SWD NGO AFR",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "6dcc825a-ba44-47c1-beee-0e39b34fe55f",
-              "leftValue": "={{ $json.items.length }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -432,
-        3168
-      ],
-      "id": "bd9fec9e-95e7-48d1-91bf-1ba498d3e435",
-      "name": "If SWD NGO AFR is empty"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://storage_api:8090/api/batch",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "requests",
-              "value": "={{\n  $json.orgReportUrls.map((record) => ({\n      method: \"POST\",\n      url: \"/api/collections/reports/records\",\n      body: record\n    }))\n}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        464,
-        3168
-      ],
-      "id": "3ca08e4b-471a-4e81-9cbb-93f8ac363f2f",
-      "name": "Storage API - Batch create SWD NGO AFR",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "(type='audited financial report')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        688,
-        3168
-      ],
-      "id": "a31d2abd-180a-4049-9b8a-964520cef59c",
-      "name": "Storage API - List SWD NGO AFR again",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
         }
       }
     },
@@ -248,12 +40,12 @@
         "bodyParameters": {
           "parameters": [
             {
-              "name": "charity_name",
+              "name": "name",
               "value": "={{ $('Vars - Input Data').item.json.organization_name }}"
             },
             {
-              "name": "financial_year_end",
-              "value": "={{ $('Vars - Input Data').item.json.retrieval_year }}"
+              "name": "analysis_batch_id",
+              "value": "={{ $('Vars - Input Data').item.json.analysis_batch_id }}"
             }
           ]
         },
@@ -262,8 +54,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1600,
-        4048
+        -352,
+        2736
       ],
       "id": "a50cd0b8-833b-465a-9162-dbfaed610310",
       "name": "Storage API - Try to Create Charity Record",
@@ -289,8 +81,8 @@
               "value": "={{ $json.query.organisation_name }}"
             },
             {
-              "name": "retrieval_year",
-              "value": "={{ $json.query.retrieval_year }}"
+              "name": "analysis_batch_id",
+              "value": "={{ $json.query.analysis_batch_id }}"
             }
           ],
           "boolean": [
@@ -306,8 +98,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [
-        -2000,
-        3168
+        -2048,
+        2736
       ],
       "id": "c4462a41-5410-449a-bf28-c0f414030e97"
     },
@@ -340,8 +132,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1552,
-        3168
+        -1600,
+        2736
       ],
       "id": "5419c62a-708d-44c7-a740-24b3a8e1200f",
       "name": "Vars - Storage API"
@@ -356,7 +148,7 @@
           "parameters": [
             {
               "name": "filter",
-              "value": "=(charity_name='{{ $('Vars - Input Data').item.json.organization_name.replaceAll(\"'\", \"\\\\'\") }}' && financial_year_end='{{ $('Vars - Input Data').item.json.retrieval_year }}')"
+              "value": "=(name='{{ $('Vars - Input Data').item.json.organization_name.replaceAll(\"'\", \"\\\\'\") }}' && analysis_batch_id='{{ $('Vars - Input Data').item.json.analysis_batch_id }}')"
             },
             {
               "name": "expand",
@@ -369,8 +161,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1376,
-        4048
+        -128,
+        2736
       ],
       "id": "36ee9752-8958-4050-a88c-d664baa0cc99",
       "name": "Storage API - Get Charity Record",
@@ -397,7 +189,7 @@
           "conditions": [
             {
               "id": "34b56356-a643-4657-b229-9607b55d688b",
-              "leftValue": "={{ $json.domains == null || $json.charity_name_chi == null }}",
+              "leftValue": "={{ $json.domains == null || $json.meta == null }}",
               "rightValue": "={{ false }}",
               "operator": {
                 "type": "boolean",
@@ -413,8 +205,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -928,
-        4048
+        -1744,
+        3328
       ],
       "id": "f6cfdb61-e715-47cd-90ed-767e55d15e31",
       "name": "Exists? (Domains)1"
@@ -429,7 +221,7 @@
           "parameters": [
             {
               "name": "filter",
-              "value": "=(type='audited financial report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
+              "value": "=(type='audited financial report' && organisation='{{ $json.name.replaceAll(\"'\", \"\\\\'\") }}')"
             }
           ]
         },
@@ -438,8 +230,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        560,
-        4064
+        -1040,
+        4112
       ],
       "id": "12802772-ae51-4471-85f7-0d0f921a0328",
       "name": "Storage API - Get SWD NGO AFR Record",
@@ -462,7 +254,7 @@
       "typeVersion": 2,
       "position": [
         656,
-        4656
+        4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
       "name": "Parsed Content (Financials)"
@@ -488,7 +280,7 @@
       "typeVersion": 4.3,
       "position": [
         1104,
-        4656
+        4784
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
       "name": "Storage API - Update Charity - Financials",
@@ -542,7 +334,7 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        4656
+        4784
       ],
       "id": "e407b29a-e2a8-45bc-927a-83225e401d5e",
       "name": "Exists? (Financials)"
@@ -575,72 +367,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        336,
-        4064
+        -1264,
+        4112
       ],
       "id": "10e700bb-f722-4ee0-abbf-8f197fed7196",
       "name": "Exists? (Financial Report)"
-    },
-    {
-      "parameters": {
-        "url": "http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "=(type='annual report' && organisation='{{ $('Vars - Input Data').item.json.organization_name.replaceAll(\"'\", \"\\\\'\") }}')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -656,
-        2944
-      ],
-      "id": "94944080-b66a-43e3-87a8-83f3172f175f",
-      "name": "Storage API - List NGO Annual Reports",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        912,
-        3152
-      ],
-      "id": "a6c94c62-2476-414e-972f-a4f9c8b03900",
-      "name": "Merge"
-    },
-    {
-      "parameters": {
-        "jsCode": "const { json: { items: ar_urls } } = $input.all()[0];\nconst { json: { items: afr_urls } } = $input.all()[1];\nconst { json: { items: rr_urls } } = $input.all()[2];\n\nreturn {\n  ...$input.first(),\n  json: {\n    afr_urls, ar_urls, rr_urls\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1120,
-        3168
-      ],
-      "id": "9d1bb3d8-fa2b-4efa-9e2e-c5b9d3272a92",
-      "name": "Code in JavaScript"
     },
     {
       "parameters": {
@@ -670,8 +401,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        336,
-        3840
+        -1264,
+        3888
       ],
       "id": "0fa06927-77e8-476d-a8a4-63f6d3b004bd",
       "name": "Exists? (Annual Report)"
@@ -686,7 +417,7 @@
           "parameters": [
             {
               "name": "filter",
-              "value": "=(type='annual report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
+              "value": "=(type='annual report' && organisation='{{ $json.name.replaceAll(\"'\", \"\\\\'\") }}')"
             }
           ]
         },
@@ -695,8 +426,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        560,
-        3840
+        -1040,
+        3888
       ],
       "id": "eb53c80d-a89b-432e-b329-d7d89cc3afed",
       "name": "Storage API - Get NGO AR Record",
@@ -750,7 +481,7 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        4848
+        4976
       ],
       "id": "2a34d71c-08c4-4214-9ce1-8b7c010ec0f6",
       "name": "Exists? (Impact)"
@@ -762,8 +493,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1152,
-        4048
+        96,
+        2736
       ],
       "id": "07f180b7-6bf9-40ec-afd6-0cdcd0302d1a",
       "name": "Extract Charity List item[0]"
@@ -776,7 +507,7 @@
       "typeVersion": 2,
       "position": [
         656,
-        4848
+        4976
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
       "name": "Parsed Content (Impact Metrics)"
@@ -802,200 +533,10 @@
       "typeVersion": 4.3,
       "position": [
         1104,
-        4848
+        4976
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
       "name": "Storage API - Update Charity - Impact",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "(type='remuneration package review report')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        688,
-        3392
-      ],
-      "id": "41cc4bd7-feec-4818-acee-d454e2588829",
-      "name": "Storage API - List SWD NGO AFR again1",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "(type='remuneration package review report')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -656,
-        3392
-      ],
-      "id": "0772aeb3-0b63-48fc-b507-ac5ec234de40",
-      "name": "Storage API - List SWD NGO RR",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "6dcc825a-ba44-47c1-beee-0e39b34fe55f",
-              "leftValue": "={{ $json.items.length }}",
-              "rightValue": 0,
-              "operator": {
-                "type": "number",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -432,
-        3392
-      ],
-      "id": "f44b1970-62c7-48d0-87e1-20a2e220c7c8",
-      "name": "If SWD NGO RR is empty"
-    },
-    {
-      "parameters": {
-        "url": "https://www.swd.gov.hk/en/ngo/subventions/suballoc/subvention/rr/",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -208,
-        3392
-      ],
-      "id": "1aaaf21a-e70c-4c76-a69d-37a143e5ee55",
-      "name": "HTTP Request (SWD RR List)"
-    },
-    {
-      "parameters": {
-        "operation": "extractHtmlContent",
-        "extractionValues": {
-          "values": [
-            {
-              "key": "rows",
-              "cssSelector": "tr",
-              "returnValue": "html",
-              "returnArray": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.html",
-      "typeVersion": 1.2,
-      "position": [
-        16,
-        3392
-      ],
-      "id": "4bd90d35-cb74-4327-b064-d29dc390bc2b",
-      "name": "HTML (SWD RR List)"
-    },
-    {
-      "parameters": {
-        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  const rows = item.json.rows || [];\n  // Loop through each HTML string in the 'rows' array\n  for (const rowHtml of rows) {\n    \n    // 1. SKIP HEADERS: If the row doesn't contain a <td>, it's likely a header (<th>), so we skip it.\n    if (!rowHtml.includes('<td')) {\n      continue;\n    }\n\n    // 2. EXTRACT NAME: \n    const nameMatch = rowHtml.match(/<td>(.*?)<\\/td>/);\n    let name = nameMatch ? nameMatch[1] : null;\n    if (name) name = name.trim();\n\n    // 3. EXTRACT URL:\n    const urlMatch = rowHtml.match(/href=\"([^\"]+)\"/);\n    let url = urlMatch ? urlMatch[1] : null;\n\n    if (url?.startsWith('/')) {\n      url = `https://www.swd.gov.hk${url}`;\n    }\n\n    results.push({\n      type: 'remuneration package review report',\n      organisation: name,\n      url\n    });\n  }\n}\n\n// Return the cleaned data\nreturn [{json: {orgReportUrls: results}}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        240,
-        3392
-      ],
-      "id": "a07c409f-14bd-4c65-8d3c-e861b42a2040",
-      "name": "Transform (SWD RR List)"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://storage_api:8090/api/batch",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "requests",
-              "value": "={{\n  $json.orgReportUrls.map((record) => ({\n      method: \"POST\",\n      url: \"/api/collections/reports/records\",\n      body: record\n    }))\n}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        464,
-        3392
-      ],
-      "id": "b979be16-e245-4c6a-af42-bdf1ef9099f5",
-      "name": "Storage API - Batch create SWD NGO RR",
       "credentials": {
         "httpBasicAuth": {
           "id": "CYK1lbsQqtbIDet9",
@@ -1017,7 +558,7 @@
           "parameters": [
             {
               "name": "expand",
-              "value": "financial_report,annual_report,rem_pkg_review_report"
+              "value": "financial_report,annual_report"
             }
           ]
         },
@@ -1044,40 +585,6 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "34b56356-a643-4657-b229-9607b55d688b",
-              "leftValue": "={{ $json.rem_pkg_review_report }}",
-              "rightValue": "={{ false }}",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        336,
-        4288
-      ],
-      "id": "a59f96c7-7277-4ecf-87e8-b4a0b4cbf101",
-      "name": "Exists? (Rem. Pkg Review Report)"
-    },
-    {
-      "parameters": {
         "method": "PATCH",
         "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
@@ -1096,8 +603,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1232,
-        3840
+        -368,
+        3888
       ],
       "id": "a8d9b084-0abe-4aa2-9180-3849c50232d2",
       "name": "Storage API - Update Charity - Annual Report",
@@ -1132,47 +639,11 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1232,
-        4064
+        -368,
+        4112
       ],
       "id": "ffe05908-58d7-40b6-90b8-a657600a09c8",
       "name": "Storage API - Update Charity - Financial Report1",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "rem_pkg_review_report",
-              "value": "={{ $json.id }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1232,
-        4288
-      ],
-      "id": "bcc3e7f4-b041-4a16-b70d-4a05e6144132",
-      "name": "Storage API - Update Charity - Rem. Pkg Review Report",
       "credentials": {
         "httpBasicAuth": {
           "id": "CYK1lbsQqtbIDet9",
@@ -1211,8 +682,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        784,
-        3840
+        -816,
+        3888
       ],
       "id": "7d72a4b6-22e6-4458-9141-f69e622b11ba",
       "name": "if (Annual Report) URL exists"
@@ -1224,15 +695,16 @@
           "value": "dM945Azme2TNMwoX",
           "mode": "list",
           "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
-          "cachedResultName": "Download PDF & Extract Text"
+          "cachedResultName": "Download PDF"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
-            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}",
+            "pdf_api_host": "={{ $('Vars - PDF API').first().json.pdf_api_host }}",
             "download_url": "={{ $json.items[0].url }}",
-            "output_text_format": "text"
+            "output_text_format": "text",
+            "compress_trigger_size_mb": 0
           },
           "matchingColumns": [],
           "schema": [
@@ -1275,6 +747,16 @@
               "canBeUsedToMatch": true,
               "type": "string",
               "removed": false
+            },
+            {
+              "id": "compress_trigger_size_mb",
+              "displayName": "compress_trigger_size_mb",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1285,8 +767,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        1008,
-        3840
+        -592,
+        3888
       ],
       "id": "23d0729e-823a-4a40-bcae-2af0b986dbee",
       "name": "Download PDF & OCR (Annual Report)"
@@ -1318,8 +800,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        784,
-        4064
+        -816,
+        4112
       ],
       "id": "d323101f-1c02-4ae1-84ed-3aa8ddcfccde",
       "name": "if (Financial Report) URL exists"
@@ -1331,15 +813,16 @@
           "value": "dM945Azme2TNMwoX",
           "mode": "list",
           "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
-          "cachedResultName": "Download PDF & Extract Text"
+          "cachedResultName": "Download PDF"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
-            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}",
+            "pdf_api_host": "={{ $('Vars - PDF API').first().json.pdf_api_host }}",
             "download_url": "={{ $json.items[0].url }}",
-            "output_text_format": "text"
+            "output_text_format": "text",
+            "compress_trigger_size_mb": 0
           },
           "matchingColumns": [],
           "schema": [
@@ -1382,6 +865,16 @@
               "canBeUsedToMatch": true,
               "type": "string",
               "removed": false
+            },
+            {
+              "id": "compress_trigger_size_mb",
+              "displayName": "compress_trigger_size_mb",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -1392,252 +885,16 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        1008,
-        4064
+        -592,
+        4112
       ],
       "id": "f687c2ea-0792-46a5-95d1-5c6d47ca6dda",
       "name": "Download PDF & OCR (Financial Report)"
     },
     {
       "parameters": {
-        "url": "=http://storage_api:8090/api/collections/reports/records",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "filter",
-              "value": "=(type='remuneration package review report' && organisation='{{ $json.charity_name.replaceAll(\"'\", \"\\\\'\") }}')"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        560,
-        4288
-      ],
-      "id": "72c767b2-f0ce-44d7-a110-45ee7edfe1c6",
-      "name": "Storage API - Get SWD NGO RR Record",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "a53a09dd-76ca-49f3-bc5a-8a7f2f2208cf",
-              "leftValue": "={{ $json.items[0].url }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEquals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        784,
-        4288
-      ],
-      "id": "6173b6af-780a-4eff-91e9-314f1ed8dcbb",
-      "name": "if (Rem. Pkg Review Report) URL exists"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "dM945Azme2TNMwoX",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/dM945Azme2TNMwoX",
-          "cachedResultName": "Download PDF & Extract Text"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "storage_api_host": "={{ $('Vars - Storage API').item.json.storage_api_host }}",
-            "pdf_api_host": "={{ $('Vars - PDF API').item.json.pdf_api_host }}",
-            "download_url": "={{ $json.items[0].url }}",
-            "output_text_format": "text"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "storage_api_host",
-              "displayName": "storage_api_host",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "pdf_api_host",
-              "displayName": "pdf_api_host",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "download_url",
-              "displayName": "download_url",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "output_text_format",
-              "displayName": "output_text_format",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        1008,
-        4288
-      ],
-      "id": "3cc487e8-fe4c-425d-a2e8-dd21701a6de3",
-      "name": "Download PDF & OCR (Rem. Pkg Review Report)"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
-              "leftValue": "={{ $json.governance }}",
-              "rightValue": "true",
-              "operator": {
-                "type": "object",
-                "operation": "exists",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "e414f9c9-cd56-479c-b7d4-3d12407324ca",
-              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "false",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -592,
-        5040
-      ],
-      "id": "6d63b165-80b5-4a01-be6f-f1267976a394",
-      "name": "Exists? (Governance)"
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.candidates[0].content.parts[0].text);\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        656,
-        5040
-      ],
-      "id": "a16fade8-3b94-4557-b663-67691c01f82a",
-      "name": "Parsed Content (Governance Metrics)"
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "governance",
-              "value": "={{\n  {\n    data: $('Parsed Content (Governance Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Governance)').first().json,\n    audit_trails: $('Parsed Content (Governance Metrics)').first().json.search_results\n  }\n}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1104,
-        5040
-      ],
-      "id": "1094f1fd-6fa2-499a-b001-39250786d8fa",
-      "name": "Storage API - Update Charity - Governance",
-      "credentials": {
-        "httpBasicAuth": {
-          "id": "CYK1lbsQqtbIDet9",
-          "name": "storage_api credential"
-        },
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 3,
         "options": {
           "includeUnpaired": true
         }
@@ -1645,8 +902,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1456,
-        4048
+        -144,
+        4032
       ],
       "id": "6194ad4e-4816-4192-a0ab-4f9847cd22e2",
       "name": "Wait until all downloads done"
@@ -1655,7 +912,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 4,
+        "numberInputs": 3,
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
@@ -1690,8 +947,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -896,
-        3168
+        -928,
+        2736
       ],
       "id": "c3dea347-fc34-425f-ada3-3bfb10c76729",
       "name": "Vars - PDF API"
@@ -1735,7 +992,7 @@
       "typeVersion": 2.3,
       "position": [
         -592,
-        5248
+        5168
       ],
       "id": "e4440626-b37c-4592-84ef-97739246200a",
       "name": "Exists? (Risk)"
@@ -1748,7 +1005,7 @@
       "typeVersion": 2,
       "position": [
         656,
-        5248
+        5168
       ],
       "id": "068f9452-4446-4870-8368-ef369b4f4723",
       "name": "Parsed Content (Risk)"
@@ -1774,7 +1031,7 @@
       "typeVersion": 4.3,
       "position": [
         1104,
-        5248
+        5168
       ],
       "id": "2d914e5e-728f-4543-8d41-c89bf010b47a",
       "name": "Storage API - Update Charity - Risk",
@@ -1792,8 +1049,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -96,
-        4064
+        -496,
+        3328
       ],
       "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
       "name": "Parsed Content (Metadata)"
@@ -1818,11 +1075,11 @@
           "parameters": [
             {
               "name": "domains",
-              "value": "={{ $json.parsedContentObject.domains }}"
+              "value": "={{ $('Parsed Content (Metadata)').first().json.parsedContentObject.domains }}"
             },
             {
-              "name": "charity_name_chi",
-              "value": "={{ $json.parsedContentObject.chinese_name }}"
+              "name": "meta",
+              "value": "={{ $('Parsed Content (Metadata)').first().json.parsedContentObject }}"
             }
           ]
         },
@@ -1831,8 +1088,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        128,
-        4064
+        -48,
+        3328
       ],
       "id": "f7d7d4c4-ac67-4f06-8d5b-2d26edd948ae",
       "name": "Storage API - Update Charity - Metadata",
@@ -1856,7 +1113,7 @@
       "typeVersion": 1.1,
       "position": [
         -368,
-        4656
+        4784
       ],
       "id": "c8573093-d3b1-4b1e-a668-99f76de7611d",
       "name": "Read JSON schema (Finanicals)"
@@ -1870,7 +1127,7 @@
       "typeVersion": 1.1,
       "position": [
         -144,
-        4656
+        4784
       ],
       "id": "43f2d83d-2dab-4a2f-ad97-eb96e1a57b7c",
       "name": "Binary to Text (JSON schema, Financials)"
@@ -1884,7 +1141,7 @@
       "typeVersion": 1.1,
       "position": [
         -368,
-        4848
+        4976
       ],
       "id": "873391a7-de81-422e-aa1e-00095b8d5bfd",
       "name": "Read JSON schema (Impact)"
@@ -1898,38 +1155,10 @@
       "typeVersion": 1.1,
       "position": [
         -144,
-        4848
+        4976
       ],
       "id": "42eca936-3a6c-42ca-8515-5cb8b0b0fff0",
       "name": "Binary to Text (JSON schema, Impact)"
-    },
-    {
-      "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.governance_schema }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        -368,
-        5040
-      ],
-      "id": "a9287eb2-e97d-4296-ba13-23f7bf4162bf",
-      "name": "Read JSON schema (Governance)"
-    },
-    {
-      "parameters": {
-        "operation": "fromJson",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        -144,
-        5040
-      ],
-      "id": "1a59c23d-5020-4380-968d-45954ca59d69",
-      "name": "Binary to Text (JSON schema, Governance)"
     },
     {
       "parameters": {
@@ -1940,7 +1169,7 @@
       "typeVersion": 1.1,
       "position": [
         -368,
-        5248
+        5168
       ],
       "id": "19745ac5-6ace-4044-adea-b1df3d3bd992",
       "name": "Read JSON schema (Risk)"
@@ -1954,7 +1183,7 @@
       "typeVersion": 1.1,
       "position": [
         -144,
-        5248
+        5168
       ],
       "id": "0cccc52b-0366-4317-8be6-2a532da023e1",
       "name": "Binary to Text (JSON schema, Risk)"
@@ -1976,12 +1205,6 @@
               "type": "string"
             },
             {
-              "id": "c005ede4-a86e-4a68-856c-9d086ef0ce9b",
-              "name": "governance_schema",
-              "value": "v1/governance.schema.json",
-              "type": "string"
-            },
-            {
               "id": "bdadfdbc-474e-41f6-8a20-5ca68992d573",
               "name": "impact_schema",
               "value": "v1/impact.schema.json",
@@ -1998,6 +1221,12 @@
               "name": "analytics_schema",
               "value": "v1/analytics.schema.json",
               "type": "string"
+            },
+            {
+              "id": "969b91d5-d43a-42b9-929b-86514c8e970f",
+              "name": "meta_schema",
+              "value": "v1/meta.schema.json",
+              "type": "string"
             }
           ]
         },
@@ -2006,8 +1235,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1120,
-        3168
+        -1152,
+        2736
       ],
       "id": "8e1def45-bb31-433d-b648-3f3f7abc4016",
       "name": "Vars - Utils API & Schemas"
@@ -2035,7 +1264,7 @@
       "typeVersion": 4.3,
       "position": [
         880,
-        4656
+        4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
       "name": "Schema Validation (Financials)"
@@ -2063,7 +1292,7 @@
       "typeVersion": 4.3,
       "position": [
         880,
-        4848
+        4976
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
       "name": "Schema Validation (Impact)"
@@ -2091,38 +1320,10 @@
       "typeVersion": 4.3,
       "position": [
         880,
-        5248
+        5168
       ],
       "id": "a01a78b3-92a9-42d5-9ee7-e5c565f274a9",
       "name": "Schema Validation (Risk)"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').first().json.governance_schema }}"
-            },
-            {
-              "name": "data",
-              "value": "={{$('Parsed Content (Governance Metrics)').first().json.parsedContentObject}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        880,
-        5040
-      ],
-      "id": "d92bea68-280c-408b-9104-a2103a4d3803",
-      "name": "Schema Validation (Governance)"
     },
     {
       "parameters": {
@@ -2284,7 +1485,7 @@
           "value": "KyDtBHSVI5wyX2KM",
           "mode": "list",
           "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
-          "cachedResultName": "Prompt Injection"
+          "cachedResultName": "Prepare Prompts"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -2324,7 +1525,7 @@
       "typeVersion": 1.3,
       "position": [
         80,
-        4656
+        4784
       ],
       "id": "c30db9fc-4f48-49bc-b042-6d5a6296227f",
       "name": "Call 'Prompt Injection' - Financials"
@@ -2376,7 +1577,7 @@
       "typeVersion": 1.3,
       "position": [
         80,
-        4848
+        4976
       ],
       "id": "0dd9bc57-8100-44ec-bb28-791c8e08ea1c",
       "name": "Call 'Prompt Injection' - Impact"
@@ -2393,60 +1594,8 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/governance.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/governance.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Governance)').first().json.data)\n} }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "prompt_file_paths",
-              "displayName": "prompt_file_paths",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "array",
-              "removed": false
-            },
-            {
-              "id": "injection_dict",
-              "displayName": "injection_dict",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "object",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        80,
-        5040
-      ],
-      "id": "3c71ce18-e884-40fe-96d6-d9c2f3a0cbd6",
-      "name": "Call 'Prompt Injection' - Governance"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "KyDtBHSVI5wyX2KM",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
-          "cachedResultName": "Prompt Injection"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/risk.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/risk.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').first().json.data),\n  CHARITY_NAME: $('Exists? (Risk)').first().json.charity_name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').first().json.charity_name_chi.replaceAll(\"'\", \"\\\\'\")\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').first().json.data),\n  CHARITY_NAME: $('Exists? (Risk)').first().json.name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').first().json.meta.chinese_name.replaceAll(\"'\", \"\\\\'\")\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2480,7 +1629,7 @@
       "typeVersion": 1.3,
       "position": [
         80,
-        5248
+        5168
       ],
       "id": "5e6872a8-efe8-494a-858a-ed5620a89205",
       "name": "Call 'Prompt Injection' - Risk"
@@ -2495,7 +1644,7 @@
         "messages": {
           "values": [
             {
-              "content": "=What are:\n1. the Chinese name of the \"{{ $json.charity_name }}\"?\n2. the web domains of the official websites of \"{{ $json.charity_name }}\"?\nReturn strictly valid JSON. No markdown.\n\nRequired JSON Schame:\n{\n  \"chinese_name\": string,   // return empty string if not available\n  \"domains\": array<string>, // e.g. \"google.com\", \"apple.com\"\n}"
+              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[1] }}\n</user prompt>"
             }
           ]
         },
@@ -2507,8 +1656,8 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        -592,
-        4064
+        -848,
+        3328
       ],
       "id": "10e19ddb-bb47-4936-9fcf-7cd33dab55d6",
       "name": "Find Metadata",
@@ -2544,38 +1693,10 @@
       "typeVersion": 1.1,
       "position": [
         304,
-        5248
+        5168
       ],
       "id": "2d574742-2501-42bd-88a7-1f118a55c12a",
       "name": "Extract Risk",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "7EY3kWdzHSKXrfnm",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "googlePalmApi",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Governance').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').first().json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n{{ $('Storage API - Get Charity').first().json.rem_pkg_review_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.rem_pkg_review_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Governance)').first().json.data) }}\n  }\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        304,
-        5040
-      ],
-      "id": "9c5ce8a5-71a2-4567-be25-2393e77038b5",
-      "name": "Extract Governance Metrics",
       "retryOnFail": true,
       "waitBetweenTries": 5000,
       "credentials": {
@@ -2608,8 +1729,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1776,
-        3168
+        -1824,
+        2736
       ],
       "id": "4a71ebdb-507e-4a75-a16d-adafe65576aa",
       "name": "Vars - Gemini"
@@ -2624,8 +1745,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -2208,
-        3408
+        -2272,
+        2736
       ],
       "id": "191c9cf1-b0a1-42ec-b285-543770263887",
       "name": "Webhook",
@@ -2646,7 +1767,7 @@
       "typeVersion": 4.3,
       "position": [
         304,
-        4656
+        4784
       ],
       "id": "f74f320f-326c-4e5f-a53a-fdc2f4a168b0",
       "name": "Extract Financials",
@@ -2678,8 +1799,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1664,
-        4064
+        64,
+        4032
       ],
       "id": "a13d6d1e-8b73-4c43-b1cd-47b0f6c38502",
       "name": "Storage API - Get Charity1",
@@ -2703,7 +1824,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "artifact_id": "={{ $json.expand.financial_report.id }}",
-            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}",
+            "gemini_file_lifetime_hr": 0
           },
           "matchingColumns": [
             "expand_financial_report_id"
@@ -2728,6 +1850,16 @@
               "canBeUsedToMatch": true,
               "type": "string",
               "removed": false
+            },
+            {
+              "id": "gemini_file_lifetime_hr",
+              "displayName": "gemini_file_lifetime_hr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -2738,8 +1870,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1968,
-        4064
+        464,
+        4144
       ],
       "name": "Call Ensure File is on Gemini",
       "id": "47395209-3b5e-4360-bb57-3c0bd7a4ce12"
@@ -2757,7 +1889,8 @@
           "mappingMode": "defineBelow",
           "value": {
             "artifact_id": "={{ $json.expand.annual_report.id }}",
-            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
+            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}",
+            "gemini_file_lifetime_hr": 0
           },
           "matchingColumns": [
             "expand_financial_report_id"
@@ -2782,6 +1915,16 @@
               "canBeUsedToMatch": true,
               "type": "string",
               "removed": false
+            },
+            {
+              "id": "gemini_file_lifetime_hr",
+              "displayName": "gemini_file_lifetime_hr",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -2792,71 +1935,16 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1968,
-        3872
+        464,
+        3920
       ],
       "name": "Call Ensure File is on Gemini1",
       "id": "ba391319-554e-4e59-969c-d57eaa7dca37"
     },
     {
       "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "7WmUvPfyMRFCI864",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/7WmUvPfyMRFCI864",
-          "cachedResultName": "Ensure File is on Gemini"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "artifact_id": "={{ $json.expand.rem_pkg_review_report.id }}",
-            "storage_api_host": "={{ $('Vars - Storage API').first().json.storage_api_host }}"
-          },
-          "matchingColumns": [
-            "expand_financial_report_id"
-          ],
-          "schema": [
-            {
-              "id": "storage_api_host",
-              "displayName": "storage_api_host",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "artifact_id",
-              "displayName": "artifact_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        1968,
-        4240
-      ],
-      "name": "Call Ensure File is on Gemini2",
-      "id": "8de4b536-81e5-4fb0-a87e-0cc5c393d7f1"
-    },
-    {
-      "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 3,
         "options": {
           "includeUnpaired": true
         }
@@ -2864,8 +1952,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2272,
-        4048
+        672,
+        4032
       ],
       "id": "6aebec43-0ee5-4c18-892c-f4396be962f0",
       "name": "Merge1"
@@ -2878,14 +1966,14 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').item.json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ]\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[0]) }} },\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact').first().json.injected_prompts[1]) }} }\n{{ $('Storage API - Get Charity').item.json.annual_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.annual_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n{{ $('Storage API - Get Charity').item.json.financial_report ? `,\n{\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": \"${$('Storage API - Get Charity').first().json.expand.financial_report.gemini_file_uri}\"\n  }\n}` : \"\" }}\n      ]\n    }\n  ],\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
         304,
-        4848
+        4976
       ],
       "id": "17616abf-1a5c-46b0-a946-1ef333a7c234",
       "name": "Extract Impact Metrics",
@@ -2897,47 +1985,185 @@
           "name": "Google Gemini(PaLM) Api account"
         }
       }
+    },
+    {
+      "parameters": {
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.meta_schema }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1520,
+        3328
+      ],
+      "id": "ef130892-3d7a-4cfe-990f-13068dc5e762",
+      "name": "Read JSON schema (Meta)"
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -1296,
+        3328
+      ],
+      "id": "ec735c1d-0ff4-41a4-8719-49f9ac7bc868",
+      "name": "Binary to Text (JSON schema, Meta)"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prepare Prompts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/meta.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/meta.user.md\"\n] }}",
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Meta)').first().json.data),\n  CHARITY_NAME: $('Exists? (Domains)1').first().json.name.replaceAll(\"'\", \"\\\\'\")\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -1072,
+        3328
+      ],
+      "id": "b170d9e5-191d-488a-969c-66da3f63d2b5",
+      "name": "Call 'Prompt Injection' - Meta"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "schema_name",
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.meta_schema }}"
+            },
+            {
+              "name": "data",
+              "value": "={{$('Parsed Content (Metadata)').first().json.parsedContentObject}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -272,
+        3328
+      ],
+      "id": "ba70bebb-b3e4-4ff1-b41b-5d7af51f37c4",
+      "name": "Schema Validation (Metadata)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e2a7b7f-629f-4098-9079-e9ddc54254fd",
+              "leftValue": "={{ $json.expand.annual_report }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        240,
+        3920
+      ],
+      "id": "043a5fcc-b8f3-4d5b-b8c5-faaa575022b4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ca7efc9c-92e5-4a6c-a184-901aa6327343",
+              "leftValue": "={{ $json.expand.financial_report }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        240,
+        4144
+      ],
+      "id": "7390c7f0-b1a1-4612-83c2-6868b413f35d",
+      "name": "If1"
     }
   ],
   "connections": {
-    "Manual Trigger (for testing)": {
-      "main": [
-        []
-      ]
-    },
-    "HTTP Request (SWD AFR List)": {
-      "main": [
-        [
-          {
-            "node": "HTML (SWD AFR List)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTML (SWD AFR List)": {
-      "main": [
-        [
-          {
-            "node": "Transform (SWD AFR List)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Transform (SWD AFR List)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Batch create SWD NGO AFR",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Auth Storage API": {
       "main": [
         [
@@ -2945,57 +2171,6 @@
             "node": "Vars - Utils API & Schemas",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - List SWD NGO AFR": {
-      "main": [
-        [
-          {
-            "node": "If SWD NGO AFR is empty",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If SWD NGO AFR is empty": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request (SWD AFR List)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Storage API - Batch create SWD NGO AFR": {
-      "main": [
-        [
-          {
-            "node": "Storage API - List SWD NGO AFR again",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - List SWD NGO AFR again": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -3052,16 +2227,11 @@
             "node": "Exists? (Annual Report)",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Exists? (Rem. Pkg Review Report)",
-            "type": "main",
-            "index": 0
           }
         ],
         [
           {
-            "node": "Find Metadata",
+            "node": "Read JSON schema (Meta)",
             "type": "main",
             "index": 0
           }
@@ -3148,39 +2318,6 @@
         ]
       ]
     },
-    "Storage API - List NGO Annual Reports": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Try to Create Charity Record",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Exists? (Annual Report)": {
       "main": [
         [
@@ -3261,90 +2398,6 @@
         ]
       ]
     },
-    "Storage API - List SWD NGO RR": {
-      "main": [
-        [
-          {
-            "node": "If SWD NGO RR is empty",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If SWD NGO RR is empty": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request (SWD RR List)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "HTTP Request (SWD RR List)": {
-      "main": [
-        [
-          {
-            "node": "HTML (SWD RR List)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTML (SWD RR List)": {
-      "main": [
-        [
-          {
-            "node": "Transform (SWD RR List)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Transform (SWD RR List)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Batch create SWD NGO RR",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - Batch create SWD NGO RR": {
-      "main": [
-        [
-          {
-            "node": "Storage API - List SWD NGO AFR again1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - List SWD NGO AFR again1": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
     "Storage API - Get Charity": {
       "main": [
         [
@@ -3359,30 +2412,7 @@
             "index": 0
           },
           {
-            "node": "Exists? (Governance)",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Exists? (Risk)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Exists? (Rem. Pkg Review Report)": {
-      "main": [
-        [
-          {
-            "node": "Wait until all downloads done",
-            "type": "main",
-            "index": 2
-          }
-        ],
-        [
-          {
-            "node": "Storage API - Get SWD NGO RR Record",
             "type": "main",
             "index": 0
           }
@@ -3407,17 +2437,6 @@
             "node": "Wait until all downloads done",
             "type": "main",
             "index": 1
-          }
-        ]
-      ]
-    },
-    "Storage API - Update Charity - Rem. Pkg Review Report": {
-      "main": [
-        [
-          {
-            "node": "Wait until all downloads done",
-            "type": "main",
-            "index": 2
           }
         ]
       ]
@@ -3480,86 +2499,6 @@
         ]
       ]
     },
-    "Storage API - Get SWD NGO RR Record": {
-      "main": [
-        [
-          {
-            "node": "if (Rem. Pkg Review Report) URL exists",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "if (Rem. Pkg Review Report) URL exists": {
-      "main": [
-        [
-          {
-            "node": "Download PDF & OCR (Rem. Pkg Review Report)",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait until all downloads done",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "Download PDF & OCR (Rem. Pkg Review Report)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Rem. Pkg Review Report",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Exists? (Governance)": {
-      "main": [
-        [
-          {
-            "node": "Wait until all analysis done",
-            "type": "main",
-            "index": 2
-          }
-        ],
-        [
-          {
-            "node": "Read JSON schema (Governance)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parsed Content (Governance Metrics)": {
-      "main": [
-        [
-          {
-            "node": "Schema Validation (Governance)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - Update Charity - Governance": {
-      "main": [
-        [
-          {
-            "node": "Wait until all analysis done",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
     "Wait until all downloads done": {
       "main": [
         [
@@ -3575,17 +2514,7 @@
       "main": [
         [
           {
-            "node": "Storage API - List NGO Annual Reports",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Storage API - List SWD NGO AFR",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Storage API - List SWD NGO RR",
+            "node": "Storage API - Try to Create Charity Record",
             "type": "main",
             "index": 0
           }
@@ -3598,7 +2527,7 @@
           {
             "node": "Wait until all analysis done",
             "type": "main",
-            "index": 3
+            "index": 2
           }
         ],
         [
@@ -3627,7 +2556,7 @@
           {
             "node": "Wait until all analysis done",
             "type": "main",
-            "index": 3
+            "index": 2
           }
         ]
       ]
@@ -3636,7 +2565,7 @@
       "main": [
         [
           {
-            "node": "Storage API - Update Charity - Metadata",
+            "node": "Schema Validation (Metadata)",
             "type": "main",
             "index": 0
           }
@@ -3653,11 +2582,6 @@
           },
           {
             "node": "Exists? (Annual Report)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Exists? (Rem. Pkg Review Report)",
             "type": "main",
             "index": 0
           }
@@ -3702,28 +2626,6 @@
         [
           {
             "node": "Call 'Prompt Injection' - Impact",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Read JSON schema (Governance)": {
-      "main": [
-        [
-          {
-            "node": "Binary to Text (JSON schema, Governance)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to Text (JSON schema, Governance)": {
-      "main": [
-        [
-          {
-            "node": "Call 'Prompt Injection' - Governance",
             "type": "main",
             "index": 0
           }
@@ -3792,18 +2694,6 @@
         [
           {
             "node": "Storage API - Update Charity - Risk",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Schema Validation (Governance)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Governance",
             "type": "main",
             "index": 0
           }
@@ -3899,17 +2789,6 @@
         ]
       ]
     },
-    "Call 'Prompt Injection' - Governance": {
-      "main": [
-        [
-          {
-            "node": "Extract Governance Metrics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Call 'Prompt Injection' - Risk": {
       "main": [
         [
@@ -3937,17 +2816,6 @@
         [
           {
             "node": "Parsed Content (Risk)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Governance Metrics": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Governance Metrics)",
             "type": "main",
             "index": 0
           }
@@ -3991,17 +2859,12 @@
       "main": [
         [
           {
-            "node": "Call Ensure File is on Gemini",
+            "node": "If",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Call Ensure File is on Gemini1",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Call Ensure File is on Gemini2",
+            "node": "If1",
             "type": "main",
             "index": 0
           }
@@ -4030,17 +2893,6 @@
         ]
       ]
     },
-    "Call Ensure File is on Gemini2": {
-      "main": [
-        [
-          {
-            "node": "Merge1",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
     "Merge1": {
       "main": [
         [
@@ -4062,6 +2914,86 @@
           }
         ]
       ]
+    },
+    "Read JSON schema (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Binary to Text (JSON schema, Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Binary to Text (JSON schema, Meta)": {
+      "main": [
+        [
+          {
+            "node": "Call 'Prompt Injection' - Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Meta": {
+      "main": [
+        [
+          {
+            "node": "Find Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schema Validation (Metadata)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call Ensure File is on Gemini1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Call Ensure File is on Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4073,27 +3005,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "40e23ee4-addc-489e-aae7-5f14c7a97dc5",
-  "activeVersionId": "40e23ee4-addc-489e-aae7-5f14c7a97dc5",
-  "versionCounter": 339,
+  "versionId": "fc659908-3ca4-49fd-a6c3-765b2c7e557d",
+  "activeVersionId": "6b847f33-b5a3-4948-82c7-d178a05c4b29",
+  "versionCounter": 349,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-21T10:05:58.324Z",
-      "createdAt": "2026-02-21T10:05:58.324Z",
+      "updatedAt": "2026-02-24T15:31:37.646Z",
+      "createdAt": "2026-02-24T15:31:37.646Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "K62MH6uOjpLq8Vkf",
+      "projectId": "WF5JYzstr3wvgt36",
       "project": {
-        "updatedAt": "2026-02-21T10:07:25.336Z",
-        "createdAt": "2026-02-21T10:05:56.851Z",
-        "id": "K62MH6uOjpLq8Vkf",
+        "updatedAt": "2026-02-24T15:53:03.896Z",
+        "createdAt": "2026-02-24T15:31:35.715Z",
+        "id": "WF5JYzstr3wvgt36",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
+        "creatorId": "ff0d1850-94c4-4b5b-976a-8741d5d8d996"
       }
     }
   ]
