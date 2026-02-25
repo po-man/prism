@@ -4,42 +4,42 @@ from app.schemas.analytics import AuditCheckItem, AuditDetails
 
 def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
     """
-    Checks if LSG reserve is within the 25% cap of operating expenditure.
-    Fail if > 0.25.
+    Checks if general reserve is within a reasonable range of operating expenditure.
+    Warning if > 2 years of expenditure.
     """
     base_details = AuditDetails(
-        formula="lsg_reserve_amount / total_expenditure",
+        formula="total_reserves / total_expenditure",
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_reserve_cap", status="null", significance="HIGH", category="Financial Health", details=base_details
+        id="check_reserve_cap", status="null", significance="MEDIUM", category="Financial Health", details=base_details
     )
 
     if (
         not record.financials
-        or not record.financials.lsg_specifics
+        or not record.financials.reserves
         or not record.financials.expenditure
-        or record.financials.lsg_specifics.lsg_reserve_amount is None
+        or record.financials.reserves.total_reserves is None
         or record.financials.expenditure.total is None
     ):
         base_item.details.calculation = "Required financial data is missing."
         return base_item
 
-    reserve = record.financials.lsg_specifics.lsg_reserve_amount
+    reserve = record.financials.reserves.total_reserves
     expenditure = record.financials.expenditure.total
 
     if expenditure <= 0:
         base_item.status = "warning"
-        base_item.details.calculation = f"Operating expenditure (${expenditure:,.0f}) is not a positive number, cannot compute ratio."
+        base_item.details.calculation = f"Total expenditure (${expenditure:,.0f}) is not a positive number, cannot compute ratio."
         return base_item
 
-    ratio = reserve / expenditure
-    cap = 0.25
+    ratio_in_years = reserve / expenditure
+    cap_in_years = 2
 
-    base_item.details.calculation = f"(${reserve:,.0f} / ${expenditure:,.0f}) = {ratio:.1%} (vs. {cap:.0%} cap)"
+    base_item.details.calculation = f"(${reserve:,.0f} / ${expenditure:,.0f}) = {ratio_in_years:.1f} years of expenditure (vs. < {cap_in_years} years recommended)"
 
-    if ratio > cap:
-        base_item.status = "fail"
+    if ratio_in_years > cap_in_years:
+        base_item.status = "warning"
     else:
         base_item.status = "pass"
 
@@ -49,7 +49,7 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
 def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
     """Checks if the liquidity ratio is sufficient (>= 3 months). Fail if < 3."""
     base_details = AuditDetails(
-        formula="net_current_assets / monthly_operating_expenses",
+        formula="(current_assets - current_liabilities) / monthly_operating_expenses",
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -57,21 +57,21 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
     )
 
     if not record.financials or not record.financials.ratio_inputs:
-        base_item.details.calculation = "Required financial data is missing."
+        base_item.details.calculation = "Required financial data for liquidity check is missing."
         return base_item
 
     ratio_inputs = record.financials.ratio_inputs
-    assets = record.financials.ratio_inputs.net_current_assets
+    net_assets = ratio_inputs.net_current_assets
     monthly_expenses = ratio_inputs.monthly_operating_expenses
     calculation_string = ""
 
-    if assets is None and getattr(ratio_inputs, 'current_assets', None) is not None and getattr(ratio_inputs, 'current_liabilities', None) is not None:
+    if net_assets is None and ratio_inputs.current_assets is not None and ratio_inputs.current_liabilities is not None:
         current_assets = ratio_inputs.current_assets
         current_liabilities = ratio_inputs.current_liabilities
-        assets = current_assets - current_liabilities
+        net_assets = current_assets - current_liabilities
         calculation_string = f"((${current_assets:,.0f} - ${current_liabilities:,.0f}) / ${monthly_expenses:,.0f})"
 
-    if assets is None or monthly_expenses is None:
+    if net_assets is None or monthly_expenses is None:
         base_item.details.calculation = "Required financial data is missing."
         return base_item
 
@@ -81,12 +81,12 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
         base_item.details.calculation = f"Monthly operating expenses (${monthly_expenses:,.0f}) is not a positive number, cannot compute ratio."
         return base_item
 
-    ratio = assets / monthly_expenses
+    ratio = net_assets / monthly_expenses
     threshold = 3
 
     truncated_ratio = int(ratio * 10) / 10.0
     if not calculation_string:
-        calculation_string = f"(${assets:,.0f} / ${monthly_expenses:,.0f})"
+        calculation_string = f"(${net_assets:,.0f} / ${monthly_expenses:,.0f})"
 
     base_item.details.calculation = f"{calculation_string} = {truncated_ratio:.1f} months"
 

@@ -11,11 +11,11 @@
 - [x] 2.4 Delete `n8n/prompt-templates/governance.system.md` and `governance.user.md`.
 
 ## 3. Python Audit Engine (`utils_api`)
-- [ ] 3.1 Implement `check_cause_area_neglectedness` in `utils_api/app/audits/impact.py` focusing on species neglectedness.
-- [ ] 3.2 Refactor `check_reserve_cap` and `check_liquidity` in `utils_api/app/audits/financial.py` to handle standard non-profit financial structures.
-- [ ] 3.3 Delete `utils_api/app/audits/governance.py`.
-- [ ] 3.4 Update `utils_api/app/audits/registry.py` to include the new checks and remove governance checks.
-- [ ] 3.5 Write pytest coverage for the new animal-centric audit functions.
+- [x] 3.1 Implement `check_cause_area_neglectedness` in `utils_api/app/audits/impact.py` focusing on species neglectedness.
+- [x] 3.2 Refactor `check_reserve_cap` and `check_liquidity` in `utils_api/app/audits/financial.py` to handle standard non-profit financial structures.
+- [x] 3.3 Delete `utils_api/app/audits/governance.py`.
+- [x] 3.4 Update `utils_api/app/audits/registry.py` to include the new checks and remove governance checks.
+- [x] 3.5 Write pytest coverage for the new animal-centric audit functions.
 
 ## 4. n8n Workflow Refactoring
 - [x] 4.1 Create a PocketBase migration to:

@@ -14,18 +14,16 @@ def test_check_evidence_quality(client: TestClient):
     """Tests the check_evidence_quality audit for various evidence levels."""
     # 1. Pass with high-quality evidence
     record_high_evidence = deepcopy(VALID_BASE_RECORD)
-    record_high_evidence["impact"]["importance_factors"]["problem_profile"]["severity_dimensions"].append(
-        {"evidence_quality": "Quasi-Experimental", "dimension": "Health", "metric_name": "DALY", "quantitative_data": {"value": 5, "unit": "years"}, "context_qualifier": "context", "counterfactual_baseline": {"description": "baseline", "value": 1}, "source_citation": "Source Y"}
-    )
+    record_high_evidence["impact"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
     response = client.post("/audit", json=record_high_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_evidence_quality")
     assert item["status"] == "pass"
-    assert item["details"]["calculation"] == "Highest evidence found: 'RCT/Meta-Analysis'."
+    assert item["details"]["calculation"] == "Highest evidence found: 'Quasi-Experimental'."
 
     # 2. Warning with only low-quality evidence
     record_low_evidence = deepcopy(VALID_BASE_RECORD)
-    record_low_evidence["impact"]["importance_factors"]["problem_profile"]["severity_dimensions"][0]["evidence_quality"] = "Pre-Post"
+    record_low_evidence["impact"]["metrics"][0]["evidence_quality"] = "Pre-Post"
 
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
@@ -35,12 +33,12 @@ def test_check_evidence_quality(client: TestClient):
 
     # 3. Warning when no evidence is specified
     record_no_evidence = deepcopy(VALID_BASE_RECORD)
-    record_no_evidence["impact"]["importance_factors"]["problem_profile"]["severity_dimensions"] = []
+    record_no_evidence["impact"]["metrics"] = []
     response = client.post("/audit", json=record_no_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_evidence_quality")
-    assert item["status"] == "warning"
-    assert item["details"]["calculation"] == "No evidence quality was specified in any impact claim."
+    assert item["status"] == "null"
+    assert item["details"]["calculation"] == "Impact data with metrics is missing."
 
     # 4. Null status with missing impact data
     record_missing_impact = deepcopy(VALID_BASE_RECORD)
@@ -48,7 +46,7 @@ def test_check_evidence_quality(client: TestClient):
     response = client.post("/audit", json=record_missing_impact)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_evidence_quality")
-    assert item["details"]["calculation"] == "Impact data with severity dimensions is missing."
+    assert item["details"]["calculation"] == "Impact data with metrics is missing."
 
 
 def test_check_counterfactual_baseline(client: TestClient):
@@ -64,9 +62,7 @@ def test_check_counterfactual_baseline(client: TestClient):
 
     # 2. Fail when baseline is missing value
     record_no_value = deepcopy(VALID_BASE_RECORD)
-    record_no_value["impact"]["importance_factors"]["problem_profile"]["severity_dimensions"][0][
-        "counterfactual_baseline"
-    ]["value"] = None
+    record_no_value["impact"]["metrics"][0]["counterfactual_baseline"]["value"] = None
     response = client.post("/audit", json=record_no_value)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
@@ -79,7 +75,7 @@ def test_check_counterfactual_baseline(client: TestClient):
     response = client.post("/audit", json=record_missing_impact)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
-    assert item["details"]["calculation"] == "Impact data with severity dimensions is missing."
+    assert item["details"]["calculation"] == "Impact data with metrics is missing."
 
 
 def test_check_cost_per_outcome(client: TestClient):
@@ -114,8 +110,8 @@ def test_check_cost_per_outcome(client: TestClient):
     # 4. Handles zero primary outcome value
     record_zero_outcome = deepcopy(VALID_BASE_RECORD)
     # Set one outcome to 0 and another to a negative value, so the max() is 0.
-    record_zero_outcome["impact"]["importance_factors"]["beneficiaries_demographic"][0]["population"] = 0
-    record_zero_outcome["impact"]["importance_factors"]["problem_profile"]["severity_dimensions"][0]["quantitative_data"]["value"] = -1
+    record_zero_outcome["impact"]["beneficiaries"][0]["population"] = 0
+    record_zero_outcome["impact"]["metrics"][0]["quantitative_data"]["value"] = -1
     response = client.post("/audit", json=record_zero_outcome)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
@@ -170,3 +166,42 @@ def test_check_funding_neglectedness(client: TestClient):
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")
     assert item["details"]["calculation"] == "Financials with income breakdown are missing."
+
+
+def test_check_cause_area_neglectedness(client: TestClient):
+    """Tests the check_cause_area_neglectedness audit for animal advocacy."""
+
+    # 1. Pass for high-neglectedness area (farmed animals)
+    record_farmed = deepcopy(VALID_BASE_RECORD)
+    record_farmed["impact"]["beneficiaries"][0]["beneficiary_type"] = "farmed_animals"
+    response = client.post("/audit", json=record_farmed)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["status"] == "pass"
+    assert "high-neglectedness area(s): farmed_animals" in item["details"]["calculation"]
+
+    # 2. Warning for low-neglectedness area (companion animals)
+    record_companion = deepcopy(VALID_BASE_RECORD)
+    record_companion["impact"]["beneficiaries"][0]["beneficiary_type"] = "companion_animals"
+    response = client.post("/audit", json=record_companion)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["status"] == "warning"
+    assert "low-neglectedness / saturated area" in item["details"]["calculation"]
+
+    # 3. Null for missing beneficiary types
+    record_no_beneficiaries = deepcopy(VALID_BASE_RECORD)
+    record_no_beneficiaries["impact"]["beneficiaries"] = []
+    response = client.post("/audit", json=record_no_beneficiaries)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["status"] == "null"  # or 'warning' depending on desired strictness
+    assert "Impact data with beneficiary types is missing" in item["details"]["calculation"]
+
+    # 4. Null for missing impact data
+    record_no_impact = deepcopy(VALID_BASE_RECORD)
+    del record_no_impact["impact"]
+    response = client.post("/audit", json=record_no_impact)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert "Impact data with beneficiary types is missing" in item["details"]["calculation"]
