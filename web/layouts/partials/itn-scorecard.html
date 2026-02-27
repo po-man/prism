@@ -86,17 +86,20 @@
           {{ $neglectednessText }} Neglectedness
         </span>
       </p>
-      <div class="text-gray-600 mt-2 flex items-center space-x-2">
-        <span>Beneficiaries:</span>
-        {{/* Task 2.2: Beneficiary Icons */}}
-        {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
-        {{ range $s.Get "beneficiaryTypes" }}
-          <span title="{{ . | humanize | title }}">
-            {{ partial (index $iconMap .) . }}
+      <div class="text-gray-600 mt-2">
+        <span class="text-sm font-semibold">Beneficiaries:</span>
+        <div class="flex items-center space-x-3 mt-1">
+          {{ $allBeneficiaryTypes := slice "companion_animals" "wild_animals" "farmed_animals" }}
+          {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
+          {{ $activeBeneficiaryTypes := $s.Get "beneficiaryTypes" }}
+
+          {{ range $allBeneficiaryTypes }}
+          <span class="flex items-center text-sm {{ if not (in $activeBeneficiaryTypes .) }}opacity-40 grayscale{{ end }}" title="{{ . | humanize | title }}">
+            {{ partial (index $iconMap .) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+            {{ . | humanize | title }}
           </span>
-        {{ else }}
-          <span class="text-sm">N/A</span>
-        {{ end }}
+          {{ end }}
+        </div>
       </div>
     </div>
 
