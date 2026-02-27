@@ -89,7 +89,7 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
     assert item["status"] == "null"  # Informational check
-    assert item["details"]["calculation"] == "($100,000 / 1,000 beneficiaries) = $100.00 per outcome"
+    assert item["details"]["calculation"] == "($100,000 / 1,000 beneficiaries) = $100.00 per outcome. | A $1,000 donation achieves ≈ 10.0 outcomes."
 
     # 2. Handles missing financial data
     record_no_financials = deepcopy(VALID_BASE_RECORD)
@@ -105,7 +105,7 @@ def test_check_cost_per_outcome(client: TestClient):
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
-    assert item["details"]["calculation"] == "($0 / 1,000 beneficiaries) = $0.00 per outcome"
+    assert item["details"]["calculation"] == "($0 / 1,000 beneficiaries) = $0.00 per outcome" # No translation for $0 cost
 
     # 4. Handles zero primary outcome value
     record_zero_outcome = deepcopy(VALID_BASE_RECORD)

@@ -112,7 +112,13 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
         return base_item
 
     cost_per = program_spend / primary_outcome
-    base_item.details.calculation = f"(${program_spend:,.0f} / {primary_outcome:,.0f} beneficiaries) = ${cost_per:,.2f} per outcome"
+    calculation_string = f"(${program_spend:,.0f} / {primary_outcome:,.0f} beneficiaries) = ${cost_per:,.2f} per outcome"
+
+    if cost_per > 0:
+        outcomes_per_1000 = 1000 / cost_per
+        calculation_string += f". | A $1,000 donation achieves ≈ {outcomes_per_1000:.1f} outcomes."
+
+    base_item.details.calculation = calculation_string
     return base_item
 
 
