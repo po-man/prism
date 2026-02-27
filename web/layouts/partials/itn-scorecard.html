@@ -12,14 +12,20 @@
 {{ $analytics := .analytics }}
 {{ $s := newScratch }}
 
-{{/* Task 1.2: Logic to find the largest population count for Importance */}}
+{{/* Logic to find the largest population count for Importance */}}
 {{ $s.Set "maxPop" 0.0 }}
 {{ $s.Set "primaryBeneficiary" "N/A" }}
+{{ $s.Set "beneficiaryTypes" (slice) }}
 {{ range $i, $item := $impact.beneficiaries }}
   {{ $pop := .population | default 0 }}
   {{ if gt $pop ($s.Get "maxPop") }}
     {{ $s.Set "maxPop" $pop }}
     {{ $s.Set "primaryBeneficiary" (.beneficiary_type | humanize | title) }}
+  {{ end }}
+  {{/* Collect all unique beneficiary types */}}
+  {{ $currentTypes := $s.Get "beneficiaryTypes" }}
+  {{ if not (in $currentTypes .beneficiary_type) }}
+    {{ $s.Set "beneficiaryTypes" ($currentTypes | append .beneficiary_type) }}
   {{ end }}
 {{ end }}
 {{ $maxPop := $s.Get "maxPop" }}
@@ -80,7 +86,19 @@
           {{ $neglectednessText }} Neglectedness
         </span>
       </p>
-      <p class="text-gray-600">Primary beneficiary: <span class="font-bold">{{ $primaryBeneficiary }}</span></p>
+      <div class="text-gray-600 mt-2 flex items-center space-x-2">
+        <span>Beneficiaries:</span>
+        {{/* Task 2.2: Beneficiary Icons */}}
+        {{ $iconMap := dict "companion_animals" `<svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>` "farmed_animals" `<svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 12.572l-7.5-5.428-7.5 5.428m15 0A23.19 23.19 0 0112 16.146a23.19 23.19 0 01-7.5-3.574m15 0a.44.44 0 00-.03-.03m-14.94 0a.44.44 0 01.03-.03m11.5-5.042a.44.44 0 00-.678 0l-1.5 2.142a.44.44 0 00.339.71h3a.44.44 0 00.339-.71l-1.5-2.142z"></path></svg>` "wild_animals" `<svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h10a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.737 16.95l.001-.001M16.263 16.95l.001-.001M12 20.055V17.5m0 0V15m0 2.5v-2.5m0 0l-2-4.5h4l-2 4.5z"></path></svg>` }}
+        {{ $titleMap := dict "companion_animals" "Companion Animals" "farmed_animals" "Farmed Animals" "wild_animals" "Wild Animals" }}
+        {{ range $s.Get "beneficiaryTypes" }}
+          <span title="{{ index $titleMap . | default "Unknown" }}">
+            {{ index $iconMap . | safeHTML }}
+          </span>
+        {{ else }}
+          <span class="text-sm">N/A</span>
+        {{ end }}
+      </div>
     </div>
 
   </div>
