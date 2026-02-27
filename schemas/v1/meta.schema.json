@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Charity Metadata Schema",
+  "description": "Schema for core identifying metadata about a charity, such as names, web domains, and tax identifiers.",
+  "type": "object",
+  "properties": {
+    "chinese_name": {
+      "type": ["string", "null"],
+      "description": "The official Chinese name of the charity."
+    },
+    "alias": {
+      "type": ["string", "null"],
+      "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+    },
+    "domains": {
+      "type": "array",
+      "description": "A list of official website domains associated with the charity.",
+      "items": {
+        "type": "string",
+        "description": "An official domain name (e.g., 'spca.org.hk')."
+      }
+    },
+    "s88_id": {
+      "type": ["string", "null"],
+      "description": "The charity's Section 88 tax exemption identifier from the Hong Kong IRD (e.g., '91/1234', '91/12345')."
+    }
+  },
+  "required": [
+    "chinese_name",
+    "alias",
+    "domains",
+    "s88_id"
+  ]
+}
