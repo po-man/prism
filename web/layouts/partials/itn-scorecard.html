@@ -17,12 +17,14 @@
 {{ $s.Set "primaryBeneficiary" "N/A" }}
 {{ $s.Set "totalPop" 0.0 }}
 {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+{{ $s.Set "presentTypes" (dict) }}
 
 {{ range $i, $item := $impact.beneficiaries }}
   {{ $pop := .population | default 0 }}
   {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
   {{ $currentPopMap := $s.Get "popMap" }}
   {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
+  {{ $s.SetInMap "presentTypes" .beneficiary_type true }}
 
   {{ if gt $pop ($s.Get "maxPop") }}
     {{ $s.Set "maxPop" $pop }}
@@ -90,16 +92,22 @@
       </p>
       <div class="text-gray-600 mt-2">
         <span class="text-sm font-semibold">Beneficiaries:</span>
-        <div class="flex items-center space-x-3 mt-1">
-          {{ $allBeneficiaryTypes := slice "companion_animals" "wild_animals" "farmed_animals" }}
+        <div class="flex flex-col space-y-2 mt-2">
           {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
           {{ $popMap := $s.Get "popMap" }}
 
-          {{ range $allBeneficiaryTypes }}
-            {{ $typePop := index $popMap . }}
-            <span class="flex items-center text-sm {{ if eq $typePop 0 }}opacity-40 grayscale{{ end }}" title="{{ . | humanize | title }}">
-            {{ partial (index $iconMap .) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
-            {{ . | humanize | title }}
+          {{/* Create a sortable list of beneficiaries from the map */}}
+          {{ $presentTypes := $s.Get "presentTypes" }}
+          {{ $beneficiaryList := slice }}
+          {{ range $type, $pop := $popMap }}{{ $beneficiaryList = $beneficiaryList | append (dict "type" $type "pop" $pop) }}{{ end }}
+          {{ $sortedBeneficiaries := sort $beneficiaryList "pop" "desc" }}
+
+          {{ range $sortedBeneficiaries }}
+            {{ $typePop := .pop }}
+            {{ $isActive := index $presentTypes .type }}
+            <span class="flex items-center text-sm {{ if not $isActive }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
+            {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+            {{ .type | humanize | title }}
             {{ if gt $totalPop 0 }}
               {{ $pct := 0 }}
               {{ if gt $typePop 0 }}
