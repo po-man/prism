@@ -6,5 +6,35 @@
 </head>
 <body>
     {{ block "main" . }}{{ end }}
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Find all elements that are part of a sync group
+        const syncElements = document.querySelectorAll('[data-sync-group]');
+
+        // Group them by their sync-group id
+        const groups = {};
+        syncElements.forEach(el => {
+          const groupId = el.dataset.syncGroup;
+          if (!groups[groupId]) {
+            groups[groupId] = [];
+          }
+          groups[groupId].push(el);
+        });
+
+        // Add toggle event listeners to each group
+        Object.values(groups).forEach(group => {
+          group.forEach(sourceElement => {
+            sourceElement.addEventListener('toggle', () => {
+              group.forEach(targetElement => {
+                if (sourceElement !== targetElement) {
+                  targetElement.open = sourceElement.open;
+                }
+              });
+            });
+          });
+        });
+      });
+    </script>
 </body>
 </html>
