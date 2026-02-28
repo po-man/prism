@@ -17,8 +17,6 @@ The system SHALL utilize prompt templates injected with JSON schemas to ensure d
 - **THEN** the system prompt MUST instruct the model to prioritize quantitative data regarding animal lives improved/spared, corporate cage-free commitments secured, or plant-based meals served.
 - **AND** the prompt MUST strictly instruct the model to classify evidence quality according to the ITN framework.
 
-## ADDED Requirements
-
 ### Requirement: EA Animal Advocacy Audit Logic
 The `utils_api` microservice SHALL execute deterministic audit functions tailored to animal advocacy.
 

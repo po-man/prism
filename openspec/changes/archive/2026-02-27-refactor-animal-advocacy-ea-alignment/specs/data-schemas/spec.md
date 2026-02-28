@@ -15,8 +15,6 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 - **WHEN** validating financial data for non-SWD charities
 - **THEN** the schema MUST make `lsg_specifics` (Lump Sum Grant) optional or replace it with a generalized `reserves` object.
 
-## ADDED Requirements
-
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles in animal advocacy.
 
