@@ -12,14 +12,20 @@
 {{ $analytics := .analytics }}
 {{ $s := newScratch }}
 
-{{/* Task 1.2: Logic to find the largest population count for Importance */}}
+{{/* Logic to find the largest population count for Importance */}}
 {{ $s.Set "maxPop" 0.0 }}
 {{ $s.Set "primaryBeneficiary" "N/A" }}
+{{ $s.Set "beneficiaryTypes" (slice) }}
 {{ range $i, $item := $impact.beneficiaries }}
   {{ $pop := .population | default 0 }}
   {{ if gt $pop ($s.Get "maxPop") }}
     {{ $s.Set "maxPop" $pop }}
     {{ $s.Set "primaryBeneficiary" (.beneficiary_type | humanize | title) }}
+  {{ end }}
+  {{/* Collect all unique beneficiary types */}}
+  {{ $currentTypes := $s.Get "beneficiaryTypes" }}
+  {{ if not (in $currentTypes .beneficiary_type) }}
+    {{ $s.Set "beneficiaryTypes" ($currentTypes | append .beneficiary_type) }}
   {{ end }}
 {{ end }}
 {{ $maxPop := $s.Get "maxPop" }}
@@ -73,14 +79,28 @@
 
     <!-- Neglectedness -->
     <div class="p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">EA Neglectedness</h3>
+      <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
       <p class="text-sm text-gray-500 mb-2">Focus on underfunded areas</p>
       <p class="text-xl font-semibold text-gray-900">
         <span class="px-3 py-1 text-base font-semibold rounded-full {{ $neglectednessColor }}">
           {{ $neglectednessText }} Neglectedness
         </span>
       </p>
-      <p class="text-gray-600">Primary beneficiary: <span class="font-bold">{{ $primaryBeneficiary }}</span></p>
+      <div class="text-gray-600 mt-2">
+        <span class="text-sm font-semibold">Beneficiaries:</span>
+        <div class="flex items-center space-x-3 mt-1">
+          {{ $allBeneficiaryTypes := slice "companion_animals" "wild_animals" "farmed_animals" }}
+          {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
+          {{ $activeBeneficiaryTypes := $s.Get "beneficiaryTypes" }}
+
+          {{ range $allBeneficiaryTypes }}
+          <span class="flex items-center text-sm {{ if not (in $activeBeneficiaryTypes .) }}opacity-40 grayscale{{ end }}" title="{{ . | humanize | title }}">
+            {{ partial (index $iconMap .) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+            {{ . | humanize | title }}
+          </span>
+          {{ end }}
+        </div>
+      </div>
     </div>
 
   </div>

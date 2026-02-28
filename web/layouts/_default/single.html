@@ -31,6 +31,25 @@
             {{ end }}
           </div>
 
+          {{/* Task 2.1: Data Provenance Indicators */}}
+          <div class="mt-4 flex items-center space-x-4 border-t pt-4">
+            <span class="text-sm font-semibold text-gray-500">Data Sources:</span>
+            <div class="flex items-center space-x-3">
+              <span class="flex items-center text-sm text-gray-700 {{ if not .annual_report }}opacity-40 grayscale{{ end }}" title="{{ if .annual_report }}Annual Report Provided{{ else }}Annual Report Missing{{ end }}">
+                {{ partial "icons/annual-report.svg" . }}
+                Annual Report
+              </span>
+              <span class="flex items-center text-sm text-gray-700 {{ if not .financial_report }}opacity-40 grayscale{{ end }}" title="{{ if .financial_report }}Financial Report Provided{{ else }}Financial Report Missing{{ end }}">
+                {{ partial "icons/financials.svg" . }}
+                Financials
+              </span>
+              <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
+                {{ partial "icons/web-search.svg" . }}
+                Web Search
+              </span>
+            </div>
+          </div>
+
           {{/* Render the ITN Scorecard partial, passing the organisation context */}}
           {{ partial "itn-scorecard.html" $org }}
 
