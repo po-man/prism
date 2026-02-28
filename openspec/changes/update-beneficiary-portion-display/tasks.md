@@ -13,7 +13,7 @@
     - Test case: Missing `population` data (falls back to existing presence checks).
 
 ## 3. UI/UX Refactoring (`web`)
-- [ ] 3.1 Update `web/layouts/partials/itn-scorecard.html`.
+- [x] 3.1 Update `web/layouts/partials/itn-scorecard.html`.
     - Create Hugo Scratch variables to sum the total population (`$totalPop`) and the individual populations (`$companionPop`, `$farmedPop`, `$wildPop`) while iterating over `.impact.data.beneficiaries`.
     - Within the rendering loop for the beneficiary badges, evaluate if `$totalPop > 0`.
     - If true, calculate the percentage `div (mul $typePop 100.0) $totalPop` and format it using `lang.FormatNumber 0`.
