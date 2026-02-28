@@ -1,5 +1,5 @@
 ## 1. Prompt Engineering (`n8n`)
-- [ ] 1.1 Edit `n8n/prompt-templates/impact.system.md` to add an instruction: "When extracting the `beneficiaries` array, you must disaggregate the exact `population` count for each specific `beneficiary_type` whenever a charity serves multiple categories of animals. Do not combine them into a single entry if distinct numbers are available."
+- [x] 1.1 Edit `n8n/prompt-templates/impact.system.md` to add an instruction: "When extracting the `beneficiaries` array, you must disaggregate the exact `population` count for each specific `beneficiary_type` whenever a charity serves multiple categories of animals. Do not combine them into a single entry if distinct numbers are available."
 
 ## 2. Python Audit Engine (`utils_api`)
 - [ ] 2.1 Refactor `check_cause_area_neglectedness` in `utils_api/app/audits/impact.py`.
