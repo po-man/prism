@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations.
@@ -8,6 +8,8 @@ The system SHALL utilize prompt templates injected with JSON schemas to ensure d
 - **THEN** the system prompt MUST instruct the model to prioritize quantitative data regarding animal lives improved/spared.
 - **AND** the prompt MUST instruct the model to explicitly extract the exact `population` count for *each* `beneficiary_type` if the charity serves multiple categories of animals.
 - **AND** the prompt MUST strictly instruct the model to classify evidence quality according to the ITN framework.
+
+## MODIFIED Requirements
 
 ### Requirement: EA Animal Advocacy Audit Logic
 The `utils_api` microservice SHALL execute deterministic audit functions tailored to animal advocacy, weighting neglectedness by proportional population impact.
