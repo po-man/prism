@@ -171,32 +171,63 @@ def test_check_funding_neglectedness(client: TestClient):
 def test_check_cause_area_neglectedness(client: TestClient):
     """Tests the check_cause_area_neglectedness audit for animal advocacy."""
 
-    # 1. Pass for high-neglectedness area (farmed animals)
-    record_farmed = deepcopy(VALID_BASE_RECORD)
-    record_farmed["impact"]["beneficiaries"][0]["beneficiary_type"] = "farmed_animals"
-    response = client.post("/audit", json=record_farmed)
+    # 1. Pass for >= 50% high-neglectedness population
+    record_pass = deepcopy(VALID_BASE_RECORD)
+    record_pass["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": 800, "beneficiary_type": "wild_animals"},
+        {"location": "HK", "population": 200, "beneficiary_type": "companion_animals"},
+    ]
+    response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cause_area_neglectedness")
     assert item["status"] == "pass"
-    assert "high-neglectedness area(s): farmed_animals" in item["details"]["calculation"]
+    assert item["details"]["calculation"] == "Focus on high-neglectedness areas (Wild Animals: 80%, Companion Animals: 20%)."
 
-    # 2. Warning for low-neglectedness area (companion animals)
-    record_companion = deepcopy(VALID_BASE_RECORD)
-    record_companion["impact"]["beneficiaries"][0]["beneficiary_type"] = "companion_animals"
-    response = client.post("/audit", json=record_companion)
+    # 2. Warning for < 50% high-neglectedness population
+    record_warning_mixed = deepcopy(VALID_BASE_RECORD)
+    record_warning_mixed["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals"},
+        {"location": "HK", "population": 850, "beneficiary_type": "companion_animals"},
+    ]
+    response = client.post("/audit", json=record_warning_mixed)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cause_area_neglectedness")
     assert item["status"] == "warning"
-    assert "low-neglectedness / saturated area" in item["details"]["calculation"]
+    assert item["details"]["calculation"] == "Mixed portfolio with minority focus on high-neglectedness areas (Farmed Animals: 15%, Companion Animals: 85%)."
 
-    # 3. Null for missing beneficiary types
-    record_no_beneficiaries = deepcopy(VALID_BASE_RECORD)
-    record_no_beneficiaries["impact"]["beneficiaries"] = []
-    response = client.post("/audit", json=record_no_beneficiaries)
+    # 3. Warning for 100% low-neglectedness population
+    record_warning_low = deepcopy(VALID_BASE_RECORD)
+    record_warning_low["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals"}
+    ]
+    response = client.post("/audit", json=record_warning_low)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cause_area_neglectedness")
-    assert item["status"] == "null"  # or 'warning' depending on desired strictness
-    assert "Impact data with beneficiary types is missing" in item["details"]["calculation"]
+    assert item["status"] == "warning"
+    assert item["details"]["calculation"] == "Operates in a low-neglectedness / saturated area (Companion Animals: 100%)."
+
+    # 4. Fallback to presence check (pass) when population is null
+    record_fallback_pass = deepcopy(VALID_BASE_RECORD)
+    record_fallback_pass["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": None, "beneficiary_type": "wild_animals"},
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals"},
+    ]
+    response = client.post("/audit", json=record_fallback_pass)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["status"] == "pass"
+    assert "Operates in high-neglectedness area(s): wild_animals. Population data not available" in item["details"]["calculation"]
+
+    # 5. Fallback to presence check (warning) when population is null
+    record_fallback_warning = deepcopy(VALID_BASE_RECORD)
+    record_fallback_warning["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals"}
+    ]
+    response = client.post("/audit", json=record_fallback_warning)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["status"] == "warning"
+    assert "Operates in a low-neglectedness / saturated area (companion animals). Population data not available" in item["details"]["calculation"]
 
     # 4. Null for missing impact data
     record_no_impact = deepcopy(VALID_BASE_RECORD)

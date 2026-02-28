@@ -161,26 +161,54 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
 def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
     """
     Checks the neglectedness of the charity's cause area based on beneficiary type.
-    Pass for 'farmed_animals' or 'wild_animals'.
-    Warning for 'companion_animals'.
+    If population data is available, it calculates the proportion of high-neglectedness
+    beneficiaries ('farmed_animals', 'wild_animals').
+    - >= 50% high-neglectedness -> pass
+    - > 0% and < 50% high-neglectedness -> warning
+    - 100% low-neglectedness ('companion_animals') -> warning
+    If population data is missing, it falls back to presence-based logic.
     """
     base_details = AuditDetails(
-        formula="Evaluation of beneficiary_type against EA principles for animal advocacy",
+        formula="Proportional analysis of beneficiary populations (farmed/wild vs. companion)",
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
         id="check_cause_area_neglectedness", status="null", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not hasattr(record.impact, "beneficiaries") or not record.impact.beneficiaries:
+    if not record.impact or not record.impact.beneficiaries:
         base_item.details.calculation = "Impact data with beneficiary types is missing."
         return base_item
 
-    beneficiary_types = {b.beneficiary_type for b in record.impact.beneficiaries if b.beneficiary_type}
+    populations = {
+        "farmed_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "farmed_animals" and b.population),
+        "wild_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "wild_animals" and b.population),
+        "companion_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "companion_animals" and b.population),
+    }
+    total_population = sum(populations.values())
 
-    if not beneficiary_types:
-        base_item.details.calculation = "No beneficiary types were specified in the impact data."
+    # If population data exists, use proportional logic
+    if total_population > 0:
+        high_neglectedness_pop = populations["farmed_animals"] + populations["wild_animals"]
+        high_neglectedness_ratio = high_neglectedness_pop / total_population
+
+        percentages = {k: (v / total_population * 100) for k, v in populations.items() if v > 0}
+        breakdown = ", ".join([f"{k.replace('_', ' ').title()}: {v:.0f}%" for k, v in percentages.items()])
+
+        if high_neglectedness_ratio >= 0.5:
+            base_item.status = "pass"
+            base_item.details.calculation = f"Focus on high-neglectedness areas ({breakdown})."
+        elif high_neglectedness_ratio > 0:
+            base_item.status = "warning"
+            base_item.details.calculation = f"Mixed portfolio with minority focus on high-neglectedness areas ({breakdown})."
+        else: # high_neglectedness_ratio is 0
+            base_item.status = "warning"
+            base_item.details.calculation = f"Operates in a low-neglectedness / saturated area ({breakdown})."
         return base_item
+
+    # Fallback to presence-based logic if no population data
+    beneficiary_types = {b.beneficiary_type for b in record.impact.beneficiaries if b.beneficiary_type}
+    base_item.details.formula = "Evaluation of beneficiary_type presence against EA principles for animal advocacy"
 
     high_neglectedness = {"farmed_animals", "wild_animals"}
     low_neglectedness = {"companion_animals"}
@@ -188,9 +216,9 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
     high_neglectedness_found = beneficiary_types.intersection(high_neglectedness)
     if high_neglectedness_found:
         base_item.status = "pass"
-        base_item.details.calculation = f"Operates in high-neglectedness area(s): {', '.join(high_neglectedness_found)}."
+        base_item.details.calculation = f"Operates in high-neglectedness area(s): {', '.join(high_neglectedness_found)}. Population data not available for proportional analysis."
     elif beneficiary_types.issubset(low_neglectedness):
         base_item.status = "warning"
-        base_item.details.calculation = "Operates in a low-neglectedness / saturated area (companion animals)."
+        base_item.details.calculation = "Operates in a low-neglectedness / saturated area (companion animals). Population data not available for proportional analysis."
 
     return base_item

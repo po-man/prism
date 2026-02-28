@@ -12,22 +12,26 @@
 {{ $analytics := .analytics }}
 {{ $s := newScratch }}
 
-{{/* Logic to find the largest population count for Importance */}}
+{{/* Logic to calculate population totals and find the primary beneficiary */}}
 {{ $s.Set "maxPop" 0.0 }}
 {{ $s.Set "primaryBeneficiary" "N/A" }}
-{{ $s.Set "beneficiaryTypes" (slice) }}
+{{ $s.Set "totalPop" 0.0 }}
+{{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+{{ $s.Set "presentTypes" (dict) }}
+
 {{ range $i, $item := $impact.beneficiaries }}
   {{ $pop := .population | default 0 }}
+  {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
+  {{ $currentPopMap := $s.Get "popMap" }}
+  {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
+  {{ $s.SetInMap "presentTypes" .beneficiary_type true }}
+
   {{ if gt $pop ($s.Get "maxPop") }}
     {{ $s.Set "maxPop" $pop }}
     {{ $s.Set "primaryBeneficiary" (.beneficiary_type | humanize | title) }}
   {{ end }}
-  {{/* Collect all unique beneficiary types */}}
-  {{ $currentTypes := $s.Get "beneficiaryTypes" }}
-  {{ if not (in $currentTypes .beneficiary_type) }}
-    {{ $s.Set "beneficiaryTypes" ($currentTypes | append .beneficiary_type) }}
-  {{ end }}
 {{ end }}
+{{ $totalPop := $s.Get "totalPop" }}
 {{ $maxPop := $s.Get "maxPop" }}
 {{ $primaryBeneficiary := $s.Get "primaryBeneficiary" }}
 
@@ -88,16 +92,30 @@
       </p>
       <div class="text-gray-600 mt-2">
         <span class="text-sm font-semibold">Beneficiaries:</span>
-        <div class="flex items-center space-x-3 mt-1">
-          {{ $allBeneficiaryTypes := slice "companion_animals" "wild_animals" "farmed_animals" }}
+        <div class="flex flex-col space-y-2 mt-2">
           {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
-          {{ $activeBeneficiaryTypes := $s.Get "beneficiaryTypes" }}
+          {{ $popMap := $s.Get "popMap" }}
 
-          {{ range $allBeneficiaryTypes }}
-          <span class="flex items-center text-sm {{ if not (in $activeBeneficiaryTypes .) }}opacity-40 grayscale{{ end }}" title="{{ . | humanize | title }}">
-            {{ partial (index $iconMap .) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
-            {{ . | humanize | title }}
-          </span>
+          {{/* Create a sortable list of beneficiaries from the map */}}
+          {{ $presentTypes := $s.Get "presentTypes" }}
+          {{ $beneficiaryList := slice }}
+          {{ range $type, $pop := $popMap }}{{ $beneficiaryList = $beneficiaryList | append (dict "type" $type "pop" $pop) }}{{ end }}
+          {{ $sortedBeneficiaries := sort $beneficiaryList "pop" "desc" }}
+
+          {{ range $sortedBeneficiaries }}
+            {{ $typePop := .pop }}
+            {{ $isActive := index $presentTypes .type }}
+            <span class="flex items-center text-sm {{ if not $isActive }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
+            {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+            {{ .type | humanize | title }}
+            {{ if gt $totalPop 0 }}
+              {{ $pct := 0 }}
+              {{ if gt $typePop 0 }}
+                {{ $pct = lang.FormatNumber 0 (div (mul $typePop 100.0) $totalPop) }}
+              {{ end }}
+              <span class="ml-1 font-mono text-xs">({{ $pct }}%)</span>
+            {{ end }}
+            </span>
           {{ end }}
         </div>
       </div>
