@@ -7,7 +7,7 @@ Shared data for tests.
 VALID_BASE_RECORD = {
     "meta": {
         "chinese_name": "測試機構",
-        "alias": "TEST",
+        "alias": ["TEST"],
         "domains": ["example.org"],
         "registration_id": "91/12345"
     },

@@ -8,9 +8,13 @@
       "type": ["string", "null"],
       "description": "The official Chinese name of the charity."
     },
-    "alias": {
-      "type": ["string", "null"],
-      "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+    "aliases": {
+      "type": "array",
+      "description": "A list of commonly used acronyms or alternative names for the charity",
+      "items": {
+        "type": "string",
+        "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+      }
     },
     "domains": {
       "type": "array",
