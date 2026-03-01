@@ -1,9 +1,9 @@
 # openspec/changes/update-asia-expansion-and-ui-refinements/tasks.md
 
 ## 1. Schema Refactoring
-- [ ] 1.1 In `schemas/v1/meta.schema.json`, rename the `"s88_id"` property to `"registration_id"`. Update the description to reflect worldwide non-profit registration IDs.
-- [ ] 1.2 In `schemas/v1/impact.schema.json`, within the `metrics.items.properties` object, add an `"evidence_quote"` property (type: `["string", "null"]`, description: "The exact wording quoted from the official source justifying the evidence level."). Add it to the `required` array for metrics.
-- [ ] 1.3 In `schemas/v1/analytics.schema.json`, within `definitions.checkItem.properties.details.properties`, add an `"elaboration"` property (type: `["string", "null"]`).
+- [x] 1.1 In `schemas/v1/meta.schema.json`, rename the `"s88_id"` property to `"registration_id"`. Update the description to reflect worldwide non-profit registration IDs.
+- [x] 1.2 In `schemas/v1/impact.schema.json`, within the `metrics.items.properties` object, add an `"evidence_quote"` property (type: `["string", "null"]`, description: "The exact wording quoted from the official source justifying the evidence level."). Add it to the `required` array for metrics.
+- [x] 1.3 In `schemas/v1/analytics.schema.json`, within `definitions.checkItem.properties.details.properties`, add an `"elaboration"` property (type: `["string", "null"]`).
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
 - [ ] 2.1 In `meta.system.md`, update instructions to reflect a pan-Asian scope. Specifically mention extracting any official country/state non-profit registration ID (e.g., EIN, Charity Commission number, etc.) into the `registration_id` field.
