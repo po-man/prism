@@ -12,15 +12,15 @@
     - "You must sort the `significant_events` and `metrics` arrays in descending order of significance. The interventions or metrics affecting the highest number of animals or driving the most systemic change must be placed first."
 
 ## 3. Python Audit Engine Updates (`utils_api`)
-- [ ] 3.1 Update `app/schemas/organisation.py` and `app/schemas/analytics.py` (No manual code changes needed if `create_dynamic_model` automatically pulls from the updated schemas, but ensure the server restarts to clear the `lru_cache`).
-- [ ] 3.2 In `app/audits/impact.py` -> `check_cost_per_outcome`:
+- [x] 3.1 Update `app/schemas/organisation.py` and `app/schemas/analytics.py` (No manual code changes needed if `create_dynamic_model` automatically pulls from the updated schemas, but ensure the server restarts to clear the `lru_cache`).
+- [x] 3.2 In `app/audits/impact.py` -> `check_cost_per_outcome`:
     - Change the logic from `primary_outcome = max(all_outcomes)` to use the sum of beneficiaries.
     - Logic implementation: `primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])`.
     - If `primary_outcome` is 0, fallback to `sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None])`.
-- [ ] 3.3 In `app/audits/impact.py` -> `check_evidence_quality`:
+- [x] 3.3 In `app/audits/impact.py` -> `check_evidence_quality`:
     - Extract the `evidence_quote` associated with the metric that triggered the highest evidence level.
     - Assign this string to `base_item.details.elaboration = f"Quote: '{extracted_quote}'"` (ensure `AuditDetails` Pydantic model allows this instantiation dynamically, or update the model mapping).
-- [ ] 3.4 Update `tests/test_audit_impact.py` and `tests/test_validation.py` to reflect the new `registration_id`, `evidence_quote`, and `elaboration` schema properties, and adjust the math assertions for `check_cost_per_outcome` to expect summed values.
+- [x] 3.4 Update `tests/test_audit_impact.py` and `tests/test_validation.py` to reflect the new `registration_id`, `evidence_quote`, and `elaboration` schema properties, and adjust the math assertions for `check_cost_per_outcome` to expect summed values.
 
 ## 4. UI / Hugo Refactoring (`web`)
 - [ ] 4.1 In `layouts/_default/single.html`: Update the `s88_id` reference to `registration_id` if it is rendered anywhere in the header.

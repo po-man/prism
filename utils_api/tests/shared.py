@@ -5,6 +5,12 @@ Shared data for tests.
 # A sample record with all the necessary nested structures.
 # This can be used as a base for tests that require a valid OrganisationRecord.
 VALID_BASE_RECORD = {
+    "meta": {
+        "chinese_name": "測試機構",
+        "alias": "TEST",
+        "domains": ["example.org"],
+        "registration_id": "91/12345"
+    },
     "financials": {
         "financial_year": "2023-24",
         "income": {"donations": 500000, "government_grants": 250000, "total": 750000},
@@ -31,6 +37,7 @@ VALID_BASE_RECORD = {
                 },
                 "evidence_quality": "RCT/Meta-Analysis",
                 "source_citation": "Annual Report 2023, p. 12",
+                "evidence_quote": "The study showed a significant increase in animal welfare.",
             }
         ],
         "significant_events": [

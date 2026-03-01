@@ -1,5 +1,4 @@
-from typing import List, Optional
-from app.schemas.organisation import OrganisationRecord
+from app.schemas.organisation import Metric, OrganisationRecord
 from app.schemas.analytics import AuditCheckItem, AuditDetails
 
 
@@ -11,6 +10,7 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
     """
     base_details = AuditDetails(
         formula="Highest level of evidence cited in impact claims",
+        elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -25,17 +25,23 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
 
     evidence_levels = [metric.evidence_quality for metric in record.impact.metrics if metric.evidence_quality]
 
-    if not evidence_levels:
+    if not any(evidence_levels):
         base_item.status = "warning"
         base_item.details.calculation = "No evidence quality was specified in any impact claim."
         return base_item
 
     highest_evidence = "None"
+    highest_evidence_metric: Metric | None = None
     order = ["RCT/Meta-Analysis", "Quasi-Experimental", "Pre-Post", "Anecdotal", "None"]
-    for level in order:
-        if level in evidence_levels:
-            highest_evidence = level
-            break
+
+    for level in order: # Find the highest evidence level present
+        for metric in record.impact.metrics:
+            if metric.evidence_quality == level:
+                highest_evidence = level
+                highest_evidence_metric = metric
+                break
+        if highest_evidence_metric:
+            break # Found the highest, stop searching
 
     base_item.details.calculation = f"Highest evidence found: '{highest_evidence}'."
 
@@ -43,6 +49,8 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
         base_item.status = "pass"
     else:
         base_item.status = "warning"
+    if highest_evidence_metric and highest_evidence_metric.evidence_quote:
+        base_item.details.elaboration = f"Quote: '{highest_evidence_metric.evidence_quote}'"
 
     return base_item
 
@@ -53,7 +61,7 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
     Pass if description and value are populated.
     """
     base_details = AuditDetails(
-        formula="Presence of a quantified counterfactual baseline",
+        formula="Presence of a quantified counterfactual baseline", elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -80,7 +88,7 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
     Calculates the cost per outcome. This is an informational check.
     """
     base_details = AuditDetails(
-        formula="program_services_expenditure / primary_outcome_beneficiaries",
+        formula="program_services_expenditure / sum_of_beneficiaries", elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -92,27 +100,27 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
         return base_item
 
     program_spend = record.financials.expenditure.program_services
-    
-    if not record.impact or not record.impact.beneficiaries or not record.impact.metrics:
-        base_item.details.calculation = "Impact data with beneficiaries and metrics is missing."
+
+    if not record.impact or not record.impact.beneficiaries:
+        base_item.details.calculation = "Impact data with beneficiaries is missing."
         return base_item
 
-    populations = [b.population for b in record.impact.beneficiaries if b.population is not None]
-    quant_values = [m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None]
-    
-    all_outcomes = populations + quant_values
-    if not all_outcomes:
-        base_item.details.calculation = "No beneficiary population or quantitative outcome value found."
-        return base_item
+    primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
 
-    primary_outcome = max(all_outcomes)
+    if primary_outcome == 0 and record.impact.metrics:
+        # Fallback to sum of quantitative metrics if beneficiary population is zero
+        primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None])
+
+    if primary_outcome == 0:
+        base_item.details.calculation = "No beneficiary population or quantitative outcome value found to calculate cost per outcome."
+        return base_item
 
     if primary_outcome <= 0:
         base_item.details.calculation = f"Primary outcome value ({primary_outcome:g}) is not a positive number."
         return base_item
 
     cost_per = program_spend / primary_outcome
-    calculation_string = f"(${program_spend:,.0f} / {primary_outcome:,.0f} beneficiaries) = ${cost_per:,.2f} per outcome"
+    calculation_string = f"(${program_spend:,.0f} / {primary_outcome:,.0f} total beneficiaries) = ${cost_per:,.2f} per outcome"
 
     if cost_per > 0:
         outcomes_per_1000 = 1000 / cost_per
@@ -128,7 +136,7 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
     Warning if > 80% (low neglectedness), Pass if < 40% (high neglectedness).
     """
     base_details = AuditDetails(
-        formula="government_grants / total_income",
+        formula="government_grants / total_income", elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -169,7 +177,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
     If population data is missing, it falls back to presence-based logic.
     """
     base_details = AuditDetails(
-        formula="Proportional analysis of beneficiary populations (farmed/wild vs. companion)",
+        formula="Proportional analysis of beneficiary populations (farmed/wild vs. companion)", elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(

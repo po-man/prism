@@ -36,7 +36,8 @@ VALID_IMPACT = {
             "value": 50
         },
         "evidence_quality": "RCT/Meta-Analysis",
-        "source_citation": "Annual Report 2023, p. 12"
+        "source_citation": "Annual Report 2023, p. 12",
+        "evidence_quote": "The study showed a significant increase in animal welfare."
     }],
     "significant_events": [{
         "event_name": "Project Shelter",

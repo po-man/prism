@@ -9,6 +9,7 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
     """
     base_details = AuditDetails(
         formula="total_reserves / total_expenditure",
+        elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
@@ -50,6 +51,7 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
     """Checks if the liquidity ratio is sufficient (>= 3 months). Fail if < 3."""
     base_details = AuditDetails(
         formula="(current_assets - current_liabilities) / monthly_operating_expenses",
+        elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
