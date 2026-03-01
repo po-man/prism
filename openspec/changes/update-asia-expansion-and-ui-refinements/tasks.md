@@ -6,8 +6,8 @@
 - [x] 1.3 In `schemas/v1/analytics.schema.json`, within `definitions.checkItem.properties.details.properties`, add an `"elaboration"` property (type: `["string", "null"]`).
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
-- [ ] 2.1 In `meta.system.md`, update instructions to reflect a pan-Asian scope. Specifically mention extracting any official country/state non-profit registration ID (e.g., EIN, Charity Commission number, etc.) into the `registration_id` field.
-- [ ] 2.2 In `impact.system.md`, add the following instructions:
+- [x] 2.1 In `meta.system.md`, update instructions to reflect a pan-Asian scope. Specifically mention extracting any official country/state non-profit registration ID (e.g., EIN, Charity Commission number, etc.) into the `registration_id` field.
+- [x] 2.2 In `impact.system.md`, add the following instructions:
     - "You must extract the exact, verbatim sentence from the text that justifies the `evidence_quality` level and place it in the `evidence_quote` field."
     - "You must sort the `significant_events` and `metrics` arrays in descending order of significance. The interventions or metrics affecting the highest number of animals or driving the most systemic change must be placed first."
 
