@@ -4,20 +4,22 @@
 This specification defines the system's core data processing pipelines, managed by the n8n orchestrator. It covers the entire workflow from data ingestion and parallel extraction (document parsing and web search) to the final evaluation by the "Audit Checklist Engine." This includes the logic for calling external services (like Gemini for AI extraction and PocketBase for persistence) and the deterministic rules for generating the standardised `check_items` array based on financial, impact, and risk criteria.
 ## Requirements
 ### Requirement: EA Animal Advocacy Audit Logic
-The `utils_api` microservice SHALL execute deterministic audit functions tailored to animal advocacy, extracting verifiable elaborations.
+The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system.
 
-#### Scenario: Populating Audit Elaborations
-- **WHEN** executing non-calculation audit functions (e.g., `check_evidence_quality`, `check_cause_area_neglectedness`)
-- **THEN** the `utils_api` MUST populate the `details.elaboration` field with the corresponding `evidence_quote` from the source data, or generate a human-readable explanation of why the status was assigned.
+#### Scenario: Executing Three-Tier Thresholds
+- **WHEN** the `utils_api` evaluates quantitative data
+- **THEN** it MUST apply the following boundaries:
+  - `check_liquidity`: `pass` (>= 6 months), `warning` (>= 3 and < 6 months), `fail` (< 3 months).
+  - `check_reserve_cap`: `pass` (<= 2 years), `warning` (> 2 and <= 5 years), `fail` (> 5 years).
+  - `check_funding_neglectedness`: `pass` (< 40% government grants), `warning` (>= 40% and <= 80%), `fail` (> 80%).
+  - `check_cause_area_neglectedness`: `pass` (>= 50% high-neglectedness), `warning` (> 0% and < 50%), `fail` (0% high-neglectedness).
 
 ### Requirement: Cost Per Outcome Audit Calculation
-The `utils_api` SHALL calculate the cost per outcome based on cumulative impact and additionally provide a normalized translation for a standard retail donation amount ($1,000).
+The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount ($1,000), persisting it outside the boolean check array.
 
-#### Scenario: Appending Retail Translation using Cumulative Outcomes
-- **WHEN** `check_cost_per_outcome` successfully executes
-- **THEN** the function MUST calculate the total primary outcome by summing all valid `population` integers in the `beneficiaries` array.
-- **AND** it MUST calculate the cost per outcome by dividing the `program_services_expenditure` by this cumulative sum.
-- **AND** it MUST append the translation to the `base_item.details.calculation` string (e.g., "... per outcome. | A $1,000 donation achieves ≈ X outcomes.").
+#### Scenario: Generating Calculated Metrics
+- **WHEN** the `utils_api` processes the audit payload
+- **THEN** it MUST execute the `cost_per_outcome` calculation and append it to the new `calculated_metrics` array, entirely independent of the `check_items` array.
 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations.

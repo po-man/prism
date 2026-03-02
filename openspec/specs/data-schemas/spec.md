@@ -20,11 +20,13 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 - **THEN** the schema MUST make `lsg_specifics` (Lump Sum Grant) optional or replace it with a generalized `reserves` object.
 
 ### Requirement: EA Analytics Schema Expansion
-The system SHALL define check items specific to Effective Altruism principles in animal advocacy, supporting detailed elaborations.
+The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations.
 
-#### Scenario: Audit Item Elaboration
-- **WHEN** the audit engine generates the `check_items` array
-- **THEN** the `details` object MUST include an optional `elaboration` field (string) to store exact-wording quotes or qualitative context that justifies non-calculation pass/fail statuses.
+#### Scenario: Enforcing Strict Boolean Audits and Decoupling Calculations
+- **WHEN** the `analytics.schema.json` is validated
+- **THEN** the `check_items.items.properties.status` enum MUST ONLY allow `["pass", "fail", "warning"]`. The `"null"` value MUST be removed.
+- **AND** the root of the schema MUST include a new array property named `calculated_metrics` alongside `check_items`.
+- **AND** items within `calculated_metrics` MUST include `id` (string), `name` (string), `value` (number or string), and `details` (object containing `formula` and `calculation`).
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.

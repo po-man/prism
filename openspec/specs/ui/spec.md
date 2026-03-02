@@ -31,12 +31,11 @@ The UI SHALL visually categorize the charity's beneficiaries to immediately comm
 - **AND** map the `beneficiary_type` values (`companion_animals`, `farmed_animals`, `wild_animals`) to distinct SVG icons or badges, displaying them prominently to the user.
 
 ### Requirement: Overhead vs. Impact Myth-Buster Display
-The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, using cumulative beneficiary mathematics.
+The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, pulling from dedicated calculation entities.
 
-#### Scenario: Displaying the Cumulative Cost per Outcome
-- **WHEN** rendering the "Estimated Cost per Outcome" block in the Value for Money section
-- **THEN** the calculation MUST utilize the sum of all primary beneficiaries, rather than the single highest maximum value.
-- **AND** the UI MUST provide a hover-able tooltip over the calculation text that explains the exact formula used to derive the retail equivalent.
+#### Scenario: Rendering Decoupled Calculations
+- **WHEN** rendering the Value for Money component
+- **THEN** the template MUST extract the Cost per Outcome data directly from the new `analytics.calculated_metrics` array, rather than parsing it out of the `check_items` array.
 
 ### Requirement: Impact Pathway Display
 The UI SHALL present the charity's logic model hierarchically, prioritizing the most significant interventions to prevent cognitive overload.
@@ -48,10 +47,10 @@ The UI SHALL present the charity's logic model hierarchically, prioritizing the 
 - **AND** if more than 3 items exist, it MUST provide an interactive, offline-compatible toggle (e.g., "Show all X activities") to reveal the remaining items.
 
 ### Requirement: Audit Checklist Presentation
-The UI SHALL render the deterministic audit results, filtering out noise to focus on actionable EA alignment data.
+The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user.
 
-#### Scenario: Filtering Calculation-Only Items
-- **WHEN** iterating through the `analytics.check_items` array
-- **THEN** the UI MUST exclude any item where the `status` is exactly `"null"` (indicating a calculation-only informational item, such as Cost per Outcome).
-- **AND** for items with a `pass`, `warning`, or `fail` status, the UI MUST render the `details.elaboration` text (if present) inside the expanded dropdown to provide qualitative context or exact quotes.
+#### Scenario: Surfacing Threshold Logic via Tooltips
+- **WHEN** rendering the `analytics.check_items` array in `audit-checklist.html`
+- **THEN** the Hugo template MUST maintain an internal dictionary mapping `check_item.id` to a human-readable explanation of its thresholds (e.g., `"check_liquidity": "Pass: >=6 mos | Warn: 3-6 mos | Fail: <3 mos"`).
+- **AND** this string MUST be injected into a `title` attribute or a custom tooltip UI element on the check item's header, allowing users to understand the evaluation criteria on hover.
 
