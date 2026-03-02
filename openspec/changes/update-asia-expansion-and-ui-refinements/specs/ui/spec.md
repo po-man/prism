@@ -13,6 +13,16 @@ The static site generator (Hugo) SHALL render the Importance, Tractability, and 
 - **THEN** the UI MUST display the highest `evidence_quality` achieved.
 - **AND** it MUST display the exact `evidence_quote` associated with that metric to verify the claim, or provide an elaboration if a direct quote is unavailable.
 
+### Requirement: Overhead vs. Impact Myth-Buster Display
+The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, using cumulative beneficiary mathematics.
+
+#### Scenario: Displaying the Cumulative Cost per Outcome
+- **WHEN** rendering the "Estimated Cost per Outcome" block in the Value for Money section
+- **THEN** the calculation MUST utilize the sum of all primary beneficiaries, rather than the single highest maximum value.
+- **AND** the UI MUST provide a hover-able tooltip over the calculation text that explains the exact formula used to derive the retail equivalent.
+
+## ADDED Requirements
+
 ### Requirement: Impact Pathway Display
 The UI SHALL present the charity's logic model hierarchically, prioritizing the most significant interventions to prevent cognitive overload.
 
@@ -21,14 +31,6 @@ The UI SHALL present the charity's logic model hierarchically, prioritizing the 
 - **THEN** the UI MUST sort the items by significance (based on the array order provided by the LLM).
 - **AND** it MUST display only the top 3 items by default.
 - **AND** if more than 3 items exist, it MUST provide an interactive, offline-compatible toggle (e.g., "Show all X activities") to reveal the remaining items.
-
-### Requirement: Overhead vs. Impact Myth-Buster Display
-The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, using cumulative beneficiary mathematics.
-
-#### Scenario: Displaying the Cumulative Cost per Outcome
-- **WHEN** rendering the "Estimated Cost per Outcome" block in the Value for Money section
-- **THEN** the calculation MUST utilize the sum of all primary beneficiaries, rather than the single highest maximum value.
-- **AND** the UI MUST provide a hover-able tooltip over the calculation text that explains the exact formula used to derive the retail equivalent.
 
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise to focus on actionable EA alignment data.

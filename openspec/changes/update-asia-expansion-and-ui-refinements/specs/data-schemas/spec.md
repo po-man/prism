@@ -1,6 +1,6 @@
 # openspec/changes/update-asia-expansion-and-ui-refinements/specs/data-schemas/spec.md
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.
@@ -8,6 +8,8 @@ The system SHALL define a canonical JSON schema for extracting core identifying 
 #### Scenario: Pan-Asian Charity Extraction
 - **WHEN** validating the metadata of an international charity
 - **THEN** the schema MUST support a generalized `registration_id` field (replacing the HK-specific `s88_id`) to capture official non-profit identifiers globally.
+
+## MODIFIED Requirements
 
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns and exact evidence citations.

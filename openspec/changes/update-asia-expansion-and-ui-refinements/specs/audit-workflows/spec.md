@@ -18,6 +18,8 @@ The `utils_api` microservice SHALL execute deterministic audit functions tailore
 - **WHEN** executing non-calculation audit functions (e.g., `check_evidence_quality`, `check_cause_area_neglectedness`)
 - **THEN** the `utils_api` MUST populate the `details.elaboration` field with the corresponding `evidence_quote` from the source data, or generate a human-readable explanation of why the status was assigned.
 
+## ADDED Requirements
+
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts and prioritized impact models.
 
