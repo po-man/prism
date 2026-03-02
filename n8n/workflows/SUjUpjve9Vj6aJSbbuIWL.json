@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-01T11:17:28.762Z",
+  "updatedAt": "2026-03-02T07:02:24.114Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -189,7 +189,7 @@
           "conditions": [
             {
               "id": "34b56356-a643-4657-b229-9607b55d688b",
-              "leftValue": "={{ $json.domains == null || $json.meta == null }}",
+              "leftValue": "={{ $json.meta == null }}",
               "rightValue": "={{ false }}",
               "operator": {
                 "type": "boolean",
@@ -1421,6 +1421,15 @@
         "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report"
+            }
+          ]
+        },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -3031,9 +3040,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "1c6e1ec5-b3b9-4baf-bd7a-3ae165184e53",
-  "activeVersionId": "1c6e1ec5-b3b9-4baf-bd7a-3ae165184e53",
-  "versionCounter": 361,
+  "versionId": "36c69dff-b241-4fa7-977e-783853497f96",
+  "activeVersionId": "36c69dff-b241-4fa7-977e-783853497f96",
+  "versionCounter": 364,
   "triggerCount": 1,
   "tags": [],
   "shared": [
