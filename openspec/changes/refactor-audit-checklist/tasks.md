@@ -19,9 +19,9 @@
 - [x] 2.5 Update `tests/test_audit_financial.py` and `tests/test_audit_impact.py` to reflect the new three-tier boundaries and the new payload structure.
 
 ## 3. UI/UX Refactoring (`web`)
-- [ ] 3.1 In `layouts/partials/audit-checklist.html`:
+- [x] 3.1 In `layouts/partials/audit-checklist.html`:
   - Create a local Hugo dictionary: `{{ $tooltips := dict "check_liquidity" "Pass: >=6 mos | Warn: 3-6 mos | Fail: <3 mos" "check_reserve_cap" "Pass: <=2 yrs | Warn: 2-5 yrs | Fail: >5 yrs" ... }}`.
   - Inject `title="{{ index $tooltips $item.id }}"` into the `<summary>` or icon container.
   - Remove the hacky `{{ if ne .status "null" }}` wrapper, as `check_items` will now strictly be booleans.
-- [ ] 3.2 In `layouts/partials/myth-buster.html`:
+- [x] 3.2 In `layouts/partials/myth-buster.html`:
   - Update the logic to fetch the cost per outcome from `$analytics.calculated_metrics` instead of ranging over `$analytics.check_items`.
