@@ -13,7 +13,7 @@
 {{/* Logic to find Cost Per Outcome */}}
 {{ $cost_per_outcome_raw := "" }}
 {{ $cost_per_outcome_formula := "" }}
-{{ range where $analytics.check_items "id" "check_cost_per_outcome" }}
+{{ range where $analytics.calculated_metrics "id" "cost_per_outcome" }}
   {{ $cost_per_outcome_raw = .details.calculation }}
   {{ $cost_per_outcome_formula = .details.formula }}
 {{ end }}
