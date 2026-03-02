@@ -86,9 +86,21 @@
           "source_citation": {
             "type": "string",
             "description": "A citation for the source of the data (e.g., 'Annual Report 2023, p. 5')."
+          },
+          "evidence_quote": {
+            "type": ["string", "null"],
+            "description": "The exact wording quoted from the official source justifying the evidence level."
           }
         },
-        "required": ["metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "source_citation"]
+        "required": [
+          "metric_name",
+          "quantitative_data",
+          "context_qualifier",
+          "counterfactual_baseline",
+          "evidence_quality",
+          "source_citation",
+          "evidence_quote"
+        ]
       }
     },
     "significant_events": {

@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* When the details tag has the 'open' attribute, hide 'more' and show 'less' */
+details[open] .show-more {
+  display: none;
+}
+details[open] .show-less {
+  display: inline;
+}
+details .show-more {
+  display: inline;
+}
+details .show-less {
+  display: none;
+}

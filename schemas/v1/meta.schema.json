@@ -8,9 +8,13 @@
       "type": ["string", "null"],
       "description": "The official Chinese name of the charity."
     },
-    "alias": {
-      "type": ["string", "null"],
-      "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+    "aliases": {
+      "type": "array",
+      "description": "A list of commonly used acronyms or alternative names for the charity",
+      "items": {
+        "type": "string",
+        "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+      }
     },
     "domains": {
       "type": "array",
@@ -20,15 +24,15 @@
         "description": "An official domain name (e.g., 'spca.org.hk')."
       }
     },
-    "s88_id": {
+    "registration_id": {
       "type": ["string", "null"],
-      "description": "The charity's Section 88 tax exemption identifier from the Hong Kong IRD (e.g., '91/1234', '91/12345')."
+      "description": "The official non-profit registration identifier for the charity's jurisdiction (e.g., HK s88 ID, US EIN, UK Charity Number)."
     }
   },
   "required": [
     "chinese_name",
     "alias",
     "domains",
-    "s88_id"
+    "registration_id"
   ]
 }

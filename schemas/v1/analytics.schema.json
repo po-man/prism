@@ -53,9 +53,14 @@
             "calculation": {
               "type": "string",
               "description": "The specific calculation with values for this charity."
+            },
+            "elaboration": {
+              "type": ["string", "null"]
             }
           },
-          "required": ["formula", "calculation"]
+          "required": [
+            "formula", "calculation", "elaboration"
+          ]
         }
       },
       "required": ["id", "status", "significance", "category", "details"]

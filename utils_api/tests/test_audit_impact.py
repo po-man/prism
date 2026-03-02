@@ -15,21 +15,25 @@ def test_check_evidence_quality(client: TestClient):
     # 1. Pass with high-quality evidence
     record_high_evidence = deepcopy(VALID_BASE_RECORD)
     record_high_evidence["impact"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
+    record_high_evidence["impact"]["metrics"][0]["evidence_quote"] = "We saw a 50% increase."
     response = client.post("/audit", json=record_high_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_evidence_quality")
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "Highest evidence found: 'Quasi-Experimental'."
+    assert item["details"]["elaboration"] == "Quote: 'We saw a 50% increase.'"
 
     # 2. Warning with only low-quality evidence
     record_low_evidence = deepcopy(VALID_BASE_RECORD)
     record_low_evidence["impact"]["metrics"][0]["evidence_quality"] = "Pre-Post"
+    record_low_evidence["impact"]["metrics"][0]["evidence_quote"] = None # Explicitly remove for this test
 
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_evidence_quality")
     assert item["status"] == "warning"
     assert item["details"]["calculation"] == "Highest evidence found: 'Pre-Post'."
+    assert item["details"]["elaboration"] is None # No quote in base record
 
     # 3. Warning when no evidence is specified
     record_no_evidence = deepcopy(VALID_BASE_RECORD)
@@ -81,41 +85,52 @@ def test_check_counterfactual_baseline(client: TestClient):
 def test_check_cost_per_outcome(client: TestClient):
     """Tests the check_cost_per_outcome audit, including edge cases."""
 
-    # 1. Correct calculation with valid data (primary outcome is quant_data.value)
+    # 1. Correct calculation with valid data (uses sum of beneficiaries)
     record_valid = deepcopy(VALID_BASE_RECORD)
     record_valid["financials"]["expenditure"]["program_services"] = 100000
-    # Base record has quant_data.value=1000 and population=500, so max is 1000
+    record_valid["impact"]["beneficiaries"] = [
+        {"location": "HK", "population": 500, "beneficiary_type": "companion_animals"},
+        {"location": "HK", "population": 1500, "beneficiary_type": "wild_animals"},
+    ] # Total beneficiaries = 2000
     response = client.post("/audit", json=record_valid)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
     assert item["status"] == "null"  # Informational check
-    assert item["details"]["calculation"] == "($100,000 / 1,000 beneficiaries) = $100.00 per outcome. | A $1,000 donation achieves ≈ 10.0 outcomes."
+    assert item["details"]["calculation"] == "($100,000 / 2,000 total beneficiaries) = $50.00 per outcome. | A $1,000 donation achieves ≈ 20.0 outcomes."
 
-    # 2. Handles missing financial data
+    # 2. Correct calculation with fallback to quant_data.value
+    record_fallback = deepcopy(VALID_BASE_RECORD)
+    record_fallback["financials"]["expenditure"]["program_services"] = 100000
+    record_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
+    record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # Fallback value
+    response = client.post("/audit", json=record_fallback)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_cost_per_outcome")
+    assert item["details"]["calculation"] == "($100,000 / 500 total beneficiaries) = $200.00 per outcome. | A $1,000 donation achieves ≈ 5.0 outcomes."
+
+    # 3. Handles missing financial data
     record_no_financials = deepcopy(VALID_BASE_RECORD)
     record_no_financials["financials"]["expenditure"]["program_services"] = None
     response = client.post("/audit", json=record_no_financials)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
     assert item["details"]["calculation"] == "Financials with program services expenditure are missing."
-
-    # 3. Handles zero program spend
+    # 4. Handles zero program spend
     record_zero_spend = deepcopy(VALID_BASE_RECORD)
     record_zero_spend["financials"]["expenditure"]["program_services"] = 0
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
-    assert item["details"]["calculation"] == "($0 / 1,000 beneficiaries) = $0.00 per outcome" # No translation for $0 cost
-
-    # 4. Handles zero primary outcome value
+    assert item["details"]["calculation"] == "($0 / 500 total beneficiaries) = $0.00 per outcome" # No translation for $0 cost
+    # 5. Handles zero primary outcome value
     record_zero_outcome = deepcopy(VALID_BASE_RECORD)
-    # Set one outcome to 0 and another to a negative value, so the max() is 0.
+    # Set beneficiary population to 0 and metric value to 0 to test zero outcome.
     record_zero_outcome["impact"]["beneficiaries"][0]["population"] = 0
-    record_zero_outcome["impact"]["metrics"][0]["quantitative_data"]["value"] = -1
+    record_zero_outcome["impact"]["metrics"][0]["quantitative_data"]["value"] = 0
     response = client.post("/audit", json=record_zero_outcome)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cost_per_outcome")
-    assert item["details"]["calculation"] == "Primary outcome value (0) is not a positive number."
+    assert item["details"]["calculation"] == "No beneficiary population or quantitative outcome value found to calculate cost per outcome."
 
 
 def test_check_funding_neglectedness(client: TestClient):

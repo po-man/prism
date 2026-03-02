@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-25T09:43:34.928Z",
+  "updatedAt": "2026-03-02T07:02:24.114Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -189,7 +189,7 @@
           "conditions": [
             {
               "id": "34b56356-a643-4657-b229-9607b55d688b",
-              "leftValue": "={{ $json.domains == null || $json.meta == null }}",
+              "leftValue": "={{ $json.meta == null }}",
               "rightValue": "={{ false }}",
               "operator": {
                 "type": "boolean",
@@ -312,6 +312,16 @@
               "operator": {
                 "type": "object",
                 "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a1048b6c-f90d-4fd3-a070-9502f64e4efc",
+              "leftValue": "={{ $json.financials?.schema?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             },
@@ -463,6 +473,16 @@
               }
             },
             {
+              "id": "f01593b2-1582-4f1f-a3ef-c3be8efd6fea",
+              "leftValue": "={{ $json.impact?.schema?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
               "id": "eda34bd4-85c4-4834-9c6a-49c42e066794",
               "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
               "rightValue": "",
@@ -501,7 +521,7 @@
     },
     {
       "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.candidates[0].content.parts[0].text);\n}\n\nreturn $input.all();"
+        "jsCode": "function parseStreamedJSON(rawStreamText) {\n  const lines = rawStreamText.split('\\n');\n  let accumulatedString = '';\n\n  for (const line of lines) {\n    const trimmedLine = line.trim();\n    \n    // Process only lines that start with \"data: \"\n    if (trimmedLine.startsWith('data: ')) {\n      // Remove \"data: \" to get the raw JSON chunk\n      const jsonChunk = trimmedLine.slice(6); \n      \n      try {\n        const parsedChunk = JSON.parse(jsonChunk);\n        \n        // Safely extract the text fragment using optional chaining\n        const textFragment = parsedChunk.candidates?.[0]?.content?.parts?.[0]?.text;\n        \n        if (textFragment) {\n          accumulatedString += textFragment;\n        }\n      } catch (error) {\n        console.warn(\"Failed to parse an individual chunk:\", error);\n      }\n    }\n  }\n\n  // Parse the fully assembled string into the final JSON object\n  try {\n    const finalData = JSON.parse(accumulatedString);\n    return finalData;\n  } catch (error) {\n    console.error(\"Failed to parse the final assembled string. The combined JSON might be invalid.\", error);\n    return null;\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  let data = parseStreamedJSON(item.json.data);\n  console.log(data)\n  item.json.parsedContentObject = data;\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -974,6 +994,16 @@
               }
             },
             {
+              "id": "674567e2-8f10-41ed-af23-91f4a2addab2",
+              "leftValue": "={{ $json.risk?.schema?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
               "id": "6fcfc4b2-e6e8-449d-beba-7b886d2b3a18",
               "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
               "rightValue": "",
@@ -1391,6 +1421,15 @@
         "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand",
+              "value": "financial_report,annual_report"
+            }
+          ]
+        },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
@@ -1533,7 +1572,7 @@
           "value": "KyDtBHSVI5wyX2KM",
           "mode": "list",
           "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
-          "cachedResultName": "Prompt Injection"
+          "cachedResultName": "Prepare Prompts"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -1585,13 +1624,13 @@
           "value": "KyDtBHSVI5wyX2KM",
           "mode": "list",
           "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
-          "cachedResultName": "Prompt Injection"
+          "cachedResultName": "Prepare Prompts"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/risk.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/risk.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').first().json.data),\n  CHARITY_NAME: $('Exists? (Risk)').first().json.name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_CHI: $('Exists? (Risk)').first().json.meta.chinese_name.replaceAll(\"'\", \"\\\\'\")\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Risk)').first().json.data),\n  CHARITY_NAME: $('Exists? (Risk)').first().json.name.replaceAll(\"'\", \"\\\\'\"),\n  CHARITY_NAME_ALIASES: JSON.stringify($('Exists? (Risk)').first().json.meta.aliases)\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -1957,7 +1996,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
+        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:streamGenerateContent?alt=sse",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
@@ -3001,27 +3040,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "695b3d26-0be2-4c9b-b661-a1e956f319e6",
-  "activeVersionId": "6b847f33-b5a3-4948-82c7-d178a05c4b29",
-  "versionCounter": 350,
+  "versionId": "36c69dff-b241-4fa7-977e-783853497f96",
+  "activeVersionId": "36c69dff-b241-4fa7-977e-783853497f96",
+  "versionCounter": 364,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-24T15:31:37.646Z",
-      "createdAt": "2026-02-24T15:31:37.646Z",
+      "updatedAt": "2026-03-01T10:10:00.486Z",
+      "createdAt": "2026-03-01T10:10:00.486Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "WF5JYzstr3wvgt36",
+      "projectId": "VA2U7A4uA0ckC5iS",
       "project": {
-        "updatedAt": "2026-02-24T15:53:03.896Z",
-        "createdAt": "2026-02-24T15:31:35.715Z",
-        "id": "WF5JYzstr3wvgt36",
+        "updatedAt": "2026-03-01T10:19:07.254Z",
+        "createdAt": "2026-03-01T10:09:58.971Z",
+        "id": "VA2U7A4uA0ckC5iS",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "ff0d1850-94c4-4b5b-976a-8741d5d8d996"
+        "creatorId": "0e1d7d12-af13-4564-b6d1-d576a5722081"
       }
     }
   ]

@@ -18,6 +18,9 @@
               {{ with $org.meta.chinese_name }}
                 <p class="text-xl text-gray-500">{{ . }}</p>
               {{ end }}
+              {{ with $org.meta.registration_id }}
+                <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
+              {{ end }}
             </div>
             {{ with $org.risk.data.overall_risk_level }}
               <span class="px-3 py-1 text-sm font-semibold rounded-full
@@ -35,17 +38,35 @@
           <div class="mt-4 flex items-center space-x-4 border-t pt-4">
             <span class="text-sm font-semibold text-gray-500">Data Sources:</span>
             <div class="flex items-center space-x-3">
-              <span class="flex items-center text-sm text-gray-700 {{ if not .annual_report }}opacity-40 grayscale{{ end }}" title="{{ if .annual_report }}Annual Report Provided{{ else }}Annual Report Missing{{ end }}">
-                {{ partial "icons/annual-report.svg" . }}
-                Annual Report
-              </span>
-              <span class="flex items-center text-sm text-gray-700 {{ if not .financial_report }}opacity-40 grayscale{{ end }}" title="{{ if .financial_report }}Financial Report Provided{{ else }}Financial Report Missing{{ end }}">
-                {{ partial "icons/financials.svg" . }}
-                Financials
-              </span>
+              {{ $annual_report_url := .expand.annual_report.url }}
+              {{ if and .annual_report $annual_report_url }}
+                <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Annual Report Provided (Click to view)">
+                  {{ partial "icons/annual-report.svg" . }}
+                  <span class="ml-1.5">Annual Report</span>
+                </a>
+              {{ else }}
+                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Annual Report Missing">
+                  {{ partial "icons/annual-report.svg" . }}
+                  <span class="ml-1.5">Annual Report</span>
+                </span>
+              {{ end }}
+
+              {{ $financial_report_url := .expand.financial_report.url }}
+              {{ if and .financial_report $financial_report_url }}
+                <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Financial Report Provided (Click to view)">
+                  {{ partial "icons/financials.svg" . }}
+                  <span class="ml-1.5">Financials</span>
+                </a>
+              {{ else }}
+                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Financial Report Missing">
+                  {{ partial "icons/financials.svg" . }}
+                  <span class="ml-1.5">Financials</span>
+                </span>
+              {{ end }}
+
               <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
                 {{ partial "icons/web-search.svg" . }}
-                Web Search
+                <span class="ml-1.5">Web Search</span>
               </span>
             </div>
           </div>
