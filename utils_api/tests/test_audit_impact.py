@@ -101,7 +101,7 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($100,000 / 2,000 total beneficiaries) = $50.00 per outcome. | A $1,000 donation achieves ≈ 20.0 outcomes."
+    assert item["details"]["calculation"] == "($100,000 / 2,000 total beneficiaries) = $50.00 per outcome. | A $1,000 donation achieves ≈ 20 outcomes."
 
     # 2. Correct calculation with fallback to quant_data.value
     record_fallback = deepcopy(VALID_BASE_RECORD)
@@ -112,7 +112,7 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($100,000 / 500 total beneficiaries) = $200.00 per outcome. | A $1,000 donation achieves ≈ 5.0 outcomes."
+    assert item["details"]["calculation"] == "($100,000 / 500 total beneficiaries) = $200.00 per outcome. | A $1,000 donation achieves ≈ 5 outcomes."
 
     # 3. Handles missing financial data
     record_no_financials = deepcopy(VALID_BASE_RECORD)
