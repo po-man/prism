@@ -12,8 +12,10 @@
 
 {{/* Logic to find Cost Per Outcome */}}
 {{ $cost_per_outcome_raw := "" }}
+{{ $cost_per_outcome_formula := "" }}
 {{ range where $analytics.check_items "id" "check_cost_per_outcome" }}
   {{ $cost_per_outcome_raw = .details.calculation }}
+  {{ $cost_per_outcome_formula = .details.formula }}
 {{ end }}
 
 {{/* Task 2.3: Split the calculation string to highlight the retail translation */}}
@@ -68,8 +70,14 @@
 
     <!-- Right Column: Cost Per Outcome -->
     <div class="p-4 bg-white rounded-lg shadow flex flex-col">
-      <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome</h3>
-      <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
+      <div class="flex items-center">
+        <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome</h3>
+      </div>
+      {{ with $cost_per_outcome_formula }}
+        <p class="text-sm text-gray-500 mb-3 font-mono">{{ . | replaceRE "_" " " | title }}</p>
+      {{ else }}
+        <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
+      {{ end }}
       <p class="text-base font-mono text-gray-800">{{ $cost_per_outcome | default "Not calculated" }}</p>
       {{ if $retail_translation }}
       <div class="mt-auto pt-3">

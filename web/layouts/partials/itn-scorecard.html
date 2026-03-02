@@ -40,13 +40,16 @@
 {{ $s.Set "highestEvidence" "None" }}
 {{ $s.Set "maxEvidenceScore" 1 }}
 {{ range $impact.metrics }}
+  {{/* Find the highest evidence quality and its associated quote */}}
   {{ $currentScore := index ($s.Get "evidenceOrder") .evidence_quality | default 1 }}
   {{ if gt $currentScore ($s.Get "maxEvidenceScore") }}
     {{ $s.Set "maxEvidenceScore" $currentScore }}
     {{ $s.Set "highestEvidence" .evidence_quality }}
+    {{ $s.Set "evidenceQuote" .evidence_quote }}
   {{ end }}
 {{ end }}
 {{ $highestEvidence := $s.Get "highestEvidence" }}
+{{ $evidenceQuote := $s.Get "evidenceQuote" }}
 {{/* Logic for Neglectedness check */}}
 {{ $neglectednessCheck := findRE `(pass|warning)` (printf "%s" (index (where $analytics.check_items "id" "check_cause_area_neglectedness") 0).status) }}
 {{ $neglectednessStatus := "" }}
@@ -69,8 +72,35 @@
     <div class="p-4 bg-white rounded-lg shadow">
       <h3 class="font-bold text-lg text-gray-700">Importance</h3>
       <p class="text-sm text-gray-500 mb-2">Scale of beneficiaries</p>
-      <p class="text-xl font-semibold text-gray-900">{{ $primaryBeneficiary }}</p>
-      <p class="text-gray-600">Affects up to <span class="font-bold">{{ if gt $maxPop 0 }}{{ $maxPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</span> individuals.</p>
+      <p class="text-xl font-semibold text-gray-900">Affects up to {{ if gt $totalPop 0 }}{{ $totalPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</p>
+      <p class="text-gray-600">total individuals across all programs.</p>
+      {{ if gt $totalPop 0 }}
+        <div class="mt-2 pt-2 border-t">
+          <div class="space-y-1">
+            {{ $sortedBeneficiaries := sort $impact.beneficiaries "population" "desc" }}
+            {{ $firstThree := first 3 $sortedBeneficiaries }}
+            {{ $rest := after 3 $sortedBeneficiaries }}
+
+            {{ range $firstThree }}
+              {{ partial "demographic-item.html" . }}
+            {{ end }}
+
+            {{ if gt (len $rest) 0 }}
+              <details class="group flex flex-col">
+                <summary class="cursor-pointer text-sm text-blue-600 hover:underline list-none mt-1" style="order: 2;">
+                  <span class="show-more">▶ Show {{ len $rest }} more...</span>
+                  <span class="show-less">▲ Hide</span>
+                </summary>
+                <div class="space-y-1">
+                  {{ range $rest }}
+                    {{ partial "demographic-item.html" . }}
+                  {{ end }}
+                </div>
+              </details>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
     </div>
 
     <!-- Tractability -->
@@ -78,7 +108,8 @@
       <h3 class="font-bold text-lg text-gray-700">Tractability</h3>
       <p class="text-sm text-gray-500 mb-2">Rigor of evidence</p>
       <p class="text-xl font-semibold text-gray-900">{{ $highestEvidence }}</p>
-      <p class="text-gray-600">Highest quality of evidence found.</p>
+      <p class="text-gray-600 mb-2">Highest quality of evidence found.</p>
+      {{ with $evidenceQuote }}<blockquote class="border-l-2 border-gray-300 pl-2 text-sm italic text-gray-600">"{{ . }}"</blockquote>{{ end }}
     </div>
 
     <!-- Neglectedness -->
@@ -104,16 +135,20 @@
 
           {{ range $sortedBeneficiaries }}
             {{ $typePop := .pop }}
-            {{ $isActive := index $presentTypes .type }}
-            <span class="flex items-center text-sm {{ if not $isActive }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
+            <span class="flex items-center text-sm {{ if le $typePop 0 }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
             {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
             {{ .type | humanize | title }}
             {{ if gt $totalPop 0 }}
-              {{ $pct := 0 }}
+              {{ $pct_raw := 0.0 }}
+              {{ $pct_rounded_num := 0 }}
+              {{ $prefix := "" }}
               {{ if gt $typePop 0 }}
-                {{ $pct = lang.FormatNumber 0 (div (mul $typePop 100.0) $totalPop) }}
+                {{ $pct_raw = div (mul $typePop 100.0) $totalPop }}
+                {{ $pct_rounded_num = int (math.Round $pct_raw) }}
+                {{ if or (and (eq $pct_rounded_num 0) (gt $pct_raw 0)) (and (eq $pct_rounded_num 100) (lt $pct_raw 100)) }}{{ $prefix = "~" }}{{ end }}
               {{ end }}
-              <span class="ml-1 font-mono text-xs">({{ $pct }}%)</span>
+              {{/* {{- warnf "DEBUG Neglectedness%%: type=%s, typePop=%f (type: %s), totalPop=%v, pct_raw=%f, pct_rounded_num=%d, prefix='%s'" .type $typePop (printf "%T" $typePop) $totalPop $pct_raw $pct_rounded_num $prefix -}} */}}
+              <span class="ml-1 font-mono text-xs">({{ $prefix }}{{ $pct_rounded_num }}%)</span>
             {{ end }}
             </span>
           {{ end }}
