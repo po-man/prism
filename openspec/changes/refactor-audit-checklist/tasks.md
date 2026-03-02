@@ -1,7 +1,7 @@
 # openspec/changes/refactor-audit-checklist/tasks.md
 
 ## 1. Schema Refactoring (`schemas`)
-- [ ] 1.1 Update `schemas/v1/analytics.schema.json`:
+- [x] 1.1 Update `schemas/v1/analytics.schema.json`:
   - Remove `"null"` from the `checkItem.status` enum.
   - Add a new definition for `calculatedMetric` (properties: `id`, `name`, `value`, `details`).
   - Add `calculated_metrics` (array of `calculatedMetric`) to the root properties, alongside `check_items`.
