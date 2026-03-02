@@ -5,16 +5,16 @@ from app.schemas.analytics import AuditCheckItem, AuditDetails
 def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
     """
     Checks if general reserve is within a reasonable range of operating expenditure.
-    Warning if > 2 years of expenditure.
+    - Pass: <= 2 years
+    - Warn: > 2 and <= 5 years
+    - Fail: > 5 years
     """
     base_details = AuditDetails(
         formula="total_reserves / total_expenditure",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
-        id="check_reserve_cap", status="null", significance="MEDIUM", category="Financial Health", details=base_details
-    )
+    base_item = AuditCheckItem(id="check_reserve_cap", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
 
     if (
         not record.financials
@@ -35,11 +35,12 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
         return base_item
 
     ratio_in_years = reserve / expenditure
-    cap_in_years = 2
 
-    base_item.details.calculation = f"(${reserve:,.0f} / ${expenditure:,.0f}) = {ratio_in_years:.1f} years of expenditure (vs. < {cap_in_years} years recommended)"
+    base_item.details.calculation = f"(${reserve:,.0f} / ${expenditure:,.0f}) = {ratio_in_years:.1f} years of expenditure"
 
-    if ratio_in_years > cap_in_years:
+    if ratio_in_years > 5:
+        base_item.status = "fail"
+    elif ratio_in_years > 2:
         base_item.status = "warning"
     else:
         base_item.status = "pass"
@@ -48,15 +49,18 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
 
 
 def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
-    """Checks if the liquidity ratio is sufficient (>= 3 months). Fail if < 3."""
+    """
+    Checks if the liquidity ratio is sufficient.
+    - Pass: >= 6 months
+    - Warn: >= 3 and < 6 months
+    - Fail: < 3 months
+    """
     base_details = AuditDetails(
         formula="(current_assets - current_liabilities) / monthly_operating_expenses",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
-        id="check_liquidity", status="null", significance="MEDIUM", category="Financial Health", details=base_details
-    )
+    base_item = AuditCheckItem(id="check_liquidity", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
 
     if not record.financials or not record.financials.ratio_inputs:
         base_item.details.calculation = "Required financial data for liquidity check is missing."
@@ -84,7 +88,6 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
         return base_item
 
     ratio = net_assets / monthly_expenses
-    threshold = 3
 
     truncated_ratio = int(ratio * 10) / 10.0
     if not calculation_string:
@@ -92,9 +95,11 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
 
     base_item.details.calculation = f"{calculation_string} = {truncated_ratio:.1f} months"
 
-    if ratio < threshold:
-        base_item.status = "fail"
-    else:
+    if ratio >= 6:
         base_item.status = "pass"
+    elif ratio >= 3:
+        base_item.status = "warning"
+    else:
+        base_item.status = "fail"
 
     return base_item

@@ -1,5 +1,6 @@
 from app.schemas.organisation import Metric, OrganisationRecord
-from app.schemas.analytics import AuditCheckItem, AuditDetails
+from app.schemas.analytics import AuditCheckItem, AuditDetails, CalculatedMetric
+from typing import Optional
 
 
 def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
@@ -14,13 +15,18 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_evidence_quality", status="null", significance="HIGH", category="Impact Awareness", details=base_details
+        id="check_evidence_quality", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if (
-        not record.impact or not record.impact.metrics
-    ):
+    if not record.impact:
         base_item.details.calculation = "Impact data with metrics is missing."
+        return base_item
+
+    # Now we know record.impact exists. Check for metrics.
+    if not record.impact.metrics:
+        # This case is different from no evidence *specified*. It means there are no impact claims at all.
+        base_item.status = "warning"
+        base_item.details.calculation = "No impact metrics were provided to assess evidence quality."
         return base_item
 
     evidence_levels = [metric.evidence_quality for metric in record.impact.metrics if metric.evidence_quality]
@@ -65,7 +71,7 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_counterfactual_baseline", status="null", significance="MEDIUM", category="Impact Awareness", details=base_details
+        id="check_counterfactual_baseline", status="fail", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
     if not record.impact or not record.impact.metrics:
@@ -83,27 +89,17 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
     return base_item
 
 
-def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
+def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[CalculatedMetric]:
     """
     Calculates the cost per outcome. This is an informational check.
     """
-    base_details = AuditDetails(
-        formula="program_services_expenditure / sum_of_beneficiaries", elaboration=None,
-        calculation="Not computed",
-    )
-    base_item = AuditCheckItem(
-        id="check_cost_per_outcome", status="null", significance="LOW", category="Impact Awareness", details=base_details
-    )
-
     if not record.financials or not record.financials.expenditure or record.financials.expenditure.program_services is None:
-        base_item.details.calculation = "Financials with program services expenditure are missing."
-        return base_item
+        return None
 
     program_spend = record.financials.expenditure.program_services
 
     if not record.impact or not record.impact.beneficiaries:
-        base_item.details.calculation = "Impact data with beneficiaries is missing."
-        return base_item
+        return None
 
     primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
 
@@ -111,23 +107,26 @@ def check_cost_per_outcome(record: OrganisationRecord) -> AuditCheckItem:
         # Fallback to sum of quantitative metrics if beneficiary population is zero
         primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None])
 
-    if primary_outcome == 0:
-        base_item.details.calculation = "No beneficiary population or quantitative outcome value found to calculate cost per outcome."
-        return base_item
-
     if primary_outcome <= 0:
-        base_item.details.calculation = f"Primary outcome value ({primary_outcome:g}) is not a positive number."
-        return base_item
+        return None
 
     cost_per = program_spend / primary_outcome
     calculation_string = f"(${program_spend:,.0f} / {primary_outcome:,.0f} total beneficiaries) = ${cost_per:,.2f} per outcome"
 
+    # Add a secondary metric for the UI myth-buster section
     if cost_per > 0:
         outcomes_per_1000 = 1000 / cost_per
         calculation_string += f". | A $1,000 donation achieves ≈ {outcomes_per_1000:.1f} outcomes."
 
-    base_item.details.calculation = calculation_string
-    return base_item
+    return CalculatedMetric(
+        id="cost_per_outcome",
+        name="Cost Per Outcome",
+        value=round(cost_per, 2),
+        details={
+            "formula": "program_services_expenditure / sum_of_beneficiaries",
+            "calculation": calculation_string,
+        },
+    )
 
 
 def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
@@ -140,7 +139,7 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_funding_neglectedness", status="null", significance="MEDIUM", category="Impact Awareness", details=base_details
+        id="check_funding_neglectedness", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
     if not record.financials or not record.financials.income or record.financials.income.government_grants is None or record.financials.income.total is None:
@@ -151,13 +150,14 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
 
     if total_income <= 0:
         base_item.details.calculation = f"Total income (${total_income:,.0f}) is not a positive number."
+        base_item.status = "warning"
         return base_item
 
     ratio = gov_grants / total_income
     base_item.details.calculation = f"(${gov_grants:,.0f} / ${total_income:,.0f}) = {ratio:.1%}"
 
     if ratio > 0.8:
-        base_item.status = "warning" # Low Neglectedness
+        base_item.status = "fail" # Low Neglectedness
     elif ratio < 0.4:
         base_item.status = "pass" # High Neglectedness
     else:
@@ -181,10 +181,11 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_cause_area_neglectedness", status="null", significance="HIGH", category="Impact Awareness", details=base_details
+        id="check_cause_area_neglectedness", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
     if not record.impact or not record.impact.beneficiaries:
+        base_item.status = "warning"
         base_item.details.calculation = "Impact data with beneficiary types is missing."
         return base_item
 
@@ -210,7 +211,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
             base_item.status = "warning"
             base_item.details.calculation = f"Mixed portfolio with minority focus on high-neglectedness areas ({breakdown})."
         else: # high_neglectedness_ratio is 0
-            base_item.status = "warning"
+            base_item.status = "fail"
             base_item.details.calculation = f"Operates in a low-neglectedness / saturated area ({breakdown})."
         return base_item
 
@@ -228,5 +229,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
     elif beneficiary_types.issubset(low_neglectedness):
         base_item.status = "warning"
         base_item.details.calculation = "Operates in a low-neglectedness / saturated area (companion animals). Population data not available for proportional analysis."
+    else:
+        base_item.details.calculation = "No beneficiary types were specified."
 
     return base_item
