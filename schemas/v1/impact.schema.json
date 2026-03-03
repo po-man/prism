@@ -92,9 +92,18 @@
             "format": "uri",
             "description": "The specific web URL where the metric was found, if sourced from the web."
           },
+          "source_document": {
+            "type": "string",
+            "enum": ["pdf", "web"],
+            "description": "The type of source document the evidence comes from."
+          },
           "evidence_quote": {
             "type": ["string", "null"],
-            "description": "The exact wording quoted from the official source justifying the evidence level."
+            "description": "The exact verbatim wording quoted from the source."
+          },
+          "search_result_index": {
+            "type": ["integer", "null"],
+            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
           }
         },
         "required": [
@@ -105,7 +114,9 @@
           "evidence_quality",
           "source_citation",
           "source_url",
-          "evidence_quote"
+          "source_document",
+          "evidence_quote",
+          "search_result_index"
         ]
       }
     },
@@ -132,9 +143,30 @@
             "type": ["string", "null"],
             "format": "uri",
             "description": "The specific web URL where the event was found, if sourced from the web."
+          },
+          "source_document": {
+            "type": "string",
+            "enum": ["pdf", "web"],
+            "description": "The type of source document the evidence comes from."
+          },
+          "source_quote": {
+            "type": ["string", "null"],
+            "description": "The exact verbatim wording quoted from the source."
+          },
+          "search_result_index": {
+            "type": ["integer", "null"],
+            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
           }
         },
-        "required": ["event_name", "summary", "intervention_type", "source_url"]
+        "required": [
+          "event_name",
+          "summary",
+          "intervention_type",
+          "source_url",
+          "source_document",
+          "source_quote",
+          "search_result_index"
+        ]
       }
     }
   },

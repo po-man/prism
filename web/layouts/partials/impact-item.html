@@ -13,7 +13,9 @@
   </div>
   <div class="text-gray-800">
     {{ if .url }}
-      <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">{{ .text | safeHTML }}</a>
+      <a href="{{ .url | safeURL }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">
+        {{ .text | safeHTML }}
+      </a>
     {{ else }}
       {{ .text | safeHTML }}
     {{ end }}

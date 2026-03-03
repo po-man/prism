@@ -24,19 +24,20 @@ async def resolve_search_urls(payload: UrlResolverRequest = Body(...)):
     async def resolve_url(item: UrlResolverItem, client: httpx.AsyncClient) -> UrlResolverItem:
         try:
             response = await client.head(str(item.url), follow_redirects=False, timeout=10.0)
+            if response.status_code == 404:
+                return None
             if response.is_redirect:
                 redirect_url = response.headers.get("location")
                 if redirect_url:
                     # Resolve the redirect URL, which might be relative
                     item.url = AnyHttpUrl(str(response.url.join(redirect_url)))
         except httpx.RequestError:
-            # If there's a network error, keep the original URL
-            pass
+            return None
         return item
 
     async with httpx.AsyncClient() as client:
         tasks = [resolve_url(item, client) for item in payload.search_results]
         results = await asyncio.gather(*tasks)
         # Convert model instances back to dictionaries for response model validation
-        result_dicts = [item.model_dump() for item in results]
+        result_dicts = [item.model_dump() for item in results if item is not None]
         return UrlResolverResponse(search_results=result_dicts)

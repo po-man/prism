@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T09:44:22.951Z",
+  "updatedAt": "2026-03-03T15:41:26.932Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -543,7 +543,7 @@
           "parameters": [
             {
               "name": "impact",
-              "value": "={{\n  {\n    data: $('Parsed Content (Impact Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').first().json,\n    audit_trails: $('Parsed Content (Impact Metrics)').first().json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Resolved Text-fragment URLs (Impact Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').first().json,\n    audit_trails: $('Parsed Content (Impact Metrics)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -552,7 +552,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1920,
+        2128,
         5072
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -937,7 +937,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2128,
+        2336,
         4960
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -1184,7 +1184,7 @@
             },
             {
               "name": "data",
-              "value": "={{$('Parsed Content (Impact Metrics)').first().json.parsedContentObject}}"
+              "value": "={{$json.parsedContentObject}}"
             }
           ]
         },
@@ -1193,7 +1193,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1696,
+        1904,
         5072
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
@@ -1215,7 +1215,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        448,
+        656,
         5792
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
@@ -1253,7 +1253,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        672,
+        880,
         5792
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
@@ -1288,7 +1288,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1120,
+        1328,
         5792
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
@@ -1322,7 +1322,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        896,
+        1104,
         5792
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
@@ -1336,7 +1336,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1328,
+        1536,
         5792
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
@@ -1351,7 +1351,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        1536,
+        1744,
         5792
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
@@ -2147,6 +2147,19 @@
       ],
       "id": "9124d85f-7ed7-4368-9a31-a6b6e3208183",
       "name": "Resolve URLs (Impact Search)"
+    },
+    {
+      "parameters": {
+        "jsCode": "  // Fetch the resolved search results from the parallel branch\n  const searchResults = $('Resolve URLs (Impact Search)').first().json.search_results;\n\n  // Helper to generate precise W3C Text Fragments\n  function buildTextFragment(text) {\n      if (!text) return \"\";\n      const words = text.trim().split(/\\s+/);\n      const startText = words.slice(0, 5).join(' ');\n      let fragment = encodeURIComponent(startText).replace(/-/g, '%2D');\n      \n      if (words.length > 8) {\n          const endText = words.slice(-3).join(' ');\n          fragment += ',' + encodeURIComponent(endText).replace(/-/g, '%2D');\n      }\n      return `#:~:text=${fragment}`;\n  }\n\n  // Resolve the indices for all items in the batch\n  for (const item of $input.all()) {\n      const data = item.json.parsedContentObject;\n      if (!data) continue;\n\n      const resolveItem = (obj) => {\n          if (obj.source_document === 'web' && obj.search_result_index) {\n              const snippet = searchResults[obj.search_result_index];\n              if (snippet) {\n                  // Inject actual text and build the fragment URL\n                  obj.source_url = snippet.url + buildTextFragment(snippet.original_text);\n                  \n                  if (obj.hasOwnProperty('evidence_quote')) {\n                      obj.evidence_quote = snippet.original_text;\n                  } else if (obj.hasOwnProperty('source_quote')) {\n                      obj.source_quote = snippet.original_text;\n                  }\n              }\n              // Clean up the transient reference field before DB persistence\n              delete obj.search_result_index; \n          }\n      };\n\n      if (data.metrics) data.metrics.forEach(resolveItem);\n      if (data.significant_events) data.significant_events.forEach(resolveItem);\n  }\n\n  return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        5072
+      ],
+      "id": "1ead26ee-6340-4088-b8ef-412d1bb963df",
+      "name": "Resolved Text-fragment URLs (Impact Metrics)"
     }
   ],
   "connections": {
@@ -2371,7 +2384,7 @@
       "main": [
         [
           {
-            "node": "Schema Validation (Impact)",
+            "node": "Resolved Text-fragment URLs (Impact Metrics)",
             "type": "main",
             "index": 0
           }
@@ -2961,6 +2974,17 @@
           }
         ]
       ]
+    },
+    "Resolved Text-fragment URLs (Impact Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Impact)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -2972,9 +2996,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "cdf1f179-a3f3-48fb-9956-9e369af04c26",
+  "versionId": "a2de981b-4710-4c22-931e-d9b3be3c5030",
   "activeVersionId": "36c69dff-b241-4fa7-977e-783853497f96",
-  "versionCounter": 380,
+  "versionCounter": 381,
   "triggerCount": 1,
   "tags": [],
   "shared": [
