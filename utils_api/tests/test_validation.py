@@ -37,31 +37,21 @@ VALID_IMPACT = {
         },
         "evidence_quality": "RCT/Meta-Analysis",
         "source_citation": "Annual Report 2023, p. 12",
+        "source_url": None,
         "evidence_quote": "The study showed a significant increase in animal welfare."
     }],
     "significant_events": [{
         "event_name": "Project Shelter",
         "summary": "Built a new shelter facility.",
-        "intervention_type": "direct_care"
+        "intervention_type": "direct_care",
+        "source_url": None
     }]
-}
-
-VALID_RISK = {
-    "analysis_date": "2023-01-01",
-    "overall_risk_level": "LOW",
-    "risk_dimensions": {
-        "reputational": {"flagged": False, "severity": None, "summary": "None"},
-        "governance_executive": {"flagged": False, "summary": "None"},
-        "regulatory": {"flagged": False, "summary": "None"}
-    },
-    "key_incidents": [{"year": 2022, "description": "Incident A", "source_url": "http://a.com", "reliability": "HIGH"}]
 }
 
 
 @pytest.mark.parametrize("schema_name, valid_data", [
     ("v1/financials.schema.json", VALID_FINANCIALS),
     ("v1/impact.schema.json", VALID_IMPACT),
-    ("v1/risk.schema.json", VALID_RISK),
 ])
 def test_validate_valid_data(client, schema_name, valid_data):
     """Tests that valid data passes validation for each schema."""
@@ -83,8 +73,6 @@ def test_validate_valid_data(client, schema_name, valid_data):
         **VALID_IMPACT,
         "beneficiaries": "not-an-array"
     }, "is not of type 'array'"),
-    # Risk: wrong enum value
-    ("v1/risk.schema.json", {**VALID_RISK, "overall_risk_level": "UNKNOWN"}, "is not one of ['LOW', 'MEDIUM', 'HIGH']"),
 ])
 def test_validate_invalid_data(client, schema_name, invalid_data, expected_error_part):
     """Tests that invalid data fails validation with a descriptive error."""

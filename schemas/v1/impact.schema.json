@@ -87,6 +87,11 @@
             "type": "string",
             "description": "A citation for the source of the data (e.g., 'Annual Report 2023, p. 5')."
           },
+          "source_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "description": "The specific web URL where the metric was found, if sourced from the web."
+          },
           "evidence_quote": {
             "type": ["string", "null"],
             "description": "The exact wording quoted from the official source justifying the evidence level."
@@ -99,6 +104,7 @@
           "counterfactual_baseline",
           "evidence_quality",
           "source_citation",
+          "source_url",
           "evidence_quote"
         ]
       }
@@ -121,9 +127,14 @@
             "type": "string",
             "enum": ["direct_care", "corporate_campaigns", "policy_advocacy", "dietary_change", "other"],
             "description": "The category of the intervention."
+          },
+          "source_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "description": "The specific web URL where the event was found, if sourced from the web."
           }
         },
-        "required": ["event_name", "summary", "intervention_type"]
+        "required": ["event_name", "summary", "intervention_type", "source_url"]
       }
     }
   },
