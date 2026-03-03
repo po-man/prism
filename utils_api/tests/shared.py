@@ -38,11 +38,20 @@ VALID_BASE_RECORD = {
                 "evidence_quality": "RCT/Meta-Analysis",
                 "source_citation": "Annual Report 2023, p. 12",
                 "source_url": None,
+                "source_document": "pdf",
                 "evidence_quote": "The study showed a significant increase in animal welfare.",
+                "search_result_index": None,
             }
         ],
         "significant_events": [
-            {"event_name": "Project Shelter", "summary": "Built a new shelter facility.", "intervention_type": "direct_care", "source_url": None, "source_quote": None}
+            {
+                "event_name": "Project Shelter",
+                "summary": "Built a new shelter facility.",
+                "intervention_type": "direct_care",
+                "source_url": None,
+                "source_document": "pdf",
+                "source_quote": None,
+            }
         ],
     },
 }

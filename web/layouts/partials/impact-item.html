@@ -13,22 +13,9 @@
   </div>
   <div class="text-gray-800">
     {{ if .url }}
-      {{ $original_url := .url }}
-      {{ $url := .url }}
-      {{ with .quote }}
-        {{ $words := split . " " }}
-        {{ $wordCount := len $words }}
-        {{ $start_text := delimit (first 5 $words) " " }}
-        {{ $end_text := "" }}
-        {{ if gt $wordCount 8 }}
-          {{ $end_text = delimit (last 3 $words) " " }}
-        {{ end }}
-        {{ $start_encoded := $start_text | replaceRE `[,]` "%2C" | replaceRE `[ ]` "%20" }}
-        {{ $end_encoded := $end_text | replaceRE `[,]` "%2C" | replaceRE `[ ]` "%20" }}
-        {{ $fragment := printf "#:~:text=%s%s%s" $start_encoded (cond (ne $end_text "") "," "") $end_encoded }}
-        {{ $url = printf "%s%s" $url $fragment }}
-      {{ end }}
-      <a href="{{ $url | safeURL }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">{{ .text | safeHTML }}</a>
+      <a href="{{ .url | safeURL }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">
+        {{ .text | safeHTML }}
+      </a>
     {{ else }}
       {{ .text | safeHTML }}
     {{ end }}

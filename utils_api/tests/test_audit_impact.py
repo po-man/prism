@@ -33,6 +33,7 @@ def test_check_evidence_quality(client: TestClient):
     record_low_evidence["impact"]["metrics"][0]["evidence_quality"] = "Pre-Post"
     record_low_evidence["impact"]["metrics"][0]["evidence_quote"] = None # Explicitly remove for this test
     record_low_evidence["impact"]["metrics"][0]["source_url"] = None
+    record_low_evidence["impact"]["metrics"][0]["source_document"] = "pdf" # Required field
 
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
