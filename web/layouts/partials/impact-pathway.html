@@ -58,7 +58,7 @@
               {{ $restEvents := after 3 $events }}
 
               {{ range $firstThreeEvents }}
-                {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url) }}
+                {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote) }}
               {{ end }}
 
               {{ if gt (len $restEvents) 0 }}
@@ -69,7 +69,7 @@
                   </summary>
                   <div class="space-y-3">
                     {{ range $restEvents }}
-                      {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url) }}
+                      {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote) }}
                     {{ end }}
                   </div>
                 </details>
@@ -94,7 +94,7 @@
 
             {{ range $firstThreeMetrics }}
               {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
-              {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url) }}
+              {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote) }}
             {{ end }}
 
             {{ if gt (len $restMetrics) 0 }}
@@ -106,7 +106,7 @@
                 <div class="space-y-3">
                   {{ range $restMetrics }}
                     {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
-                    {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url) }}
+                    {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote) }}
                   {{ end }}
                 </div>
               </details>

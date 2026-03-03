@@ -13,7 +13,14 @@
   </div>
   <div class="text-gray-800">
     {{ if .url }}
-      <a href="{{ .url }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">{{ .text | safeHTML }}</a>
+      {{ $original_url := .url }}
+      {{ $url := .url }}
+      {{ with .quote }}
+        {{ $fragment := printf "#:~:text=%s" . }}
+        {{ $url = printf "%s%s" $url $fragment }}
+        {{- warnf "DEBUG impact-item: url=%q quote=%q fragment=%q final_url=%q" $original_url . $fragment $url -}}
+      {{ end }}
+      <a href="{{ $url | safeURL }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600 hover:underline">{{ .text | safeHTML }}</a>
     {{ else }}
       {{ .text | safeHTML }}
     {{ end }}
