@@ -3,7 +3,7 @@
 - [x] 1.2 Add an optional `"source_quote"` property (type: `["string", "null"]`, description: "The exact wording quoted from the official source validating the event summary.").
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
-- [ ] 2.1 In `n8n/prompt-templates/impact.system.md`, update the "Verbatim Evidence" instruction (currently rule #7) to read: "You must extract the exact, verbatim sentence from the text that justifies the claim. Place this exact sentence in the `evidence_quote` field for metrics, and the `source_quote` field for significant events."
+- [x] 2.1 In `n8n/prompt-templates/impact.system.md`, update the "Verbatim Evidence" instruction (currently rule #7) to read: "You must extract the exact, verbatim sentence from the text that justifies the claim. Place this exact sentence in the `evidence_quote` field for metrics, and the `source_quote` field for significant events."
 
 ## 3. Python Audit Engine (`utils_api`)
 - [ ] 3.1 Restart the `utils_api` FastAPI server (or rebuild the Docker container) to flush the `lru_cache` and allow `create_dynamic_model` to pick up the new `source_quote` schema definition.
