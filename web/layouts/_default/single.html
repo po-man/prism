@@ -54,10 +54,22 @@
                 </span>
               {{ end }}
 
-              <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
-                {{ partial "icons/web-search.svg" . }}
-                <span class="ml-1.5">Web Search</span>
-              </span>
+              {{/* Check if any impact data has a source_url, indicating web search was used */}}
+              {{ $has_web_source := false }}
+              {{ range .impact.data.significant_events }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+              {{ range .impact.data.metrics }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+
+              {{ if $has_web_source }}
+                <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
+                  {{ partial "icons/web-search.svg" . }}
+                  <span class="ml-1.5">Web Search</span>
+                </span>
+              {{ else }}
+                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Web Intelligence Search Performed (No impact data found from web sources)">
+                  {{ partial "icons/web-search.svg" . }}
+                  <span class="ml-1.5">Web Search</span>
+                </span>
+              {{ end }}
             </div>
           </div>
 
