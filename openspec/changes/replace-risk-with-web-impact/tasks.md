@@ -21,6 +21,6 @@
 - [x] 4.1 Create a new migration file to remove the `risk` JSON field from and add `impact_search` JSON field to the `organisations` collection to align the database schema with the application logic.
 
 ## 5. UI / Hugo Refactoring (`web`)
-- [ ] 5.1 In `web/layouts/_default/single.html`, delete the Go template block rendering the `$org.risk.data.overall_risk_level` badge.
-- [ ] 5.2 In `web/layouts/partials/impact-item.html`, update the template to accept a URL parameter. If a URL is provided, wrap the `text` span or specific segment in `<a href="{{ .url }}" target="_blank" class="hover:text-blue-600 hover:underline">...</a>`.
-- [ ] 5.3 In `web/layouts/partials/impact-pathway.html`, update the rendering loops for `$impact.significant_events` and `$impact.metrics` to pass the newly available `.source_url` into the `impact-item.html` partial dictionary (e.g., `(dict "icon" "activity" "text" .summary "url" .source_url)`).
+- [x] 5.1 In `web/layouts/_default/single.html`, delete the Go template block rendering the `$org.risk.data.overall_risk_level` badge.
+- [x] 5.2 In `web/layouts/partials/impact-item.html`, update the template to accept a URL parameter. If a URL is provided, wrap the `text` span or specific segment in `<a href="{{ .url }}" target="_blank" class="hover:text-blue-600 hover:underline">...</a>`.
+- [x] 5.3 In `web/layouts/partials/impact-pathway.html`, update the rendering loops for `$impact.significant_events` and `$impact.metrics` to pass the newly available `.source_url` into the `impact-item.html` partial dictionary (e.g., `(dict "icon" "activity" "text" .summary "url" .source_url)`).
