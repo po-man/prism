@@ -31,7 +31,7 @@
   },
   "required": [
     "chinese_name",
-    "alias",
+    "aliases",
     "domains",
     "registration_id"
   ]

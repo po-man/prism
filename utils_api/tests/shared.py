@@ -7,7 +7,7 @@ Shared data for tests.
 VALID_BASE_RECORD = {
     "meta": {
         "chinese_name": "測試機構",
-        "alias": ["TEST"],
+        "aliases": ["TEST"],
         "domains": ["example.org"],
         "registration_id": "91/12345"
     },
@@ -37,11 +37,12 @@ VALID_BASE_RECORD = {
                 },
                 "evidence_quality": "RCT/Meta-Analysis",
                 "source_citation": "Annual Report 2023, p. 12",
+                "source_url": None,
                 "evidence_quote": "The study showed a significant increase in animal welfare.",
             }
         ],
         "significant_events": [
-            {"event_name": "Project Shelter", "summary": "Built a new shelter facility.", "intervention_type": "direct_care"}
+            {"event_name": "Project Shelter", "summary": "Built a new shelter facility.", "intervention_type": "direct_care", "source_url": None}
         ],
     },
     "risk": {
