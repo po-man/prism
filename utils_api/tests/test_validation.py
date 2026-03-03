@@ -44,7 +44,8 @@ VALID_IMPACT = {
         "event_name": "Project Shelter",
         "summary": "Built a new shelter facility.",
         "intervention_type": "direct_care",
-        "source_url": None
+        "source_url": None,
+        "source_quote": None
     }]
 }
 

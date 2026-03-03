@@ -42,19 +42,7 @@ VALID_BASE_RECORD = {
             }
         ],
         "significant_events": [
-            {"event_name": "Project Shelter", "summary": "Built a new shelter facility.", "intervention_type": "direct_care", "source_url": None}
-        ],
-    },
-    "risk": {
-        "analysis_date": "2023-01-01",
-        "overall_risk_level": "LOW",
-        "risk_dimensions": {
-            "reputational": {"flagged": False, "severity": None, "summary": "None"},
-            "governance_executive": {"flagged": False, "summary": "None"},
-            "regulatory": {"flagged": False, "summary": "None"},
-        },
-        "key_incidents": [
-            {"year": 2022, "description": "Incident A", "source_url": "http://a.com", "reliability": "HIGH"}
+            {"event_name": "Project Shelter", "summary": "Built a new shelter facility.", "intervention_type": "direct_care", "source_url": None, "source_quote": None}
         ],
     },
 }
