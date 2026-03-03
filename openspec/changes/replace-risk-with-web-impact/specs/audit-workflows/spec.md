@@ -1,6 +1,6 @@
 # openspec/changes/replace-risk-with-web-impact/specs/audit-workflows/spec.md
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Document Ingestion Pipeline
 The n8n orchestrator SHALL ingest target charities and their source documents, gracefully combining available PDFs with targeted web intelligence to maximize data extraction.
@@ -11,6 +11,8 @@ The n8n orchestrator SHALL ingest target charities and their source documents, g
 - **AND** it MUST aggregate the top search results into a clean `<web_context>` snippet string.
 - **AND** the workflow MUST route to the Impact extraction branch if either an `annual_report` PDF exists OR the `domains` array is not empty (yielding web snippets).
 
+## MODIFIED Requirements
+
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
 
@@ -19,9 +21,3 @@ The system SHALL utilize prompt templates injected with JSON schemas to ensure d
 - **THEN** the user prompt MUST distinctly separate the PDF text context and the injected `<web_context>`.
 - **AND** the system prompt MUST instruct the model to prioritize data found in formal reports over web marketing copy if discrepancies exist.
 - **AND** the system prompt MUST instruct the model that if a metric or event is extracted from the `<web_context>`, it MUST populate the corresponding `source_url` field with the URL provided in the snippet.
-
-## REMOVED Requirements
-
-### Requirement: Risk Assessment Extraction
-**Reason**: The system is deprecating automated risk assessment processing.
-**Migration**: Delete all n8n nodes associated with the Risk branch (Prompt Injection, Gemini Extraction, Schema Validation, and PocketBase Update). Re-wire the final Merge node to expect only Metadata, Financials, and Impact streams before triggering the `utils_api` audit.
