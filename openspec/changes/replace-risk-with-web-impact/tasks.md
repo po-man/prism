@@ -1,11 +1,11 @@
 # openspec/changes/replace-risk-with-web-impact/tasks.md
 
 ## 1. Schema Refactoring (`schemas` & `utils_api`)
-- [ ] 1.1 Delete `schemas/v1/risk.schema.json`.
-- [ ] 1.2 In `schemas/v1/impact.schema.json`, add an optional `source_url` (type: `["string", "null"]`) to the `metrics.items.properties` object.
-- [ ] 1.3 In `schemas/v1/impact.schema.json`, add an optional `source_url` (type: `["string", "null"]`) to the `significant_events.items.properties` object.
-- [ ] 1.4 In `utils_api/app/schemas/organisation.py`, remove the `risk: Optional[OrganisationRisk] = None` field from the `OrganisationRecord` model, and remove the `OrganisationRisk` dynamic model initialization.
-- [ ] 1.5 In `utils_api/app/routers/audit.py`, remove `risk` from the `run_audit` endpoint payload/processing if explicitly referenced.
+- [x] 1.1 Delete `schemas/v1/risk.schema.json`.
+- [x] 1.2 In `schemas/v1/impact.schema.json`, add an optional `source_url` (type: `["string", "null"]`) to the `metrics.items.properties` object.
+- [x] 1.3 In `schemas/v1/impact.schema.json`, add an optional `source_url` (type: `["string", "null"]`) to the `significant_events.items.properties` object.
+- [x] 1.4 In `utils_api/app/schemas/organisation.py`, remove the `risk: Optional[OrganisationRisk] = None` field from the `OrganisationRecord` model, and remove the `OrganisationRisk` dynamic model initialization.
+- [x] 1.5 In `utils_api/app/routers/audit.py`, remove `risk` from the `run_audit` endpoint payload/processing if explicitly referenced.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
 - [ ] 2.1 Delete `risk.system.md` and `risk.user.md`.
