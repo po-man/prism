@@ -18,7 +18,7 @@
 - [x] 3.4 Update the `Extract Impact Metrics` node to aggregate both the PDF and `<web_context>` snippets.
 
 ## 4. PocketBase Database Migration (`pocketbase/migrations/`)
-- [ ] 4.1 Create a new migration file to remove the `risk` JSON field from the `organisations` collection to align the database schema with the application logic.
+- [x] 4.1 Create a new migration file to remove the `risk` JSON field from and add `impact_search` JSON field to the `organisations` collection to align the database schema with the application logic.
 
 ## 5. UI / Hugo Refactoring (`web`)
 - [ ] 5.1 In `web/layouts/_default/single.html`, delete the Go template block rendering the `$org.risk.data.overall_risk_level` badge.
