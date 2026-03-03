@@ -6,11 +6,10 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns and exact evidence citations.
 
-#### Scenario: Animal Advocacy Metrics Extraction
+#### Scenario: Web-Sourced Data Provenance
 - **WHEN** validating the impact data of an animal charity
-- **THEN** the schema MUST support `beneficiary_type` enums specifically for `"companion_animals"`, `"farmed_animals"`, and `"wild_animals"`.
-- **AND** the schema MUST support capturing `intervention_type` (e.g., `"direct_care"`, `"corporate_campaigns"`, `"policy_advocacy"`, `"dietary_change"`).
-- **AND** the `metrics` array items MUST include an optional `evidence_quote` (string) field to capture the exact wording from the official source that justifies the assigned `evidence_quality` level.
+- **THEN** the `metrics` array items MUST include an optional `source_url` (string) field to capture the specific web URL if the metric was extracted from a web snippet.
+- **AND** the `significant_events` array items MUST include an optional `source_url` (string) field for the same provenance tracking purpose.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data.
