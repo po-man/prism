@@ -1,6 +1,6 @@
 ## 1. Schema Updates (`schemas`)
-- [ ] 1.1 In `schemas/v1/impact.schema.json`, locate the `significant_events.items.properties` object.
-- [ ] 1.2 Add an optional `"source_quote"` property (type: `["string", "null"]`, description: "The exact wording quoted from the official source validating the event summary.").
+- [x] 1.1 In `schemas/v1/impact.schema.json`, locate the `significant_events.items.properties` object.
+- [x] 1.2 Add an optional `"source_quote"` property (type: `["string", "null"]`, description: "The exact wording quoted from the official source validating the event summary.").
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
 - [ ] 2.1 In `n8n/prompt-templates/impact.system.md`, update the "Verbatim Evidence" instruction (currently rule #7) to read: "You must extract the exact, verbatim sentence from the text that justifies the claim. Place this exact sentence in the `evidence_quote` field for metrics, and the `source_quote` field for significant events."

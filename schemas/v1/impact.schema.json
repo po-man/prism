@@ -132,9 +132,13 @@
             "type": ["string", "null"],
             "format": "uri",
             "description": "The specific web URL where the event was found, if sourced from the web."
+          },
+          "source_quote": {
+            "type": ["string", "null"],
+            "description": "The exact wording quoted from the official source validating the event summary."
           }
         },
-        "required": ["event_name", "summary", "intervention_type", "source_url"]
+        "required": ["event_name", "summary", "intervention_type", "source_url", "source_quote"]
       }
     }
   },
