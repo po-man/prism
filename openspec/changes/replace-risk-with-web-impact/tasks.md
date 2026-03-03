@@ -8,8 +8,8 @@
 - [x] 1.5 In `utils_api/app/routers/audit.py`, remove `risk` from the `run_audit` endpoint payload/processing if explicitly referenced.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
-- [ ] 2.1 Delete `risk.system.md` and `risk.user.md`.
-- [ ] 2.2 In `impact.system.md`, add instructions: "You will be provided with official PDF text (if available) and `<web_context>` snippets from the charity's official website. Prioritize PDF data over web snippets if discrepancies exist. If you extract a metric or event from the `<web_context>`, you MUST populate its `source_url` property with the URL found in the snippet."
+- [x] 2.1 Delete `risk.system.md` and `risk.user.md`.
+- [x] 2.2 In `impact.system.md`, add instructions: "You will be provided with official PDF text (if available) and `<web_context>` snippets from the charity's official website. Prioritize PDF data over web snippets if discrepancies exist. If you extract a metric or event from the `<web_context>`, you MUST populate its `source_url` property with the URL found in the snippet."
 - [ ] 2.3 In `impact.user.md`, append the placeholder `<web_context>\n{{WEB_SEARCH_SNIPPETS}}\n</web_context>` to the bottom of the prompt.
 
 ## 3. n8n Orchestration Workflow (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
