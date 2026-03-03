@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T15:41:26.932Z",
+  "updatedAt": "2026-03-03T16:10:36.532Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -1241,10 +1241,6 @@
             {
               "name": "impact",
               "value": "={{ $json.impact.data }}"
-            },
-            {
-              "name": "risk",
-              "value": "={{ $json.risk.data }}"
             }
           ]
         },
@@ -2150,7 +2146,7 @@
     },
     {
       "parameters": {
-        "jsCode": "  // Fetch the resolved search results from the parallel branch\n  const searchResults = $('Resolve URLs (Impact Search)').first().json.search_results;\n\n  // Helper to generate precise W3C Text Fragments\n  function buildTextFragment(text) {\n      if (!text) return \"\";\n      const words = text.trim().split(/\\s+/);\n      const startText = words.slice(0, 5).join(' ');\n      let fragment = encodeURIComponent(startText).replace(/-/g, '%2D');\n      \n      if (words.length > 8) {\n          const endText = words.slice(-3).join(' ');\n          fragment += ',' + encodeURIComponent(endText).replace(/-/g, '%2D');\n      }\n      return `#:~:text=${fragment}`;\n  }\n\n  // Resolve the indices for all items in the batch\n  for (const item of $input.all()) {\n      const data = item.json.parsedContentObject;\n      if (!data) continue;\n\n      const resolveItem = (obj) => {\n          if (obj.source_document === 'web' && obj.search_result_index) {\n              const snippet = searchResults[obj.search_result_index];\n              if (snippet) {\n                  // Inject actual text and build the fragment URL\n                  obj.source_url = snippet.url + buildTextFragment(snippet.original_text);\n                  \n                  if (obj.hasOwnProperty('evidence_quote')) {\n                      obj.evidence_quote = snippet.original_text;\n                  } else if (obj.hasOwnProperty('source_quote')) {\n                      obj.source_quote = snippet.original_text;\n                  }\n              }\n              // Clean up the transient reference field before DB persistence\n              delete obj.search_result_index; \n          }\n      };\n\n      if (data.metrics) data.metrics.forEach(resolveItem);\n      if (data.significant_events) data.significant_events.forEach(resolveItem);\n  }\n\n  return $input.all();"
+        "jsCode": "  // Fetch the resolved search results from the parallel branch\n  const searchResults = $('Resolve URLs (Impact Search)').first().json.search_results;\n\n  // Helper to generate precise W3C Text Fragments\n  function buildTextFragment(text) {\n      if (!text) return \"\";\n      const words = text.trim().split(/\\s+/);\n      const startText = words.slice(0, 5).join(' ');\n      let fragment = encodeURIComponent(startText).replace(/-/g, '%2D');\n      \n      if (words.length > 8) {\n          const endText = words.slice(-3).join(' ');\n          fragment += ',' + encodeURIComponent(endText).replace(/-/g, '%2D');\n      }\n      return `#:~:text=${fragment}`;\n  }\n\n  // Resolve the indices for all items in the batch\n  for (const item of $input.all()) {\n      const data = item.json.parsedContentObject;\n      if (!data) continue;\n\n      const resolveItem = (obj) => {\n          if (obj.source_document === 'web' && obj.search_result_index) {\n              const snippet = searchResults[obj.search_result_index];\n              if (snippet) {\n                  // Inject actual text and build the fragment URL\n                  obj.source_url = snippet.url + buildTextFragment(snippet.original_text);\n                  \n                  if (obj.hasOwnProperty('evidence_quote')) {\n                      obj.evidence_quote = snippet.original_text;\n                  } else if (obj.hasOwnProperty('source_quote')) {\n                      obj.source_quote = snippet.original_text;\n                  }\n              }\n          }\n      };\n\n      if (data.metrics) data.metrics.forEach(resolveItem);\n      if (data.significant_events) data.significant_events.forEach(resolveItem);\n  }\n\n  return $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -2996,27 +2992,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "a2de981b-4710-4c22-931e-d9b3be3c5030",
-  "activeVersionId": "36c69dff-b241-4fa7-977e-783853497f96",
-  "versionCounter": 381,
+  "versionId": "4588a9f6-1fda-424a-a71c-8cc3341de158",
+  "activeVersionId": "4588a9f6-1fda-424a-a71c-8cc3341de158",
+  "versionCounter": 387,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-03-01T10:10:00.486Z",
-      "createdAt": "2026-03-01T10:10:00.486Z",
+      "updatedAt": "2026-03-03T16:03:15.593Z",
+      "createdAt": "2026-03-03T16:03:15.593Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "VA2U7A4uA0ckC5iS",
+      "projectId": "g8NYBJEA3E0uWhjf",
       "project": {
-        "updatedAt": "2026-03-01T10:19:07.254Z",
-        "createdAt": "2026-03-01T10:09:58.971Z",
-        "id": "VA2U7A4uA0ckC5iS",
+        "updatedAt": "2026-03-03T16:04:53.997Z",
+        "createdAt": "2026-03-03T16:03:13.815Z",
+        "id": "g8NYBJEA3E0uWhjf",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "0e1d7d12-af13-4564-b6d1-d576a5722081"
+        "creatorId": "b72cd58b-011a-4d92-b2a1-7737f14387b0"
       }
     }
   ]
