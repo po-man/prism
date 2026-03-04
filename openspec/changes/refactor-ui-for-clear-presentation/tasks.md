@@ -27,14 +27,14 @@
 - [x] 3.6 Add a simple `<a href="/audits/">&larr; Back to Directory</a>` near the top of the page.
 
 ## 4. Hugo UI: Master Table (`web/layouts/audits/list.html`)
-- [ ] 4.1 Create `web/layouts/audits/list.html`.
-- [ ] 4.2 Build an HTML `<table>` with Tailwind classes (`w-full text-left border-collapse`, etc.).
-- [ ] 4.3 Range over all pages in the section `{{ range .Pages }}`.
-- [ ] 4.4 For each page, fetch its data `{{ $orgArray := index .Site.Data.organisations .Params.data_id }} {{ $org := index $orgArray 0 }}`.
-- [ ] 4.5 Extract and render the table columns:
+- [x] 4.1 Create `web/layouts/audits/list.html`.
+- [x] 4.2 Build an HTML `<table>` with Tailwind classes (`w-full text-left border-collapse`, etc.).
+- [x] 4.3 Range over all pages in the section `{{ range .Pages }}`.
+- [x] 4.4 For each page, fetch its data `{{ $orgArray := index .Site.Data.organisations .Params.data_id }} {{ $org := index $orgArray 0 }}`.
+- [x] 4.5 Extract and render the table columns:
   - **Charity Name:** `<a href="{{ .RelPermalink }}">{{ $org.name }}</a>`
   - **Neglectedness:** Calculate primary beneficiary type.
   - **Importance:** Calculate sum of beneficiaries.
   - **Tractability:** Extract highest evidence quality.
   - **Value for Money:** Extract `cost_per_outcome` from `$org.analytics.calculated_metrics`.
-- [ ] 4.6 Include a lightweight, Vanilla JS sorting script at the bottom of the layout to allow users to click table headers (e.g., `<th>Cost per Outcome</th>`) to sort the rows ascending/descending.
+- [x] 4.6 Include a lightweight, Vanilla JS sorting script at the bottom of the layout to allow users to click table headers (e.g., `<th>Cost per Outcome</th>`) to sort the rows ascending/descending.
