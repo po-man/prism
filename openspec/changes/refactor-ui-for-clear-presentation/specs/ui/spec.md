@@ -14,7 +14,6 @@ The UI SHALL provide a high-level, sortable directory of all audited charities t
 ## MODIFIED Requirements
 
 ### Requirement: Audit Checklist Presentation
-*Note: This requirement's scope is updated to reflect the single-page architecture.*
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
 
 #### Scenario: Isolated Organization Views
