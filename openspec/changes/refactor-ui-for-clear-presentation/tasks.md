@@ -12,8 +12,8 @@
   *(Note: You will need to map `content/` as a volume in docker-compose if it isn't already, or write directly to the Hugo content folder).*
 
 ## 2. Branding Updates (`web`)
-- [ ] 2.1 In `web/layouts/_default/single.html` and any other layout files, replace `<h1 class="text-4xl font-bold text-blue-700">CharityGrader</h1>` with `... >PRISM</h1>`.
-- [ ] 2.2 Update `<title>` tags in `web/layouts/_default/baseof.html` to use PRISM.
+- [x] 2.1 In `web/layouts/_default/single.html` and any other layout files, replace `<h1 class="text-4xl font-bold text-blue-700">CharityGrader</h1>` with `... >PRISM</h1>`.
+- [x] 2.2 Update `<title>` tags in `web/layouts/_default/baseof.html` to use PRISM.
 
 ## 3. Hugo UI: Individual Pages (`web/layouts/audits/single.html`)
 - [ ] 3.1 Create the directory `web/layouts/audits/`.
