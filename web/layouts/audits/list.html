@@ -61,9 +61,9 @@
               </td>
               <td class="px-4 py-3 text-gray-700" data-label="Target Species (Neglectedness)">
                 {{/* Logic for Neglectedness check from itn-scorecard.html */}}
-                {{ $neglectednessCheckItem := index (where $org.analytics.check_items "id" "check_cause_area_neglectedness") 0 }}
+                {{ $neglectednessCheckItem := first 1 (where $org.analytics.check_items "id" "check_cause_area_neglectedness") }}
                 {{ $neglectednessStatus := "" }}
-                {{ if $neglectednessCheckItem }}{{ $neglectednessStatus = $neglectednessCheckItem.status }}{{ end }}
+                {{ if $neglectednessCheckItem }}{{ $neglectednessStatus = (index $neglectednessCheckItem 0).status }}{{ end }}
 
                 {{ $neglectednessText := "Medium" }}
                 {{ $neglectednessColor := "bg-yellow-100 text-yellow-800" }}
