@@ -24,6 +24,7 @@ services:
       - ./n8n/prompt-templates:/home/node/.n8n-files/prompt-templates # Mount prompt templates
       - ./schemas:/home/node/.n8n-files/schemas                       # Mount schemas for prompt injection
       - ./data:/home/node/.n8n-files/data                             # Mount data folder for static page generation
+      - ./web/content/audits/:/home/node/.n8n-files/web/content/audits/ # Mount audit templates
     entrypoint: /bin/sh
     command: >
       -c "

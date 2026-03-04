@@ -1,7 +1,7 @@
 ## 1. n8n Orchestration Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 1.1 Duplicate the "Write to data/organisations/{id}.json" node.
-- [ ] 1.2 Configure the new node to write a Markdown stub to `/home/node/.n8n-files/data/content/audits/{{ $('Storage API - Update Charity - Analytics').first().json.id }}.md`.
-- [ ] 1.3 Set the content of this file to include Hugo frontmatter:
+- [x] 1.1 Duplicate the "Write to data/organisations/{id}.json" node.
+- [x] 1.2 Configure the new node to write a Markdown stub to `/home/node/.n8n-files/data/content/audits/{{ $('Storage API - Update Charity - Analytics').first().json.id }}.md`.
+- [x] 1.3 Set the content of this file to include Hugo frontmatter:
   ```yaml
   ---
   title: "{{ $('Storage API - Update Charity - Analytics').first().json.name }}"

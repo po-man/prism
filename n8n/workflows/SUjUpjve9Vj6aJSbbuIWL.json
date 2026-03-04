@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T16:10:36.532Z",
+  "updatedAt": "2026-03-04T05:43:11.995Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -1347,7 +1347,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        1744,
+        1952,
         5792
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
@@ -2156,6 +2156,49 @@
       ],
       "id": "1ead26ee-6340-4088-b8ef-412d1bb963df",
       "name": "Resolved Text-fragment URLs (Impact Metrics)"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/home/node/.n8n-files/web/content/audits/{{ $('Storage API - Update Charity - Analytics').first().json.id }}.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1984,
+        6032
+      ],
+      "id": "6f0c85d9-fe0b-4388-ab03-bac429175cc8",
+      "name": "Write to web/content/audits/{id}.md"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This script runs for each item passed to the node.\n// It reads data from a previous node, constructs a markdown stub,\n// and adds it to the current item's JSON data.\n\nfor (const item of $input.all()) {\n  // Retrieve the output from the 'Storage API - Update Charity - Analytics' node.\n  // We use .first() assuming that node outputs a single, definitive record for the charity.\n  const charityData = $('Storage API - Update Charity - Analytics').first().json;\n\n  // Ensure the required data is present before proceeding.\n  if (!charityData || !charityData.id || !charityData.name) {\n    throw new Error(\"Could not find required 'id' and 'name' properties from the 'Storage API - Update Charity - Analytics' node. Please check its output.\");\n  }\n\n  const charityName = charityData.name;\n  const charityId = charityData.id;\n\n  // Using a template literal to construct the YAML frontmatter for the Hugo content file.\n  // This makes the content easily readable and maintainable.\n  const markdownStub = `---\ntitle: \"${charityName}\"\ndata_id: \"${charityId}\"\ntype: \"audits\"\n---\n`;\n\n  // Add the newly created markdown stub to the current item's JSON payload.\n  // This makes it available for subsequent nodes in the workflow.\n  item.json.markdown_stub = markdownStub;\n}\n\n// Return all the modified items to be passed to the next node.\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        6032
+      ],
+      "id": "743bb0ea-8f9d-4077-9034-bb8896adf88d",
+      "name": "Prepare Markdown Stub"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "markdown_stub",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        6032
+      ],
+      "id": "f78b7608-b30d-4033-b470-a38af6a3ad6b",
+      "name": "Convert to File"
     }
   ],
   "connections": {
@@ -2673,6 +2716,11 @@
             "node": "Convert to File (output Organisation)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Prepare Markdown Stub",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -2981,6 +3029,28 @@
           }
         ]
       ]
+    },
+    "Prepare Markdown Stub": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Write to web/content/audits/{id}.md",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -2992,9 +3062,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "4588a9f6-1fda-424a-a71c-8cc3341de158",
+  "versionId": "4e99d173-149e-4ca1-ae43-ecaa82db4173",
   "activeVersionId": "4588a9f6-1fda-424a-a71c-8cc3341de158",
-  "versionCounter": 387,
+  "versionCounter": 389,
   "triggerCount": 1,
   "tags": [],
   "shared": [
