@@ -16,15 +16,15 @@
 - [x] 2.2 Update `<title>` tags in `web/layouts/_default/baseof.html` to use PRISM.
 
 ## 3. Hugo UI: Individual Pages (`web/layouts/audits/single.html`)
-- [ ] 3.1 Create the directory `web/layouts/audits/`.
-- [ ] 3.2 Move the content of `web/layouts/_default/single.html` into `web/layouts/audits/single.html`.
-- [ ] 3.3 Remove the `{{ range .Site.Data.organisations }}` outer loop.
-- [ ] 3.4 Fetch the specific organization data using the frontmatter ID: 
+- [x] 3.1 Create the directory `web/layouts/audits/`.
+- [x] 3.2 Move the content of `web/layouts/_default/single.html` into `web/layouts/audits/single.html`.
+- [x] 3.3 Remove the `{{ range .Site.Data.organisations }}` outer loop.
+- [x] 3.4 Fetch the specific organization data using the frontmatter ID:
   `{{ $id := .Params.data_id }}`
   `{{ $orgArray := index .Site.Data.organisations $id }}`
   `{{ $org := index $orgArray 0 }}`
-- [ ] 3.5 Ensure all partials (`itn-scorecard.html`, `impact-pathway.html`, etc.) are passed `$org`.
-- [ ] 3.6 Add a simple `<a href="/audits/">&larr; Back to Directory</a>` near the top of the page.
+- [x] 3.5 Ensure all partials (`itn-scorecard.html`, `impact-pathway.html`, etc.) are passed `$org`.
+- [x] 3.6 Add a simple `<a href="/audits/">&larr; Back to Directory</a>` near the top of the page.
 
 ## 4. Hugo UI: Master Table (`web/layouts/audits/list.html`)
 - [ ] 4.1 Create `web/layouts/audits/list.html`.
