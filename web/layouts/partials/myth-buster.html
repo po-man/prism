@@ -71,10 +71,10 @@
     <!-- Right Column: Cost Per Outcome -->
     <div class="p-4 bg-white rounded-lg shadow flex flex-col">
       <div class="flex items-center">
-        <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome</h3>
+        <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome (HKD)</h3>
       </div>
       {{ with $cost_per_outcome_formula }}
-        <p class="text-sm text-gray-500 mb-3 font-mono">{{ . | replaceRE "_" " " | title }}</p>
+        <p class="text-sm text-gray-500 mb-3">{{ . | replaceRE "_" " " | title }}</p>
       {{ else }}
         <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
       {{ end }}
