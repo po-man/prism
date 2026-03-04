@@ -26,6 +26,12 @@
                 <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
               {{ end }}
             </div>
+            {{ with $org.updated }}
+            <div class="text-right flex-shrink-0 ml-4">
+              <p class="text-xs text-gray-400">Last Updated</p>
+              <p class="text-sm font-medium text-gray-600">{{ dateFormat "Jan 2, 2006" . }}</p>
+            </div>
+            {{ end }}
           </div>
 
           {{/* Task 2.1: Data Provenance Indicators */}}
