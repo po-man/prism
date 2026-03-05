@@ -9,17 +9,17 @@
 - [x] 2.4 In `web/layouts/_default/single.html`, update the "Back to Directory" link from `<a href="/audits/"...` to `<a href="/"...`.
 
 ## 3. UI Updates: Master Table (`web/layouts/index.html`)
-- [ ] 3.1 **Data Sources Column:**
+- [x] 3.1 **Data Sources Column:**
   - Add `<th ...>Data Sources</th>` to the table head.
   - Inside the `{{ range .Pages }}` loop, add a new `<td>` for Data Sources.
   - Copy the logic from `single.html` that resolves `$has_web_source`, `$annual_report_url`, and `$financial_report_url`. 
   - Render the three SVGs in a row (`flex space-x-2`), applying `opacity-40 grayscale` to missing sources. Add `data-sort-value` to the `<td>` representing the count of available sources to allow column sorting.
-- [ ] 3.2 **Target Species (Neglectedness) Column:**
+- [x] 3.2 **Target Species (Neglectedness) Column:**
   - Update the existing Target Species `<td>` to utilize a data-sort-value (e.g., scoring high neglectedness > low neglectedness so it sorts cleanly).
   - Re-implement the beneficiary loop logic from `itn-scorecard.html` inside this cell: calculate `$totalPop` and the `$popMap` dict.
   - Render the three species SVGs (Companion, Farmed, Wild) side-by-side.
   - For each SVG, calculate the percentage (`$pct_raw`). Use inline styles `style="opacity: {{ if gt $pct_raw 0 }}{{ math.Max 0.2 (div $pct_raw 100.0) }}{{ else }}0.2{{ end }};"` and apply a `grayscale` class if the value is 0. Add `title` attributes indicating the exact percentage on hover.
-- [ ] 3.3 **Sorting Script Adjustments:**
+- [x] 3.3 **Sorting Script Adjustments:**
   - Ensure the vanilla JS table sorting script in `index.html` correctly reads `data-sort-value` for the new icon-heavy columns, overriding the `innerText` parsing.
 
 ## 4. Cleanup & Rebuild

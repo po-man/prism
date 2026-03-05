@@ -9,19 +9,19 @@
     <details>
       <summary class="p-4 font-semibold text-blue-800 cursor-pointer flex justify-between items-center">
         <span>How to Read This Table</span>
-        <span class="text-sm font-normal text-blue-600">[Click to expand]</span>
+        <span class="text-sm font-normal text-blue-600">[Click to expand/collapse]</span>
       </summary>
       <div class="p-4 border-t border-blue-200 text-sm text-gray-700 space-y-4">
-        <div>
+        <div data-highlight-column="Target Species (Neglectedness)">
           <h4 class="font-bold text-gray-800">Target Species (Neglectedness)</h4>
-          <p>Measures focus on underfunded areas, based on the primary beneficiaries of a charity's work. In Hong Kong, some cause areas receive significantly more funding and attention than others.</p>
+          <p>This column indicates how much a charity focuses on neglected (i.e., underfunded) animal groups. The opacity of each icon reflects the proportion of beneficiaries from that group. Unevenly distributed funding and attention are very common:</p>
           <ul class="list-disc list-inside mt-2 space-y-1">
-            <li><span class="font-semibold text-green-700">High:</span> Focus on highly neglected areas like <span class="font-semibold">Farmed or Wild Animals</span>.</li>
-            <li><span class="font-semibold text-yellow-700">Medium:</span> A mix of neglected and saturated areas.</li>
-            <li><span class="font-semibold text-red-700">Low:</span> Focus on saturated areas like <span class="font-semibold">Companion Animals</span>.</li>
+            <li>Highly Neglected: <span class="font-semibold">Farmed and Wild Animals</span> receive comparatively little funding.</li>
+            <li>Saturated: <span class="font-semibold">Companion Animals</span> (e.g., dogs and cats) receive the vast majority of funding.</li>
+            <li>Charities focusing on more neglected groups are considered to have higher potential for impact.</li>
           </ul>
         </div>
-        <div>
+        <div data-highlight-column="Evidence Quality (Tractability)">
           <h4 class="font-bold text-gray-800">Evidence Quality (Tractability)</h4>
           <p>Indicates the highest level of evidence found for a charity's impact claims, reflecting the problem's tractability.</p>
           <ul class="list-disc list-inside mt-2 space-y-1">
@@ -30,6 +30,15 @@
             <li><span class="font-semibold">Pre-Post:</span> Evidence based on before-and-after comparisons.</li>
             <li><span class="font-semibold">Anecdotal/None:</span> Claims are based on stories or lack verifiable evidence.</li>
           </ul>
+        </div>
+        <div data-highlight-column="Audit Summary">
+          <h4 class="font-bold text-gray-800">Audit Summary</h4>
+          <p>
+            Provides a high-level, color-coded summary (e.g., <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full align-middle"></span> Pass,
+            <span class="inline-block w-2.5 h-2.5 bg-yellow-400 rounded-full align-middle"></span> Warning,
+            <span class="inline-block w-2.5 h-2.5 bg-red-500 rounded-full align-middle"></span> Fail) of an organization's performance against our automated audit checks. These checks cover areas like financial health, transparency, and governance.
+          </p>
+          <p class="mt-2">Clicking on an organization will take you to its detailed profile, which includes a full breakdown of the audit checklist.</p>
         </div>
       </div>
     </details>
@@ -40,13 +49,14 @@
     <table class="min-w-full text-left border-collapse table-fixed" id="audits-table">
       <thead class="border-b bg-gray-100">
         <tr>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4" data-sort-dir="asc">Organization Name</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer" data-sort-dir="asc">Target Species (Neglectedness)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-right" data-sort-dir="asc" data-sort-type="number">Total Beneficiaries (Importance)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer" data-sort-dir="asc">Evidence Quality (Tractability)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-right" data-sort-dir="asc" data-sort-type="number">Cost per Outcome (HKD)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 text-center">Audit Summary</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-right" data-sort-dir="asc" data-sort-type="date">Last Updated</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="asc">Organization Name</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Data Sources</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Target Species (Neglectedness)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Total Beneficiaries (Importance)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc">Evidence Quality (Tractability)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Cost per Outcome (HKD)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="audit">Audit Summary</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="date">Last Updated</th>
         </tr>
       </thead>
       <tbody>
@@ -55,36 +65,91 @@
           {{ if $orgArray }}
             {{ $org := index $orgArray 0 }}
             <tr class="hover:bg-gray-50 border-b">
-              <td class="px-4 py-3 font-medium text-blue-700 truncate" data-label="Organization Name">
+              <td class="px-4 py-3 font-medium text-blue-700 truncate text-left" data-label="Organization Name">
                 <a href="{{ .RelPermalink }}" class="block truncate hover:underline" title="{{ $org.name | default "N/A" }}">
                   {{ $org.name | default "N/A" }}
                 </a>
               </td>
-              <td class="px-4 py-3 text-gray-700" data-label="Target Species (Neglectedness)">
-                {{/* Logic for Neglectedness check from itn-scorecard.html */}}
-                {{ $neglectednessCheckItem := first 1 (where $org.analytics.check_items "id" "check_cause_area_neglectedness") }}
-                {{ $neglectednessStatus := "" }}
-                {{ if $neglectednessCheckItem }}{{ $neglectednessStatus = (index $neglectednessCheckItem 0).status }}{{ end }}
-
-                {{ $neglectednessText := "Medium" }}
-                {{ $neglectednessColor := "bg-yellow-100 text-yellow-800" }}
-                {{ if eq $neglectednessStatus "pass" }}
-                  {{ $neglectednessText = "High" }}
-                  {{ $neglectednessColor = "bg-green-100 text-green-800" }}
-                {{ else if eq $neglectednessStatus "fail" }}
-                  {{ $neglectednessText = "Low" }}
-                  {{ $neglectednessColor = "bg-red-100 text-red-800" }}
-                {{ end }}
-                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $neglectednessColor }}">{{ $neglectednessText }}</span>
+              {{/* Task 3.1: Data Sources Column */}}
+              {{ $s := newScratch }}
+              {{ $s.Set "sourceCount" 0 }}
+              {{ $annual_report_url := $org.expand.annual_report.url }}
+              {{ $financial_report_url := $org.expand.financial_report.url }}
+              {{ $has_web_source := false }}
+              {{ range $org.impact.data.significant_events }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+              {{ range $org.impact.data.metrics }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+              {{ if and $org.annual_report $annual_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
+              {{ if and $org.financial_report $financial_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
+              {{ if $has_web_source }}{{ $s.Add "sourceCount" 1 }}{{ end }}
+              <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Data Sources" data-sort-value="{{ $s.Get "sourceCount" }}">
+                <div class="flex items-center justify-center space-x-2">
+                  <span title="Annual Report {{ if and $org.annual_report $annual_report_url }}Provided{{ else }}Missing{{ end }}" class="{{ if not (and $org.annual_report $annual_report_url) }}opacity-40 grayscale{{ end }}">
+                    {{- partial "icons/annual-report.svg" . | safeHTML -}}
+                  </span>
+                  <span title="Financial Report {{ if and $org.financial_report $financial_report_url }}Provided{{ else }}Missing{{ end }}" class="{{ if not (and $org.financial_report $financial_report_url) }}opacity-40 grayscale{{ end }}">
+                    {{- partial "icons/financials.svg" . | safeHTML -}}
+                  </span>
+                  <span title="Web Search Performed{{ if not $has_web_source }} (No impact data found from web sources){{ end }}" class="{{ if not $has_web_source }}opacity-40 grayscale{{ end }}">
+                    {{- partial "icons/web-search.svg" . | safeHTML -}}
+                  </span>
+                </div>
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right font-mono" data-label="Total Beneficiaries (Importance)">
+              {{/* Task 3.2: Target Species (Neglectedness) Column */}}
+                {{ $s.Set "totalPop" 0.0 }}
+                {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+                {{ range $org.impact.data.beneficiaries }}
+                  {{ $pop := .population | default 0 }}
+                  {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
+                  {{ $currentPopMap := $s.Get "popMap" }}
+                  {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
+                {{ end }}
+                {{ $totalPop := $s.Get "totalPop" }}
+
+                {{ $companion_pop := index ($s.Get "popMap") "companion_animals" }}
+                {{ $farm_pop := index ($s.Get "popMap") "farmed_animals" }}
+                {{ $wild_pop := index ($s.Get "popMap") "wild_animals" }}
+                {{ $companion_pct := 0.0 }}{{ if gt $totalPop 0 }}{{ $companion_pct = div (mul $companion_pop 100.0) $totalPop }}{{ end }}
+                {{ $farm_pct := 0.0 }}{{ if gt $totalPop 0 }}{{ $farm_pct = div (mul $farm_pop 100.0) $totalPop }}{{ end }}
+                {{ $wild_pct := 0.0 }}{{ if gt $totalPop 0 }}{{ $wild_pct = div (mul $wild_pop 100.0) $totalPop }}{{ end }}
+
+                {{ $weighted_score := add $companion_pct (mul $wild_pct 2) (mul $farm_pct 3) }}
+                {{ $sort_val := $weighted_score }}
+                {{- warnf "DEBUG Neglectedness Sort for %q: totalPop=%v, c_pct=%v, w_pct=%v, f_pct=%v, sort_val=%v" $org.name $totalPop $companion_pct $wild_pct $farm_pct $sort_val -}}
+              <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Target Species (Neglectedness)" data-sort-value="{{ $sort_val }}">
+                <div class="flex items-center justify-center space-x-2">
+      {{ $farmed_pop := index ($s.Get "popMap") "farmed_animals" }}
+                  {{ $farmed_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $farmed_pct_raw = div (mul $farmed_pop 100.0) $totalPop }}{{ end }}
+                  {{ $farmed_pct_rounded := int (math.Round $farmed_pct_raw) }}
+                  {{ $farmed_opacity := 0.2 }}{{ if gt $farmed_pct_raw 0.0 }}{{ $farmed_opacity = math.Max 0.2 (div $farmed_pct_raw 100.0) }}{{ end }}
+                  <span title="Farmed Animals: {{ $farmed_pct_rounded }}%" class="text-gray-600 {{ if le $farmed_pop 0 }}grayscale{{ end }}" style="opacity: {{ $farmed_opacity }};">
+                    {{- partial "icons/farmed-animals.svg" . | safeHTML -}}
+                  </span>
+
+                  {{ $wild_pop := index ($s.Get "popMap") "wild_animals" }}
+                  {{ $wild_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $wild_pct_raw = div (mul $wild_pop 100.0) $totalPop }}{{ end }}
+                  {{ $wild_pct_rounded := int (math.Round $wild_pct_raw) }}
+                  {{ $wild_opacity := 0.2 }}{{ if gt $wild_pct_raw 0.0 }}{{ $wild_opacity = math.Max 0.2 (div $wild_pct_raw 100.0) }}{{ end }}
+                  <span title="Wild Animals: {{ $wild_pct_rounded }}%" class="text-gray-600 {{ if le $wild_pop 0 }}grayscale{{ end }}" style="opacity: {{ $wild_opacity }};">
+                    {{- partial "icons/wild-animals.svg" . | safeHTML -}}
+                  </span>
+
+                  {{ $companion_pop := index ($s.Get "popMap") "companion_animals" }}
+                  {{ $companion_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $companion_pct_raw = div (mul $companion_pop 100.0) $totalPop }}{{ end }}
+                  {{ $companion_pct_rounded := int (math.Round $companion_pct_raw) }}
+                  {{ $companion_opacity := 0.2 }}{{ if gt $companion_pct_raw 0.0 }}{{ $companion_opacity = math.Max 0.2 (div $companion_pct_raw 100.0) }}{{ end }}
+                  <span title="Companion Animals: {{ $companion_pct_rounded }}%" class="text-gray-600 {{ if le $companion_pop 0 }}grayscale{{ end }}" style="opacity: {{ $companion_opacity }};">
+                    {{- partial "icons/companion-animals.svg" . | safeHTML -}}
+                  </span>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Total Beneficiaries (Importance)">
                 {{ $total_beneficiaries := 0 }}
                 {{ range $org.impact.data.beneficiaries }}
                   {{ $total_beneficiaries = add $total_beneficiaries (.population | default 0) }}
                 {{ end }}
                 {{ if gt $total_beneficiaries 0 }}{{ lang.FormatNumber 0 $total_beneficiaries }}{{ else }}N/A{{ end }}
               </td>
-              <td class="px-4 py-3 text-gray-700" data-label="Evidence Quality (Tractability)">
+              <td class="px-4 py-3 text-gray-700 text-center truncate" data-label="Evidence Quality (Tractability)">
                 {{/* Find the highest evidence quality from the impact metrics */}}
                 {{ $s := newScratch }}
                 {{ $s.Set "evidenceOrder" (dict "RCT/Meta-Analysis" 5 "Quasi-Experimental" 4 "Pre-Post" 3 "Anecdotal" 2 "None" 1) }}
@@ -97,7 +162,7 @@
                 {{ end }}
                 {{ $s.Get "highestEvidence" | title }}
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right font-mono" data-label="Cost per Outcome">
+              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome">
                 {{/* Find the cost_per_outcome metric from the array */}}
                 {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
                 {{ if and $cost_metric (isset $cost_metric "value") (gt $cost_metric.value 0) }}
@@ -106,15 +171,17 @@
                   N/A
                 {{ end }}
               </td>
-              <td class="px-4 py-3" data-label="Audit Summary">
+              {{ $s := newScratch }}{{ $s.Set "pass" 0 }}{{ $s.Set "warn" 0 }}{{ $s.Set "fail" 0 }}
+              {{ with $org.analytics.check_items }}
+                {{ range . }}
+                  {{ if eq .status "pass" }}{{ $s.Add "pass" 1 }}{{ end }}
+                  {{ if eq .status "warning" }}{{ $s.Add "warn" 1 }}{{ end }}
+                  {{ if eq .status "fail" }}{{ $s.Add "fail" 1 }}{{ end }}
+                {{ end }}
+              {{ end }}
+              {{ $pass := $s.Get "pass" }}{{ $warn := $s.Get "warn" }}{{ $fail := $s.Get "fail" }}
+              <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Audit Summary" data-sort-value="{{ printf "%d-%d-%d" $pass $warn $fail }}">
                 {{ with $org.analytics.check_items }}
-                  {{ $s := newScratch }}{{ $s.Set "pass" 0 }}{{ $s.Set "warn" 0 }}{{ $s.Set "fail" 0 }}
-                  {{ range . }}
-                    {{ if eq .status "pass" }}{{ $s.Add "pass" 1 }}{{ end }}
-                    {{ if eq .status "warning" }}{{ $s.Add "warn" 1 }}{{ end }}
-                    {{ if eq .status "fail" }}{{ $s.Add "fail" 1 }}{{ end }}
-                  {{ end }}
-                  {{ $pass := $s.Get "pass" }}{{ $warn := $s.Get "warn" }}{{ $fail := $s.Get "fail" }}
                   <div class="flex items-center justify-center space-x-2">
                     <span class="flex items-center text-xs font-semibold text-green-700" title="{{ $pass }} Passed Checks"><span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-1.5"></span>{{ $pass }}</span>
                     <span class="flex items-center text-xs font-semibold text-yellow-700" title="{{ $warn }} Warnings"><span class="w-2.5 h-2.5 bg-yellow-400 rounded-full mr-1.5"></span>{{ $warn }}</span>
@@ -124,9 +191,9 @@
                   <span class="text-gray-400 text-sm">No Data</span>
                 {{ end }}
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right" data-label="Last Updated" data-sort-value="{{ with $org.updated }}{{ dateFormat "2006-01-02" . }}{{ else }}0{{ end }}">
+              <td class="px-4 py-3 text-gray-700 text-right whitespace-nowrap" data-label="Last Updated" data-sort-value="{{ with $org.updated }}{{ dateFormat "2006-01-02" . }}{{ else }}0{{ end }}">
                 {{ with $org.updated }}
-                  {{ dateFormat "Jan 2, 2006" . }}
+                  {{ dateFormat "2006/01/02" . }}
                 {{ else }}
                   N/A
                 {{ end }}
@@ -165,6 +232,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Replace non-numeric characters, handle 'N/A' as lowest value
                     valA = valA === 'N/A' ? -Infinity : parseFloat(valA.replace(/[$,]/g, ''));
                     valB = valB === 'N/A' ? -Infinity : parseFloat(valB.replace(/[$,]/g, ''));
+                } else if (sortType === 'audit') {
+                    const parseAudit = (val) => {
+                        if (val === '0-0-0') return [-Infinity, Infinity, Infinity]; // Treat no data as lowest priority
+                        const parts = val.split('-').map(Number);
+                        return [parts[0], parts[1], parts[2]]; // [pass, warn, fail]
+                    };
+                    const [passA, warnA, failA] = parseAudit(valA);
+                    const [passB, warnB, failB] = parseAudit(valB);
+
+                    // 'asc' sort is "best" to "worst": more passes, fewer warnings, fewer fails.
+                    // 'desc' sort is the reverse.
+                    const direction = sortDir === 'asc' ? 1 : -1;
+
+                    // Priority 1: Number of green lights (descending)
+                    if (passA !== passB) return (passB - passA) * direction;
+                    // Priority 2: Number of yellow lights (ascending)
+                    if (warnA !== warnB) return (warnA - warnB) * direction;
+                    // Priority 3: Number of red lights (ascending)
+                    if (failA !== failB) return (failA - failB) * direction;
+
+                    return 0;
                 } else {
                     // Case-insensitive string comparison
                     valA = valA.toLowerCase();
@@ -211,6 +299,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         th.sorted-desc::after {
             content: ' \\25BC'; /* down arrow */
+            opacity: 1;
+        }
+        
+        /* Column Highlighting Styles */
+        #audits-table.highlight-active th,
+        #audits-table.highlight-active td {
+            opacity: 0.2;
+            transition: opacity 0.3s ease-in-out;
+        }
+        #audits-table.highlight-active .highlight-column {
             opacity: 1;
         }
 
@@ -261,12 +359,44 @@ document.addEventListener('DOMContentLoaded', function () {
             #audits-table td[data-label="Organization Name"]::before {
                 display: none;
             }
+            #audits-table td[data-label="Data Sources"] > div {
+                justify-content: flex-end; /* Aligns flex items to the right */
+            }
+            #audits-table td[data-label="Target Species (Neglectedness)"] > div {
+                justify-content: flex-end; /* Aligns flex items to the right */
+            }
             #audits-table td[data-label="Audit Summary"] > div {
                 justify-content: flex-end; /* Aligns flex items to the right */
             }
         }
     `;
     document.head.appendChild(style);
+
+    // Column highlighting logic
+    const explanationItems = document.querySelectorAll('[data-highlight-column]');
+    const tableHeaders = Array.from(table.querySelectorAll('thead th'));
+
+    explanationItems.forEach(item => {
+        const columnName = item.dataset.highlightColumn;
+        const headerIndex = tableHeaders.findIndex(th => th.textContent.trim() === columnName);
+
+        if (headerIndex === -1) return;
+
+        item.addEventListener('mouseenter', () => {
+            table.classList.add('highlight-active');
+            // Highlight header
+            table.querySelector(`thead th:nth-child(${headerIndex + 1})`).classList.add('highlight-column');
+            // Highlight body cells
+            tbody.querySelectorAll(`tr td:nth-child(${headerIndex + 1})`).forEach(cell => {
+                cell.classList.add('highlight-column');
+            });
+        });
+
+        item.addEventListener('mouseleave', () => {
+            table.classList.remove('highlight-active');
+            document.querySelectorAll('.highlight-column').forEach(el => el.classList.remove('highlight-column'));
+        });
+    });
 });
 </script>
 {{ end }}
