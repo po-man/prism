@@ -54,7 +54,7 @@ jobs:
 
       - name: Generate Markdown Stubs
         # This script reads organisation JSON data and creates content stubs for Hugo.
-        run: python ../scripts/generate_stubs.py ../data/organisations web/content
+        run: python ../scripts/generate_stubs.py ../data/organisations content
 
       - name: Build PRISM Report Cards
         env:
