@@ -4,7 +4,7 @@
     <title>{{ if not .IsHome }}{{ .Title }} | {{ end }}PRISM</title>
     {{ $style := resources.Get "main.css" | postCSS }}
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
-    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="{{ "/css/custom.css" | relURL }}">
 </head>
 <body>
     {{ block "main" . }}{{ end }}
