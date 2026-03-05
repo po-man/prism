@@ -3,8 +3,13 @@ module.exports = {
   content: [
     './layouts/**/*.html',
   ],
+  safelist: [
+    'text-yellow-500',
+  ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

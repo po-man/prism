@@ -10,9 +10,16 @@
       "items": {
         "$ref": "#/definitions/checkItem"
       }
+    },
+    "calculated_metrics": {
+      "type": "array",
+      "description": "A list of informational metrics derived from the audit.",
+      "items": {
+        "$ref": "#/definitions/calculatedMetric"
+      }
     }
   },
-  "required": ["check_items"],
+  "required": ["check_items", "calculated_metrics"],
   "definitions": {
     "checkItem": {
       "type": "object",
@@ -25,7 +32,7 @@
         "status": {
           "type": "string",
           "description": "The result status of the check.",
-          "enum": ["pass", "fail", "warning", "null"]
+          "enum": ["pass", "fail", "warning"]
         },
         "significance": {
           "type": "string",
@@ -53,12 +60,45 @@
             "calculation": {
               "type": "string",
               "description": "The specific calculation with values for this charity."
+            },
+            "elaboration": {
+              "type": ["string", "null"]
             }
+          },
+          "required": [
+            "formula", "calculation", "elaboration"
+          ]
+        }
+      },
+      "required": ["id", "status", "significance", "category", "details"]
+    },
+    "calculatedMetric": {
+      "type": "object",
+      "description": "A single informational metric.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug for the metric (e.g., 'cost_per_outcome')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the metric (e.g., 'Cost Per Outcome')."
+        },
+        "value": {
+          "type": ["number", "string"],
+          "description": "The calculated value of the metric."
+        },
+        "details": {
+          "type": "object",
+          "description": "Transparent details about how the result was obtained.",
+          "properties": {
+            "formula": { "type": "string" },
+            "calculation": { "type": "string" }
           },
           "required": ["formula", "calculation"]
         }
       },
-      "required": ["id", "status", "significance", "category", "details"]
+      "required": ["id", "name", "value", "details"]
     }
   }
 }

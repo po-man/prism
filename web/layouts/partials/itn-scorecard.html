@@ -9,41 +9,59 @@
 */}}
 
 {{ $impact := .impact.data }}
-{{ $financials := .financials.data }}
+{{ $analytics := .analytics }}
 {{ $s := newScratch }}
 
-{{/* Task 1.2: Logic to find the largest population count for Importance */}}
-{{ $s.Set "maxPop" (float 0) }}
+{{/* Logic to calculate population totals and find the primary beneficiary */}}
+{{ $s.Set "maxPop" 0.0 }}
+{{ $s.Set "primaryBeneficiary" "N/A" }}
+{{ $s.Set "totalPop" 0.0 }}
+{{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+{{ $s.Set "presentTypes" (dict) }}
 
-{{ range $i, $item := $impact.importance_factors.beneficiaries_demographic }}
-  {{ if and .population (gt .population ($s.Get "maxPop")) }}
-    {{ $s.Set "maxPop" .population }}
+{{ range $i, $item := $impact.beneficiaries }}
+  {{ $pop := .population | default 0 }}
+  {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
+  {{ $currentPopMap := $s.Get "popMap" }}
+  {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
+  {{ $s.SetInMap "presentTypes" .beneficiary_type true }}
+
+  {{ if gt $pop ($s.Get "maxPop") }}
+    {{ $s.Set "maxPop" $pop }}
+    {{ $s.Set "primaryBeneficiary" (.beneficiary_type | humanize | title) }}
   {{ end }}
 {{ end }}
+{{ $totalPop := $s.Get "totalPop" }}
 {{ $maxPop := $s.Get "maxPop" }}
+{{ $primaryBeneficiary := $s.Get "primaryBeneficiary" }}
 
 {{/* Task 1.3: Logic to find the highest evidence quality for Tractability */}}
 {{ $s.Set "evidenceOrder" (dict "RCT/Meta-Analysis" 5 "Quasi-Experimental" 4 "Pre-Post" 3 "Anecdotal" 2 "None" 1) }}
 {{ $s.Set "highestEvidence" "None" }}
 {{ $s.Set "maxEvidenceScore" 1 }}
-{{ range $impact.importance_factors.problem_profile.severity_dimensions }}
+{{ range $impact.metrics }}
+  {{/* Find the highest evidence quality and its associated quote */}}
   {{ $currentScore := index ($s.Get "evidenceOrder") .evidence_quality | default 1 }}
   {{ if gt $currentScore ($s.Get "maxEvidenceScore") }}
     {{ $s.Set "maxEvidenceScore" $currentScore }}
     {{ $s.Set "highestEvidence" .evidence_quality }}
+    {{ $s.Set "evidenceQuote" .evidence_quote }}
   {{ end }}
 {{ end }}
 {{ $highestEvidence := $s.Get "highestEvidence" }}
-
-{{/* Task 1.4: Logic to calculate funding percentages for Neglectedness */}}
-{{ $donations := $financials.income.donations | default 0.0 }}
-{{ $gov_grants := $financials.income.government_grants | default 0.0 }}
-{{ $total_funding := add $donations $gov_grants }}
-{{ $donations_pct := 0 }}
-{{ $gov_grants_pct := 0 }}
-{{ if gt $total_funding 0 }}
-  {{ $donations_pct = mul (div $donations $total_funding) 100 }}
-  {{ $gov_grants_pct = mul (div $gov_grants $total_funding) 100 }}
+{{ $evidenceQuote := $s.Get "evidenceQuote" }}
+{{/* Logic for Neglectedness check */}}
+{{ $neglectednessCheck := findRE `(pass|warning)` (printf "%s" (index (where $analytics.check_items "id" "check_cause_area_neglectedness") 0).status) }}
+{{ $neglectednessStatus := "" }}
+{{ if $neglectednessCheck }}{{ $neglectednessStatus = index $neglectednessCheck 0 }}{{ end }}
+{{ $neglectednessText := "Medium" }}
+{{ $neglectednessColor := "bg-yellow-100 text-yellow-800" }}
+{{ if eq $neglectednessStatus "pass" }}
+  {{ $neglectednessText = "High" }}
+  {{ $neglectednessColor = "bg-green-100 text-green-800" }}
+{{ else if eq $neglectednessStatus "warning" }}
+  {{ $neglectednessText = "Low" }}
+  {{ $neglectednessColor = "bg-red-100 text-red-800" }}
 {{ end }}
 
 <div class="my-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
@@ -53,9 +71,36 @@
     <!-- Importance -->
     <div class="p-4 bg-white rounded-lg shadow">
       <h3 class="font-bold text-lg text-gray-700">Importance</h3>
-      <p class="text-sm text-gray-500 mb-2">Scale of the problem</p>
-      <p class="text-xl font-semibold text-gray-900">{{ $impact.importance_factors.problem_profile.problem_name | default "N/A" }}</p>
-      <p class="text-gray-600">Affects up to <span class="font-bold">{{ if gt $maxPop 0 }}{{ $maxPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</span> individuals.</p>
+      <p class="text-sm text-gray-500 mb-2">Scale of beneficiaries</p>
+      <p class="text-xl font-semibold text-gray-900">Affects up to {{ if gt $totalPop 0 }}{{ $totalPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</p>
+      <p class="text-gray-600">total individuals across all programs.</p>
+      {{ if gt $totalPop 0 }}
+        <div class="mt-2 pt-2 border-t">
+          <div class="space-y-1">
+            {{ $sortedBeneficiaries := sort $impact.beneficiaries "population" "desc" }}
+            {{ $firstThree := first 3 $sortedBeneficiaries }}
+            {{ $rest := after 3 $sortedBeneficiaries }}
+
+            {{ range $firstThree }}
+              {{ partial "demographic-item.html" . }}
+            {{ end }}
+
+            {{ if gt (len $rest) 0 }}
+              <details class="group flex flex-col">
+                <summary class="cursor-pointer text-sm text-blue-600 hover:underline list-none mt-1" style="order: 2;">
+                  <span class="show-more">▶ Show {{ len $rest }} more...</span>
+                  <span class="show-less">▲ Hide</span>
+                </summary>
+                <div class="space-y-1">
+                  {{ range $rest }}
+                    {{ partial "demographic-item.html" . }}
+                  {{ end }}
+                </div>
+              </details>
+            {{ end }}
+          </div>
+        </div>
+      {{ end }}
     </div>
 
     <!-- Tractability -->
@@ -63,20 +108,51 @@
       <h3 class="font-bold text-lg text-gray-700">Tractability</h3>
       <p class="text-sm text-gray-500 mb-2">Rigor of evidence</p>
       <p class="text-xl font-semibold text-gray-900">{{ $highestEvidence }}</p>
-      <p class="text-gray-600">Highest quality of evidence found.</p>
+      <p class="text-gray-600 mb-2">Highest quality of evidence found.</p>
+      {{ with $evidenceQuote }}<blockquote class="border-l-2 border-gray-300 pl-2 text-sm italic text-gray-600">"{{ . }}"</blockquote>{{ end }}
     </div>
 
     <!-- Neglectedness -->
     <div class="p-4 bg-white rounded-lg shadow">
       <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
-      <p class="text-sm text-gray-500 mb-2">Funding sources breakdown</p>
-      <div class="w-full bg-gray-200 rounded-full h-4 my-2 flex overflow-hidden">
-        <div class="bg-blue-500 h-4" style="width: {{ $donations_pct }}%;" title="Donations: {{ $donations_pct | lang.FormatNumber 2 }}%"></div>
-        <div class="bg-green-500 h-4" style="width: {{ $gov_grants_pct }}%;" title="Government Grants: {{ $gov_grants_pct | lang.FormatNumber 2 }}%"></div>
-      </div>
-      <div class="flex justify-between text-xs text-gray-600">
-        <span><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span>Donations</span>
-        <span><span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>Gov. Grants</span>
+      <p class="text-sm text-gray-500 mb-2">Focus on underfunded areas</p>
+      <p class="text-xl font-semibold text-gray-900">
+        <span class="px-3 py-1 text-base font-semibold rounded-full {{ $neglectednessColor }}">
+          {{ $neglectednessText }} Neglectedness
+        </span>
+      </p>
+      <div class="text-gray-600 mt-2">
+        <span class="text-sm font-semibold">Beneficiaries:</span>
+        <div class="flex flex-col space-y-2 mt-2">
+          {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
+          {{ $popMap := $s.Get "popMap" }}
+
+          {{/* Create a sortable list of beneficiaries from the map */}}
+          {{ $presentTypes := $s.Get "presentTypes" }}
+          {{ $beneficiaryList := slice }}
+          {{ range $type, $pop := $popMap }}{{ $beneficiaryList = $beneficiaryList | append (dict "type" $type "pop" $pop) }}{{ end }}
+          {{ $sortedBeneficiaries := sort $beneficiaryList "pop" "desc" }}
+
+          {{ range $sortedBeneficiaries }}
+            {{ $typePop := .pop }}
+            <span class="flex items-center text-sm {{ if le $typePop 0 }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
+            {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+            {{ .type | humanize | title }}
+            {{ if gt $totalPop 0 }}
+              {{ $pct_raw := 0.0 }}
+              {{ $pct_rounded_num := 0 }}
+              {{ $prefix := "" }}
+              {{ if gt $typePop 0 }}
+                {{ $pct_raw = div (mul $typePop 100.0) $totalPop }}
+                {{ $pct_rounded_num = int (math.Round $pct_raw) }}
+                {{ if or (and (eq $pct_rounded_num 0) (gt $pct_raw 0)) (and (eq $pct_rounded_num 100) (lt $pct_raw 100)) }}{{ $prefix = "~" }}{{ end }}
+              {{ end }}
+              {{/* {{- warnf "DEBUG Neglectedness%%: type=%s, typePop=%f (type: %s), totalPop=%v, pct_raw=%f, pct_rounded_num=%d, prefix='%s'" .type $typePop (printf "%T" $typePop) $totalPop $pct_raw $pct_rounded_num $prefix -}} */}}
+              <span class="ml-1 font-mono text-xs">({{ $prefix }}{{ $pct_rounded_num }}%)</span>
+            {{ end }}
+            </span>
+          {{ end }}
+        </div>
       </div>
     </div>
 

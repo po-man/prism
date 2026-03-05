@@ -1,0 +1,13 @@
+{{/*
+  Renders a single demographic item for the Importance card breakdown.
+  @context . - A single beneficiary object.
+*/}}
+<p class="text-sm text-gray-600">
+  -
+  {{ if gt (.population | default 0) 0 }}
+    <span class="font-semibold">{{ .population | lang.FormatNumber 0 }}</span>
+  {{ else }}
+    Unknown number of
+  {{ end }}
+  {{ .beneficiary_type | humanize | title }}{{ with .location }} in <i class="not-italic">{{ . }}</i>{{ end }}
+</p>

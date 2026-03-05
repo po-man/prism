@@ -1,45 +1,73 @@
 # ui Specification
 
 ## Purpose
-This specification defines the visual presentation of charity effectiveness data to the end-user, ensuring transparency and ease of comparison.
+This specification defines how the audit checklist is presented to the end-user. It ensures that charity effectiveness and risk data is rendered in a clear, transparent, and easily comparable "report card" format, displaying pass, fail, or warning statuses for each audit item.
 ## Requirements
-### Requirement: Priority-Sorted Audit Checklist
-The UI SHALL display audit results as a vertical stack of expandable items, sorted by category, then by significance, and then by pass/fail status.
+### Requirement: ITN Scorecard Rendering
+The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence.
 
-#### Scenario: Displaying categorical check-items
-- **GIVEN** a charity has been audited across Financial Health, Governance, and Impact Awareness categories
-- **WHEN** the organisation page is loaded
-- **THEN** the UI MUST group the results under distinct section headers for each category.
-- **AND** within each category, failures of HIGH-significance MUST be displayed at the top of the list.
+#### Scenario: Displaying Cumulative Importance and Verifiable Tractability
+- **WHEN** rendering the Importance section of the scorecard
+- **THEN** the UI MUST compute and display the sum total of all populations across the `.impact.data.beneficiaries` array.
+- **AND** it MUST explicitly display the demographic breakdown (e.g., specific species or beneficiary types) directly beneath the total "Affects up to X individuals" metric.
+- **WHEN** rendering the Tractability section of the scorecard
+- **THEN** the UI MUST display the highest `evidence_quality` achieved.
+- **AND** it MUST display the exact `evidence_quote` associated with that metric to verify the claim, or provide an elaboration if a direct quote is unavailable.
 
-### Requirement: Expandable Transparency Details
-Every audit check-item MUST be expandable to reveal the underlying data sources and formulas used for the result.
+### Requirement: Data Provenance Indicators
+The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency.
 
-#### Scenario: Verifying a ratio
-- **WHEN** a user expands the "Liquidity Ratio" item
-- **THEN** the UI MUST display the specific HKD values used (e.g., Net Assets / Monthly Expenses) and the snippet from the source PDF.
+#### Scenario: Rendering available and missing sources
+- **WHEN** rendering a charity's profile page
+- **THEN** the system MUST display an icon row indicating the status of the "Annual Report", "Financial Report", and "Web Search".
+- **AND** if the `annual_report` or `financial_report` ID is `null` or missing in the JSON data, the respective icon MUST be rendered in a disabled, greyed-out, or struck-through state.
 
-### Requirement: Logic Model Path Visualization
-The UI SHALL visualize the charity's impact pathway (Inputs -> Activities -> Outputs -> Outcomes).
+### Requirement: Animal Beneficiary Badges
+The UI SHALL visually categorize the charity's beneficiaries to immediately communicate cause-area neglectedness.
 
-#### Scenario: Visualizing the Theory of Change
-- **WHEN** rendering the impact section
-- **THEN** it SHALL display the causal chain horizontally or vertically.
-- **AND** clearly distinguish between "Outputs" (e.g., people served) and "Outcomes" (e.g., lives improved).
-- **AND** MUST prominently display the counterfactual baseline to highlight the marginal impact of the organization's existence.
+#### Scenario: Displaying beneficiary taxonomy
+- **WHEN** rendering the ITN Scorecard or Impact Pathway
+- **THEN** the system MUST parse the `impact.data.beneficiaries` array.
+- **AND** map the `beneficiary_type` values (`companion_animals`, `farmed_animals`, `wild_animals`) to distinct SVG icons or badges, displaying them prominently to the user.
 
-### Requirement: ITN Scorecard Visualization
-The UI SHALL present a top-level summary of the charity's profile using the Importance, Tractability, and Neglectedness (ITN) framework to immediately anchor the user in impact-oriented thinking.
+### Requirement: Overhead vs. Impact Myth-Buster Display
+The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, pulling from dedicated calculation entities.
 
-#### Scenario: Rendering the ITN Scorecard
-- **WHEN** a user visits a charity's profile page
-- **THEN** the UI MUST display the ITN Scorecard containing the problem scale, the highest quality of evidence used, and a visual breakdown of funding sources.
+#### Scenario: Rendering Decoupled Calculations
+- **WHEN** rendering the Value for Money component
+- **THEN** the template MUST extract the Cost per Outcome data directly from the new `analytics.calculated_metrics` array, rather than parsing it out of the `check_items` array.
 
-### Requirement: Value for Money Contextualization
-The UI SHALL actively contextualize administrative overhead ratios by pairing them visually with outcome-based metrics, preventing users from making decisions based solely on financial efficiency.
+### Requirement: Impact Pathway Display
+The UI SHALL present the charity's logic model hierarchically, prioritizing the most significant interventions to prevent cognitive overload, and providing direct, highlighted verification links for web-sourced claims.
 
-#### Scenario: Displaying the Myth-Buster Component
-- **WHEN** rendering the financial efficiency section
-- **THEN** the UI MUST display the program-to-admin ratio adjacent to the "Estimated Cost per Outcome" metric.
-- **AND** MUST include an educational disclaimer clarifying that low overhead does not equate to high impact.
+#### Scenario: Expanding Top 3 Interventions
+- **WHEN** rendering the "Activities & Outputs" and "Outcomes" columns
+- **THEN** the UI MUST sort the items by significance (based on the array order provided by the LLM).
+- **AND** it MUST display only the top 3 items by default.
+- **AND** if more than 3 items exist, it MUST provide an interactive, offline-compatible toggle (e.g., "Show all X activities") to reveal the remaining items.
+
+#### Scenario: Hyperlinking and Highlighting Web-Sourced Claims
+- **WHEN** rendering the "Activities & Outputs" and "Outcomes" items in the Impact Pathway
+- **THEN** the UI MUST check for the presence of the `source_url` field.
+- **AND** if `source_url` is present, it MUST wrap the `metric_name` (or the `event_name`) in an HTML `<a>` tag with `target="_blank"` and `rel="noopener noreferrer"`.
+- **AND** if an exact quote (`source_quote` or `evidence_quote`) is also present, the UI MUST URL-encode the quote and append it to the `href` using the W3C Text Fragment syntax (`#:~:text=`), ensuring the user's browser automatically scrolls to and highlights the claim.
+
+### Requirement: Audit Checklist Presentation
+The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
+
+#### Scenario: Isolated Organization Views
+- **WHEN** a user navigates to an individual organization's URL
+- **THEN** the UI MUST render the ITN Scorecard, Impact Pathway, Value for Money, and Audit Checklist exclusively for that specific organization.
+- **AND** the page MUST include a "Back to Directory" navigation link to return to the Master Table.
+
+### Requirement: Master Comparative Table (Landing Page)
+The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis.
+
+#### Scenario: Comparing ITN and Financial Metrics
+- **WHEN** a user visits the root `/audits/` directory
+- **THEN** the system MUST display a Master Table listing all organizations.
+- **AND** the table MUST include columns for: Organization Name, Target Species (Neglectedness), Evidence Quality (Tractability), Total Beneficiaries (Importance), and Cost per Outcome.
+- **AND** the table MUST include a visual summary of the Audit Checklist (e.g., counts of Pass/Warn/Fail).
+- **AND** clicking an organization's row or name MUST navigate the user to that organization's dedicated detail page.
+- **AND** the table MUST be sortable via client-side JavaScript without requiring a backend connection.
 

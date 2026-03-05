@@ -1,106 +1,174 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Charity Impact",
-  "description": "Schema for impact metrics based on the Importance, Tractability, and Neglectedness (ITN) framework.",
+  "description": "Schema for charity impact metrics, focusing on animal advocacy.",
   "type": "object",
   "properties": {
-    "importance_factors": {
-      "type": "object",
-      "properties": {
-        "beneficiaries_demographic": {
-          "type": "array",
-          "items": {
+    "beneficiaries": {
+      "type": "array",
+      "description": "Demographics of the primary beneficiaries, tailored for animal advocacy.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Geographic area of the beneficiaries (e.g., 'Hong Kong', 'Yuen Long District')."
+          },
+          "population": {
+            "type": ["number", "null"],
+            "description": "The estimated number of animals in the beneficiary group."
+          },
+          "beneficiary_type": {
+            "type": "string",
+            "enum": ["companion_animals", "farmed_animals", "wild_animals"],
+            "description": "The primary category of animal beneficiaries."
+          }
+        },
+        "required": ["location", "population", "beneficiary_type"]
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "description": "A list of specific, quantifiable impact metrics.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric_name": {
+            "type": "string",
+            "description": "A descriptive name for the metric (e.g., 'Animals Rescued', 'Cage-Free Commitments Secured')."
+          },
+          "quantitative_data": {
             "type": "object",
             "properties": {
-              "location": { "type": "string" },
-              "gender": { "type": "string", "enum": ["male", "female", "non-specific"] },
-              "age_range": { "type": "string" },
-              "population": { "type": ["number", "null"] },
-              "beneficiary_type": { "type": "string", "enum": ["human", "non-human"] }
-            },
-            "required": ["location", "gender", "age_range", "population", "beneficiary_type"]
-          }
-        },
-        "problem_profile": {
-          "type": "object",
-          "properties": {
-            "problem_name": { "type": "string" },
-            "target_population": { "type": "string" },
-            "severity_dimensions": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "dimension": { "type": "string", "enum": ["Health", "Economic", "Psycho-Social", "Environmental"] },
-                  "metric_name": { "type": "string" },
-                  "quantitative_data": {
-                    "type": "object",
-                    "properties": {
-                      "value": { "type": ["number", "null"] },
-                      "unit": { "type": "string" },
-                      "duration": { "type": ["string", "null"] }
-                    },
-                    "required": ["value", "unit"]
-                  },
-                  "context_qualifier": {
-                    "type": "string",
-                    "maxLength": 150
-                  },
-                  "counterfactual_baseline": {
-                    "type": "object",
-                    "properties": {
-                      "description": {
-                        "type": "string",
-                        "maxLength": 150
-                      },
-                      "value": { "type": ["number", "null"] }
-                    },
-                    "required": ["description"]
-                  },
-                  "evidence_quality": {
-                    "type": "string",
-                    "enum": [
-                      "RCT/Meta-Analysis",
-                      "Quasi-Experimental",
-                      "Pre-Post",
-                      "Anecdotal",
-                      "None"
-                    ]
-                  },
-                  "source_citation": { "type": "string" }
-                },
-                "required": ["dimension", "metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "source_citation"]
+              "value": {
+                "type": ["number", "null"],
+                "description": "The numerical value of the metric."
+              },
+              "unit": {
+                "type": "string",
+                "description": "The unit of measurement (e.g., 'animals', 'commitments', 'meals')."
               }
-            }
+            },
+            "required": ["value", "unit"]
           },
-          "required": ["problem_name", "target_population", "severity_dimensions"]
-        }
-      },
-      "required": ["beneficiaries_demographic", "problem_profile"]
-    },
-    "tractability_factors": {
-      "type": "object",
-      "properties": {
-        "significant_events": {
-          "type": "array",
-          "items": {
+          "context_qualifier": {
+            "type": "string",
+            "maxLength": 150,
+            "description": "A brief, clear summary providing context for the metric (max 150 chars)."
+          },
+          "counterfactual_baseline": {
             "type": "object",
-            "properties": { "event_name": { "type": "string" }, "summary": { "type": "string" } },
-            "required": ["event_name", "summary"]
+            "description": "What would have happened if the charity did not intervene.",
+            "properties": {
+              "description": {
+                "type": "string",
+                "maxLength": 150,
+                "description": "A concise description of the baseline or control group (max 150 chars)."
+              },
+              "value": {
+                "type": ["number", "null"],
+                "description": "The numerical value of the baseline, if available."
+              }
+            },
+            "required": ["description"]
+          },
+          "evidence_quality": {
+            "type": "string",
+            "enum": [
+              "RCT/Meta-Analysis",
+              "Quasi-Experimental",
+              "Pre-Post",
+              "Anecdotal",
+              "None"
+            ],
+            "description": "The quality of evidence supporting the metric, based on a strict hierarchy."
+          },
+          "source_citation": {
+            "type": "string",
+            "description": "A citation for the source of the data (e.g., 'Annual Report 2023, p. 5')."
+          },
+          "source_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "description": "The specific web URL where the metric was found, if sourced from the web."
+          },
+          "source_document": {
+            "type": "string",
+            "enum": ["pdf", "web"],
+            "description": "The type of source document the evidence comes from."
+          },
+          "evidence_quote": {
+            "type": ["string", "null"],
+            "description": "The exact verbatim wording quoted from the source."
+          },
+          "search_result_index": {
+            "type": ["integer", "null"],
+            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
           }
         },
-        "evaluation_systems": { "type": "string" }
-      },
-      "required": ["significant_events", "evaluation_systems"]
+        "required": [
+          "metric_name",
+          "quantitative_data",
+          "context_qualifier",
+          "counterfactual_baseline",
+          "evidence_quality",
+          "source_citation",
+          "source_url",
+          "source_document",
+          "evidence_quote",
+          "search_result_index"
+        ]
+      }
     },
-    "neglectedness_factors": {
-      "type": "object",
-      "properties": {
-        "funding_sources": { "type": "array", "items": { "type": "string" } },
-        "funding_landscape": { "type": "string" }
-      },
-      "required": ["funding_sources", "funding_landscape"]
+    "significant_events": {
+      "type": "array",
+      "description": "Key interventions or events undertaken by the charity.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_name": {
+            "type": "string",
+            "description": "The name of the specific program or intervention."
+          },
+          "summary": {
+            "type": "string",
+            "description": "A brief summary of the event or intervention."
+          },
+          "intervention_type": {
+            "type": "string",
+            "enum": ["direct_care", "corporate_campaigns", "policy_advocacy", "dietary_change", "other"],
+            "description": "The category of the intervention."
+          },
+          "source_url": {
+            "type": ["string", "null"],
+            "format": "uri",
+            "description": "The specific web URL where the event was found, if sourced from the web."
+          },
+          "source_document": {
+            "type": "string",
+            "enum": ["pdf", "web"],
+            "description": "The type of source document the evidence comes from."
+          },
+          "source_quote": {
+            "type": ["string", "null"],
+            "description": "The exact verbatim wording quoted from the source."
+          },
+          "search_result_index": {
+            "type": ["integer", "null"],
+            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
+          }
+        },
+        "required": [
+          "event_name",
+          "summary",
+          "intervention_type",
+          "source_url",
+          "source_document",
+          "source_quote",
+          "search_result_index"
+        ]
+      }
     }
   },
-  "required": ["importance_factors", "tractability_factors", "neglectedness_factors"]
+  "required": ["beneficiaries", "metrics", "significant_events"]
 }

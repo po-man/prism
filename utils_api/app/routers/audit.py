@@ -2,8 +2,8 @@ from fastapi import APIRouter, Body
 from typing import List
 
 from app.schemas.organisation import OrganisationRecord
-from app.schemas.analytics import AuditResult, AuditCheckItem
-from app.audits.registry import AUDIT_CHECKS
+from app.schemas.analytics import AuditResult, AuditCheckItem, CalculatedMetric
+from app.audits.registry import AUDIT_CHECKS, METRIC_CALCULATORS
 
 router = APIRouter()
 
@@ -15,6 +15,11 @@ async def run_audit(record: OrganisationRecord = Body(...)):
     - **Input**: An object matching the OrganisationRecord schema.
     - **Output**: An object matching the analytics.schema.json, containing the results of all checks.
     """
-    results: List[AuditCheckItem] = [check(record) for check in AUDIT_CHECKS]
+    check_items: List[AuditCheckItem] = [check(record) for check in AUDIT_CHECKS]
+    
+    calculated_metrics: List[CalculatedMetric] = []
+    for calculator in METRIC_CALCULATORS:
+        if (metric := calculator(record)) is not None:
+            calculated_metrics.append(metric)
 
-    return AuditResult(check_items=results)
+    return AuditResult(check_items=check_items, calculated_metrics=calculated_metrics)

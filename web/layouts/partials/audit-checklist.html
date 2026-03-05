@@ -11,7 +11,7 @@
 <div class="mt-6">
   <h3 class="text-xl font-semibold text-gray-700 mb-4">Audit Checklist</h3>
   <div class="space-y-6">
-    {{/* Manually group items by category using a scratch pad */}}
+    {{/* Manually group items by category using a scratchpad */}}
     {{ $groupedItems := newScratch }}
     {{ range . }}
       {{ $category := .category }}
@@ -20,7 +20,17 @@
     {{ end }}
 
     {{ $significanceOrder := dict "HIGH" 1 "MEDIUM" 2 "LOW" 3 }}
-    {{ $statusOrder := dict "fail" 1 "null" 2 "pass" 3 }}
+    {{ $statusOrder := dict "fail" 1 "warning" 2 "pass" 3 }}
+
+    {{/* Task 3.1: Create a dictionary for threshold tooltips */}}
+    {{ $tooltips := dict
+      "check_liquidity" "Pass: >=6 mos | Warn: 3-6 mos | Fail: <3 mos"
+      "check_reserve_cap" "Pass: <=2 yrs | Warn: 2-5 yrs | Fail: >5 yrs"
+      "check_funding_neglectedness" "Pass: <80% gov't funding | Fail: >=80%"
+      "check_cause_area_neglectedness" "Pass: >=50% focus on high-neglectedness areas | Warn: <50% | Fail: 0%"
+      "check_evidence_quality" "Pass: High-quality evidence (RCT, Quasi-Experimental) found"
+      "check_counterfactual_baseline" "Pass: A quantified counterfactual baseline was provided"
+    }}
 
     {{ range $category, $items := $groupedItems.Values }}
       <div class="space-y-3">
@@ -31,26 +41,25 @@
           {{ $item := . }}
           <details class="group bg-gray-50 border border-gray-200 rounded-md transition hover:bg-gray-100">
             <summary class="flex items-center justify-between p-4 cursor-pointer list-none">
-              <div class="flex items-center">
+              <div class="flex items-center" title="{{ index $tooltips $item.id }}">
                 {{/* Traffic light indicator */}}
-                {{ if and (eq $item.significance "HIGH") (eq $item.status "fail") }}
-                  <span class="w-4 h-4 rounded-full bg-red-500 mr-3 flex-shrink-0" title="High-significance failure"></span>
-                {{ else if eq $item.status "fail" }}
-                  <span class="w-4 h-4 rounded-full bg-yellow-400 mr-3 flex-shrink-0" title="Failure"></span>
+                {{ if eq $item.status "fail" }}
+                  <span class="w-4 h-4 rounded-full bg-red-500 mr-3 flex-shrink-0"></span>
+                {{ else if eq $item.status "warning" }}
+                  <span class="w-4 h-4 rounded-full bg-yellow-400 mr-3 flex-shrink-0"></span>
                 {{ else if eq $item.status "pass" }}
-                  <span class="w-4 h-4 rounded-full bg-green-500 mr-3 flex-shrink-0" title="Pass"></span>
-                {{ else }}
-                  <span class="w-4 h-4 rounded-full bg-gray-400 mr-3 flex-shrink-0" title="Data missing or not applicable"></span>
+                  <span class="w-4 h-4 rounded-full bg-green-500 mr-3 flex-shrink-0"></span>
                 {{ end }}
                 <span class="font-medium text-gray-800">{{ $item.id | humanize | title }}</span>
               </div>
               <div class="flex items-center">
-                <span class="text-sm font-semibold px-2 py-0.5 rounded {{ if eq $item.status "pass" }} bg-green-100 text-green-700 {{ else if eq $item.status "fail" }} bg-red-100 text-red-700 {{ else }} bg-gray-200 text-gray-600 {{ end }}">{{ $item.status | upper }}</span>
+                <span class="text-sm font-semibold px-2 py-0.5 rounded {{ if eq $item.status "pass" }} bg-green-100 text-green-700 {{ else if eq $item.status "fail" }} bg-red-100 text-red-700 {{ else if eq $item.status "warning" }} bg-yellow-100 text-yellow-700 {{ else }} bg-gray-200 text-gray-600 {{ end }}">{{ $item.status | upper }}</span>
                 <span class="ml-4 transition-transform duration-200 group-open:rotate-180"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></span>
               </div>
             </summary>
             <div class="p-4 border-t border-gray-200 bg-white">
               <p class="text-gray-700">{{ $item.details.calculation | default "No calculation details available." }}</p>
+              {{ with $item.details.elaboration }}<p class="mt-2 text-sm text-gray-700 italic border-l-2 border-gray-300 pl-2">{{ . }}</p>{{ end }}
               {{ with $item.details.formula }}<p class="mt-2 text-sm text-gray-500 font-mono bg-gray-100 p-2 rounded">Formula: {{ . }}</p>{{ end }}
             </div>
           </details>

@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-02-21T10:06:00.000Z",
+  "updatedAt": "2026-03-04T05:43:39.000Z",
   "createdAt": "2026-01-31T19:05:16.465Z",
   "id": "dM945Azme2TNMwoX",
-  "name": "Download PDF & Extract Text",
+  "name": "Download PDF",
   "description": null,
   "active": true,
   "isArchived": false,
@@ -33,6 +33,10 @@
             },
             {
               "name": "output_text_format"
+            },
+            {
+              "name": "compress_trigger_size_mb",
+              "type": "number"
             }
           ]
         }
@@ -48,7 +52,7 @@
     },
     {
       "parameters": {
-        "url": "={{ $('Start').item.json.download_url }}",
+        "url": "={{ $('Start').first().json.download_url }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -73,7 +77,7 @@
           "conditions": [
             {
               "id": "f817ca1f-59bf-48eb-8821-dabf49901f9d",
-              "leftValue": "={{ $('Start').item.json.output_text_format }}",
+              "leftValue": "={{ $('Start').first().json.output_text_format }}",
               "rightValue": "markdown",
               "operator": {
                 "type": "string",
@@ -97,9 +101,16 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/convert/pdf/markdown",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpCustomAuth",
+        "url": "={{ $('Start').first().json.pdf_api_host }}/api/v1/convert/pdf/markdown",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREDENTIALS_PDF_API_KEY }}"
+            }
+          ]
+        },
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
@@ -120,20 +131,21 @@
         3376
       ],
       "id": "92bc7d1f-5350-4b8f-ae4d-fa72df7d5d19",
-      "name": "PDF to Markdown",
-      "credentials": {
-        "httpCustomAuth": {
-          "id": "XbZGAytHUvqqfEGj",
-          "name": "PDF API"
-        }
-      }
+      "name": "PDF to Markdown"
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/convert/pdf/text",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpCustomAuth",
+        "url": "={{ $('Start').first().json.pdf_api_host }}/api/v1/convert/pdf/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREDENTIALS_PDF_API_KEY }}"
+            }
+          ]
+        },
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
@@ -158,13 +170,7 @@
         3568
       ],
       "id": "0a322337-9e6b-4bc7-9da4-fde24cf4867a",
-      "name": "PDF to Text",
-      "credentials": {
-        "httpCustomAuth": {
-          "id": "XbZGAytHUvqqfEGj",
-          "name": "PDF API"
-        }
-      }
+      "name": "PDF to Text"
     },
     {
       "parameters": {
@@ -184,7 +190,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Start').item.json.storage_api_host }}/collections/source_artifacts/records ",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/source_artifacts/records ",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBearerAuth",
         "sendBody": true,
@@ -193,7 +199,7 @@
           "parameters": [
             {
               "name": "=url",
-              "value": "={{ $('Start').item.json.download_url }}"
+              "value": "={{ $('Start').first().json.download_url }}"
             },
             {
               "parameterType": "formBinaryData",
@@ -244,7 +250,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $json.storage_api_host }}/collections/_superusers/auth-with-password",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/_superusers/auth-with-password",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpCustomAuth",
         "options": {}
@@ -280,9 +286,16 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/misc/compress-pdf",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpCustomAuth",
+        "url": "={{ $('Start').first().json.pdf_api_host }}/api/v1/misc/compress-pdf",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREDENTIALS_PDF_API_KEY }}"
+            }
+          ]
+        },
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
@@ -294,7 +307,7 @@
             },
             {
               "name": "expectedOutputSize",
-              "value": "40MB"
+              "value": "={{ `${($('Start').first().json.compress_trigger_size_mb || 40)}MB` }}"
             },
             {
               "name": "optimizeLevel",
@@ -311,13 +324,7 @@
         3088
       ],
       "id": "691fc8e0-ea04-4907-814e-f8434d94ae92",
-      "name": "Compress PDF",
-      "credentials": {
-        "httpCustomAuth": {
-          "id": "XbZGAytHUvqqfEGj",
-          "name": "PDF API"
-        }
-      }
+      "name": "Compress PDF"
     },
     {
       "parameters": {
@@ -332,7 +339,7 @@
             {
               "id": "0fe56d48-d563-4239-b8f3-24d116277adb",
               "leftValue": "={{ $json.bufferSize }}",
-              "rightValue": "={{ 40 * 1024 * 1024 }}",
+              "rightValue": "={{ ($('Start').first().json.compress_trigger_size_mb || 40) * 1024 * 1024 }}",
               "operator": {
                 "type": "number",
                 "operation": "gt"
@@ -387,9 +394,16 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('Start').item.json.pdf_api_host }}/api/v1/misc/flatten",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpCustomAuth",
+        "url": "={{ $('Start').first().json.pdf_api_host }}/api/v1/misc/flatten",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $env.CREDENTIALS_PDF_API_KEY }}"
+            }
+          ]
+        },
         "sendBody": true,
         "contentType": "multipart-form-data",
         "bodyParameters": {
@@ -418,13 +432,7 @@
         3168
       ],
       "id": "2ded1401-eae8-4a14-b71f-5c261113da1e",
-      "name": "Flatten PDF",
-      "credentials": {
-        "httpCustomAuth": {
-          "id": "XbZGAytHUvqqfEGj",
-          "name": "PDF API"
-        }
-      }
+      "name": "Flatten PDF"
     }
   ],
   "connections": {
@@ -630,27 +638,27 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "f651b1f8-461f-4c5f-8f55-55caff22f2bf",
-  "activeVersionId": "f651b1f8-461f-4c5f-8f55-55caff22f2bf",
-  "versionCounter": 58,
+  "versionId": "06c7a507-edfe-4b5e-a78d-9c31199e2602",
+  "activeVersionId": "06c7a507-edfe-4b5e-a78d-9c31199e2602",
+  "versionCounter": 81,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-02-21T10:05:58.326Z",
-      "createdAt": "2026-02-21T10:05:58.326Z",
+      "updatedAt": "2026-03-04T05:43:37.873Z",
+      "createdAt": "2026-03-04T05:43:37.873Z",
       "role": "workflow:owner",
       "workflowId": "dM945Azme2TNMwoX",
-      "projectId": "K62MH6uOjpLq8Vkf",
+      "projectId": "ahlxS08nMbIwdOx6",
       "project": {
-        "updatedAt": "2026-02-21T10:07:25.336Z",
-        "createdAt": "2026-02-21T10:05:56.851Z",
-        "id": "K62MH6uOjpLq8Vkf",
+        "updatedAt": "2026-03-04T05:44:11.914Z",
+        "createdAt": "2026-03-04T05:43:36.484Z",
+        "id": "ahlxS08nMbIwdOx6",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "339a62f6-a9f2-499b-bd0f-78cc0c617d03"
+        "creatorId": "656877c8-8570-425f-8dcc-f0e6bc32d4ff"
       }
     }
   ]

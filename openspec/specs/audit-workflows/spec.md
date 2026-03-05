@@ -1,121 +1,57 @@
 # audit-workflows Specification
 
 ## Purpose
-TBD - created by archiving change add-audit-workflows. Update Purpose after archive.
+This specification defines the system's core data processing pipelines, managed by the n8n orchestrator. It covers the entire workflow from data ingestion and parallel extraction (document parsing and web search) to the final evaluation by the "Audit Checklist Engine." This includes the logic for calling external services (like Gemini for AI extraction and PocketBase for persistence) and the deterministic rules for generating the standardised `check_items` array based on financial, impact, and risk criteria.
 ## Requirements
-### Requirement: Idempotent Execution & State Persistence
-The system SHALL employ a checkpointing strategy to ensure that high-cost operations are not repeated unnecessarily.
+### Requirement: EA Animal Advocacy Audit Logic
+The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system.
 
-#### Scenario: Analytical Re-run
-- **WHEN** raw data (financials/governance) exists in PocketBase
-- **AND** only the audit logic in `utils_api` has changed
-- **THEN** the system MUST be able to re-run the analytics phase without re-extracting data from PDFs.
+#### Scenario: Executing Three-Tier Thresholds
+- **WHEN** the `utils_api` evaluates quantitative data
+- **THEN** it MUST apply the following boundaries:
+  - `check_liquidity`: `pass` (>= 6 months), `warning` (>= 3 and < 6 months), `fail` (< 3 months).
+  - `check_reserve_cap`: `pass` (<= 2 years), `warning` (> 2 and <= 5 years), `fail` (> 5 years).
+  - `check_funding_neglectedness`: `pass` (< 40% government grants), `warning` (>= 40% and <= 80%), `fail` (> 80%).
+  - `check_cause_area_neglectedness`: `pass` (>= 50% high-neglectedness), `warning` (> 0% and < 50%), `fail` (0% high-neglectedness).
 
-### Requirement: Source Artifact Persistence
-The system SHALL download and store the raw source documents (PDFs) locally to ensure audit reproducibility and offline availability.
+### Requirement: Cost Per Outcome Audit Calculation
+The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount ($1,000), persisting it outside the boolean check array.
 
-#### Scenario: Caching the PDF
-- **WHEN** the Extractor Agent receives a valid PDF URL
-- **THEN** it MUST download the file to `data/cache/artifacts/{id}_{year}.pdf`.
-- **AND** all subsequent text extraction MUST be performed on this local file, not the remote URL.
+#### Scenario: Generating Calculated Metrics
+- **WHEN** the `utils_api` processes the audit payload
+- **THEN** it MUST execute the `cost_per_outcome` calculation and append it to the new `calculated_metrics` array, entirely independent of the `check_items` array.
 
-#### Scenario: Broken Remote Link
-- **WHEN** a re-run is triggered and the external website is down (404/500)
-- **BUT** the file exists in `data/cache/artifacts/`
-- **THEN** the workflow MUST proceed using the local copy without error.
+### Requirement: LLM Prompt Injection for Impact
+The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
 
-### Requirement: Document Recency (Scout)
-The Scout Agent SHALL prioritize the most recent available financial documentation.
+#### Scenario: EA Animal Impact Extraction
+- **WHEN** querying via LLM
+- **THEN** the system prompt MUST instruct the model to prioritize quantitative data regarding animal lives improved/spared.
+- **AND** the prompt MUST instruct the model to explicitly extract the exact `population` count for *each* `beneficiary_type` if the charity serves multiple categories of animals.
+- **AND** the prompt MUST strictly instruct the model to classify evidence quality according to the ITN framework.
 
-#### Scenario: Multi-year document availability
-- **WHEN** the website lists Annual Reports for multiple years
-- **THEN** the Scout MUST select the most recent version available.
+#### Scenario: Reconciling PDF and Web Contexts for Verifiability
+- **WHEN** generating prompts for the Gemini model in the Impact extraction node
+- **THEN** the user prompt MUST distinctly separate the PDF text context and the injected `<web_context>`.
+- **AND** the system prompt MUST instruct the model to prioritize data found in formal reports over web marketing copy if discrepancies exist.
+- **AND** the system prompt MUST instruct the model that if a metric or event is extracted, it MUST populate the corresponding `source_url` field with the URL provided in the snippet.
+- **AND** the system prompt MUST explicitly instruct the model to extract the exact, verbatim sentence from the text into the `source_quote` field (for significant events) and the `evidence_quote` field (for metrics).
 
-### Requirement: Statutory Data Extraction (LSG Only)
-The Extractor Agent SHALL identify compliance data points defined in the LSG Manual using multimodal document intelligence.
+### Requirement: LLM Prompt Injection for Impact and Metadata
+The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts and prioritized impact models.
 
-#### Scenario: LSG Reserve Calculation
-- **WHEN** processing an LSG-subvented NGO's PDF report
-- **THEN** the agent MUST use a multimodal LLM to ingest the raw PDF, parse the complex financial tables natively, and extract the `lsg_reserve_amount` and `operating_expenditure`.
-- **AND** calculate if the reserve exceeds 25% of operating expenditure.
+#### Scenario: Extracting Pan-Asian Metadata and Sorted Impact
+- **WHEN** generating prompts for the Gemini model
+- **THEN** the metadata system prompt MUST instruct the model to locate any official government non-profit registration ID globally, mapping it to `registration_id`.
+- **AND** the impact system prompt MUST instruct the model to extract exact verbatim sentences as `evidence_quote` to justify evidence quality.
+- **AND** the impact system prompt MUST instruct the model to sort the `significant_events` and `metrics` arrays in descending order of significance or scale of impact.
 
-### Requirement: Hallucination Defense
-The system SHALL NOT infer data that is not explicitly present in the text or verified through search grounding.
+### Requirement: Document Ingestion Pipeline
+The n8n orchestrator SHALL ingest target charities and their source documents, gracefully combining available PDFs with targeted web intelligence to maximize data extraction.
 
-#### Scenario: Ambiguous Financials
-- **WHEN** the document does not explicitly state "Program Expenses"
-- **THEN** the agent MUST return `null`.
-
-#### Scenario: Enforcing Output Structure
-- **WHEN** generating data to be passed to the validation service
-- **THEN** the system MUST use native API JSON schema enforcement rather than prompt-based coercion to eliminate structural hallucinations.
-
-### Requirement: Binary Audit Computation
-The system MUST compute a series of pass/fail check-items based on extracted statutory and financial data. The system MUST employ fallback calculations if aggregate metrics are missing but component metrics are present.
-
-#### Scenario: Reserve Cap Validation
-- **GIVEN** an NGO has a cumulative LSG reserve of $1M and operating expenses of $3M
-- **WHEN** the audit logic calculates the ratio (0.33)
-- **THEN** the `check_reserve_cap` item MUST return `status: "fail"`
-- **AND** include the calculation details in the `details` field.
-
-#### Scenario: Liquidity Fallback Calculation
-- **GIVEN** the extracted data lacks `net_current_assets`
-- **BUT** the data contains `current_assets` of $5M and `current_liabilities` of $2M
-- **WHEN** the audit logic evaluates liquidity
-- **THEN** the system MUST dynamically calculate `net_current_assets` as $3M and proceed with the standard liquidity ratio computation.
-
-### Requirement: Grounded Risk Assessment
-The Risk Agent SHALL evaluate the reputational and regulatory risks of charities by executing real-time web searches to gather external context.
-
-#### Scenario: Identifying Recent Scandals
-- **WHEN** assessing an NGO's risk profile
-- **THEN** the system MUST leverage search-grounded AI to query the live web for recent controversies, scandals, or Audit Commission reports.
-- **AND** if no negative news is found, explicitly state "None" in the summaries and set flags to false.
-
-### Requirement: Cloud-Native Artifact Caching for Intelligence Processing
-The system SHALL utilize cloud-native file APIs (e.g., the Gemini File API) for processing large documents to bypass inline payload limits, and SHALL cache these remote references locally to minimize redundant network uploads, reduce latency, and respect API rate limits.
-
-#### Scenario: Processing a large document for the first time
-- **GIVEN** a source artifact for a PDF larger than 50MB exists in the local datastore
-- **AND** it has no `gemini_file_uri`
-- **WHEN** the main workflow triggers an extraction task for this artifact
-- **THEN** the system MUST upload the file to the Gemini File API
-- **AND** persist the returned `gemini_file_uri` and the current timestamp to the `source_artifacts` record for future use.
-
-### Requirement: Modular URI Resolution
-The logic for checking cloud URI expiration and re-uploading documents SHALL be isolated in a dedicated sub-workflow to maintain the idempotency and readability of the main orchestrator.
-
-#### Scenario: Reusing an unexpired cloud document
-- **GIVEN** a source artifact has previously been uploaded to the Gemini File API
-- **AND** the `gemini_file_uploaded_at` timestamp is less than 46 hours old
-- **WHEN** the main workflow requests a URI for extraction
-- **THEN** the `Ensure Gemini URI` sub-workflow MUST return the existing `gemini_file_uri` without re-uploading the binary file.
-
-#### Scenario: Refreshing an expired cloud document
-- **GIVEN** a source artifact has a `gemini_file_uri` but the `gemini_file_uploaded_at` timestamp is older than 46 hours
-- **WHEN** the main workflow requests a URI for extraction
-- **THEN** the `Ensure Gemini URI` sub-workflow MUST download the binary from the local datastore, re-upload it to the Gemini File API
-- **AND** update the `source_artifacts` record with the new `gemini_file_uri` and current timestamp before returning the URI.
-
-### Requirement: Impact Awareness Computation
-The system MUST compute a series of check-items based on extracted Effective Altruism impact data to evaluate an organization's impact rigor and funding landscape.
-
-#### Scenario: Evaluating Evidence Quality
-- **GIVEN** an NGO's extracted impact data contains only "Anecdotal" or "Low" evidence quality
-- **WHEN** the audit logic evaluates impact awareness
-- **THEN** the `check_evidence_quality` item MUST return `status: "warning"`
-- **AND** include a recommendation in the details field to adopt rigorous evaluation frameworks.
-
-#### Scenario: Cost per Outcome Estimation
-- **GIVEN** an NGO has `program_services` expenditure of $1,000,000 and a primary intervention reaching 5,000 beneficiaries
-- **WHEN** the audit logic calculates cost-effectiveness
-- **THEN** the `check_cost_per_outcome` item MUST record the calculated cost ($200 per beneficiary) in the `details.calculation` field
-- **AND** MUST NOT assign a `pass` or `fail` status, as this metric is strictly informational for cross-charity comparison.
-
-#### Scenario: Funding Neglectedness Flagging
-- **GIVEN** an NGO receives 95% of its total income from government subventions
-- **WHEN** the audit logic evaluates funding neglectedness
-- **THEN** the `check_funding_neglectedness` item MUST return `status: "warning"`
-- **AND** explicitly note in the details that marginal private donations may have lower counterfactual impact due to high government support.
+#### Scenario: Omni-Channel Impact Data Collection
+- **WHEN** the primary analysis workflow is triggered and fetches charity data
+- **THEN** it MUST dynamically construct and execute a web search query (e.g., `site:example.org (impact OR rescued OR animals OR annual OR report OR metrics)`) using the charity's official domain extracted during the metadata phase.
+- **AND** it MUST aggregate the top search results into a clean `<web_context>` snippet string.
+- **AND** the workflow MUST route to the Impact extraction branch if either an `annual_report` PDF exists OR the `domains` array is not empty (yielding web snippets).
 

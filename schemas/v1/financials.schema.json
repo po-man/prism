@@ -59,6 +59,14 @@
       },
       "required": ["lsg_reserve_amount", "provident_fund_reserve"]
     },
+    "reserves": {
+      "type": "object",
+      "description": "General reserves for non-subvented charities.",
+      "properties": {
+        "total_reserves": { "type": ["number", "null"], "description": "Total unrestricted reserves or fund balance at year end." }
+      },
+      "required": ["total_reserves"]
+    },
     "ratio_inputs": {
       "type": "object",
       "description": "Inputs for calculating financial ratios.",
@@ -71,5 +79,5 @@
       "required": ["monthly_operating_expenses", "net_current_assets", "current_assets", "current_liabilities"]
     }
   },
-  "required": ["financial_year", "income", "expenditure", "lsg_specifics", "ratio_inputs"]
+  "required": ["financial_year", "income", "expenditure", "lsg_specifics", "reserves", "ratio_inputs"]
 }

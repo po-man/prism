@@ -1,6 +1,6 @@
 {{/*
   Impact Pathway (Logic Model) Partial
-  This partial visualizes the charity's impact pathway from Inputs to Outcomes.
+  This partial visualises the charity's impact pathway from Inputs to Outcomes.
 
   @context Page (.) - The full organisation data object.
 
@@ -12,7 +12,7 @@
 
 {{/* Find the first available counterfactual description for the callout */}}
 {{ $counterfactual := "" }}
-{{ range $impact.importance_factors.problem_profile.severity_dimensions }}
+{{ range $impact.metrics }}
   {{ if and (not $counterfactual) .counterfactual_baseline.description }}
     {{ $counterfactual = .counterfactual_baseline.description }}
   {{ end }}
@@ -29,60 +29,95 @@
   </div>
   {{ end }}
 
-  {{/* Task 2.1: Horizontal Flowchart */}}
-  <div class="flex flex-col md:flex-row gap-6">
+  <div class="space-y-6">
 
     <!-- Inputs -->
-    <div class="flex-1 p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Inputs</h3>
+    <div class="p-4 bg-white rounded-lg shadow">
+      <h3 class="font-bold text-lg text-gray-700">① Inputs</h3>
       <p class="text-sm text-gray-500 mb-2">Resources used</p>
       <div class="mt-2">
         <p class="text-xl font-semibold text-gray-900">
           {{/* Task 2.2: Map total expenditure */}}
-          {{ with $financials.expenditure.total }}{{ lang.FormatCurrency 0 "HKD" . }}{{ else }}N/A{{ end }}
+          {{ with $financials.expenditure.total }}HKD {{ lang.FormatNumber 0 . }}{{ else }}N/A{{ end }}
         </p>
         <p class="text-gray-600">Total Annual Expenditure</p>
       </div>
     </div>
 
-    <!-- Activities / Outputs -->
-    <div class="flex-1 p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Activities & Outputs</h3>
-      <p class="text-sm text-gray-500 mb-2">What they do</p>
-      <div class="space-y-3 mt-4">
-        {{/* Task 2.3: Map significant events */}}
-        {{ range $impact.tractability_factors.significant_events }}
-          <div class="flex items-start p-2 bg-gray-50 rounded-md border border-gray-200">
-            <svg class="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            <span class="text-gray-800">{{ .summary | default .event_name }}</span>
-          </div>
-        {{ else }}
-          <p class="text-gray-500 text-sm">No specific activities listed.</p>
-        {{ end }}
-      </div>
-    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Activities / Outputs -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4">
+          <h3 class="font-bold text-lg text-gray-700">② Activities & Outputs</h3>
+          <p class="text-sm text-gray-500">What they do</p>
+        </div>
+        <div class="p-4 pt-0">
+            <div class="space-y-3 border-t pt-4">
+              {{ $events := $impact.significant_events }}
+              {{ $firstThreeEvents := first 3 $events }}
+              {{ $restEvents := after 3 $events }}
 
-    <!-- Outcomes -->
-    <div class="flex-1 p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Outcomes</h3>
-      <p class="text-sm text-gray-500 mb-2">The change that occurs</p>
-      <div class="space-y-3 mt-4">
-        {{/* Task 2.4: Map severity dimensions */}}
-        {{ range $impact.importance_factors.problem_profile.severity_dimensions }}
-          <div class="flex items-start p-2 bg-gray-50 rounded-md border border-gray-200">
-            <svg class="w-5 h-5 text-gray-800 mr-2 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" />
-              <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M10 5l1.5 3 3.3.5-2.4 2.3.6 3.2-3-1.6-3 1.6.6-3.2-2.4-2.3 3.3-.5L10 5z" />
-            </svg>
-            <span class="text-gray-800"><span class="font-semibold">{{ .metric_name }}:</span> {{ .context_qualifier }}</span>
+              {{ range $firstThreeEvents }}
+                {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote "source_document" .source_document) }}
+              {{ end }}
+
+              {{ if gt (len $restEvents) 0 }}
+                <details class="group flex flex-col text-sm">
+                  <summary class="cursor-pointer text-blue-600 hover:underline list-none mt-1" style="order: 2;">
+                    <span class="show-more">▶ Show {{ len $restEvents }} more activities...</span>
+                    <span class="show-less">▲ Show less</span>
+                  </summary>
+                  <div class="space-y-3">
+                    {{ range $restEvents }}
+                      {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote "source_document" .source_document) }}
+                    {{ end }}
+                  </div>
+                </details>
+              {{ end }}
+
+              {{ if not $events }}<p class="text-gray-500 text-sm">No specific activities listed.</p>{{ end }}
+            </div>
+        </div>
+      </div>
+
+      <!-- Outcomes -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="p-4">
+          <h3 class="font-bold text-lg text-gray-700">③ Outcomes</h3>
+          <p class="text-sm text-gray-500">The change that occurs</p>
+        </div>
+        <div class="p-4 pt-0">
+          <div class="space-y-3 border-t pt-4">
+            {{ $metrics := $impact.metrics }}
+            {{ $firstThreeMetrics := first 3 $metrics }}
+            {{ $restMetrics := after 3 $metrics }}
+
+            {{ range $firstThreeMetrics }}
+              {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
+              {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote "source_document" .source_document) }}
+            {{ end }}
+
+            {{ if gt (len $restMetrics) 0 }}
+              <details class="group flex flex-col text-sm">
+                <summary class="cursor-pointer text-blue-600 hover:underline list-none mt-1 group-open:mt-2" style="order: 2;">
+                  <span class="show-more">▶ Show {{ len $restMetrics }} more outcomes...</span>
+                  <span class="show-less">▲ Show less</span>
+                </summary>
+                <div class="space-y-3">
+                  {{ range $restMetrics }}
+                    {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
+                    {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote "source_document" .source_document) }}
+                  {{ end }}
+                </div>
+              </details>
+            {{ end }}
+
+            {{ if not $metrics }}<p class="text-gray-500 text-sm">No specific outcomes measured.</p>{{ end }}
           </div>
-        {{ else }}
-          <p class="text-gray-500 text-sm">No specific outcomes measured.</p>
-        {{ end }}
+        </div>
       </div>
     </div>
 
   </div>
+
 </div>
