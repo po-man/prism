@@ -60,11 +60,11 @@
         <div data-highlight-column="Audit Summary">
           <h4 class="font-bold text-gray-800">Audit Summary</h4>
           <p>
-            Provides a high-level, color-coded summary (e.g., <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full align-middle"></span> Pass,
+            Provides a high-level, colour-coded summary (e.g., <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full align-middle"></span> Pass,
             <span class="inline-block w-2.5 h-2.5 bg-yellow-400 rounded-full align-middle"></span> Warning,
             <span class="inline-block w-2.5 h-2.5 bg-red-500 rounded-full align-middle"></span> Fail) of an organization's performance against our automated audit checks. These checks cover areas like financial health, transparency, and governance.
           </p>
-          <p class="mt-2">Clicking on an organization will take you to its detailed profile, which includes a full breakdown of the audit checklist.</p>
+          <p class="mt-2">Clicking on an organisation will take you to its detailed profile, which includes a full breakdown of the audit checklist.</p>
         </div>
       </div>
     </details>
@@ -75,7 +75,7 @@
     <table class="min-w-full text-left border-collapse table-fixed" id="audits-table">
       <thead class="border-b bg-gray-100">
         <tr>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="asc">Organization Name</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="asc">Organisation Name</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Data Sources</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Target Species (Neglectedness)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Total Beneficiaries (Importance)</th>
@@ -91,7 +91,7 @@
           {{ if $orgArray }}
             {{ $org := index $orgArray 0 }}
             <tr class="hover:bg-gray-50 border-b">
-              <td class="px-4 py-3 font-medium text-blue-700 truncate text-left" data-label="Organization Name">
+              <td class="px-4 py-3 font-medium text-blue-700 truncate text-left" data-label="Organisation Name">
                 <a href="{{ .RelPermalink }}" class="block truncate hover:underline" title="{{ $org.name | default "N/A" }}">
                   {{ $org.name | default "N/A" }}
                 </a>
