@@ -136,7 +136,6 @@
 
                 {{ $weighted_score := add $companion_pct (mul $wild_pct 2) (mul $farm_pct 3) }}
                 {{ $sort_val := $weighted_score }}
-                {{- warnf "DEBUG Neglectedness Sort for %q: totalPop=%v, c_pct=%v, w_pct=%v, f_pct=%v, sort_val=%v" $org.name $totalPop $companion_pct $wild_pct $farm_pct $sort_val -}}
               <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Target Species (Neglectedness)" data-sort-value="{{ $sort_val }}">
                 <div class="flex items-center justify-center space-x-2">
       {{ $farmed_pop := index ($s.Get "popMap") "farmed_animals" }}
