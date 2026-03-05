@@ -1,7 +1,15 @@
 {{ define "main" }}
 <div class="p-4 sm:p-6 md:p-10 bg-gray-50 min-h-screen">
   <header class="mb-8">
-    <h1 class="text-4xl font-bold text-blue-700">PRISM</h1>
+    <div class="flex items-center space-x-3">
+      <h1 class="text-4xl font-bold text-blue-700">PRISM</h1>
+      {{/* Fetch the version tag injected by GitHub Actions */}}
+      {{ with os.Getenv "HUGO_PRISM_VERSION" }}
+        <span class="text-xs font-mono font-medium text-gray-600 bg-gray-200 px-2.5 py-0.5 rounded-full border border-gray-300 relative -top-1.5" title="Data Snapshot Version">
+          {{ . }}
+        </span>
+      {{ end }}
+    </div>
     <p class="mt-2 text-lg text-gray-600">An Audit Engine for Animal Advocacy Analytics</p>
   </header>
 
