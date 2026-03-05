@@ -50,7 +50,7 @@
         </tr>
       </thead>
       <tbody>
-        {{ range .Pages }}
+        {{ range where .Pages "Params.data_id" "ne" nil }}
           {{ $orgArray := index .Site.Data.organisations .Params.data_id }}
           {{ if $orgArray }}
             {{ $org := index $orgArray 0 }}

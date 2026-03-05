@@ -3,10 +3,10 @@
 - [x] 1.2 In the "Write to web/content/audits/{id}.md" node, update the `fileName` parameter path from `=/home/node/.n8n-files/web/content/audits/{{...}}.md` to `=/home/node/.n8n-files/web/content/{{...}}.md`. Rename the node accordingly.
 
 ## 2. Hugo Routing & File Structure (`web/layouts`)
-- [ ] 2.1 Rename the file `web/layouts/audits/list.html` to `web/layouts/index.html`.
-- [ ] 2.2 Rename the file `web/layouts/audits/single.html` to `web/layouts/_default/single.html`.
-- [ ] 2.3 Delete the now-empty `web/layouts/audits/` directory.
-- [ ] 2.4 In `web/layouts/_default/single.html`, update the "Back to Directory" link from `<a href="/audits/"...` to `<a href="/"...`.
+- [x] 2.1 Rename the file `web/layouts/audits/list.html` to `web/layouts/index.html`.
+- [x] 2.2 Rename the file `web/layouts/audits/single.html` to `web/layouts/_default/single.html`.
+- [x] 2.3 Delete the now-empty `web/layouts/audits/` directory.
+- [x] 2.4 In `web/layouts/_default/single.html`, update the "Back to Directory" link from `<a href="/audits/"...` to `<a href="/"...`.
 
 ## 3. UI Updates: Master Table (`web/layouts/index.html`)
 - [ ] 3.1 **Data Sources Column:**
@@ -23,6 +23,6 @@
   - Ensure the vanilla JS table sorting script in `index.html` correctly reads `data-sort-value` for the new icon-heavy columns, overriding the `innerText` parsing.
 
 ## 4. Cleanup & Rebuild
-- [ ] 4.1 Delete any existing markdown files inside `web/content/audits/` to prevent old routes from lingering.
-- [ ] 4.2 Re-trigger the n8n pipeline for your dataset to generate the new markdown stubs directly in `web/content/`.
-- [ ] 4.3 Verify the Hugo build generates the master table at `/` and the organization profiles at `/<slug>`.
+- [x] 4.1 Delete any existing markdown files inside `web/content/audits/` to prevent old routes from lingering.
+- [x] 4.2 Re-trigger the n8n pipeline for your dataset to generate the new markdown stubs directly in `web/content/`.
+- [x] 4.3 Verify the Hugo build generates the master table at `/` and the organization profiles at `/<slug>`.
