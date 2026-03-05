@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-05T06:06:27.221Z",
+  "updatedAt": "2026-03-05T14:21:17.776Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2156,49 +2156,6 @@
       ],
       "id": "1ead26ee-6340-4088-b8ef-412d1bb963df",
       "name": "Resolved Text-fragment URLs (Impact Metrics)"
-    },
-    {
-      "parameters": {
-        "jsCode": "// This script runs for each item passed to the node.\n// It reads data from a previous node, constructs a markdown stub with a URL-friendly slug,\n// and adds it to the current item's JSON data.\n\n/**\n * Converts a string into a URL-friendly \"slug\".\n * e.g., \"My Awesome Post!\" becomes \"my-awesome-post\"\n * @param {string} text The string to convert.\n * @returns {string} The slugified string.\n */\nfunction slugify(text) {\n  if (!text) return '';\n  return text\n    .toString()\n    .toLowerCase()\n    .trim()\n    .replace(/\\s+/g, '-')           // Replace spaces with -\n    .replace(/[^\\w\\-]+/g, '')       // Remove all non-word chars except hyphens\n    .replace(/\\-\\-+/g, '-')         // Replace multiple - with single -\n    .replace(/^-+/, '')             // Trim - from start of text\n    .replace(/-+$/, '');            // Trim - from end of text\n}\n\n\nfor (const item of $input.all()) {\n  // Retrieve the output from the 'Storage API - Update Charity - Analytics' node.\n  // We use .first() assuming that node outputs a single, definitive record for the charity.\n  const charityData = $('Storage API - Update Charity - Analytics').first().json;\n\n  // Ensure the required data is present before proceeding.\n  if (!charityData || !charityData.id || !charityData.name) {\n    throw new Error(\"Could not find required 'id' and 'name' properties from the 'Storage API - Update Charity - Analytics' node. Please check its output.\");\n  }\n\n  const charityName = charityData.name;\n  const charityId = charityData.id;\n  const charitySlug = slugify(charityName);\n\n  // Using a template literal to construct the YAML frontmatter for the Hugo content file.\n  // The 'slug' field explicitly tells Hugo what URL to use, overriding the filename.\n  const markdownStub = `---\ntitle: \"${charityName}\"\ndata_id: \"${charityId}\"\ntype: \"\"\nslug: \"${charitySlug}\"\n---\n`;\n\n  // Add the newly created markdown stub and the slug to the current item's JSON payload.\n  // This makes them available for subsequent nodes in the workflow.\n  item.json.markdown_stub = markdownStub;\n  item.json.markdown_filename = `${charitySlug}.md`;\n}\n\n// Return all the modified items to be passed to the next node.\nreturn $input.all();\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1536,
-        6032
-      ],
-      "id": "743bb0ea-8f9d-4077-9034-bb8896adf88d",
-      "name": "Prepare Markdown Stub"
-    },
-    {
-      "parameters": {
-        "operation": "toText",
-        "sourceProperty": "markdown_stub",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.convertToFile",
-      "typeVersion": 1.1,
-      "position": [
-        1760,
-        6032
-      ],
-      "id": "f78b7608-b30d-4033-b470-a38af6a3ad6b",
-      "name": "Convert to File"
-    },
-    {
-      "parameters": {
-        "operation": "write",
-        "fileName": "=/home/node/.n8n-files/web/content/{{ $('Storage API - Update Charity - Analytics').first().json.id }}.md",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        1984,
-        6032
-      ],
-      "id": "6f0c85d9-fe0b-4388-ab03-bac429175cc8",
-      "name": "Write to web/content/{id}.md"
     }
   ],
   "connections": {
@@ -2716,11 +2673,6 @@
             "node": "Convert to File (output Organisation)",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Prepare Markdown Stub",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -3029,28 +2981,6 @@
           }
         ]
       ]
-    },
-    "Prepare Markdown Stub": {
-      "main": [
-        [
-          {
-            "node": "Convert to File",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Convert to File": {
-      "main": [
-        [
-          {
-            "node": "Write to web/content/{id}.md",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "settings": {
@@ -3062,27 +2992,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "bd16c86e-4593-4abc-86bd-621a29c0f69b",
-  "activeVersionId": "c4586ded-8426-4785-a4e7-84e3aab1d6e2",
-  "versionCounter": 395,
+  "versionId": "275d359a-c749-4978-9a2e-983e1c669f82",
+  "activeVersionId": "f816770d-2165-4247-87bd-902cee41f351",
+  "versionCounter": 398,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-03-04T05:43:37.871Z",
-      "createdAt": "2026-03-04T05:43:37.871Z",
+      "updatedAt": "2026-03-05T06:07:28.083Z",
+      "createdAt": "2026-03-05T06:07:28.083Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "ahlxS08nMbIwdOx6",
+      "projectId": "pZby5XCEm5tZbxzR",
       "project": {
-        "updatedAt": "2026-03-04T05:44:11.914Z",
-        "createdAt": "2026-03-04T05:43:36.484Z",
-        "id": "ahlxS08nMbIwdOx6",
+        "updatedAt": "2026-03-05T06:11:11.768Z",
+        "createdAt": "2026-03-05T06:07:26.491Z",
+        "id": "pZby5XCEm5tZbxzR",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "656877c8-8570-425f-8dcc-f0e6bc32d4ff"
+        "creatorId": "88171498-2ee2-4ca4-be6c-a23a2f82b031"
       }
     }
   ]

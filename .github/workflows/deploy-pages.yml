@@ -40,6 +40,11 @@ jobs:
       - name: Install NPM Dependencies
         run: npm install
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
@@ -47,12 +52,9 @@ jobs:
           # Extended version is strictly required to process Tailwind CSS via PostCSS
           extended: true 
 
-      - name: Synchronize Data Vault
-        # PRISM architecture separates raw data from the web folder.
-        # We must copy the root data/ folder into web/data/ so Hugo's .Site.Data can read it.
-        run: |
-          mkdir -p data/organisations
-          cp -r ../data/organisations/* data/organisations/
+      - name: Generate Markdown Stubs
+        # This script reads organisation JSON data and creates content stubs for Hugo.
+        run: python ../scripts/generate_stubs.py ../data/organisations web/content
 
       - name: Build PRISM Report Cards
         env:
