@@ -1,8 +1,10 @@
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <title>{{ if not .IsHome }}{{ .Title }} | {{ end }}PRISM</title>
     {{ $style := resources.Get "main.css" | postCSS }}
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
+    <link rel="stylesheet" href="/css/custom.css">
 </head>
 <body>
     {{ block "main" . }}{{ end }}
