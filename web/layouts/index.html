@@ -101,12 +101,16 @@
               {{ if $has_web_source }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Data Sources" data-sort-value="{{ $s.Get "sourceCount" }}">
                 <div class="flex items-center justify-center space-x-2">
-                  <span title="Annual Report {{ if and $org.annual_report $annual_report_url }}Provided{{ else }}Missing{{ end }}" class="{{ if not (and $org.annual_report $annual_report_url) }}opacity-40 grayscale{{ end }}">
-                    {{- partial "icons/annual-report.svg" . | safeHTML -}}
-                  </span>
-                  <span title="Financial Report {{ if and $org.financial_report $financial_report_url }}Provided{{ else }}Missing{{ end }}" class="{{ if not (and $org.financial_report $financial_report_url) }}opacity-40 grayscale{{ end }}">
-                    {{- partial "icons/financials.svg" . | safeHTML -}}
-                  </span>
+                  {{ if and $org.annual_report $annual_report_url }}
+                    <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" title="Annual Report Provided (Click to view)">{{- partial "icons/annual-report.svg" . | safeHTML -}}</a>
+                  {{ else }}
+                    <span title="Annual Report Missing" class="opacity-40 grayscale">{{- partial "icons/annual-report.svg" . | safeHTML -}}</span>
+                  {{ end }}
+                  {{ if and $org.financial_report $financial_report_url }}
+                    <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" title="Financial Report Provided (Click to view)">{{- partial "icons/financials.svg" . | safeHTML -}}</a>
+                  {{ else }}
+                    <span title="Financial Report Missing" class="opacity-40 grayscale">{{- partial "icons/financials.svg" . | safeHTML -}}</span>
+                  {{ end }}
                   <span title="Web Search Performed{{ if not $has_web_source }} (No impact data found from web sources){{ end }}" class="{{ if not $has_web_source }}opacity-40 grayscale{{ end }}">
                     {{- partial "icons/web-search.svg" . | safeHTML -}}
                   </span>
