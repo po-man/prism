@@ -1,6 +1,6 @@
 ## 1. n8n Orchestration Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 1.1 In the "Prepare Markdown Stub" code node, remove `type: "audits"` from the `markdownStub` template string so it defaults to the standard page type.
-- [ ] 1.2 In the "Write to web/content/audits/{id}.md" node, update the `fileName` parameter path from `=/home/node/.n8n-files/web/content/audits/{{...}}.md` to `=/home/node/.n8n-files/web/content/{{...}}.md`. Rename the node accordingly.
+- [x] 1.1 In the "Prepare Markdown Stub" code node, remove `type: "audits"` from the `markdownStub` template string so it defaults to the standard page type.
+- [x] 1.2 In the "Write to web/content/audits/{id}.md" node, update the `fileName` parameter path from `=/home/node/.n8n-files/web/content/audits/{{...}}.md` to `=/home/node/.n8n-files/web/content/{{...}}.md`. Rename the node accordingly.
 
 ## 2. Hugo Routing & File Structure (`web/layouts`)
 - [ ] 2.1 Rename the file `web/layouts/audits/list.html` to `web/layouts/index.html`.
