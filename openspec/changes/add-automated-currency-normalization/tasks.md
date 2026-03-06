@@ -14,11 +14,11 @@
 - [x] 2.4 Re-link the pipeline to pass this enriched payload into the `Schema Validation (Financials)` node.
 
 ## 3. Python Audit Engine (`utils_api`)
-- [ ] 3.1 In `utils_api/app/audits/impact.py` -> `calculate_cost_per_outcome`:
+- [x] 3.1 In `utils_api/app/audits/impact.py` -> `calculate_cost_per_outcome`:
     - Fetch the rate: `rate = record.financials.currency.usd_exchange_rate if record.financials.currency and record.financials.currency.usd_exchange_rate else 1.0`.
     - Apply the rate: `program_spend_usd = program_spend * rate`.
     - Update all math and f-strings to explicitly use `program_spend_usd` and state "USD".
-- [ ] 3.2 In `utils_api/tests/test_audit_impact.py`, update `VALID_BASE_RECORD` to include the new `currency` object, and adjust expected test outputs to look for the USD formatting.
+- [x] 3.2 In `utils_api/tests/test_audit_impact.py`, update `VALID_BASE_RECORD` to include the new `currency` object, and adjust expected test outputs to look for the USD formatting.
 
 ## 4. UI / Hugo Refactoring (`web`)
 - [ ] 4.1 In `web/layouts/index.html` (Master Table):

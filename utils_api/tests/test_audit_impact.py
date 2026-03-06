@@ -89,33 +89,46 @@ def test_check_counterfactual_baseline(client: TestClient):
     assert item["details"]["calculation"] == "Impact data with metrics is missing."
 
 
-def test_check_cost_per_outcome(client: TestClient):
+def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient):
     """Tests the calculate_cost_per_outcome metric, including edge cases."""
 
-    # 1. Correct calculation with valid data (uses sum of beneficiaries)
+    # 1. Correct calculation with valid data and currency conversion
     record_valid = deepcopy(VALID_BASE_RECORD)
-    record_valid["financials"]["expenditure"]["program_services"] = 100000
+    record_valid["financials"]["expenditure"]["program_services"] = 100000  # HKD
+    record_valid["financials"]["currency"] = {
+        "original_code": "HKD",
+        "usd_exchange_rate": 0.1,  # Use a simple rate for easy testing
+        "rate_date": "2023-12-31",
+    }
     record_valid["impact"]["beneficiaries"] = [
         {"location": "HK", "population": 500, "beneficiary_type": "companion_animals"},
         {"location": "HK", "population": 1500, "beneficiary_type": "wild_animals"},
-    ] # Total beneficiaries = 2000
+    ]  # Total beneficiaries = 2000
+    # Expected USD spend = 100,000 * 0.1 = 10,000 USD
+    # Expected cost per outcome = 10,000 / 2000 = 5.00 USD
     response = client.post("/audit", json=record_valid)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($100,000 / 2,000 total beneficiaries) = $50.00 per outcome. | A $1,000 donation achieves ≈ 20 outcomes."
+    assert item["name"] == "Cost Per Outcome (USD)"
+    assert item["details"]["calculation"] == "($10,000 USD / 2,000 total beneficiaries) = $5.00 USD per outcome. | A $1,000 USD donation achieves ≈ 200 outcomes."
 
-    # 2. Correct calculation with fallback to quant_data.value
+    # 2. Correct calculation with fallback to quant_data.value (and default rate of 1.0)
     record_fallback = deepcopy(VALID_BASE_RECORD)
     record_fallback["financials"]["expenditure"]["program_services"] = 100000
     record_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
+    record_fallback["financials"]["currency"] = {
+        "original_code": "USD",
+        "usd_exchange_rate": 1.0,
+        "rate_date": "2023-12-31",
+    }
     record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # Fallback value
     record_fallback["impact"]["metrics"][0]["timeframe"] = "annual"
     response = client.post("/audit", json=record_fallback)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($100,000 / 500 total beneficiaries) = $200.00 per outcome. | A $1,000 donation achieves ≈ 5 outcomes."
+    assert item["details"]["calculation"] == "($100,000 USD / 500 total beneficiaries) = $200.00 USD per outcome. | A $1,000 USD donation achieves ≈ 5 outcomes."
 
     # 3. Handles missing financial data
     record_no_financials = deepcopy(record_fallback) # Use a record with valid impact data
@@ -132,7 +145,7 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($0 / 500 total beneficiaries) = $0.00 per outcome"
+    assert item["details"]["calculation"] == "($0 USD / 500 total beneficiaries) = $0.00 USD per outcome"
 
     # 5. Handles zero primary outcome value
     record_zero_outcome = deepcopy(record_fallback)
@@ -158,10 +171,10 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    # Calculation should only sum the 'annual' metrics (100 + 200 = 300)
-    # $100,000 / 300 = $333.33
-    assert item["value"] == 333.33
-    assert item["details"]["calculation"] == "($100,000 / 300 total beneficiaries) = $333.33 per outcome. | A $1,000 donation achieves ≈ 3 outcomes."
+    # Calculation should only sum the 'annual' metrics (100 + 200 = 300). Rate is 0.128.
+    # 100,000 * 0.128 = 12,800 USD. 12,800 / 300 = 42.67
+    assert item["value"] == 42.67
+    assert item["details"]["calculation"] == "($12,800 USD / 300 total beneficiaries) = $42.67 USD per outcome. | A $1,000 USD donation achieves ≈ 23.4 outcomes."
 
 
 def test_check_funding_neglectedness(client: TestClient):
