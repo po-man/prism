@@ -104,6 +104,11 @@
           "search_result_index": {
             "type": ["integer", "null"],
             "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "The temporal scope of the metric, indicating if it's an annual or cumulative figure.",
+            "enum": ["annual", "cumulative", "unspecified"]
           }
         },
         "required": [
@@ -116,7 +121,8 @@
           "source_url",
           "source_document",
           "evidence_quote",
-          "search_result_index"
+          "search_result_index",
+          "timeframe"
         ]
       }
     },
@@ -156,6 +162,11 @@
           "search_result_index": {
             "type": ["integer", "null"],
             "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "The temporal scope of the event, indicating if it occurred in the reporting year or is a historical milestone.",
+            "enum": ["annual", "cumulative", "unspecified"]
           }
         },
         "required": [
@@ -165,7 +176,8 @@
           "source_url",
           "source_document",
           "source_quote",
-          "search_result_index"
+          "search_result_index",
+          "timeframe"
         ]
       }
     }

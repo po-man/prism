@@ -1,6 +1,6 @@
 ## 1. Schema Updates (`schemas`)
-- [ ] 1.1 In `schemas/v1/impact.schema.json`, add the `timeframe` property (enum: `["annual", "cumulative", "unspecified"]`) to the `metrics.items.properties` object. Add it to the `required` array for metrics.
-- [ ] 1.2 In `schemas/v1/impact.schema.json`, add the `timeframe` property to the `significant_events.items.properties` object. Add it to the `required` array for significant events.
+- [x] 1.1 In `schemas/v1/impact.schema.json`, add the `timeframe` property (enum: `["annual", "cumulative", "unspecified"]`) to the `metrics.items.properties` object. Add it to the `required` array for metrics.
+- [x] 1.2 In `schemas/v1/impact.schema.json`, add the `timeframe` property to the `significant_events.items.properties` object. Add it to the `required` array for significant events.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
 - [ ] 2.1 In `n8n/prompt-templates/impact.system.md`, add a new instruction for **Temporal Bounding**: "You must classify the timeframe of every metric and event. Use 'annual' if it occurred during the reporting year, 'cumulative' if it represents a total since inception or spanning multiple years, and 'unspecified' if it is unclear."
