@@ -36,9 +36,14 @@
       <h3 class="font-bold text-lg text-gray-700">① Inputs</h3>
       <p class="text-sm text-gray-500 mb-2">Resources used</p>
       <div class="mt-2">
-        <p class="text-xl font-semibold text-gray-900">
-          {{/* Task 2.2: Map total expenditure */}}
-          {{ with $financials.expenditure.total }}HKD {{ lang.FormatNumber 0 . }}{{ else }}N/A{{ end }}
+        <p class="text-xl font-semibold text-gray-900" {{ with $financials.expenditure.total }}
+          {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}
+          {{ $usd_total := mul . $rate }}
+          title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 . }} (Rate: {{ $rate }})"
+        {{ end }}>
+          {{ with $financials.expenditure.total }}
+            {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}{{ $usd_total := mul . $rate }}USD ${{ lang.FormatNumber 0 $usd_total }}
+          {{ else }}N/A{{ end }}
         </p>
         <p class="text-gray-600">Total Annual Expenditure</p>
       </div>

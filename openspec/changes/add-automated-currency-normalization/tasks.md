@@ -21,15 +21,15 @@
 - [x] 3.2 In `utils_api/tests/test_audit_impact.py`, update `VALID_BASE_RECORD` to include the new `currency` object, and adjust expected test outputs to look for the USD formatting.
 
 ## 4. UI / Hugo Refactoring (`web`)
-- [ ] 4.1 In `web/layouts/index.html` (Master Table):
+- [x] 4.1 In `web/layouts/index.html` (Master Table):
     - Change the table header from `<th ...>Cost per Outcome (HKD)</th>` to `Cost per Outcome (USD)`. 
     - In the corresponding `<td>`, wrap the output in a `span` with a tooltip that pulls the detailed calculation string (which contains the original local currency math): `<span title="{{ $cost_metric.details.calculation }}">USD ${{ printf "%.2f" $cost_metric.value }}</span>`.
-- [ ] 4.2 In `web/layouts/partials/impact-pathway.html` (Inputs Card):
+- [x] 4.2 In `web/layouts/partials/impact-pathway.html` (Inputs Card):
     - Locate the `with $financials.expenditure.total` block. 
     - Add Hugo math: `{{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}` and `{{ $usd_total := mul . $rate }}`.
     - Change display to: `USD ${{ lang.FormatNumber 0 $usd_total }}`.
     - Add tooltip to the number: `title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 . }} (Rate: {{ $rate }})"`.
-- [ ] 4.3 In `web/layouts/partials/myth-buster.html` (Value for Money):
+- [x] 4.3 In `web/layouts/partials/myth-buster.html` (Value for Money):
     - Update the header to "Estimated Cost per Outcome (USD)". 
     - The extracted `$cost_per_outcome_raw` (which maps to `details.calculation`) will now be provided in USD by the `utils_api`, but update the HTML to ensure the raw calculation string is fully visible or available as a tooltip on the final USD figure.
     - For the "Expense Breakdown" progress bar, add the local currency to the existing tooltips: `title="Program: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 $prog_exp }} ({{ lang.FormatNumber 1 $prog_pct }}%)"`.
