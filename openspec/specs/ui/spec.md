@@ -4,15 +4,12 @@
 This specification defines how the audit checklist is presented to the end-user. It ensures that charity effectiveness and risk data is rendered in a clear, transparent, and easily comparable "report card" format, displaying pass, fail, or warning statuses for each audit item.
 ## Requirements
 ### Requirement: ITN Scorecard Rendering
-The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence.
+The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence, while explicitly bounding and labelling temporal scopes.
 
-#### Scenario: Displaying Cumulative Importance and Verifiable Tractability
-- **WHEN** rendering the Importance section of the scorecard
-- **THEN** the UI MUST compute and display the sum total of all populations across the `.impact.data.beneficiaries` array.
-- **AND** it MUST explicitly display the demographic breakdown (e.g., specific species or beneficiary types) directly beneath the total "Affects up to X individuals" metric.
-- **WHEN** rendering the Tractability section of the scorecard
-- **THEN** the UI MUST display the highest `evidence_quality` achieved.
-- **AND** it MUST display the exact `evidence_quote` associated with that metric to verify the claim, or provide an elaboration if a direct quote is unavailable.
+#### Scenario: Explicit Temporal Labelling on Scorecards
+- **WHEN** rendering the Importance and Neglectedness sections of the scorecard
+- **THEN** the UI MUST display a small, unobtrusive tag (e.g., "Annual") in the top-right corner of the respective cards.
+- **AND** this tag MUST clearly indicate to the user that these specific metrics represent a single-year snapshot, preventing confusion with cumulative historical data.
 
 ### Requirement: Data Provenance Indicators
 The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency.

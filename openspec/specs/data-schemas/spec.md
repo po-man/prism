@@ -4,20 +4,12 @@
 This specification defines the data contracts for the entire system. It provides canonical JSON schemas for all data entities, including ingestion payloads, extracted financial and impact metrics, and the final `analytics` object. These schemas ensure data integrity and consistency as information moves from extraction to persistence and final presentation.
 ## Requirements
 ### Requirement: Impact Schema Definition
-The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns and exact evidence citations.
+The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, and temporal bounding.
 
-#### Scenario: Animal Advocacy Metrics Extraction
-- **WHEN** validating the impact data of an animal charity
-- **THEN** the schema MUST support `beneficiary_type` enums specifically for `"companion_animals"`, `"farmed_animals"`, and `"wild_animals"`.
-- **AND** the schema MUST support capturing `intervention_type` (e.g., `"direct_care"`, `"corporate_campaigns"`, `"policy_advocacy"`, `"dietary_change"`).
-- **AND** the `metrics` array items MUST include an optional `evidence_quote` (string) field to capture the exact wording from the official source that justifies the assigned `evidence_quality` level.
-- **AND** the `beneficiaries` array items MUST include an optional `portion_percentage` (number, 0-100) field to capture the relative proportion of that beneficiary group when absolute `population` counts are unavailable.
-
-#### Scenario: Web-Sourced Data Provenance and Verifiability
-- **WHEN** validating the impact data of an animal charity
-- **THEN** the `metrics` array items MUST include an optional `source_url` (string, format: uri) field to capture the specific web URL if the metric was extracted from a web snippet.
-- **AND** the `significant_events` array items MUST include an optional `source_url` (string, format: uri) field for the same provenance tracking purpose.
-- **AND** the `significant_events` array items MUST include a new optional `source_quote` (string) field to capture the exact wording from the official source that justifies the event summary, enabling text-fragment highlighting.
+#### Scenario: Temporal Bounding of Metrics and Events
+- **WHEN** validating the impact data of a charity
+- **THEN** the `metrics` array items MUST include a required `timeframe` (string) field with allowed enum values of `["annual", "cumulative", "unspecified"]` to prevent historical data from skewing annual financial ratios.
+- **AND** the `significant_events` array items MUST include the same `timeframe` field to clearly distinguish between current-year activities and historical milestones.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data.

@@ -15,27 +15,20 @@ The `utils_api` microservice SHALL execute deterministic audit functions, utiliz
   - `check_cause_area_neglectedness`: `pass` (>= 50% high-neglectedness), `warning` (> 0% and < 50%), `fail` (0% high-neglectedness).
 
 ### Requirement: Cost Per Outcome Audit Calculation
-The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount ($1,000), persisting it outside the boolean check array.
+The `utils_api` SHALL calculate the cost per outcome based on cumulative impact and additionally provide a normalised translation for a standard retail donation amount ($1,000).
 
-#### Scenario: Generating Calculated Metrics
-- **WHEN** the `utils_api` processes the audit payload
-- **THEN** it MUST execute the `cost_per_outcome` calculation and append it to the new `calculated_metrics` array, entirely independent of the `check_items` array.
+#### Scenario: Protecting Cost Per Outcome from Temporal Leakage
+- **WHEN** `check_cost_per_outcome` falls back to summing values from the `metrics` array (because `beneficiaries.population` is zero or unavailable)
+- **THEN** the function MUST strictly filter the `metrics` array and only sum quantitative values where the `timeframe` attribute is exactly `"annual"`.
+- **AND** it MUST ignore any metrics marked as `"cumulative"` or `"unspecified"` to preserve the integrity of the ratio against the annual financial expenditure.
 
 ### Requirement: LLM Prompt Injection for Impact
-The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, and ensuring temporal and mathematical consistency.
 
-#### Scenario: EA Animal Impact Extraction
-- **WHEN** querying via LLM
-- **THEN** the system prompt MUST instruct the model to prioritize quantitative data regarding animal lives improved/spared.
-- **AND** the prompt MUST instruct the model to explicitly extract the exact `population` count for *each* `beneficiary_type` if the charity serves multiple categories of animals.
-- **AND** the prompt MUST strictly instruct the model to classify evidence quality according to the ITN framework.
-
-#### Scenario: Reconciling PDF and Web Contexts for Verifiability
+#### Scenario: Temporal Classification and Demographic Reconciliation
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the user prompt MUST distinctly separate the PDF text context and the injected `<web_context>`.
-- **AND** the system prompt MUST instruct the model to prioritize data found in formal reports over web marketing copy if discrepancies exist.
-- **AND** the system prompt MUST instruct the model that if a metric or event is extracted, it MUST populate the corresponding `source_url` field with the URL provided in the snippet.
-- **AND** the system prompt MUST explicitly instruct the model to extract the exact, verbatim sentence from the text into the `source_quote` field (for significant events) and the `evidence_quote` field (for metrics).
+- **THEN** the system prompt MUST instruct the model to strictly classify every extracted metric and event as `annual` (occurring within the reporting year), `cumulative` (spanning multiple years or since inception), or `unspecified`.
+- **AND** the system prompt MUST explicitly instruct the model to mathematically reconcile the total `population` in the `beneficiaries` array to reflect the *annual* total of animals helped, ensuring it aligns logically with the scale of the extracted annual `metrics`.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts and prioritized impact models.
