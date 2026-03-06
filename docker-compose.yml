@@ -34,6 +34,7 @@ services:
       n8n publish:workflow --id=dM945Azme2TNMwoX &&
       n8n publish:workflow --id=KyDtBHSVI5wyX2KM &&
       n8n publish:workflow --id=7WmUvPfyMRFCI864 &&
+      n8n publish:workflow --id=ULknetjfaAGl3dwG &&
       n8n start
       "
 
