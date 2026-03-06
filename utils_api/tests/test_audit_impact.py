@@ -110,6 +110,7 @@ def test_check_cost_per_outcome(client: TestClient):
     record_fallback["financials"]["expenditure"]["program_services"] = 100000
     record_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
     record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # Fallback value
+    record_fallback["impact"]["metrics"][0]["timeframe"] = "annual"
     response = client.post("/audit", json=record_fallback)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -117,7 +118,7 @@ def test_check_cost_per_outcome(client: TestClient):
     assert item["details"]["calculation"] == "($100,000 / 500 total beneficiaries) = $200.00 per outcome. | A $1,000 donation achieves ≈ 5 outcomes."
 
     # 3. Handles missing financial data
-    record_no_financials = deepcopy(VALID_BASE_RECORD)
+    record_no_financials = deepcopy(record_fallback) # Use a record with valid impact data
     record_no_financials["financials"]["expenditure"]["program_services"] = None
     response = client.post("/audit", json=record_no_financials)
     assert response.status_code == 200
@@ -125,16 +126,16 @@ def test_check_cost_per_outcome(client: TestClient):
     assert item is None # Function should return None
 
     # 4. Handles zero program spend
-    record_zero_spend = deepcopy(VALID_BASE_RECORD)
+    record_zero_spend = deepcopy(record_fallback) # Use a record with valid impact data
     record_zero_spend["financials"]["expenditure"]["program_services"] = 0
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is not None
-    assert item["details"]["calculation"] == "($0 / 500 total beneficiaries) = $0.00 per outcome" # No translation for $0 cost
+    assert item["details"]["calculation"] == "($0 / 500 total beneficiaries) = $0.00 per outcome"
 
     # 5. Handles zero primary outcome value
-    record_zero_outcome = deepcopy(VALID_BASE_RECORD)
+    record_zero_outcome = deepcopy(record_fallback)
     # Set beneficiary population to 0 and metric value to 0 to test zero outcome.
     record_zero_outcome["impact"]["beneficiaries"][0]["population"] = 0
     record_zero_outcome["impact"]["metrics"][0]["quantitative_data"]["value"] = 0
@@ -142,6 +143,25 @@ def test_check_cost_per_outcome(client: TestClient):
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is None # Function should return None
+
+    # 6. Fallback logic correctly ignores cumulative and unspecified metrics
+    record_temporal_fallback = deepcopy(VALID_BASE_RECORD)
+    record_temporal_fallback["financials"]["expenditure"]["program_services"] = 100000
+    record_temporal_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
+    record_temporal_fallback["impact"]["metrics"] = [
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 100, "unit": "animals"}, "timeframe": "annual"},
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 200, "unit": "animals"}, "timeframe": "annual"},
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 9999, "unit": "animals"}, "timeframe": "cumulative"},
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 8888, "unit": "animals"}, "timeframe": "unspecified"},
+    ]
+    response = client.post("/audit", json=record_temporal_fallback)
+    assert response.status_code == 200
+    item = get_calculated_metric(response.json(), "cost_per_outcome")
+    assert item is not None
+    # Calculation should only sum the 'annual' metrics (100 + 200 = 300)
+    # $100,000 / 300 = $333.33
+    assert item["value"] == 333.33
+    assert item["details"]["calculation"] == "($100,000 / 300 total beneficiaries) = $333.33 per outcome. | A $1,000 donation achieves ≈ 3 outcomes."
 
 
 def test_check_funding_neglectedness(client: TestClient):

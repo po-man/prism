@@ -40,7 +40,8 @@ VALID_IMPACT = {
         "source_url": None,
         "source_document": "pdf",
         "evidence_quote": "The study showed a significant increase in animal welfare.",
-        "search_result_index": None
+        "search_result_index": None,
+        "timeframe": "annual"
     }],
     "significant_events": [{
         "event_name": "Project Shelter",
@@ -49,7 +50,8 @@ VALID_IMPACT = {
         "source_url": None,
         "source_document": "pdf",
         "source_quote": None,
-        "search_result_index": None
+        "search_result_index": None,
+        "timeframe": "annual"
     }]
 }
 

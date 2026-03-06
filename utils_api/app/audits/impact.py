@@ -105,7 +105,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
     if primary_outcome == 0 and record.impact.metrics:
         # Fallback to sum of quantitative metrics if beneficiary population is zero
-        primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None])
+        primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None and getattr(m, 'timeframe', '') == 'annual'])
 
     if primary_outcome <= 0:
         return None
