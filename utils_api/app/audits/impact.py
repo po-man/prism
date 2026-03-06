@@ -121,7 +121,12 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
     # Add a secondary metric for the UI myth-buster section
     if cost_per_usd > 0:
         outcomes_per_1000 = 1000 / cost_per_usd
-        calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_per_1000:.3g} outcomes."
+        # Format to avoid scientific notation for large numbers.
+        if outcomes_per_1000 >= 1:
+            outcomes_str = f"{outcomes_per_1000:,.0f}"
+        else:
+            outcomes_str = f"{outcomes_per_1000:.3g}"
+        calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_str} outcomes."
 
     return CalculatedMetric(
         id="cost_per_outcome",
