@@ -70,7 +70,10 @@
 
     <!-- Importance -->
     <div class="p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Importance</h3>
+      <div class="flex justify-between items-start">
+        <h3 class="font-bold text-lg text-gray-700">Importance</h3>
+        <span class="text-[10px] font-mono tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>
+      </div>
       <p class="text-sm text-gray-500 mb-2">Scale of beneficiaries</p>
       <p class="text-xl font-semibold text-gray-900">Affects up to {{ if gt $totalPop 0 }}{{ $totalPop | lang.FormatNumber 0 }}{{ else }}an unknown number of{{ end }}</p>
       <p class="text-gray-600">total individuals across all programs.</p>
@@ -114,7 +117,10 @@
 
     <!-- Neglectedness -->
     <div class="p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
+      <div class="flex justify-between items-start">
+        <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
+        <span class="text-[10px] font-mono tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>
+      </div>
       <p class="text-sm text-gray-500 mb-2">Focus on underfunded areas</p>
       <p class="text-xl font-semibold text-gray-900">
         <span class="px-3 py-1 text-base font-semibold rounded-full {{ $neglectednessColor }}">

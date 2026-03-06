@@ -12,6 +12,6 @@
 - [x] 3.2 In `utils_api/tests/test_audit_impact.py`, update `test_check_cost_per_outcome` to add a test case verifying that cumulative metrics are ignored when the fallback triggers.
 
 ## 4. UI / Hugo Refactoring (`web`)
-- [ ] 4.1 In `web/layouts/partials/itn-scorecard.html`, locate the container `div` for the "Importance" card and the "Neglectedness" card.
-- [ ] 4.2 Update the header area of these cards to use a flexbox layout to push the tag to the right (e.g., wrap the `<h3>` in a `<div class="flex justify-between items-start">`).
-- [ ] 4.3 Inject the temporal tag: `<span class="text-[10px] font-mono uppercase tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>` into the new flex container for both cards.
+- [x] 4.1 In `web/layouts/partials/itn-scorecard.html`, locate the container `div` for the "Importance" card and the "Neglectedness" card.
+- [x] 4.2 Update the header area of these cards to use a flexbox layout to push the tag to the right (e.g., wrap the `<h3>` in a `<div class="flex justify-between items-start">`).
+- [x] 4.3 Inject the temporal tag: `<span class="text-[10px] font-mono tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>` into the new flex container for both cards.
