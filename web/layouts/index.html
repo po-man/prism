@@ -80,7 +80,7 @@
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Target Species (Neglectedness)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Total Beneficiaries (Importance)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc">Evidence Quality (Tractability)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Cost per Outcome (HKD)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Cost per Outcome (USD)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="audit">Audit Summary</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="date">Last Updated</th>
         </tr>
@@ -191,11 +191,11 @@
                 {{ end }}
                 {{ $s.Get "highestEvidence" | title }}
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome">
+              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome (USD)">
                 {{/* Find the cost_per_outcome metric from the array */}}
                 {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
                 {{ if and $cost_metric (isset $cost_metric "value") (gt $cost_metric.value 0) }}
-                  ${{ printf "%.2f" $cost_metric.value }}
+                  <span title="{{ $cost_metric.details.calculation }}">${{ printf "%.2f" $cost_metric.value }}</span>
                 {{ else }}
                   N/A
                 {{ end }}

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T08:09:57.172Z",
+  "updatedAt": "2026-03-06T15:47:40.325Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -270,7 +270,7 @@
           "parameters": [
             {
               "name": "financials",
-              "value": "={{\n  {\n    data: $('Parsed Content (Financials)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Financials)').first().json,\n    audit_trails: $('Parsed Content (Financials)').first().json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $json.parsedContentObject,\n    schema: $('Schema Validation (Financials)').first().json,\n    audit_trails: $('Parsed Content (Financials)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -279,8 +279,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1696,
-        4784
+        2208,
+        4832
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
       "name": "Storage API - Update Charity - Financials",
@@ -937,7 +937,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2336,
+        2544,
         4960
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -1165,7 +1165,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1472,
+        1424,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -1215,7 +1215,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        656,
+        864,
         5792
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
@@ -1249,7 +1249,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        880,
+        1088,
         5792
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
@@ -1284,7 +1284,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1328,
+        1536,
         5792
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
@@ -1318,7 +1318,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1104,
+        1312,
         5792
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
@@ -1332,7 +1332,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1536,
+        1744,
         5792
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
@@ -1347,7 +1347,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        1952,
+        2160,
         5792
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
@@ -2210,6 +2210,122 @@
       ],
       "id": "eb5bdda3-fc5e-48f3-b575-d33a35367536",
       "name": "Exists? (Impact Search)"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ULknetjfaAGl3dwG",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ULknetjfaAGl3dwG",
+          "cachedResultName": "Fill Exchange Rate"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "financial_year": "={{ $('Parsed Content (Financials)').first().json.parsedContentObject.financial_year }}",
+            "original_code": "={{ $('Parsed Content (Financials)').first().json.parsedContentObject.currency.original_code }}"
+          },
+          "matchingColumns": [
+            "parsedContentObject_firstItem"
+          ],
+          "schema": [
+            {
+              "id": "financial_year",
+              "displayName": "financial_year",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "original_code",
+              "displayName": "original_code",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        4608
+      ],
+      "name": "Call Fill Exchange Rate",
+      "id": "bfa9387b-1e20-433e-bf2b-7169007ef2f6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8c01a38b-3017-4eb6-8f60-971be0e940d8",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1776,
+        4784
+      ],
+      "id": "3af3eb22-8bff-4b17-812e-b46a435254dd",
+      "name": "If Financials Schema Valid"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const financials = $('Parsed Content (Financials)').first().json.parsedContentObject;\n  financials.currency.rate_date = item.json.rate_date;\n  financials.currency.usd_exchange_rate = item.json.usd_exchange_rate;\n  item.json.parsedContentObject = financials;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        4608
+      ],
+      "id": "5fb306b5-8bcd-4507-853c-639b7c66c3a0",
+      "name": "Merge Currency"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1600,
+        4784
+      ],
+      "id": "05abeeb3-782f-4eba-b130-064ef062d4d1",
+      "name": "Merge Finanicals with Validation"
     }
   ],
   "connections": {
@@ -2316,6 +2432,11 @@
             "node": "Schema Validation (Financials)",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge Finanicals with Validation",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
@@ -2656,7 +2777,7 @@
       "main": [
         [
           {
-            "node": "Storage API - Update Charity - Financials",
+            "node": "Merge Finanicals with Validation",
             "type": "main",
             "index": 0
           }
@@ -3053,6 +3174,57 @@
           }
         ]
       ]
+    },
+    "If Financials Schema Valid": {
+      "main": [
+        [
+          {
+            "node": "Call Fill Exchange Rate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Storage API - Update Charity - Financials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Fill Exchange Rate": {
+      "main": [
+        [
+          {
+            "node": "Merge Currency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Finanicals with Validation": {
+      "main": [
+        [
+          {
+            "node": "If Financials Schema Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Currency": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Financials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3064,9 +3236,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "81f1a263-6aa2-4307-a126-f2ed581a9e68",
+  "versionId": "a1d831a8-ef96-450a-aabe-00300107faf9",
   "activeVersionId": "81f1a263-6aa2-4307-a126-f2ed581a9e68",
-  "versionCounter": 403,
+  "versionCounter": 407,
   "triggerCount": 1,
   "tags": [],
   "shared": [

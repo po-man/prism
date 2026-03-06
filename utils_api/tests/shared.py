@@ -13,6 +13,11 @@ VALID_BASE_RECORD = {
     },
     "financials": {
         "financial_year": "2023-24",
+        "currency": {
+            "original_code": "HKD",
+            "usd_exchange_rate": 0.128,
+            "rate_date": "2023-12-31",
+        },
         "income": {"donations": 500000, "government_grants": 250000, "total": 750000},
         "expenditure": {"administration": 100000, "fundraising": 50000, "program_services": 400000, "total": 550000},
         "reserves": {"total_reserves": 75000},

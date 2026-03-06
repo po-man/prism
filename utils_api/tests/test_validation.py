@@ -6,6 +6,11 @@ from fastapi.testclient import TestClient
 
 VALID_FINANCIALS = {
     "financial_year": "2023-24",
+    "currency": {
+        "original_code": "HKD",
+        "usd_exchange_rate": 0.128,
+        "rate_date": "2023-12-31",
+    },
     "income": {"donations": 100, "government_grants": 200, "total": 300},
     "expenditure": {"administration": 50, "fundraising": 20, "program_services": 150, "total": 220},
     "reserves": {"total_reserves": 75000},

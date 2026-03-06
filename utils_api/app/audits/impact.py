@@ -93,35 +93,45 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
     """
     Calculates the cost per outcome. This is an informational check.
     """
-    if not record.financials or not record.financials.expenditure or record.financials.expenditure.program_services is None:
+    if (
+        not record.financials
+        or not record.financials.expenditure
+        or record.financials.expenditure.program_services is None
+    ):
         return None
 
     program_spend = record.financials.expenditure.program_services
+    # Fetch the exchange rate, defaulting to 1.0 if not present
+    rate = (
+        record.financials.currency.usd_exchange_rate if record.financials.currency and record.financials.currency.usd_exchange_rate else 1.0
+    )
+    program_spend_usd = program_spend * rate
 
     if not record.impact or not record.impact.beneficiaries:
         return None
 
     primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
 
-    if primary_outcome == 0 and record.impact.metrics:
-        # Fallback to sum of quantitative metrics if beneficiary population is zero
-        primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None and getattr(m, 'timeframe', '') == 'annual'])
-
     if primary_outcome <= 0:
         return None
 
-    cost_per = program_spend / primary_outcome
-    calculation_string = f"(${program_spend:,.0f} / {primary_outcome:,.0f} total beneficiaries) = ${cost_per:,.2f} per outcome"
+    cost_per_usd = program_spend_usd / primary_outcome
+    calculation_string = f"(${program_spend_usd:,.0f} USD / {primary_outcome:,.0f} total beneficiaries) = ${cost_per_usd:,.2f} USD per outcome"
 
     # Add a secondary metric for the UI myth-buster section
-    if cost_per > 0:
-        outcomes_per_1000 = 1000 / cost_per
-        calculation_string += f". | A $1,000 donation achieves ≈ {outcomes_per_1000:.3g} outcomes."
+    if cost_per_usd > 0:
+        outcomes_per_1000 = 1000 / cost_per_usd
+        # Format to avoid scientific notation for large numbers.
+        if outcomes_per_1000 >= 1:
+            outcomes_str = f"{outcomes_per_1000:,.0f}"
+        else:
+            outcomes_str = f"{outcomes_per_1000:.3g}"
+        calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_str} outcomes."
 
     return CalculatedMetric(
         id="cost_per_outcome",
-        name="Cost Per Outcome",
-        value=round(cost_per, 2),
+        name="Cost Per Outcome (USD)",
+        value=round(cost_per_usd, 2),
         details={
             "formula": "program_services_expenditure / sum_of_beneficiaries",
             "calculation": calculation_string,
