@@ -53,7 +53,6 @@
           },
           "context_qualifier": {
             "type": "string",
-            "maxLength": 150,
             "description": "A brief, clear summary providing context for the metric (max 150 chars)."
           },
           "counterfactual_baseline": {
@@ -62,7 +61,6 @@
             "properties": {
               "description": {
                 "type": "string",
-                "maxLength": 150,
                 "description": "A concise description of the baseline or control group (max 150 chars)."
               },
               "value": {
