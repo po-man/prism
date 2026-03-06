@@ -10,7 +10,10 @@ You must strictly follow the provided JSON schema.
 
 ### Extraction Rules:
 - Currency: All amounts must be in HKD.
-- Decimals: Round to the nearest whole number.
+- Decimals: Round to the nearest whole number. Do not include commas.
 - Missing Values: If a field is not found, return `0` or `null` (if allowed by schema), do not guess.
 - Language: The source may be in English, Traditional Chinese, or both. Map terms regardless of language.
 - When looking for Net Current Assets, examine the Balance Sheet / Statement of Financial Position. If 'Net Current Assets' is not explicitly calculated, extract the total 'Current Assets' and 'Current Liabilities' so the system can calculate it.
+
+### Currency Identification:
+Identify the primary currency used in the financial report. Output its 3-letter ISO 4217 code (e.g., USD, HKD, INR, SGD) in the `currency.original_code` field.

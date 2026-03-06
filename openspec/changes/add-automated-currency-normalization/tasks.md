@@ -1,8 +1,8 @@
 # openspec/changes/add-automated-currency-normalization/tasks.md
 
 ## 1. Schema & Prompt Updates (`schemas`, `n8n`)
-- [ ] 1.1 In `schemas/v1/financials.schema.json`, add the `currency` object at the root level, requiring `original_code`, `usd_exchange_rate`, and `rate_date`. 
-- [ ] 1.2 In `n8n/prompt-templates/financials.system.md`, append an instruction: "Identify the primary currency used in the financial report. Output its 3-letter ISO 4217 code (e.g., USD, HKD, INR, SGD) in the `currency.original_code` field."
+- [x] 1.1 In `schemas/v1/financials.schema.json`, add the `currency` object at the root level, requiring `original_code`, `usd_exchange_rate`, and `rate_date`. 
+- [x] 1.2 In `n8n/prompt-templates/financials.system.md`, append an instruction: "Identify the primary currency used in the financial report. Output its 3-letter ISO 4217 code (e.g., USD, HKD, INR, SGD) in the `currency.original_code` field."
 
 ## 2. Orchestrator Logic (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
 - [ ] 2.1 Insert a Code Node immediately after "Parsed Content (Financials)". 
