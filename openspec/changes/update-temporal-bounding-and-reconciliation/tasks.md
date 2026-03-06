@@ -10,3 +10,8 @@
 - [ ] 3.1 In `utils_api/app/audits/impact.py` -> `calculate_cost_per_outcome`, update the fallback logic for `primary_outcome` to strictly filter by timeframe:
   `primary_outcome = sum([m.quantitative_data.value for m in record.impact.metrics if m.quantitative_data and m.quantitative_data.value is not None and getattr(m, 'timeframe', '') == 'annual'])`.
 - [ ] 3.2 In `utils_api/tests/test_audit_impact.py`, update `test_check_cost_per_outcome` to add a test case verifying that cumulative metrics are ignored when the fallback triggers.
+
+## 4. UI / Hugo Refactoring (`web`)
+- [ ] 4.1 In `web/layouts/partials/itn-scorecard.html`, locate the container `div` for the "Importance" card and the "Neglectedness" card.
+- [ ] 4.2 Update the header area of these cards to use a flexbox layout to push the tag to the right (e.g., wrap the `<h3>` in a `<div class="flex justify-between items-start">`).
+- [ ] 4.3 Inject the temporal tag: `<span class="text-[10px] font-mono uppercase tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>` into the new flex container for both cards.
