@@ -35,19 +35,13 @@ The UI SHALL present the estimated cost per outcome alongside a tangible retail 
 - **THEN** the template MUST extract the Cost per Outcome data directly from the new `analytics.calculated_metrics` array, rather than parsing it out of the `check_items` array.
 
 ### Requirement: Impact Pathway Display
-The UI SHALL present the charity's logic model hierarchically, prioritizing the most significant interventions to prevent cognitive overload, and providing direct, highlighted verification links for web-sourced claims.
+The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion.
 
-#### Scenario: Expanding Top 3 Interventions
-- **WHEN** rendering the "Activities & Outputs" and "Outcomes" columns
-- **THEN** the UI MUST sort the items by significance (based on the array order provided by the LLM).
-- **AND** it MUST display only the top 3 items by default.
-- **AND** if more than 3 items exist, it MUST provide an interactive, offline-compatible toggle (e.g., "Show all X activities") to reveal the remaining items.
-
-#### Scenario: Hyperlinking and Highlighting Web-Sourced Claims
-- **WHEN** rendering the "Activities & Outputs" and "Outcomes" items in the Impact Pathway
-- **THEN** the UI MUST check for the presence of the `source_url` field.
-- **AND** if `source_url` is present, it MUST wrap the `metric_name` (or the `event_name`) in an HTML `<a>` tag with `target="_blank"` and `rel="noopener noreferrer"`.
-- **AND** if an exact quote (`source_quote` or `evidence_quote`) is also present, the UI MUST URL-encode the quote and append it to the `href` using the W3C Text Fragment syntax (`#:~:text=`), ensuring the user's browser automatically scrolls to and highlights the claim.
+#### Scenario: Rendering Normalized Inputs
+- **WHEN** rendering the "Inputs" card (Total Annual Expenditure)
+- **THEN** the Hugo template MUST dynamically multiply the raw total expenditure by the `usd_exchange_rate`.
+- **AND** it MUST render the value with a "USD" prefix (e.g., "USD $50,000").
+- **AND** it MUST include a hover tooltip indicating the original local currency amount and the exchange rate used (e.g., "Original: HKD $390,000 (Rate: 0.128 as of 2023-12-31)").
 
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
@@ -60,12 +54,8 @@ The UI SHALL render the deterministic audit results, filtering out noise and pro
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis.
 
-#### Scenario: Comparing ITN and Financial Metrics
-- **WHEN** a user visits the root `/` directory (Landing Page)
-- **THEN** the system MUST display a Master Table listing all organizations.
-- **AND** the table MUST include columns for: Organization Name, Data Sources, Target Species (Neglectedness), Total Beneficiaries (Importance), Evidence Quality (Tractability), Cost per Outcome, and Audit Summary.
-- **AND** the "Data Sources" column MUST display icons for Annual Report, Financial Report, and Web Search, greying out missing sources.
-- **AND** the "Target Species" column MUST visually indicate the proportionate breakdown of beneficiaries using species-specific SVG icons, mapping the percentage of each species to the visual opacity of its icon (or greying out absent species).
-- **AND** clicking an organization's row or name MUST navigate the user to that organization's dedicated detail page at the URL path `/<slug>`.
-- **AND** the table MUST remain sortable via client-side JavaScript, utilizing hidden `data-sort-value` attributes for columns containing complex HTML (like the new icon arrays).
+#### Scenario: USD-Unified Cost per Outcome
+- **WHEN** rendering the "Cost per Outcome" column in the Master Table
+- **THEN** the UI MUST render the value extracted from `calculated_metrics`, which is now strictly guaranteed by the audit engine to be in USD.
+- **AND** the column header MUST be explicitly labelled "Cost per Outcome (USD)".
 

@@ -15,12 +15,12 @@ The `utils_api` microservice SHALL execute deterministic audit functions, utiliz
   - `check_cause_area_neglectedness`: `pass` (>= 50% high-neglectedness), `warning` (> 0% and < 50%), `fail` (0% high-neglectedness).
 
 ### Requirement: Cost Per Outcome Audit Calculation
-The `utils_api` SHALL calculate the cost per outcome based on cumulative impact and additionally provide a normalised translation for a standard retail donation amount ($1,000).
+The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, ensuring all cross-charity comparisons use a unified USD baseline.
 
-#### Scenario: Protecting Cost Per Outcome from Temporal Leakage
-- **WHEN** `check_cost_per_outcome` falls back to summing values from the `metrics` array (because `beneficiaries.population` is zero or unavailable)
-- **THEN** the function MUST strictly filter the `metrics` array and only sum quantitative values where the `timeframe` attribute is exactly `"annual"`.
-- **AND** it MUST ignore any metrics marked as `"cumulative"` or `"unspecified"` to preserve the integrity of the ratio against the annual financial expenditure.
+#### Scenario: Calculating USD Cost per Outcome
+- **WHEN** `check_cost_per_outcome` executes
+- **THEN** it MUST multiply the raw `program_services_expenditure` by the `financials.currency.usd_exchange_rate` before dividing by the primary outcome.
+- **AND** the resulting string MUST explicitly state the currency as USD (e.g., "($X USD / Y beneficiaries) = $Z USD per outcome. | A $1,000 USD donation achieves...").
 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, and ensuring temporal and mathematical consistency.
@@ -47,4 +47,14 @@ The n8n orchestrator SHALL ingest target charities and their source documents, g
 - **THEN** it MUST dynamically construct and execute a web search query (e.g., `site:example.org (impact OR rescued OR animals OR annual OR report OR metrics)`) using the charity's official domain extracted during the metadata phase.
 - **AND** it MUST aggregate the top search results into a clean `<web_context>` snippet string.
 - **AND** the workflow MUST route to the Impact extraction branch if either an `annual_report` PDF exists OR the `domains` array is not empty (yielding web snippets).
+
+### Requirement: Orchestrator Exchange Rate Resolution
+The n8n orchestrator SHALL dynamically resolve historical exchange rates to standardise financial data without modifying the raw extracted integers.
+
+#### Scenario: Fetching Historical Year-End Rates
+- **WHEN** the LLM successfully extracts the `financials` JSON payload
+- **THEN** n8n MUST parse the `financial_year` string to isolate the primary reporting year (e.g., converting "2023-24" or "2023/2024" to "2023").
+- **AND** n8n MUST execute an HTTP GET request to the Frankfurter API targeting December 31st of that parsed year (e.g., `https://api.frankfurter.dev/v1/2023-12-31?base=[original_code]&symbols=USD`).
+- **AND** n8n MUST map the returned rate into the `financials.currency.usd_exchange_rate` field before passing the payload to the Data Vault and Utils API.
+- **AND** if the `original_code` is already "USD", n8n MUST gracefully bypass the API call and set the rate to `1.0`.
 
