@@ -113,7 +113,7 @@ def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient)
     assert item["name"] == "Cost Per Outcome (USD)"
     assert item["details"]["calculation"] == "($10,000 USD / 2,000 total beneficiaries) = $5.00 USD per outcome. | A $1,000 USD donation achieves ≈ 200 outcomes."
 
-    # 2. Correct calculation with fallback to quant_data.value (and default rate of 1.0)
+    # 2. Fails to calculate when primary beneficiary population is 0 (no fallback)
     record_fallback = deepcopy(VALID_BASE_RECORD)
     record_fallback["financials"]["expenditure"]["program_services"] = 100000
     record_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
@@ -122,13 +122,12 @@ def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient)
         "usd_exchange_rate": 1.0,
         "rate_date": "2023-12-31",
     }
-    record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # Fallback value
+    record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # This value should now be ignored
     record_fallback["impact"]["metrics"][0]["timeframe"] = "annual"
     response = client.post("/audit", json=record_fallback)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is not None
-    assert item["details"]["calculation"] == "($100,000 USD / 500 total beneficiaries) = $200.00 USD per outcome. | A $1,000 USD donation achieves ≈ 5 outcomes."
+    assert item is None # Fallback logic is removed, so this should fail
 
     # 3. Handles missing financial data
     record_no_financials = deepcopy(record_fallback) # Use a record with valid impact data
@@ -138,8 +137,9 @@ def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient)
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is None # Function should return None
 
-    # 4. Handles zero program spend
-    record_zero_spend = deepcopy(record_fallback) # Use a record with valid impact data
+    # 4. Handles zero program spend with valid beneficiaries
+    record_zero_spend = deepcopy(VALID_BASE_RECORD) # Use a record with valid impact data
+    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
     record_zero_spend["financials"]["expenditure"]["program_services"] = 0
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
@@ -157,24 +157,19 @@ def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient)
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is None # Function should return None
 
-    # 6. Fallback logic correctly ignores cumulative and unspecified metrics
+    # 6. Fallback logic is removed, so metric values are ignored
     record_temporal_fallback = deepcopy(VALID_BASE_RECORD)
     record_temporal_fallback["financials"]["expenditure"]["program_services"] = 100000
     record_temporal_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
     record_temporal_fallback["impact"]["metrics"] = [
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 100, "unit": "animals"}, "timeframe": "annual"},
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 200, "unit": "animals"}, "timeframe": "annual"},
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 9999, "unit": "animals"}, "timeframe": "cumulative"},
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 8888, "unit": "animals"}, "timeframe": "unspecified"},
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 100, "unit": "animals"}, "timeframe": "annual"}, # Should be ignored
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 200, "unit": "animals"}, "timeframe": "annual"}, # Should be ignored
+        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 9999, "unit": "animals"}, "timeframe": "cumulative"}, # Should be ignored
     ]
     response = client.post("/audit", json=record_temporal_fallback)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is not None
-    # Calculation should only sum the 'annual' metrics (100 + 200 = 300). Rate is 0.128.
-    # 100,000 * 0.128 = 12,800 USD. 12,800 / 300 = 42.67
-    assert item["value"] == 42.67
-    assert item["details"]["calculation"] == "($12,800 USD / 300 total beneficiaries) = $42.67 USD per outcome. | A $1,000 USD donation achieves ≈ 23.4 outcomes."
+    assert item is None # Calculation should fail as primary outcome is 0 and there is no fallback
 
 
 def test_check_funding_neglectedness(client: TestClient):
