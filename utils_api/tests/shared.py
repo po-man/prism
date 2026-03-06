@@ -41,6 +41,7 @@ VALID_BASE_RECORD = {
                 "source_document": "pdf",
                 "evidence_quote": "The study showed a significant increase in animal welfare.",
                 "search_result_index": None,
+                "timeframe": "annual",
             }
         ],
         "significant_events": [
@@ -51,6 +52,8 @@ VALID_BASE_RECORD = {
                 "source_url": None,
                 "source_document": "pdf",
                 "source_quote": None,
+                "search_result_index": None,
+                "timeframe": "annual",
             }
         ],
     },
