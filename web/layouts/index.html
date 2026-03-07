@@ -62,9 +62,20 @@
           <p>
             Provides a high-level, colour-coded summary (e.g., <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full align-middle"></span> Pass,
             <span class="inline-block w-2.5 h-2.5 bg-yellow-400 rounded-full align-middle"></span> Warning,
-            <span class="inline-block w-2.5 h-2.5 bg-red-500 rounded-full align-middle"></span> Fail) of an organization's performance against our automated audit checks. These checks cover areas like financial health, transparency, and governance.
+            <span class="inline-block w-2.5 h-2.5 bg-red-500 rounded-full align-middle"></span> Fail) of an organisation's performance against our automated audit checks. These checks cover areas like financial health, transparency, and governance.
           </p>
           <p class="mt-2">Clicking on an organisation will take you to its detailed profile, which includes a full breakdown of the audit checklist.</p>
+        </div>
+        <div data-highlight-column="Cost per Outcome (USD)">
+          <h4 class="font-bold text-gray-800">Cost per Outcome (USD)</h4>
+          <p>This metric estimates the cost to achieve a single, significant outcome (e.g., one animal's life saved or significantly improved). It's a simplified measure of cost-effectiveness. The icons indicate our confidence in the calculation:</p>
+          <ul class="list-disc list-inside mt-2 space-y-1">
+            <li><span class="inline-block w-4 h-4 align-text-bottom text-black mr-1.5">{{- partial "icons/checkmark.svg" . | safeHTML -}}</span> <span class="font-semibold">High Confidence:</span> Calculated from specific, verifiable program expenses and outcomes.</li>
+            <li><span class="inline-block w-4 h-4 align-text-bottom text-black mr-1.5">{{- partial "icons/calculator.svg" . | safeHTML -}}</span> <span class="font-semibold">Medium Confidence:</span> Estimated by apportioning total organisational expenses to a primary outcome.</li>
+            <li><span class="inline-block w-4 h-4 align-text-bottom text-black mr-1.5">{{- partial "icons/multi-domains.svg" . | safeHTML -}}</span> <span class="font-semibold">Multi-Domain:</span> The organisation works across multiple cause areas, making a single cost-per-outcome calculation impractical.</li>
+            <li><span class="inline-block w-4 h-4 align-text-bottom text-black mr-1.5">{{- partial "icons/missing-ingredients.svg" . | safeHTML -}}</span> <span class="font-semibold">Not Calculated:</span> Insufficient data (e.g., missing financial reports or beneficiary numbers) to perform the calculation.</li>
+          </ul>
+          <p class="mt-2">A lower number is generally better, but this metric should be considered alongside other factors like evidence quality and the scale of operations.</p>
         </div>
       </div>
     </details>
@@ -191,13 +202,45 @@
                 {{ end }}
                 {{ $s.Get "highestEvidence" | title }}
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome (USD)">
-                {{/* Find the cost_per_outcome metric from the array */}}
-                {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
-                {{ if and $cost_metric (isset $cost_metric "value") (gt $cost_metric.value 0) }}
-                  <span title="{{ $cost_metric.details.calculation }}">${{ printf "%.2f" $cost_metric.value }}</span>
+              {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
+              {{ $sort_value := -2 }} {{/* Default for missing data */}}
+              {{ if $cost_metric }}
+                {{ if eq $cost_metric.confidence_tier "LOW" }}
+                  {{ if in $cost_metric.details.formula "multi-domain" }}
+                    {{ $sort_value = -1 }} {{/* Sort multi-domain slightly higher than missing data */}}
+                  {{ end }}
+                {{ else if and (isset $cost_metric "value") (ne $cost_metric.value nil) }}
+                {{ $sort_value = $cost_metric.value }}
+                {{ end }}
+              {{ end }}
+              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome (USD)" data-sort-value="{{ $sort_value }}">
+                {{ if $cost_metric }}
+                  {{ if eq $cost_metric.confidence_tier "LOW" }}
+                    <div class="flex items-center justify-end space-x-1.5 text-gray-400" title="{{ $cost_metric.confidence_note }}">
+                      <span>N/A</span>
+                      {{ if in $cost_metric.details.formula "multi-domain" }}
+                        {{- partial "icons/multi-domains.svg" . | safeHTML -}}
+                      {{ end }}
+                    </div>
+                  {{ else if eq $cost_metric.confidence_tier "HIGH" }}
+                    <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">
+                      <span>${{ printf "%.2f" $cost_metric.value }}</span>
+                      {{- partial "icons/checkmark.svg" . | safeHTML -}}
+                    </div>
+                  {{ else if eq $cost_metric.confidence_tier "MEDIUM" }}
+                    <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">
+                      <span>${{ printf "%.2f" $cost_metric.value }}</span>
+                      {{- partial "icons/calculator.svg" . | safeHTML -}}
+                    </div>
+                  {{ else }}
+                    <span class="text-gray-400" title="{{ $cost_metric.confidence_note | default "Metric not calculated." }}">N/A</span>
+                  {{ end }}
                 {{ else }}
-                  N/A
+                  {{/* This is the "missing ingredients" case where the metric wasn't calculated at all */}}
+                  <div class="flex items-center justify-end space-x-1.5 text-gray-400" title="Metric could not be calculated due to missing data (e.g., financials, beneficiaries).">
+                    <span>N/A</span>
+                    {{- partial "icons/missing-ingredients.svg" . | safeHTML -}}
+                  </div>
                 {{ end }}
               </td>
               {{ $s := newScratch }}{{ $s.Set "pass" 0 }}{{ $s.Set "warn" 0 }}{{ $s.Set "fail" 0 }}

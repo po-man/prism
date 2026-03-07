@@ -19,13 +19,13 @@
 - [x] 3.5 Update `tests/test_audit_impact.py` to cover High, Medium, and Low scenarios, verifying that the new `confidence_tier` and `confidence_note` fields populate correctly and that `value` is correctly nulled out for multi-domain charities.
 
 ## 4. Hugo UI Updates (`web/layouts/`)
-- [ ] 4.1 In `index.html` (Master Directory), update the "Cost per Outcome (USD)" column `<td>` generation:
+- [x] 4.1 In `index.html` (Master Directory), update the "Cost per Outcome (USD)" column `<td>` generation:
   - Extract `confidence_tier` and `confidence_note`.
   - Set `data-sort-value` to the numeric value if HIGH/MEDIUM, or `-Infinity` if LOW.
   - If LOW: Render `<span class="text-gray-400" title="{{ confidence_note }}">N/A</span>`.
   - If HIGH: Render the formatted amount with a solid checkmark SVG (`title="{{ confidence_note }}"`).
   - If MEDIUM: Render the formatted amount with a calculator SVG (`title="{{ confidence_note }}"`).
-- [ ] 4.2 In `partials/myth-buster.html` (Individual Profile), locate the "Estimated Cost per Outcome" card.
+- [x] 4.2 In `partials/myth-buster.html` (Individual Profile), locate the "Estimated Cost per Outcome" card.
   - Extract the `confidence_tier` and `confidence_note`.
   - Implement a `{{ if eq $confidence_tier "LOW" }}` block. Inside, hide the large number and retail translation. Render a visually distinct, subdued box containing the `confidence_note`.
   - Implement the `{{ else }}` block to show the standard large number and retail translation, but append an italicized `<p>` tag at the bottom of the card displaying the `confidence_note` for full transparency.
