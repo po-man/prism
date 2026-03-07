@@ -8,8 +8,8 @@
   - Modify `value` to be `["number", "string", "null"]`.
 
 ## 2. LLM Prompt Updates (`n8n/prompt-templates/`)
-- [ ] 2.1 In `impact.system.md`, add a strict instruction: "You must assess the charity's overall operations. If they focus purely on animals, set `operating_scope` to `pure_animal_advocacy`. If they also invest heavily in human education, climate change, or humanitarian aid, set it to `multi_domain_operations`."
-- [ ] 2.2 In `impact.system.md`, add an instruction: "If the charity explicitly states the exact cost to help an animal or deliver an intervention (e.g., 'It costs $25 to spay a dog'), capture this in `explicit_unit_cost`. Do NOT attempt to calculate this yourself."
+- [x] 2.1 In `impact.system.md`, add a strict instruction: "You must assess the charity's overall operations. If they focus purely on animals, set `operating_scope` to `pure_animal_advocacy`. If they also invest heavily in human education, climate change, or humanitarian aid, set it to `multi_domain_operations`."
+- [x] 2.2 In `impact.system.md`, add an instruction: "If the charity explicitly states the exact cost to help an animal or deliver an intervention (e.g., 'It costs $25 to spay a dog'), capture this in `explicit_unit_cost`. Do NOT attempt to calculate this yourself."
 
 ## 3. Python Logic Updates (`utils_api/app/audits/`)
 - [ ] 3.1 In `impact.py`, update `calculate_cost_per_outcome` to fetch `record.impact.context`.
