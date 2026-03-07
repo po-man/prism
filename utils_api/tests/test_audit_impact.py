@@ -89,87 +89,98 @@ def test_check_counterfactual_baseline(client: TestClient):
     assert item["details"]["calculation"] == "Impact data with metrics is missing."
 
 
-def test_calculate_cost_per_outcome_with_currency_conversion(client: TestClient):
-    """Tests the calculate_cost_per_outcome metric, including edge cases."""
+def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
+    """Tests the calculate_cost_per_outcome metric for HIGH, MEDIUM, and LOW confidence scenarios."""
 
-    # 1. Correct calculation with valid data and currency conversion
-    record_valid = deepcopy(VALID_BASE_RECORD)
-    record_valid["financials"]["expenditure"]["program_services"] = 100000  # HKD
-    record_valid["financials"]["currency"] = {
-        "original_code": "HKD",
-        "usd_exchange_rate": 0.1,  # Use a simple rate for easy testing
-        "rate_date": "2023-12-31",
+    # 1. HIGH confidence: Explicit unit cost is provided
+    record_high = deepcopy(VALID_BASE_RECORD)
+    record_high["impact"]["context"]["explicit_unit_cost"] = {
+        "amount": 25,
+        "currency": "HKD",
+        "description": "Cost to spay one dog."
     }
-    record_valid["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": 500, "beneficiary_type": "companion_animals"},
-        {"location": "HK", "population": 1500, "beneficiary_type": "wild_animals"},
-    ]  # Total beneficiaries = 2000
-    # Expected USD spend = 100,000 * 0.1 = 10,000 USD
-    # Expected cost per outcome = 10,000 / 2000 = 5.00 USD
-    response = client.post("/audit", json=record_valid)
+    # Base record has HKD rate of 0.128. 25 * 0.128 = 3.2
+    response = client.post("/audit", json=record_high)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is not None
-    assert item["name"] == "Cost Per Outcome (USD)"
-    assert item["details"]["calculation"] == "($10,000 USD / 2,000 total beneficiaries) = $5.00 USD per outcome. | A $1,000 USD donation achieves ≈ 200 outcomes."
+    assert item["confidence_tier"] == "HIGH"
+    assert item["value"] == 3.2
+    assert "explicitly stated by the organisation" in item["confidence_note"]
+    assert item["details"]["calculation"] == "Explicitly stated cost of 25.00 HKD converted to $3.20 USD."
 
-    # 2. Fails to calculate when primary beneficiary population is 0 (no fallback)
-    record_fallback = deepcopy(VALID_BASE_RECORD)
-    record_fallback["financials"]["expenditure"]["program_services"] = 100000
-    record_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
-    record_fallback["financials"]["currency"] = {
-        "original_code": "USD",
-        "usd_exchange_rate": 1.0,
-        "rate_date": "2023-12-31",
-    }
-    record_fallback["impact"]["metrics"][0]["quantitative_data"]["value"] = 500 # This value should now be ignored
-    record_fallback["impact"]["metrics"][0]["timeframe"] = "annual"
-    response = client.post("/audit", json=record_fallback)
+    # 2. MEDIUM confidence: Pure animal advocacy, PRISM calculates
+    record_medium = deepcopy(VALID_BASE_RECORD)
+    record_medium["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
+    del record_medium["impact"]["context"]["explicit_unit_cost"]
+    record_medium["financials"]["expenditure"]["program_services"] = 400000 # HKD
+    record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
+    record_medium["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
+    # Program spend USD = 400,000 * 0.1 = 40,000
+    # Beneficiaries = 500
+    # Cost per outcome = 40,000 / 500 = 80
+    response = client.post("/audit", json=record_medium)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is None # Fallback logic is removed, so this should fail
+    assert item["confidence_tier"] == "MEDIUM"
+    assert item["value"] == 80.0
+    assert "estimated by PRISM" in item["confidence_note"]
+    assert "($40,000 USD / 500 total beneficiaries) = $80.00 USD per outcome" in item["details"]["calculation"]
 
-    # 3. Handles missing financial data
-    record_no_financials = deepcopy(record_fallback) # Use a record with valid impact data
-    record_no_financials["financials"]["expenditure"]["program_services"] = None
-    response = client.post("/audit", json=record_no_financials)
+    # 3. LOW confidence: Multi-domain operations, calculation is aborted
+    record_low_multidomain = deepcopy(VALID_BASE_RECORD)
+    record_low_multidomain["impact"]["context"]["operating_scope"] = "multi_domain_operations"
+    del record_low_multidomain["impact"]["context"]["explicit_unit_cost"]
+    response = client.post("/audit", json=record_low_multidomain)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is None # Function should return None
+    assert item["confidence_tier"] == "LOW"
+    assert item["value"] is None
+    assert "multi-domain work" in item["confidence_note"]
+    assert item["details"]["formula"] == "Calculation aborted due to multi-domain operations."
 
-    # 4. Handles zero program spend with valid beneficiaries
-    record_zero_spend = deepcopy(VALID_BASE_RECORD) # Use a record with valid impact data
-    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
+    # 4. LOW confidence: Missing data (e.g., operating_scope not specified)
+    record_low_missing_data = deepcopy(VALID_BASE_RECORD)
+    del record_low_missing_data["impact"]["context"]["operating_scope"]
+    del record_low_missing_data["impact"]["context"]["explicit_unit_cost"]
+    response = client.post("/audit", json=record_low_missing_data)
+    assert response.status_code == 200
+    item = get_calculated_metric(response.json(), "cost_per_outcome")
+    assert item["confidence_tier"] == "LOW"
+    assert item["value"] is None
+    assert "missing data" in item["confidence_note"]
+
+    # 5. No metric calculated: Missing essential data for MEDIUM calculation
+    record_medium_fail = deepcopy(VALID_BASE_RECORD)
+    record_medium_fail["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
+    del record_medium_fail["impact"]["context"]["explicit_unit_cost"]
+    record_medium_fail["financials"]["expenditure"]["program_services"] = None # Missing spend
+    response = client.post("/audit", json=record_medium_fail)
+    assert response.status_code == 200
+    item = get_calculated_metric(response.json(), "cost_per_outcome")
+    assert item is None # Function should return None, not a LOW confidence metric
+
+    # 6. No metric calculated: Beneficiary population is zero
+    record_zero_beneficiaries = deepcopy(VALID_BASE_RECORD)
+    record_zero_beneficiaries["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
+    del record_zero_beneficiaries["impact"]["context"]["explicit_unit_cost"]
+    record_zero_beneficiaries["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
+    response = client.post("/audit", json=record_zero_beneficiaries)
+    assert response.status_code == 200
+    item = get_calculated_metric(response.json(), "cost_per_outcome")
+    assert item is None # Cannot divide by zero
+
+    # 7. MEDIUM confidence: Handles zero program spend correctly
+    record_zero_spend = deepcopy(VALID_BASE_RECORD)
+    record_zero_spend["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
+    del record_zero_spend["impact"]["context"]["explicit_unit_cost"]
     record_zero_spend["financials"]["expenditure"]["program_services"] = 0
+    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is not None
-    assert item["details"]["calculation"] == "($0 USD / 500 total beneficiaries) = $0.00 USD per outcome"
-
-    # 5. Handles zero primary outcome value
-    record_zero_outcome = deepcopy(record_fallback)
-    # Set beneficiary population to 0 and metric value to 0 to test zero outcome.
-    record_zero_outcome["impact"]["beneficiaries"][0]["population"] = 0
-    record_zero_outcome["impact"]["metrics"][0]["quantitative_data"]["value"] = 0
-    response = client.post("/audit", json=record_zero_outcome)
-    assert response.status_code == 200
-    item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is None # Function should return None
-
-    # 6. Fallback logic is removed, so metric values are ignored
-    record_temporal_fallback = deepcopy(VALID_BASE_RECORD)
-    record_temporal_fallback["financials"]["expenditure"]["program_services"] = 100000
-    record_temporal_fallback["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
-    record_temporal_fallback["impact"]["metrics"] = [
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 100, "unit": "animals"}, "timeframe": "annual"}, # Should be ignored
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 200, "unit": "animals"}, "timeframe": "annual"}, # Should be ignored
-        {**VALID_BASE_RECORD["impact"]["metrics"][0], "quantitative_data": {"value": 9999, "unit": "animals"}, "timeframe": "cumulative"}, # Should be ignored
-    ]
-    response = client.post("/audit", json=record_temporal_fallback)
-    assert response.status_code == 200
-    item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item is None # Calculation should fail as primary outcome is 0 and there is no fallback
+    assert item["confidence_tier"] == "MEDIUM"
+    assert item["value"] == 0.0
+    assert "($0 USD / 500 total beneficiaries) = $0.00 USD per outcome" in item["details"]["calculation"]
 
 
 def test_check_funding_neglectedness(client: TestClient):

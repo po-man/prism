@@ -12,11 +12,11 @@
 - [x] 2.2 In `impact.system.md`, add an instruction: "If the charity explicitly states the exact cost to help an animal or deliver an intervention (e.g., 'It costs $25 to spay a dog'), capture this in `explicit_unit_cost`. Do NOT attempt to calculate this yourself."
 
 ## 3. Python Logic Updates (`utils_api/app/audits/`)
-- [ ] 3.1 In `impact.py`, update `calculate_cost_per_outcome` to fetch `record.impact.context`.
-- [ ] 3.2 Implement **HIGH Confidence** logic: If `explicit_unit_cost` exists, fetch the financial exchange rate matching the explicit currency (or default to 1.0 if USD). Multiply `amount` by the exchange rate. Set `value` to this amount, `confidence_tier` to `HIGH`, and append the high-confidence note.
-- [ ] 3.3 Implement **LOW Confidence** logic: If `explicit_unit_cost` is null AND `operating_scope` is `multi_domain_operations`, set `value` to `None`, `confidence_tier` to `LOW`, and append the multi-domain disclaimer note.
-- [ ] 3.4 Implement **MEDIUM Confidence** logic: If `explicit_unit_cost` is null AND `operating_scope` is `pure_animal_advocacy`, perform the existing calculation (Program Services USD / Total Beneficiaries). Set `confidence_tier` to `MEDIUM` and append the calculated disclaimer note.
-- [ ] 3.5 Update `tests/test_audit_impact.py` to cover High, Medium, and Low scenarios, verifying that the new `confidence_tier` and `confidence_note` fields populate correctly and that `value` is correctly nulled out for multi-domain charities.
+- [x] 3.1 In `impact.py`, update `calculate_cost_per_outcome` to fetch `record.impact.context`.
+- [x] 3.2 Implement **HIGH Confidence** logic: If `explicit_unit_cost` exists, fetch the financial exchange rate matching the explicit currency (or default to 1.0 if USD). Multiply `amount` by the exchange rate. Set `value` to this amount, `confidence_tier` to `HIGH`, and append the high-confidence note.
+- [x] 3.3 Implement **LOW Confidence** logic: If `explicit_unit_cost` is null AND `operating_scope` is `multi_domain_operations`, set `value` to `None`, `confidence_tier` to `LOW`, and append the multi-domain disclaimer note.
+- [x] 3.4 Implement **MEDIUM Confidence** logic: If `explicit_unit_cost` is null AND `operating_scope` is `pure_animal_advocacy`, perform the existing calculation (Program Services USD / Total Beneficiaries). Set `confidence_tier` to `MEDIUM` and append the calculated disclaimer note.
+- [x] 3.5 Update `tests/test_audit_impact.py` to cover High, Medium, and Low scenarios, verifying that the new `confidence_tier` and `confidence_note` fields populate correctly and that `value` is correctly nulled out for multi-domain charities.
 
 ## 4. Hugo UI Updates (`web/layouts/`)
 - [ ] 4.1 In `index.html` (Master Directory), update the "Cost per Outcome (USD)" column `<td>` generation:

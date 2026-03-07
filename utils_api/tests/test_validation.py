@@ -57,7 +57,15 @@ VALID_IMPACT = {
         "source_quote": None,
         "search_result_index": None,
         "timeframe": "annual"
-    }]
+    }],
+    "context": {
+        "operating_scope": "pure_animal_advocacy",
+        "explicit_unit_cost": {
+            "amount": 100,
+            "currency": "HKD",
+            "description": "Cost to spay one dog."
+        }
+    }
 }
 
 
