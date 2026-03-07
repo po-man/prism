@@ -1,8 +1,8 @@
 ## 1. Schema Updates (`schemas/v1/`)
-- [ ] 1.1 In `impact.schema.json`, add a `context` object at the root level containing:
+- [x] 1.1 In `impact.schema.json`, add a `context` object at the root level containing:
   - `operating_scope`: string, enum `["pure_animal_advocacy", "multi_domain_operations"]`.
   - `explicit_unit_cost`: object (nullable) containing `amount` (number), `currency` (string), and `description` (string).
-- [ ] 1.2 In `analytics.schema.json`, update `calculatedMetric` definition:
+- [x] 1.2 In `analytics.schema.json`, update `calculatedMetric` definition:
   - Add `confidence_tier`: string, enum `["HIGH", "MEDIUM", "LOW"]`.
   - Add `confidence_note`: string.
   - Modify `value` to be `["number", "string", "null"]`.
