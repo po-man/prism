@@ -51,12 +51,13 @@ VALID_IMPACT = {
     "significant_events": [{
         "event_name": "Project Shelter",
         "summary": "Built a new shelter facility.",
-        "intervention_type": "direct_care",
+        "intervention_type": ["individual_rescue_and_sanctuary"],
+        "intervention_type_other_description": None,
         "source_url": None,
         "source_document": "pdf",
         "source_quote": None,
         "search_result_index": None,
-        "timeframe": "annual"
+        "timeframe": "annual",
     }],
     "context": {
         "operating_scope": "pure_animal_advocacy",

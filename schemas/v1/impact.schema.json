@@ -139,9 +139,25 @@
             "description": "A brief summary of the event or intervention."
           },
           "intervention_type": {
-            "type": "string",
-            "enum": ["direct_care", "corporate_campaigns", "policy_advocacy", "dietary_change", "other"],
-            "description": "The category of the intervention."
+            "type": "array",
+            "description": "The categories of the intervention. Multiple selections are allowed.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "corporate_welfare_campaigns",
+                "policy_and_legal_advocacy",
+                "high_volume_spay_neuter",
+                "vegan_outreach_and_education",
+                "individual_rescue_and_sanctuary",
+                "veterinary_care_and_treatment",
+                "capacity_building_and_grants",
+                "other"
+              ]
+            }
+          },
+          "intervention_type_other_description": {
+            "type": ["string", "null"],
+            "description": "If 'other' is selected for intervention_type, provide a 3-5 word summary (max 100 chars) of the intervention. Otherwise, this should be null."
           },
           "source_url": {
             "type": ["string", "null"],
@@ -171,6 +187,7 @@
           "event_name",
           "summary",
           "intervention_type",
+          "intervention_type_other_description",
           "source_url",
           "source_document",
           "source_quote",

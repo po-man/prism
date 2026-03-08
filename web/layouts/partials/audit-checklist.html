@@ -59,7 +59,28 @@
             </summary>
             <div class="p-4 border-t border-gray-200 bg-white">
               <p class="text-gray-700">{{ $item.details.calculation | default "No calculation details available." }}</p>
-              {{ with $item.details.elaboration }}<p class="mt-2 text-sm text-gray-700 italic border-l-2 border-gray-300 pl-2">{{ . }}</p>{{ end }}
+              {{ with $item.details.elaboration }}
+                {{ $elaboration := . }}
+                {{ if findRE `^\[.*\]$` (string $elaboration) }}
+                  {{/* It's a JSON array string */}}
+                  {{ $elaborationList := $elaboration | unmarshal }}
+                  <div class="mt-2 space-y-2 border-l-2 border-gray-300 pl-2 text-sm text-gray-600">
+                    {{ range $elaborationList }}
+                      {{ $line := . }}
+                      {{ if and (not (findRE `^Quote: None$` $line)) (ne $line "Quote: ") }}
+                        {{ if findRE `^Quote: ` $line }}
+                          <p class="italic">"{{ replace $line "Quote: " "" }}"</p>
+                        {{ else }}
+                          <p>{{ $line }}</p>
+                        {{ end }}
+                      {{ end }}
+                    {{ end }}
+                  </div>
+                {{ else }}
+                  {{/* It's a simple string */}}
+                  <p class="mt-2 text-sm text-gray-700 italic border-l-2 border-gray-300 pl-2">{{ $elaboration }}</p>
+                {{ end }}
+              {{ end }}
               {{ with $item.details.formula }}<p class="mt-2 text-sm text-gray-500 font-mono bg-gray-100 p-2 rounded">Formula: {{ . }}</p>{{ end }}
             </div>
           </details>

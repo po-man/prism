@@ -15,15 +15,15 @@ def get_calculated_metric(response_json: dict, metric_id: str):
     return next((metric for metric in response_json["calculated_metrics"] if metric["id"] == metric_id), None)
 
 
-def test_check_evidence_quality(client: TestClient):
-    """Tests the check_evidence_quality audit for various evidence levels."""
+def test_check_monitoring_and_evaluation(client: TestClient):
+    """Tests the check_monitoring_and_evaluation audit for various evidence levels."""
     # 1. Pass with high-quality evidence
     record_high_evidence = deepcopy(VALID_BASE_RECORD)
     record_high_evidence["impact"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
     record_high_evidence["impact"]["metrics"][0]["evidence_quote"] = "We saw a 50% increase."
     response = client.post("/audit", json=record_high_evidence)
     assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_evidence_quality")
+    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "Highest evidence found: 'Quasi-Experimental'."
     assert item["details"]["elaboration"] == "Quote: 'We saw a 50% increase.'"
@@ -37,7 +37,7 @@ def test_check_evidence_quality(client: TestClient):
 
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_evidence_quality")
+    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
     assert item["status"] == "warning"
     assert item["details"]["calculation"] == "Highest evidence found: 'Pre-Post'."
     assert item["details"]["elaboration"] is None # No quote in base record
@@ -47,7 +47,7 @@ def test_check_evidence_quality(client: TestClient):
     record_no_evidence["impact"]["metrics"] = []
     response = client.post("/audit", json=record_no_evidence)
     assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_evidence_quality") # check_evidence_quality defaults to null status
+    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
     assert item["status"] == "warning"
     assert item["details"]["calculation"] == "No impact metrics were provided to assess evidence quality."
 
@@ -56,8 +56,81 @@ def test_check_evidence_quality(client: TestClient):
     del record_missing_impact["impact"]
     response = client.post("/audit", json=record_missing_impact)
     assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_evidence_quality")
+    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
     assert item["details"]["calculation"] == "Impact data with metrics is missing."
+
+
+def test_check_intervention_tractability(client: TestClient):
+    """Tests the check_intervention_tractability audit for various intervention mappings."""
+    # 1. Pass: Highest tractability is 'Quasi-Experimental'
+    record_pass = deepcopy(VALID_BASE_RECORD)
+    record_pass["impact"]["significant_events"] = [
+        {
+            "event_name": "Rescue Operation",
+            "summary": "Rescued animals.",
+            "intervention_type": ["individual_rescue_and_sanctuary"], # Anecdotal
+            "intervention_type_other_description": None,
+            "source_url": None, "source_document": "pdf", "source_quote": "We saw a 50% increase.",
+            "search_result_index": None, "timeframe": "annual"
+        },
+        {
+            "event_name": "Corporate Campaign",
+            "summary": "Caged-free campaign.",
+            "intervention_type": ["corporate_welfare_campaigns"], # Quasi-Experimental
+            "intervention_type_other_description": None,
+            "source_url": None,
+            "source_document": "pdf",
+            "source_quote": "We saw a 50% increase.",
+            "search_result_index": None,
+            "timeframe": "annual"
+        }
+    ]
+    response = client.post("/audit", json=record_pass)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_intervention_tractability")
+    assert item["status"] == "pass"
+    assert "Highest tractability intervention found: 'Corporate Welfare Campaigns'" in item["details"]["elaboration"]
+    assert "Corporate campaigns have a strong, documented history" in item["details"]["elaboration"]
+
+    # 2. Warning: Highest tractability is 'Anecdotal'
+    record_warning = deepcopy(VALID_BASE_RECORD)
+    record_warning["impact"]["significant_events"] = [
+        {
+            "event_name": "Mixed Event",
+            "summary": "Rescued animals and did outreach.",
+            "intervention_type": ["individual_rescue_and_sanctuary", "vegan_outreach_and_education"], # Both Anecdotal
+            "intervention_type_other_description": None,
+            "source_url": None,
+            "source_document": "pdf",
+            "source_quote": "We saw a 50% increase.",
+            "search_result_index": None,
+            "timeframe": "annual"
+        }
+    ]
+    response = client.post("/audit", json=record_warning)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_intervention_tractability")
+    assert item["status"] == "warning"
+    # The exact one it finds first depends on set ordering, so we check for a known rationale
+    assert "EA Rationale:" in item["details"]["elaboration"]
+
+    # 3. Warning: No significant events reported
+    record_no_events = deepcopy(VALID_BASE_RECORD)
+    record_no_events["impact"]["significant_events"] = []
+    response = client.post("/audit", json=record_no_events)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_intervention_tractability")
+    assert item["status"] == "warning"
+    assert item["details"]["elaboration"] == "No significant events or interventions were reported to assess tractability."
+
+    # 4. Warning: No impact data at all
+    record_no_impact = deepcopy(VALID_BASE_RECORD)
+    del record_no_impact["impact"]
+    response = client.post("/audit", json=record_no_impact)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_intervention_tractability")
+    assert item["status"] == "warning"
+    assert item["details"]["elaboration"] == "No significant events or interventions were reported to assess tractability."
 
 
 def test_check_counterfactual_baseline(client: TestClient):
