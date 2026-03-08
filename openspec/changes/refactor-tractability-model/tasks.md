@@ -25,9 +25,9 @@
 - [x] 3.6 Update `tests/test_audit_impact.py` to reflect the renamed M&E function and add unit tests for the new `check_intervention_tractability` function, testing single, multiple, and missing intervention mappings.
 
 ## 4. Hugo UI Updates (`web/layouts/`)
-- [ ] 4.1 In `partials/itn-scorecard.html`, locate the "Tractability" card block.
-- [ ] 4.2 Remove the existing Scratch logic that loops over `impact.data.metrics` to find the highest evidence and the `evidence_quote`.
-- [ ] 4.3 Add logic to find the `check_intervention_tractability` item from `$analytics.check_items`.
-- [ ] 4.4 Extract the highest evidence tier from the check's calculation/elaboration logic to display as the large text (replacing `$highestEvidence`).
-- [ ] 4.5 Display the EA rationale string from `details.calculation` in the `<blockquote class="...">` section instead of the raw `evidence_quote`.
-- [ ] 4.6 Ensure the "How to Read" modal in `partials/index-how-to-read.html` is updated to describe Tractability in terms of "EA Intervention Evidence Base" rather than "Self-Reported Evidence".
+- [x] 4.1 In `partials/itn-scorecard.html`, locate the "Tractability" card block.
+- [x] 4.2 Remove the existing Scratch logic that loops over `impact.data.metrics` to find the highest evidence and the `evidence_quote`.
+- [x] 4.3 Add logic to find the `check_intervention_tractability` item from `$analytics.check_items`.
+- [x] 4.4 Extract the highest evidence tier from the check's calculation/elaboration logic to display as the large text (replacing `$highestEvidence`).
+- [x] 4.5 Display the EA rationale string from `details.calculation` in the `<blockquote class="...">` section instead of the raw `evidence_quote`.
+- [x] 4.6 Ensure the "How to Read" modal in `partials/index-how-to-read.html` is updated to describe Tractability in terms of "EA Intervention Evidence Base" rather than "Self-Reported Evidence".

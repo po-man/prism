@@ -35,21 +35,15 @@
 {{ $maxPop := $s.Get "maxPop" }}
 {{ $primaryBeneficiary := $s.Get "primaryBeneficiary" }}
 
-{{/* Task 1.3: Logic to find the highest evidence quality for Tractability */}}
-{{ $s.Set "evidenceOrder" (dict "RCT/Meta-Analysis" 5 "Quasi-Experimental" 4 "Pre-Post" 3 "Anecdotal" 2 "None" 1) }}
-{{ $s.Set "highestEvidence" "None" }}
-{{ $s.Set "maxEvidenceScore" 1 }}
-{{ range $impact.metrics }}
-  {{/* Find the highest evidence quality and its associated quote */}}
-  {{ $currentScore := index ($s.Get "evidenceOrder") .evidence_quality | default 1 }}
-  {{ if gt $currentScore ($s.Get "maxEvidenceScore") }}
-    {{ $s.Set "maxEvidenceScore" $currentScore }}
-    {{ $s.Set "highestEvidence" .evidence_quality }}
-    {{ $s.Set "evidenceQuote" .evidence_quote }}
-  {{ end }}
+{{/* Logic for Tractability check */}}
+{{ $tractabilityCheck := index (where $analytics.check_items "id" "check_intervention_tractability") 0 }}
+{{ $tractabilityTier := "Not Assessed" }}
+{{ $tractabilityElaboration := slice }}
+{{ if $tractabilityCheck }}
+  {{ $tractabilityTier = $tractabilityCheck.details.calculation }}
+  {{ if $tractabilityCheck.details.elaboration }}{{ $tractabilityElaboration = $tractabilityCheck.details.elaboration | unmarshal }}{{ end }}
 {{ end }}
-{{ $highestEvidence := $s.Get "highestEvidence" }}
-{{ $evidenceQuote := $s.Get "evidenceQuote" }}
+
 {{/* Logic for Neglectedness check */}}
 {{ $neglectednessCheck := findRE `(pass|warning)` (printf "%s" (index (where $analytics.check_items "id" "check_cause_area_neglectedness") 0).status) }}
 {{ $neglectednessStatus := "" }}
@@ -110,9 +104,22 @@
     <div class="p-4 bg-white rounded-lg shadow">
       <h3 class="font-bold text-lg text-gray-700">Tractability</h3>
       <p class="text-sm text-gray-500 mb-2">Rigor of evidence</p>
-      <p class="text-xl font-semibold text-gray-900">{{ $highestEvidence }}</p>
-      <p class="text-gray-600 mb-2">Highest quality of evidence found.</p>
-      {{ with $evidenceQuote }}<blockquote class="border-l-2 border-gray-300 pl-2 text-sm italic text-gray-600">"{{ . }}"</blockquote>{{ end }}
+      <p class="text-xl font-semibold text-gray-900">{{ $tractabilityTier }}</p>
+      <p class="text-gray-600 mb-2">Highest EA evidence tier found.</p>
+      {{ if gt (len $tractabilityElaboration) 0 }}
+        <div class="space-y-2 border-l-2 border-gray-300 pl-2 text-sm text-gray-600">
+          {{ range $tractabilityElaboration }}
+            {{ $line := . }}
+            {{ if and (not (findRE `^Quote: None$` $line)) (ne $line "Quote: ") }}
+              {{ if findRE `^Quote: ` $line }}
+                <p class="italic">"{{ replace $line "Quote: " "" }}"</p>
+              {{ else }}
+                <p>{{ $line }}</p>
+              {{ end }}
+            {{ end }}
+          {{ end }}
+        </div>
+      {{ end }}
     </div>
 
     <!-- Neglectedness -->
