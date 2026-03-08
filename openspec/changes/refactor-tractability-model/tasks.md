@@ -5,8 +5,8 @@
 - [x] 1.4 Add a new property alongside `intervention_type` called `intervention_type_other_description` of type `["string", "null"]` with a max length constraint or description instructing a 3-5 word summary.
 
 ## 2. LLM Prompt Updates (`n8n/prompt-templates/`)
-- [ ] 2.1 In `impact.system.md`, append a new section titled "**Intervention Classification Rubric**".
-- [ ] 2.2 Add definitions for the LLM to use: 
+- [x] 2.1 In `impact.system.md`, append a new section titled "**Intervention Classification Rubric**".
+- [x] 2.2 Add definitions for the LLM to use:
   - `corporate_welfare_campaigns`: Pressuring/partnering with companies to adopt welfare policies.
   - `policy_and_legal_advocacy`: Lobbying governments or pursuing litigation for animal protection.
   - `high_volume_spay_neuter`: Catch-neuter-vaccinate-release (CNVR) and mass sterilisation.
@@ -14,7 +14,7 @@
   - `individual_rescue_and_sanctuary`: Direct rescue, sheltering, or rehoming of specific animals.
   - `veterinary_care_and_treatment`: Mobile clinics or hospitals treating owned/street animals.
   - `capacity_building_and_grants`: Funding or training other advocacy groups.
-- [ ] 2.3 Add a strict instruction: "You may select multiple intervention types. If you must select 'other', you MUST provide a 3-5 word summary in the `intervention_type_other_description` field. Otherwise, leave it null."
+- [x] 2.3 Add a strict instruction: "You may select multiple intervention types. If you must select 'other', you MUST provide a 3-5 word summary in the `intervention_type_other_description` field. Otherwise, leave it null."
 
 ## 3. Python Logic Updates (`utils_api/`)
 - [ ] 3.1 Create `app/audits/constants.py`. Define the `INTERVENTION_TRACTABILITY_MAP` dictionary mapping the new enum keys to their EA evidence level (`"RCT/Meta-Analysis"`, `"Quasi-Experimental"`, `"Pre-Post"`, `"Anecdotal"`) and an explanatory `note`.
