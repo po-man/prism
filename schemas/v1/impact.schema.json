@@ -178,7 +178,30 @@
           "timeframe"
         ]
       }
+    },
+    "context": {
+      "type": "object",
+      "description": "Contextual information about the charity's operations and stated costs.",
+      "properties": {
+        "operating_scope": {
+          "type": "string",
+          "description": "Classification of the charity's primary operational focus.",
+          "enum": [
+            "pure_animal_advocacy",
+            "multi_domain_operations"
+          ]
+        },
+        "explicit_unit_cost": {
+          "type": "object",
+          "description": "Unit cost explicitly stated by the charity in their reporting.",
+          "properties": {
+            "amount": { "type": "number" },
+            "currency": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      }
     }
   },
-  "required": ["beneficiaries", "metrics", "significant_events"]
+  "required": ["beneficiaries", "metrics", "significant_events", "context"]
 }

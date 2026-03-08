@@ -61,5 +61,13 @@ VALID_BASE_RECORD = {
                 "timeframe": "annual",
             }
         ],
+        "context": {
+            "operating_scope": "pure_animal_advocacy",
+            "explicit_unit_cost": {
+                "amount": 25,
+                "currency": "HKD",
+                "description": "Cost to spay one dog."
+            },
+        }
     },
 }

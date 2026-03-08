@@ -10,15 +10,9 @@
 {{ $financials := .financials.data }}
 {{ $analytics := .analytics }}
 
-{{/* Logic to find Cost Per Outcome */}}
-{{ $cost_per_outcome_raw := "" }}
-{{ $cost_per_outcome_formula := "" }}
-{{ range where $analytics.calculated_metrics "id" "cost_per_outcome" }}
-  {{ $cost_per_outcome_raw = .details.calculation }}
-  {{ $cost_per_outcome_formula = .details.formula }}
-{{ end }}
+{{ $cost_metric := index (where $analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
 
-{{/* Task 2.3: Split the calculation string to highlight the retail translation */}}
+{{ $cost_per_outcome_raw := $cost_metric.details.calculation | default "" }}
 {{ $parts := split $cost_per_outcome_raw ". | " }}
 {{ $cost_per_outcome := index $parts 0 }}
 {{ $retail_translation := "" }}{{ if gt (len $parts) 1 }}{{ $retail_translation = index $parts 1 }}{{ end }}
@@ -70,21 +64,31 @@
 
     <!-- Right Column: Cost Per Outcome -->
     <div class="p-4 bg-white rounded-lg shadow flex flex-col">
-      <div class="flex items-center">
+      {{ if and $cost_metric (eq $cost_metric.confidence_tier "LOW") }}
         <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome (USD)</h3>
-      </div>
-      {{ with $cost_per_outcome_formula }}
-        <p class="text-sm text-gray-500 mb-3">{{ . | replaceRE "_" " " | title }}</p>
-      {{ else }}
-        <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
-      {{ end }}
-      <p class="text-base font-mono text-gray-800">{{ $cost_per_outcome | default "Not calculated" }}</p>
-      {{ if $retail_translation }}
-      <div class="mt-auto pt-3">
-        <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r-md">
-          <p class="text-lg font-semibold text-green-800">{{ $retail_translation }}</p>
+        <div class="flex-grow flex items-center justify-center">
+          <div class="p-4 bg-gray-100 border border-gray-200 rounded-md text-center">
+            <p class="text-gray-600 text-sm">{{ $cost_metric.confidence_note }}</p>
+          </div>
         </div>
-      </div>
+      {{ else }}
+        <div class="flex items-center">
+          <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome (USD)</h3>
+        </div>
+        {{ with $cost_metric.details.formula }}
+          <p class="text-sm text-gray-500 mb-3">{{ . | replaceRE "_" " " | title }}</p>
+        {{ else }}
+          <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
+        {{ end }}
+        <p class="text-base font-mono text-gray-800">{{ $cost_per_outcome | default "Not calculated" }}</p>
+        {{ if $retail_translation }}
+        <div class="mt-auto pt-3">
+          <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r-md">
+            <p class="text-lg font-semibold text-green-800">{{ $retail_translation }}</p>
+          </div>
+        </div>
+        {{ end }}
+        <p class="text-xs text-gray-500 italic mt-3">{{ $cost_metric.confidence_note }}</p>
       {{ end }}
     </div>
   </div>

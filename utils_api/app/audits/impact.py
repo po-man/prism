@@ -91,51 +91,99 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
 
 def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[CalculatedMetric]:
     """
-    Calculates the cost per outcome. This is an informational check.
+    Calculates the cost per outcome with a confidence tier. This is an informational metric.
+    - HIGH: The charity explicitly states a unit cost.
+    - MEDIUM: The charity is pure animal advocacy; PRISM calculates the cost.
+    - LOW: The charity is multi-domain; PRISM aborts the calculation to avoid misrepresentation.
     """
-    if (
-        not record.financials
-        or not record.financials.expenditure
-        or record.financials.expenditure.program_services is None
-    ):
+    if not record.impact or not record.impact.context:
         return None
 
-    program_spend = record.financials.expenditure.program_services
-    # Fetch the exchange rate, defaulting to 1.0 if not present
-    rate = (
-        record.financials.currency.usd_exchange_rate if record.financials.currency and record.financials.currency.usd_exchange_rate else 1.0
-    )
-    program_spend_usd = program_spend * rate
+    context = record.impact.context
+    explicit_cost = context.explicit_unit_cost
+    operating_scope = context.operating_scope
 
-    if not record.impact or not record.impact.beneficiaries:
-        return None
+    # --- HIGH CONFIDENCE ---
+    if explicit_cost and explicit_cost.amount is not None:
+        rate = 1.0
+        if record.financials and record.financials.currency and record.financials.currency.usd_exchange_rate:
+            # If the explicit currency matches the report's main currency, use the report's exchange rate.
+            if explicit_cost.currency and explicit_cost.currency.upper() == record.financials.currency.original_code.upper():
+                rate = record.financials.currency.usd_exchange_rate
 
-    primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
+        value_usd = explicit_cost.amount * rate
+        calculation_string = f"Explicitly stated cost of {explicit_cost.amount:,.2f} {explicit_cost.currency} converted to ${value_usd:,.2f} USD."
 
-    if primary_outcome <= 0:
-        return None
+        return CalculatedMetric(
+            id="cost_per_outcome",
+            name="Cost Per Outcome (USD)",
+            value=round(value_usd, 2),
+            confidence_tier="HIGH",
+            confidence_note="This unit cost is explicitly stated by the organisation in their reporting.",
+            details={"formula": "Explicitly stated unit cost by the organisation.", "calculation": calculation_string},
+        )
 
-    cost_per_usd = program_spend_usd / primary_outcome
-    calculation_string = f"(${program_spend_usd:,.0f} USD / {primary_outcome:,.0f} total beneficiaries) = ${cost_per_usd:,.2f} USD per outcome"
+    # --- LOW CONFIDENCE ---
+    if operating_scope == "multi_domain_operations":
+        return CalculatedMetric(
+            id="cost_per_outcome",
+            name="Cost Per Outcome (USD)",
+            value=None,
+            confidence_tier="LOW",
+            confidence_note="Cost per outcome calculation is not available. This organisation conducts significant multi-domain work (e.g., human education, environmental conservation). Dividing the total budget solely by quantified animal outcomes would artificially inflate the cost and misrepresent their financial efficiency.",
+            details={"formula": "Calculation aborted due to multi-domain operations.", "calculation": "Not applicable."},
+        )
 
-    # Add a secondary metric for the UI myth-buster section
-    if cost_per_usd > 0:
-        outcomes_per_1000 = 1000 / cost_per_usd
-        # Format to avoid scientific notation for large numbers.
-        if outcomes_per_1000 >= 1:
-            outcomes_str = f"{outcomes_per_1000:,.0f}"
-        else:
-            outcomes_str = f"{outcomes_per_1000:.3g}"
-        calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_str} outcomes."
+    # --- MEDIUM CONFIDENCE ---
+    if operating_scope == "pure_animal_advocacy":
+        if (
+            not record.financials
+            or not record.financials.expenditure
+            or record.financials.expenditure.program_services is None
+            or not record.impact.beneficiaries
+        ):
+            return None
+
+        program_spend = record.financials.expenditure.program_services
+        rate = (
+            record.financials.currency.usd_exchange_rate
+            if record.financials.currency and record.financials.currency.usd_exchange_rate
+            else 1.0
+        )
+        program_spend_usd = program_spend * rate
+
+        primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
+
+        if primary_outcome <= 0:
+            return None
+
+        cost_per_usd = program_spend_usd / primary_outcome
+        calculation_string = f"(${program_spend_usd:,.0f} USD / {primary_outcome:,.0f} total beneficiaries) = ${cost_per_usd:,.2f} USD per outcome"
+
+        if cost_per_usd > 0:
+            outcomes_per_1000 = 1000 / cost_per_usd
+            outcomes_str = f"{outcomes_per_1000:,.0f}" if outcomes_per_1000 >= 1 else f"{outcomes_per_1000:.3g}"
+            calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_str} outcomes."
+
+        return CalculatedMetric(
+            id="cost_per_outcome",
+            name="Cost Per Outcome (USD)",
+            value=round(cost_per_usd, 2),
+            confidence_tier="MEDIUM",
+            confidence_note="This unit cost is estimated by PRISM by dividing total programme expenditure by the total quantified animal beneficiaries.",
+            details={
+                "formula": "program_services_expenditure / sum_of_beneficiaries",
+                "calculation": calculation_string,
+            },
+        )
 
     return CalculatedMetric(
         id="cost_per_outcome",
         name="Cost Per Outcome (USD)",
-        value=round(cost_per_usd, 2),
-        details={
-            "formula": "program_services_expenditure / sum_of_beneficiaries",
-            "calculation": calculation_string,
-        },
+        value=None,
+        confidence_tier="LOW",
+        confidence_note="Calculation could not be performed due to missing data (e.g., operating scope, financials, or beneficiaries).",
+        details={"formula": "Not applicable.", "calculation": "Not applicable."},
     )
 
 

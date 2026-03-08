@@ -85,8 +85,17 @@
           "description": "Human-readable name for the metric (e.g., 'Cost Per Outcome')."
         },
         "value": {
-          "type": ["number", "string"],
+          "type": ["number", "string", "null"],
           "description": "The calculated value of the metric."
+        },
+        "confidence_tier": {
+          "type": "string",
+          "description": "The confidence level of the calculated metric.",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "confidence_note": {
+          "type": "string",
+          "description": "An explanation of how the confidence tier was determined."
         },
         "details": {
           "type": "object",
@@ -98,7 +107,7 @@
           "required": ["formula", "calculation"]
         }
       },
-      "required": ["id", "name", "value", "details"]
+      "required": ["id", "name", "value", "confidence_tier", "confidence_note", "details"]
     }
   }
 }
