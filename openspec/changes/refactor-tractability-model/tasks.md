@@ -17,12 +17,12 @@
 - [x] 2.3 Add a strict instruction: "You may select multiple intervention types. If you must select 'other', you MUST provide a 3-5 word summary in the `intervention_type_other_description` field. Otherwise, leave it null."
 
 ## 3. Python Logic Updates (`utils_api/`)
-- [ ] 3.1 Create `app/audits/constants.py`. Define the `INTERVENTION_TRACTABILITY_MAP` dictionary mapping the new enum keys to their EA evidence level (`"RCT/Meta-Analysis"`, `"Quasi-Experimental"`, `"Pre-Post"`, `"Anecdotal"`) and an explanatory `note`.
-- [ ] 3.2 In `app/audits/impact.py`, rename the function `check_evidence_quality` to `check_monitoring_and_evaluation`. Update the ID, formula, and text inside the function to reflect M&E rather than general tractability.
-- [ ] 3.3 In `app/audits/impact.py`, create a new function `check_intervention_tractability(record: OrganisationRecord) -> AuditCheckItem`.
-- [ ] 3.4 Implement logic in `check_intervention_tractability`: Iterating over `record.impact.significant_events`, flattening the `intervention_type` arrays, mapping them to `INTERVENTION_TRACTABILITY_MAP`, and determining the highest tractability tier based on an internal hierarchy (RCT > Quasi > Pre-Post > Anecdotal). Set status to `pass` for RCT/Quasi, `warning` for lower. Populate `details.calculation` with the matched intervention and the EA rationale note.
-- [ ] 3.5 In `app/audits/registry.py`, update `AUDIT_CHECKS` array to replace `check_evidence_quality` with `check_monitoring_and_evaluation` and append `check_intervention_tractability`.
-- [ ] 3.6 Update `tests/test_audit_impact.py` to reflect the renamed M&E function and add unit tests for the new `check_intervention_tractability` function, testing single, multiple, and missing intervention mappings.
+- [x] 3.1 Create `app/audits/constants.py`. Define the `INTERVENTION_TRACTABILITY_MAP` dictionary mapping the new enum keys to their EA evidence level (`"RCT/Meta-Analysis"`, `"Quasi-Experimental"`, `"Pre-Post"`, `"Anecdotal"`) and an explanatory `note`.
+- [x] 3.2 In `app/audits/impact.py`, rename the function `check_evidence_quality` to `check_monitoring_and_evaluation`. Update the ID, formula, and text inside the function to reflect M&E rather than general tractability.
+- [x] 3.3 In `app/audits/impact.py`, create a new function `check_intervention_tractability(record: OrganisationRecord) -> AuditCheckItem`.
+- [x] 3.4 Implement logic in `check_intervention_tractability`: Iterating over `record.impact.significant_events`, flattening the `intervention_type` arrays, mapping them to `INTERVENTION_TRACTABILITY_MAP`, and determining the highest tractability tier based on an internal hierarchy (RCT > Quasi > Pre-Post > Anecdotal). Set status to `pass` for RCT/Quasi, `warning` for lower. Populate `details.calculation` with the matched intervention and the EA rationale note.
+- [x] 3.5 In `app/audits/registry.py`, update `AUDIT_CHECKS` array to replace `check_evidence_quality` with `check_monitoring_and_evaluation` and append `check_intervention_tractability`.
+- [x] 3.6 Update `tests/test_audit_impact.py` to reflect the renamed M&E function and add unit tests for the new `check_intervention_tractability` function, testing single, multiple, and missing intervention mappings.
 
 ## 4. Hugo UI Updates (`web/layouts/`)
 - [ ] 4.1 In `partials/itn-scorecard.html`, locate the "Tractability" card block.

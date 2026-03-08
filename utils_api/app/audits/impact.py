@@ -1,21 +1,23 @@
+import json
 from app.schemas.organisation import Metric, OrganisationRecord
 from app.schemas.analytics import AuditCheckItem, AuditDetails, CalculatedMetric
 from typing import Optional
+from app.audits.constants import INTERVENTION_TRACTABILITY_MAP, EVIDENCE_HIERARCHY
 
 
-def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
+def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckItem:
     """
-    Checks the quality of evidence cited in impact claims.
-    Pass if RCT/Meta-Analysis or Quasi-Experimental evidence is found.
-    Warning if only lower forms of evidence are present.
+    Checks the quality of self-reported evidence (M&E) in a charity's impact claims.
+    This evaluates the organisation's capacity for rigorous self-assessment,
+    independent of the general tractability of the interventions they perform.
     """
     base_details = AuditDetails(
-        formula="Highest level of evidence cited in impact claims",
+        formula="Highest level of self-reported evidence cited in impact metrics",
         elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_evidence_quality", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
+        id="check_monitoring_and_evaluation", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
     if not record.impact:
@@ -38,9 +40,8 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
 
     highest_evidence = "None"
     highest_evidence_metric: Metric | None = None
-    order = ["RCT/Meta-Analysis", "Quasi-Experimental", "Pre-Post", "Anecdotal", "None"]
 
-    for level in order: # Find the highest evidence level present
+    for level in EVIDENCE_HIERARCHY: # Find the highest evidence level present
         for metric in record.impact.metrics:
             if metric.evidence_quality == level:
                 highest_evidence = level
@@ -58,6 +59,70 @@ def check_evidence_quality(record: OrganisationRecord) -> AuditCheckItem:
     if highest_evidence_metric and highest_evidence_metric.evidence_quote:
         base_item.details.elaboration = f"Quote: '{highest_evidence_metric.evidence_quote}'"
 
+    return base_item
+
+
+def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckItem:
+    """
+    Evaluates the tractability of a charity's interventions against a predefined
+    map of EA-aligned evidence levels. This check is based on the general
+    proven effectiveness of an intervention type, not the charity's own M&E.
+    """
+    base_details = AuditDetails(
+        formula="Mapping of charity's intervention types against the EA Intervention Tractability evidence base.",
+        elaboration=None,
+        calculation="Not computed",
+    )
+    base_item = AuditCheckItem(
+        id="check_intervention_tractability", status="fail", significance="HIGH", category="Impact Awareness", details=base_details
+    )
+
+    if not record.impact or not record.impact.significant_events:
+        base_item.details.elaboration = "No significant events or interventions were reported to assess tractability."
+        base_item.status = "warning"
+        return base_item
+
+    def get_highest_level_for_event(event):
+        """Helper to find the highest evidence level for a single event's interventions."""
+        highest_level_index = len(EVIDENCE_HIERARCHY)  # Default to lowest
+        highest_intervention = None
+        for intervention in event.intervention_type:
+            level = INTERVENTION_TRACTABILITY_MAP.get(intervention, {}).get("level")
+            if level in EVIDENCE_HIERARCHY:
+                idx = EVIDENCE_HIERARCHY.index(level)
+                if idx < highest_level_index:
+                    highest_level_index = idx
+                    highest_intervention = intervention
+        return highest_level_index, highest_intervention
+
+    # Filter events that have a source quote and calculate their evidence level
+    events_with_evidence = []
+    for event in record.impact.significant_events:
+        if event.source_quote:
+            level_index, intervention = get_highest_level_for_event(event)
+            if intervention:
+                events_with_evidence.append((level_index, intervention, event))
+
+    if not events_with_evidence:
+        base_item.details.elaboration = "No interventions with a source quote were found to assess tractability."
+        base_item.status = "warning"
+        return base_item
+
+    # Sort by evidence level (lower index is better)
+    events_with_evidence.sort(key=lambda x: x[0])
+
+    # Take the top event
+    top_level_index, top_intervention, top_event = events_with_evidence[0]
+    highest_level_found = EVIDENCE_HIERARCHY[top_level_index]
+    highest_intervention_details = INTERVENTION_TRACTABILITY_MAP[top_intervention]
+
+    base_item.details.elaboration = json.dumps([
+        f"Highest tractability intervention found: '{top_intervention.replace('_', ' ').title()}'",
+        f"EA Rationale: {highest_intervention_details['note']}",
+        f"Quote: {top_event.source_quote}"
+    ])
+    base_item.details.calculation = highest_level_found.replace("_", " ").title()
+    base_item.status = "pass" if highest_level_found in ["RCT/Meta-Analysis", "Quasi-Experimental"] else "warning"
     return base_item
 
 
