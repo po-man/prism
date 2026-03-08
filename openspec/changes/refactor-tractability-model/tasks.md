@@ -1,8 +1,8 @@
 ## 1. Schema Updates (`schemas/v1/`)
-- [ ] 1.1 In `impact.schema.json`, locate `significant_events.items.properties.intervention_type`.
-- [ ] 1.2 Change the `type` of `intervention_type` from `"string"` to `"array"`.
-- [ ] 1.3 Define the `items` of the array to be of type `"string"` with the `enum`: `["corporate_welfare_campaigns", "policy_and_legal_advocacy", "high_volume_spay_neuter", "vegan_outreach_and_education", "individual_rescue_and_sanctuary", "veterinary_care_and_treatment", "capacity_building_and_grants", "other"]`.
-- [ ] 1.4 Add a new property alongside `intervention_type` called `intervention_type_other_description` of type `["string", "null"]` with a max length constraint or description instructing a 3-5 word summary.
+- [x] 1.1 In `impact.schema.json`, locate `significant_events.items.properties.intervention_type`.
+- [x] 1.2 Change the `type` of `intervention_type` from `"string"` to `"array"`.
+- [x] 1.3 Define the `items` of the array to be of type `"string"` with the `enum`: `["corporate_welfare_campaigns", "policy_and_legal_advocacy", "high_volume_spay_neuter", "vegan_outreach_and_education", "individual_rescue_and_sanctuary", "veterinary_care_and_treatment", "capacity_building_and_grants", "other"]`.
+- [x] 1.4 Add a new property alongside `intervention_type` called `intervention_type_other_description` of type `["string", "null"]` with a max length constraint or description instructing a 3-5 word summary.
 
 ## 2. LLM Prompt Updates (`n8n/prompt-templates/`)
 - [ ] 2.1 In `impact.system.md`, append a new section titled "**Intervention Classification Rubric**".
