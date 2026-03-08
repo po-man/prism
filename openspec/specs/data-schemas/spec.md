@@ -4,13 +4,13 @@
 This specification defines the data contracts for the entire system. It provides canonical JSON schemas for all data entities, including ingestion payloads, extracted financial and impact metrics, and the final `analytics` object. These schemas ensure data integrity and consistency as information moves from extraction to persistence and final presentation.
 ## Requirements
 ### Requirement: Impact Schema Definition
-The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and operating scope context.
+The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Extracting Operating Scope and Explicit Unit Costs
-- **WHEN** the `impact.schema.json` is validated
-- **THEN** it MUST include a new root-level object named `context`.
-- **AND** the `context` object MUST contain `operating_scope` with an enum of `["pure_animal_advocacy", "multi_domain_operations"]`.
-- **AND** the `context` object MUST contain an optional `explicit_unit_cost` object containing `amount` (number), `currency` (string), and `description` (string) to capture costs explicitly declared by the charity.
+#### Scenario: Multi-Label Intervention Classification and Granular Taxonomy
+- **WHEN** validating the `impact.schema.json`
+- **THEN** the `significant_events.items.properties.intervention_type` MUST be defined as an `array` of strings, allowing multiple classifications per event.
+- **AND** the array items MUST be restricted to the following expanded enum: `["corporate_welfare_campaigns", "policy_and_legal_advocacy", "high_volume_spay_neuter", "vegan_outreach_and_education", "individual_rescue_and_sanctuary", "veterinary_care_and_treatment", "capacity_building_and_grants", "other"]`.
+- **AND** a new string property named `intervention_type_other_description` MUST be present to capture brief descriptions when "other" is selected.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons.

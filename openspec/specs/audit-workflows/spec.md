@@ -4,15 +4,18 @@
 This specification defines the system's core data processing pipelines, managed by the n8n orchestrator. It covers the entire workflow from data ingestion and parallel extraction (document parsing and web search) to the final evaluation by the "Audit Checklist Engine." This includes the logic for calling external services (like Gemini for AI extraction and PocketBase for persistence) and the deterministic rules for generating the standardised `check_items` array based on financial, impact, and risk criteria.
 ## Requirements
 ### Requirement: EA Animal Advocacy Audit Logic
-The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system.
+The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system, separating intervention-level tractability from organisation-level monitoring capabilities.
 
-#### Scenario: Executing Three-Tier Thresholds
-- **WHEN** the `utils_api` evaluates quantitative data
-- **THEN** it MUST apply the following boundaries:
-  - `check_liquidity`: `pass` (>= 6 months), `warning` (>= 3 and < 6 months), `fail` (< 3 months).
-  - `check_reserve_cap`: `pass` (<= 2 years), `warning` (> 2 and <= 5 years), `fail` (> 5 years).
-  - `check_funding_neglectedness`: `pass` (< 40% government grants), `warning` (>= 40% and <= 80%), `fail` (> 80%).
-  - `check_cause_area_neglectedness`: `pass` (>= 50% high-neglectedness), `warning` (> 0% and < 50%), `fail` (0% high-neglectedness).
+#### Scenario: Evaluating Intervention Tractability against EA Ground Truth
+- **WHEN** the audit engine evaluates a charity's impact data
+- **THEN** a dedicated function (`check_intervention_tractability`) MUST map the extracted `intervention_type` arrays from all `significant_events` against a static, predefined EA `INTERVENTION_TRACTABILITY_MAP`.
+- **AND** it MUST assign a status based on the highest tractability tier found (e.g., `pass` for RCT/Quasi-Experimental, `warning` for lower tiers).
+- **AND** the calculation details MUST output the specific intervention type matched alongside the EA rationale note from the map.
+
+#### Scenario: Evaluating Organisation-Level M&E Capacity
+- **WHEN** the audit engine evaluates the `metrics` array
+- **THEN** the existing logic evaluating the charity's self-reported `evidence_quality` MUST be preserved but formally renamed and re-categorised as `check_monitoring_and_evaluation`.
+- **AND** it MUST reflect the charity's internal rigour, independent of general intervention tractability.
 
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, dynamically assigning a Confidence Tier to prevent misrepresentation of multi-domain charities.
@@ -33,12 +36,12 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 - **AND** it MUST set the `confidence_tier` to `LOW` and the `confidence_note` to "Cost per outcome calculation is not available. This organisation conducts significant multi-domain work (e.g., human education, environmental conservation). Dividing the total budget solely by quantified animal outcomes would artificially inflate the cost and misrepresent their financial efficiency."
 
 ### Requirement: LLM Prompt Injection for Impact
-The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and ensuring temporal and mathematical consistency.
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.
 
-#### Scenario: Prompting for Operating Scope and Explicit Costs
+#### Scenario: Semantic Rubric Injection for Interventions
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST explicitly instruct the model to analyse the charity's overall mission and classify `operating_scope` as `multi_domain_operations` if significant funds or efforts are directed toward humans, broad environmental policy, or non-animal beneficiaries.
-- **AND** it MUST instruct the model to aggressively search for and extract any explicitly stated "cost per intervention" or "cost per animal" directly into the `explicit_unit_cost` object.
+- **THEN** the system prompt MUST include explicit, concise definitions for every allowed enum value in `intervention_type` to guide the LLM's classification logic and minimise the usage of "other".
+- **AND** the prompt MUST instruct the model to provide a 3-5 word summary in `intervention_type_other_description` ONLY if "other" is selected.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts and prioritized impact models.
