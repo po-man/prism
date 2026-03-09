@@ -18,8 +18,8 @@
   ```
 
 ## 3. Data Source Icon Spacing (`web/layouts/_default/single.html`)
-- [ ] 3.1 Locate the "Data Sources:" block (around line 34).
-- [ ] 3.2 Change all instances of `<span class="ml-1.5">` to `<span class="ml-0.5">` next to the SVG partials for "Annual Report", "Financials", and "Web Search".
+- [x] 3.1 Locate the "Data Sources:" block (around line 34).
+- [x] 3.2 Change all instances of `<span class="ml-1.5">` to `<span class="ml-0.5">` next to the SVG partials for "Annual Report", "Financials", and "Web Search".
 
 ## 4. Timezone Localisation (Hong Kong Time)
 - [ ] 4.1 In `web/layouts/_default/single.html`, locate the "Last Updated" format: `{{ dateFormat "Jan 2, 2006" . }}`.
