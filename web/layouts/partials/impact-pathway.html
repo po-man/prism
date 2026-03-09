@@ -45,7 +45,7 @@
             {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}{{ $usd_total := mul . $rate }}USD ${{ lang.FormatNumber 0 $usd_total }}
           {{ else }}N/A{{ end }}
         </p>
-        <p class="text-gray-600">Total Annual Expenditure</p>
+        <p class="text-gray-600">Total Annual Expenditure {{ with $financials.financial_year }}(FY {{ . }}){{ end }}</p>
       </div>
     </div>
 

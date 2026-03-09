@@ -4,15 +4,15 @@
 - [x] 1.3 In `web/layouts/_default/baseof.html`, update the manifest link to process it as a template using `resources.ExecuteAsTemplate`, ensuring it works in non-root deployments.
 
 ## 2. Financial Year Display
-- [ ] 2.1 In `web/layouts/_default/single.html`, locate the header section under the `registration_id`.
-- [ ] 2.2 Add a conditional block to display the financial year:
+- [x] 2.1 In `web/layouts/_default/single.html`, locate the header section under the `registration_id`.
+- [x] 2.2 Add a conditional block to display the financial year:
   ```html
   {{ with $org.financials.data.financial_year }}
     <p class="mt-1 text-sm text-gray-500 font-mono">FY: {{ . }}</p>
   {{ end }}
   ```
-- [ ] 2.3 In `web/layouts/partials/impact-pathway.html`, locate the `<p class="text-gray-600">Total Annual Expenditure</p>` line.
-- [ ] 2.4 Update it to include the financial year context:
+- [x] 2.3 In `web/layouts/partials/impact-pathway.html`, locate the `<p class="text-gray-600">Total Annual Expenditure</p>` line.
+- [x] 2.4 Update it to include the financial year context:
   ```html
   <p class="text-gray-600">Total Annual Expenditure {{ with $financials.financial_year }}(FY {{ . }}){{ end }}</p>
   ```

@@ -33,6 +33,9 @@
               {{ with $org.meta.registration_id }}
                 <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
               {{ end }}
+              {{ with $org.financials.data.financial_year }}
+                <p class="mt-1 text-sm text-gray-500 font-mono">FY: {{ . }}</p>
+              {{ end }}
             </div>
             {{ with $org.updated }}
             <div class="text-right flex-shrink-0 ml-4">
