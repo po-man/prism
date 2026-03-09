@@ -13,12 +13,11 @@ The static site generator (Hugo) SHALL render the Importance, Tractability, and 
 - **AND** it MUST display the EA rationale string (from the audit details) as the supporting text, replacing the charity's self-reported quote.
 
 ### Requirement: Data Provenance Indicators
-The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency.
+The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency, including temporal bounding.
 
-#### Scenario: Rendering available and missing sources
-- **WHEN** rendering a charity's profile page
-- **THEN** the system MUST display an icon row indicating the status of the "Annual Report", "Financial Report", and "Web Search".
-- **AND** if the `annual_report` or `financial_report` ID is `null` or missing in the JSON data, the respective icon MUST be rendered in a disabled, greyed-out, or struck-through state.
+#### Scenario: Displaying the Financial Year
+- **WHEN** rendering a charity's profile page and Impact Pathway
+- **THEN** the UI MUST explicitly display the `financial_year` associated with the extracted data to ensure users understand the temporal snapshot of the financial metrics.
 
 ### Requirement: Animal Beneficiary Badges
 The UI SHALL visually categorize the charity's beneficiaries to immediately communicate cause-area neglectedness.
@@ -57,10 +56,7 @@ The UI SHALL render the deterministic audit results, filtering out noise and pro
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually.
 
-#### Scenario: Displaying Confidence Tiers in the Master Table
-- **WHEN** rendering the "Cost per Outcome (USD)" column
-- **THEN** if the `confidence_tier` is `LOW`, the UI MUST render "N/A" with a subtle warning tooltip explaining the multi-domain dilution.
-- **AND** if the `confidence_tier` is `HIGH`, it MUST render the value next to a distinct icon (e.g., a solid checkmark) denoting an explicitly stated cost.
-- **AND** if the `confidence_tier` is `MEDIUM`, it MUST render the value next to a distinct icon (e.g., a calculator) denoting a PRISM-calculated cost.
-- **AND** the column MUST sort by the numeric unit cost for High/Medium values, pushing all "N/A" (Low Confidence) values to the bottom regardless of sort direction.
+#### Scenario: Default Sorting Behaviour
+- **WHEN** a user interacts with a sortable column header in the Master Directory for the first time
+- **THEN** the table MUST sort the data in descending order (highest to lowest, or newest to oldest) to immediately surface the most impactful or relevant records.
 
