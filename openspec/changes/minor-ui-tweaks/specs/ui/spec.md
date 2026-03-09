@@ -13,7 +13,3 @@ The UI SHALL display the data sources used to generate the charity's evaluation 
 #### Scenario: Displaying the Financial Year
 - **WHEN** rendering a charity's profile page and Impact Pathway
 - **THEN** the UI MUST explicitly display the `financial_year` associated with the extracted data to ensure users understand the temporal snapshot of the financial metrics.
-
-#### Scenario: Timezone Accuracy
-- **WHEN** rendering the "Last Updated" timestamp on any page
-- **THEN** the system MUST explicitly convert the stored UTC time to Hong Kong Time (`Asia/Hong_Kong`) to accurately reflect the operating timezone of the platform.
