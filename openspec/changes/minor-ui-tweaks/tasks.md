@@ -1,6 +1,7 @@
-## 1. Favicon Integration (`web/layouts/_default/baseof.html`)
-- [ ] 1.1 In the `<head>` section, add a favicon link: `<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">`.
-- [ ] 1.2 Add a placeholder `favicon.ico` file to the `web/static/` directory (you will need to provide the actual icon file here).
+## 1. Favicon Integration (`web/layouts/_default/baseof.html`, `web/assets/favicon/`)
+- [x] 1.1 In `web/layouts/_default/baseof.html`, add `<link>` tags to the `<head>` to reference all favicon assets (`.svg`, `.png`, `.ico`, `apple-touch-icon.png`) from the `assets/favicon/` directory using Hugo's `resources.Get`.
+- [x] 1.2 Update `web/assets/favicon/site.webmanifest` to be a Hugo template, using `resources.Get` to dynamically generate relative paths for the manifest icons.
+- [x] 1.3 In `web/layouts/_default/baseof.html`, update the manifest link to process it as a template using `resources.ExecuteAsTemplate`, ensuring it works in non-root deployments.
 
 ## 2. Financial Year Display
 - [ ] 2.1 In `web/layouts/_default/single.html`, locate the header section under the `registration_id`.
