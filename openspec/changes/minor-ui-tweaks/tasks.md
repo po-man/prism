@@ -22,4 +22,4 @@
 - [x] 3.2 Change all instances of `<span class="ml-1.5">` to `<span class="ml-0.5">` next to the SVG partials for "Annual Report", "Financials", and "Web Search".
 
 ## 4. Table Sorting Inversion (`web/layouts/index.html`)
-- [ ] 4.1 In the `<thead>` section of the `#audits-table`, change every instance of `data-sort-dir="asc"` to `data-sort-dir="desc"`. This ensures the JavaScript will treat the first click as a trigger for a descending sort.
+- [x] 4.1 In the `<thead>` section of the `#audits-table`, change every instance of `data-sort-dir="asc"` to `data-sort-dir="desc"`. This ensures the JavaScript will treat the first click as a trigger for a descending sort.

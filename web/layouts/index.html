@@ -22,14 +22,14 @@
     <table class="min-w-full text-left border-collapse table-fixed" id="audits-table">
       <thead class="border-b bg-gray-100">
         <tr>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="asc">Organisation Name</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Data Sources</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Target Species (Neglectedness)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Total Beneficiaries (Importance)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="tractability">Evidence Quality (Tractability)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="number">Cost per Outcome (USD)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="audit">Audit Summary</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="asc" data-sort-type="date">Last Updated</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="desc">Organisation Name</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Data Sources</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Target Species (Neglectedness)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Total Beneficiaries (Importance)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="tractability">Evidence Quality (Tractability)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Cost per Outcome (USD)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="audit">Audit Summary</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="date">Last Updated</th>
         </tr>
       </thead>
       <tbody>
@@ -201,7 +201,7 @@
               </td>
               <td class="px-4 py-3 text-gray-700 text-right whitespace-nowrap" data-label="Last Updated" data-sort-value="{{ with $org.updated }}{{ dateFormat "2006-01-02" . }}{{ else }}0{{ end }}">
                 {{ with $org.updated }}
-                  {{ dateFormat "2006/01/02" . }}
+                  {{ . | time.Format ":date_long" }}
                 {{ else }}
                   N/A
                 {{ end }}
@@ -249,17 +249,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     const [passA, warnA, failA] = parseAudit(valA);
                     const [passB, warnB, failB] = parseAudit(valB);
 
-                    // 'asc' sort is "best" to "worst": more passes, fewer warnings, fewer fails.
-                    // 'desc' sort is the reverse.
-                    const direction = sortDir === 'asc' ? 1 : -1;
-
-                    // Priority 1: Number of green lights (descending)
-                    if (passA !== passB) return (passB - passA) * direction;
-                    // Priority 2: Number of yellow lights (ascending)
-                    if (warnA !== warnB) return (warnA - warnB) * direction;
-                    // Priority 3: Number of red lights (ascending)
-                    if (failA !== failB) return (failA - failB) * direction;
-
+                    if (sortDir === 'desc') {
+                        // DESC sort (best to worst): More passes -> fewer warnings -> fewer fails
+                        if (passA !== passB) return passB - passA;   // Descending passes
+                        if (warnA !== warnB) return warnA - warnB;   // Ascending warnings
+                        if (failA !== failB) return failA - failB;   // Ascending fails
+                    } else {
+                        // ASC sort (worst to best): More fails -> more warnings -> fewer passes
+                        if (failA !== failB) return failB - failA;   // Descending fails
+                        if (warnA !== warnB) return warnB - warnA;   // Descending warnings
+                        if (passA !== passB) return passA - passB;   // Ascending passes
+                    }
                     return 0;
                 } else if (sortType === 'tractability') {
                     // 'Not Assessed' is 0, so it will be lowest.
@@ -282,10 +282,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Reset direction for other headers
             headers.forEach(h => {
-                if (h !== header) {
-                    h.dataset.sortDir = 'asc';
-                    h.classList.remove('sorted-asc', 'sorted-desc');
-                }
+                // The first click on any column should sort descending.
+                // The initial state is 'desc', so the first click will toggle to 'asc' and sort.
+                // The JS logic needs to be inverted to handle this.
+                h.dataset.sortDir = 'desc';
+                h.classList.remove('sorted-asc', 'sorted-desc');
             });
 
             // Update current header direction and class
