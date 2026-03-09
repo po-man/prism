@@ -38,7 +38,7 @@
       {{ end }}
 
       <!-- Left Column: Overhead Ratio -->
-      <div class="p-4 bg-white rounded-lg shadow">
+      <div class="p-4 bg-white rounded-lg shadow flex flex-col">
         <h3 class="font-bold text-lg text-gray-700">Expense Breakdown</h3>
         <p class="text-sm text-gray-500 mb-2">
           As a percentage of total expenditure
@@ -58,6 +58,10 @@
           {{ if gt $prog_pct 0 }}<span><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1"></span>Program ({{ printf "%.1f" $prog_pct }}%)</span>{{ end }}
           {{ if gt $admin_pct 0 }}<span><span class="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1"></span>Admin ({{ printf "%.1f" $admin_pct }}%)</span>{{ end }}
           {{ if gt $fundraising_pct 0 }}<span><span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span>Fundraising ({{ printf "%.1f" $fundraising_pct }}%)</span>{{ end }}
+        </div>
+        <!-- Educational Disclaimer -->
+        <div class="mt-auto pt-3 text-xs text-gray-500 italic">
+          <p class="mt-1"><span class="font-bold not-italic">The Overhead Myth</span> Low overhead does not automatically mean high impact. Effective charities invest in systems, staff, and evaluation to maximise their results. Focusing solely on a low admin ratio can inadvertently penalise organisations for being well-managed.</p>
         </div>
       </div>
     {{ end }}
@@ -88,14 +92,11 @@
           </div>
         </div>
         {{ end }}
-        <p class="text-xs text-gray-500 italic mt-3">{{ $cost_metric.confidence_note }}</p>
+        {{ if $cost_metric.confidence_note }}
+        <p class="text-xs text-gray-500 italic mt-auto pt-3">{{ $cost_metric.confidence_note }}</p>
+        {{ end }}
       {{ end }}
     </div>
   </div>
 
-  <!-- Educational Disclaimer -->
-  <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
-    <p class="font-bold">The Overhead Myth</p>
-    <p class="mt-1 text-sm">Low overhead does not automatically mean high impact. Effective charities invest in systems, staff, and evaluation to maximise their results. Focusing solely on a low admin ratio can inadvertently penalise organisations for being well-managed.</p>
-  </div>
 </div>

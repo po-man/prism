@@ -33,6 +33,9 @@
               {{ with $org.meta.registration_id }}
                 <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
               {{ end }}
+              {{ with $org.financials.data.financial_year }}
+                <p class="mt-1 text-sm text-gray-500 font-mono">FY: {{ . }}</p>
+              {{ end }}
             </div>
             {{ with $org.updated }}
             <div class="text-right flex-shrink-0 ml-4">
@@ -50,12 +53,12 @@
               {{ if and $org.annual_report $annual_report_url }}
                 <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Annual Report Provided (Click to view)">
                   {{ partial "icons/annual-report.svg" $org }}
-                  <span class="ml-1.5">Annual Report</span>
+                  <span class="ml-0.5">Annual Report</span>
                 </a>
               {{ else }}
                 <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Annual Report Missing">
                   {{ partial "icons/annual-report.svg" $org }}
-                  <span class="ml-1.5">Annual Report</span>
+                  <span class="ml-0.5">Annual Report</span>
                 </span>
               {{ end }}
 
@@ -63,12 +66,12 @@
               {{ if and $org.financial_report $financial_report_url }}
                 <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Financial Report Provided (Click to view)">
                   {{ partial "icons/financials.svg" . }}
-                  <span class="ml-1.5">Financials</span>
+                  <span class="ml-0.5">Financials</span>
                 </a>
               {{ else }}
                 <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Financial Report Missing">
                   {{ partial "icons/financials.svg" . }}
-                  <span class="ml-1.5">Financials</span>
+                  <span class="ml-0.5">Financials</span>
                 </span>
               {{ end }}
 
@@ -80,12 +83,12 @@
               {{ if $has_web_source }}
                 <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
                   {{ partial "icons/web-search.svg" $org }}
-                  <span class="ml-1.5">Web Search</span>
+                  <span class="ml-0.5">Web Search</span>
                 </span>
               {{ else }}
                 <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Web Intelligence Search Performed (No impact data found from web sources)">
                   {{ partial "icons/web-search.svg" $org }}
-                  <span class="ml-1.5">Web Search</span>
+                  <span class="ml-0.5">Web Search</span>
                 </span>
               {{ end }}
             </div>

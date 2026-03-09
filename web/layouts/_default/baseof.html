@@ -4,6 +4,12 @@
     <title>{{ if not .IsHome }}{{ .Title }} | {{ end }}PRISM</title>
     {{ $style := resources.Get "main.css" | postCSS }}
     <link rel="stylesheet" href="{{ $style.RelPermalink }}">
+    {{/* Favicon Integration */}}
+    {{ with resources.Get "favicon/favicon.svg" }}<link rel="icon" type="image/svg+xml" href="{{ .RelPermalink }}">{{ end }}
+    {{ with resources.Get "favicon/favicon-96x96.png" }}<link rel="icon" type="image/png" sizes="96x96" href="{{ .RelPermalink }}">{{ end }}
+    {{ with resources.Get "favicon/apple-touch-icon.png" }}<link rel="apple-touch-icon" sizes="180x180" href="{{ .RelPermalink }}">{{ end }}
+    {{ with resources.Get "favicon/favicon.ico" }}<link rel="shortcut icon" href="{{ .RelPermalink }}">{{ end }}
+    {{ $manifest := resources.Get "favicon/site.webmanifest" | resources.ExecuteAsTemplate "site.webmanifest" . }}<link rel="manifest" href="{{ $manifest.RelPermalink }}">
     {{ $customStyle := resources.Get "css/custom.css" }}
     <link rel="stylesheet" href="{{ $customStyle.RelPermalink }}">
 </head>

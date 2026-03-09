@@ -117,9 +117,9 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     highest_intervention_details = INTERVENTION_TRACTABILITY_MAP[top_intervention]
 
     base_item.details.elaboration = json.dumps([
+        f"Quote: {top_event.source_quote}",
         f"Highest tractability intervention found: '{top_intervention.replace('_', ' ').title()}'",
         f"EA Rationale: {highest_intervention_details['note']}",
-        f"Quote: {top_event.source_quote}"
     ])
     base_item.details.calculation = highest_level_found.replace("_", " ").title()
     base_item.status = "pass" if highest_level_found in ["RCT/Meta-Analysis", "Quasi-Experimental"] else "warning"
