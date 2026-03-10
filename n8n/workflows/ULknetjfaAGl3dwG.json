@@ -1,0 +1,204 @@
+{
+  "updatedAt": "2026-03-06T15:22:00.909Z",
+  "createdAt": "2026-03-06T15:01:58.898Z",
+  "id": "ULknetjfaAGl3dwG",
+  "name": "Fill Exchange Rate",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// This script should be placed in a new n8n \"Code\" node\n// following the \"Parsed Content (Financials)\" node.\n\nfor (const item of $input.all()) {\n  const {\n    financial_year: financialYear,\n    original_code: originalCode,\n  } = item.json;\n\n  if (!financialYear || !originalCode) {\n    throw new Error(\"Input is missing required financial_year or original_code fields.\");\n  }\n\n  // 1. Extract the base year from the financial_year string (e.g., \"2023-24\" -> \"2023\")\n  const yearMatch = financialYear.match(/^\\d{4}/);\n\n  if (!yearMatch) {\n    throw new Error(`Could not parse a valid year from financial_year: \"${financialYear}\"`);\n  }\n  const year = yearMatch[0];\n\n  // 2. Define the target date for the historical exchange rate (Dec 31st of the reporting year)\n  const targetDate = `${year}-12-31`;\n\n  // 3. Check if the original currency is already USD to determine if an API call is needed.\n  const originalCodeUpperCased = originalCode.toUpperCase();\n\n  item.json = {\n    target_date: targetDate,\n    original_code: originalCodeUpperCased,\n    skip_api_call: originalCodeUpperCased === 'USD',\n  }\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        4784
+      ],
+      "id": "386a7529-714e-487e-b525-a8fd43522fcd",
+      "name": "Prepare Exchange Rate Lookup"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This script should be placed in a new n8n \"Code\" node\n// following the \"Get Exchange Rate\" HTTP Request node.\n\nfor (const item of $input.all()) {\n  // The original financial data is nested from a previous step.\n  const { original_code: originalCode } = $('Start').first().json;\n  \n  // The API response from the HTTP Request node is at the top level of the item's JSON.\n  const { date, rates, target_date: targetDate, skip_api_call: skipApiCall } = item.json;\n\n  if (skipApiCall) {\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: 1.0,\n      rate_date: targetDate,\n    }\n  } else {\n    if (!rates || typeof rates.USD === 'undefined' || !date) {\n      throw new Error(\"API response from Frankfurter is missing 'rates.USD' or 'date'.\");\n    }\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: rates.USD,\n      rate_date: date,\n    };\n  }\n}\n\n// Return the modified items, which now contain the complete currency object.\n// The structure is ready for the \"Schema Validation (Financials)\" node.\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        4784
+      ],
+      "id": "4eea5091-4106-40d1-b260-c566ca2836f3",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.frankfurter.dev/v1/{{ $json.target_date }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "base",
+              "value": "={{ $json.original_code }}"
+            },
+            {
+              "name": "symbols",
+              "value": "USD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2080,
+        4784
+      ],
+      "id": "3fe43b9d-d16e-4eb3-aad5-c5f3e0c4036d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4f8926d3-c19c-43d6-9d7e-ec483465649b",
+              "leftValue": "={{ $json.skip_api_call }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1856,
+        4784
+      ],
+      "id": "b5a18b97-e347-45c0-8ad7-fe418c8c9250",
+      "name": "If skip exchange rate API call"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "financial_year"
+            },
+            {
+              "name": "original_code"
+            }
+          ]
+        }
+      },
+      "id": "36e4190e-eb2e-4780-93d8-cb60a414a8f8",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1456,
+        4784
+      ]
+    }
+  ],
+  "connections": {
+    "Prepare Exchange Rate Lookup": {
+      "main": [
+        [
+          {
+            "node": "If skip exchange rate API call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If skip exchange rate API call": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Prepare Exchange Rate Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "aece54f9-73b1-40f5-9f47-b9d1b232badd",
+  "activeVersionId": "aece54f9-73b1-40f5-9f47-b9d1b232badd",
+  "versionCounter": 9,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-03-06T15:01:58.902Z",
+      "createdAt": "2026-03-06T15:01:58.902Z",
+      "role": "workflow:owner",
+      "workflowId": "ULknetjfaAGl3dwG",
+      "projectId": "pZby5XCEm5tZbxzR",
+      "project": {
+        "updatedAt": "2026-03-05T06:11:11.768Z",
+        "createdAt": "2026-03-05T06:07:26.491Z",
+        "id": "pZby5XCEm5tZbxzR",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "88171498-2ee2-4ca4-be6c-a23a2f82b031"
+      }
+    }
+  ]
+}
