@@ -1,12 +1,12 @@
 # openspec/changes/unify-provenance-and-resolution/tasks.md
 
 ## 1. JSON Schema Updates (`schemas/v1/`)
-- [ ] 1.1 In `impact.schema.json`:
+- [x] 1.1 In `impact.schema.json`:
   - Define a new `source` object definition under a `"definitions"` block (or inline if preferred) containing: `source_type` (enum: `annual_report`, `financial_report`, `web_search`), `page_number` (integer, nullable), `search_result_index` (integer, nullable), `quote` (string, nullable), and `resolved_url` (string/uri, nullable).
   - Update `beneficiaries.items.properties` to include an optional `source` object.
   - Update `metrics.items.properties` to include a required `source` object. Remove `source_citation`, `source_url`, `source_document`, `evidence_quote`, and `search_result_index`.
   - Update `significant_events.items.properties` to include a required `source` object. Remove `source_url`, `source_document`, `source_quote`, and `search_result_index`.
-- [ ] 1.2 In `financials.schema.json`:
+- [x] 1.2 In `financials.schema.json`:
   - Add a `sources` array to the root properties, where `items` match the unified `source` object definition from 1.1. 
 
 ## 2. Utils API Updates (`utils_api/`)

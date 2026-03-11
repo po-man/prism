@@ -3,6 +3,30 @@
   "title": "Charity Impact",
   "description": "Schema for charity impact metrics, focusing on animal advocacy.",
   "type": "object",
+  "definitions": {
+    "source": {
+      "type": "object",
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["annual_report", "financial_report", "web_search"],
+          "description": "The strict category of the source document."
+        },
+        "page_number": {
+          "type": ["integer", "null"],
+          "description": "For PDF sources, the 1-based absolute index of the page where the data was found."
+        },
+        "search_result_index": {
+          "type": ["integer", "null"],
+          "description": "For web_search sources, the 0-based index of the search result snippet used."
+        },
+        "quote": { "type": ["string", "null"], "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation." },
+        "resolved_url": { "type": ["string", "null"], "format": "uri", "description": "The fully resolved deep-link URL (e.g., with #page=N or #:~:text=...) to the specific source evidence. This is populated programmatically." }
+      },
+      "required": ["source_type", "quote", "resolved_url"]
+    }
+  },
   "properties": {
     "beneficiaries": {
       "type": "array",
@@ -22,7 +46,8 @@
             "type": "string",
             "enum": ["companion_animals", "farmed_animals", "wild_animals"],
             "description": "The primary category of animal beneficiaries."
-          }
+          },
+          "source": { "$ref": "#/definitions/source" }
         },
         "required": ["location", "population", "beneficiary_type"]
       }
@@ -81,33 +106,12 @@
             ],
             "description": "The quality of evidence supporting the metric, based on a strict hierarchy."
           },
-          "source_citation": {
-            "type": "string",
-            "description": "A citation for the source of the data (e.g., 'Annual Report 2023, p. 5')."
-          },
-          "source_url": {
-            "type": ["string", "null"],
-            "format": "uri",
-            "description": "The specific web URL where the metric was found, if sourced from the web."
-          },
-          "source_document": {
-            "type": "string",
-            "enum": ["pdf", "web"],
-            "description": "The type of source document the evidence comes from."
-          },
-          "evidence_quote": {
-            "type": ["string", "null"],
-            "description": "The exact verbatim wording quoted from the source."
-          },
-          "search_result_index": {
-            "type": ["integer", "null"],
-            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
-          },
           "timeframe": {
             "type": "string",
             "description": "The temporal scope of the metric, indicating if it's an annual or cumulative figure.",
             "enum": ["annual", "cumulative", "unspecified"]
-          }
+          },
+          "source": { "$ref": "#/definitions/source" }
         },
         "required": [
           "metric_name",
@@ -115,12 +119,8 @@
           "context_qualifier",
           "counterfactual_baseline",
           "evidence_quality",
-          "source_citation",
-          "source_url",
-          "source_document",
-          "evidence_quote",
-          "search_result_index",
-          "timeframe"
+          "timeframe",
+          "source"
         ]
       }
     },
@@ -159,40 +159,20 @@
             "type": ["string", "null"],
             "description": "If 'other' is selected for intervention_type, provide a 3-5 word summary (max 100 chars) of the intervention. Otherwise, this should be null."
           },
-          "source_url": {
-            "type": ["string", "null"],
-            "format": "uri",
-            "description": "The specific web URL where the event was found, if sourced from the web."
-          },
-          "source_document": {
-            "type": "string",
-            "enum": ["pdf", "web"],
-            "description": "The type of source document the evidence comes from."
-          },
-          "source_quote": {
-            "type": ["string", "null"],
-            "description": "The exact verbatim wording quoted from the source."
-          },
-          "search_result_index": {
-            "type": ["integer", "null"],
-            "description": "If source_document is 'web', the 0-based index of the search result snippet used. Used internally for data resolution."
-          },
           "timeframe": {
             "type": "string",
             "description": "The temporal scope of the event, indicating if it occurred in the reporting year or is a historical milestone.",
             "enum": ["annual", "cumulative", "unspecified"]
-          }
+          },
+          "source": { "$ref": "#/definitions/source" }
         },
         "required": [
           "event_name",
           "summary",
           "intervention_type",
           "intervention_type_other_description",
-          "source_url",
-          "source_document",
-          "source_quote",
-          "search_result_index",
-          "timeframe"
+          "timeframe",
+          "source"
         ]
       }
     },
