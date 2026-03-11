@@ -21,13 +21,29 @@ VALID_FINANCIALS = {
         "current_assets": 50,
         "current_liabilities": 10
     },
+    "sources": [
+        {
+            "source_type": "financial_report",
+            "page_number": 1,
+            "search_result_index": None,
+            "quote": "Financial statement for FY 2023-24",
+            "resolved_url": None
+        }
+    ]
 }
 
 VALID_IMPACT = {
     "beneficiaries": [{
         "location": "Hong Kong",
         "population": 500,
-        "beneficiary_type": "companion_animals"
+        "beneficiary_type": "companion_animals",
+        "source": {
+            "source_type": "annual_report",
+            "page_number": 15,
+            "search_result_index": None,
+            "quote": "We provided services to 500 companion animals.",
+            "resolved_url": None
+        }
     }],
     "metrics": [{
         "metric_name": "Animals Rescued",
@@ -41,23 +57,28 @@ VALID_IMPACT = {
             "value": 50
         },
         "evidence_quality": "RCT/Meta-Analysis",
-        "source_citation": "Annual Report 2023, p. 12",
-        "source_url": None,
-        "source_document": "pdf",
-        "evidence_quote": "The study showed a significant increase in animal welfare.",
-        "search_result_index": None,
-        "timeframe": "annual"
+        "timeframe": "annual",
+        "source": {
+            "source_type": "annual_report",
+            "page_number": 12,
+            "search_result_index": None,
+            "quote": "The study showed a significant increase in animal welfare.",
+            "resolved_url": None
+        }
     }],
     "significant_events": [{
         "event_name": "Project Shelter",
         "summary": "Built a new shelter facility.",
         "intervention_type": ["individual_rescue_and_sanctuary"],
         "intervention_type_other_description": None,
-        "source_url": None,
-        "source_document": "pdf",
-        "source_quote": None,
-        "search_result_index": None,
         "timeframe": "annual",
+        "source": {
+            "source_type": "web_search",
+            "page_number": None,
+            "search_result_index": 0,
+            "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
+            "resolved_url": None
+        }
     }],
     "context": {
         "operating_scope": "pure_animal_advocacy",
@@ -65,7 +86,7 @@ VALID_IMPACT = {
             "amount": 100,
             "currency": "HKD",
             "description": "Cost to spay one dog."
-        }
+        },
     }
 }
 

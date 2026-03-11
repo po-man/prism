@@ -56,8 +56,8 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckIte
         base_item.status = "pass"
     else:
         base_item.status = "warning"
-    if highest_evidence_metric and highest_evidence_metric.evidence_quote:
-        base_item.details.elaboration = f"Quote: '{highest_evidence_metric.evidence_quote}'"
+    if highest_evidence_metric and highest_evidence_metric.source and highest_evidence_metric.source.quote:
+        base_item.details.elaboration = f"Quote: '{highest_evidence_metric.source.quote}'"
 
     return base_item
 
@@ -98,7 +98,7 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     # Filter events that have a source quote and calculate their evidence level
     events_with_evidence = []
     for event in record.impact.significant_events:
-        if event.source_quote:
+        if event.source and event.source.quote:
             level_index, intervention = get_highest_level_for_event(event)
             if intervention:
                 events_with_evidence.append((level_index, intervention, event))
@@ -117,7 +117,7 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     highest_intervention_details = INTERVENTION_TRACTABILITY_MAP[top_intervention]
 
     base_item.details.elaboration = json.dumps([
-        f"Quote: {top_event.source_quote}",
+        f"Quote: {top_event.source.quote}",
         f"Highest tractability intervention found: '{top_intervention.replace('_', ' ').title()}'",
         f"EA Rationale: {highest_intervention_details['note']}",
     ])

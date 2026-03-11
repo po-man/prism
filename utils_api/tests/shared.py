@@ -28,9 +28,29 @@ VALID_BASE_RECORD = {
             "current_assets": 80000,
             "current_liabilities": 20000,
         },
+        "sources": [
+            {
+                "source_type": "financial_report",
+                "page_number": 5,
+                "search_result_index": None,
+                "quote": "Statement of Financial Activities for the year ended 31 March 2024.",
+                "resolved_url": None
+            }
+        ]
     },
     "impact": {
-        "beneficiaries": [{"location": "Hong Kong", "population": 500, "beneficiary_type": "companion_animals"}],
+        "beneficiaries": [{
+            "location": "Hong Kong",
+            "population": 500,
+            "beneficiary_type": "companion_animals",
+            "source": {
+                "source_type": "annual_report",
+                "page_number": 15,
+                "search_result_index": None,
+                "quote": "We provided services to 500 companion animals in the Hong Kong area.",
+                "resolved_url": None
+            }
+        }],
         "metrics": [
             {
                 "metric_name": "Animals Rescued",
@@ -41,12 +61,14 @@ VALID_BASE_RECORD = {
                     "value": 50,
                 },
                 "evidence_quality": "RCT/Meta-Analysis",
-                "source_citation": "Annual Report 2023, p. 12",
-                "source_url": None,
-                "source_document": "pdf",
-                "evidence_quote": "The study showed a significant increase in animal welfare.",
-                "search_result_index": None,
                 "timeframe": "annual",
+                "source": {
+                    "source_type": "annual_report",
+                    "page_number": 12,
+                    "search_result_index": None,
+                    "quote": "The study showed a significant increase in animal welfare, with 1,000 animals rescued.",
+                    "resolved_url": None
+                }
             }
         ],
         "significant_events": [
@@ -55,11 +77,14 @@ VALID_BASE_RECORD = {
                 "summary": "Built a new shelter facility.",
                 "intervention_type": ["individual_rescue_and_sanctuary"],
                 "intervention_type_other_description": None,
-                "source_url": None,
-                "source_document": "pdf",
-                "source_quote": None,
-                "search_result_index": None,
-                "timeframe": "annual"
+                "timeframe": "annual",
+                "source": {
+                    "source_type": "web_search",
+                    "page_number": None,
+                    "search_result_index": 0,
+                    "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
+                    "resolved_url": None
+                }
             }
         ],
         "context": {

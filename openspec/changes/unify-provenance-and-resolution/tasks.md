@@ -10,17 +10,17 @@
   - Add a `sources` array to the root properties, where `items` match the unified `source` object definition from 1.1. 
 
 ## 2. Utils API Updates (`utils_api/`)
-- [ ] 2.1 Refactor `app/schemas/url_resolver.py` to `app/schemas/provenance.py`. 
+- [x] 2.1 Refactor `app/schemas/url_resolver.py` to `app/schemas/provenance.py`. 
   - Define `ProvenanceContext` model (fields: `annual_report_url` (str), `financial_report_url` (str), `web_search_results` (list of dicts)).
   - Define `ProvenanceRequest` model (fields: `data` (dict), `context` (ProvenanceContext)).
-- [ ] 2.2 Rename `app/routers/url_resolver.py` to `app/routers/provenance.py` and update `main.py` router inclusion.
-- [ ] 2.3 Implement the `POST /resolve-provenance` endpoint:
+- [x] 2.2 Rename `app/routers/url_resolver.py` to `app/routers/provenance.py` and update `main.py` router inclusion.
+- [x] 2.3 Implement the `POST /resolve-provenance` endpoint:
   - Traverse the incoming `data` dictionary recursively to find any dictionaries matching the `source` object signature (having `source_type` and `resolved_url` keys).
   - If `source_type == 'annual_report'` and `page_number` exists: Set `resolved_url = f"{context.annual_report_url}#page={page_number}"`.
   - If `source_type == 'financial_report'` and `page_number` exists: Set `resolved_url = f"{context.financial_report_url}#page={page_number}"`.
   - If `source_type == 'web_search'` and `search_result_index` exists: Fetch the item from `context.web_search_results`. Set `resolved_url = {base_url}#:~:text={encoded_quote}` using the existing W3C fragment logic. If it is a 301/302 redirect, resolve it using `httpx` (reusing the existing redirect logic).
-- [ ] 2.4 Update `tests/shared.py` to match the new schema structure (replacing `evidence_quote`, `source_citation`, etc., with the new `source` objects in `VALID_BASE_RECORD` and `VALID_IMPACT`).
-- [ ] 2.5 Update `tests/test_validation.py` and `tests/test_audit_impact.py` to reflect the schema changes and assert against `metric["source"]["quote"]` instead of `metric["evidence_quote"]`.
+- [x] 2.4 Update `tests/shared.py` to match the new schema structure (replacing `evidence_quote`, `source_citation`, etc., with the new `source` objects in `VALID_BASE_RECORD` and `VALID_IMPACT`).
+- [x] 2.5 Update `tests/test_validation.py` and `tests/test_audit_impact.py` to reflect the schema changes and assert against `metric["source"]["quote"]` instead of `metric["evidence_quote"]`.
 - [ ] 2.6 Add unit tests in `tests/test_provenance.py` for `/resolve-provenance` to verify PDF fragment appending and W3C text fragment generation.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
