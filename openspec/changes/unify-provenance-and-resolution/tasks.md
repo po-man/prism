@@ -24,11 +24,11 @@
 - [ ] 2.6 Add unit tests in `tests/test_provenance.py` for `/resolve-provenance` to verify PDF fragment appending and W3C text fragment generation.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 3.1 In `impact.system.md`:
+- [x] 3.1 In `impact.system.md`:
   - Add explicit instructions: "All extracted data points MUST include a `source` object to guarantee provenance."
   - Add a strict instruction for PDFs: "For PDF documents, `page_number` MUST be the 1-based absolute index of the PDF file. Do NOT read the printed page number in the document's footer or header (e.g., ignore Roman numerals or offset numbers)."
   - Replace references to `evidence_quote` and `source_quote` with the new `source.quote` instruction.
-- [ ] 3.2 In `financials.system.md`:
+- [x] 3.2 In `financials.system.md`:
   - Add instructions to populate the `sources` array with the primary pages used to extract the financial statements, adhering to the absolute 1-based PDF index rule.
 
 ## 4. Orchestrator Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
