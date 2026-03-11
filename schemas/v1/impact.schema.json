@@ -10,12 +10,16 @@
       "properties": {
         "source_type": {
           "type": "string",
-          "enum": ["annual_report", "financial_report", "web_search"],
+          "enum": ["attached_report", "web_search"],
           "description": "The strict category of the source document."
+        },
+        "source_index": {
+          "type": ["integer", "null"],
+          "description": "For attached PDF document sources, the 0-based index of the attached document where the data was found."
         },
         "page_number": {
           "type": ["integer", "null"],
-          "description": "For PDF sources, the 1-based absolute index of the page where the data was found."
+          "description": "For attached PDF document sources, the 1-based absolute index of the page where the data was found."
         },
         "search_result_index": {
           "type": ["integer", "null"],

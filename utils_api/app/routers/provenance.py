@@ -32,15 +32,12 @@ def _find_and_resolve_sources(
             source = data
             source_type = source.get("source_type")
             page_number = source.get("page_number")
+            source_index = source.get("source_index")
             search_index = source.get("search_result_index")
             quote = source.get("quote")
 
-            if source_type in ["annual_report", "financial_report"] and page_number:
-                base_url = (
-                    context.annual_report_url
-                    if source_type == "annual_report"
-                    else context.financial_report_url
-                )
+            if source_type == "attached_report" and page_number:
+                base_url = context.attached_reports[source_index]
                 if base_url:
                     source["resolved_url"] = f"{base_url}#page={page_number}"
 
@@ -70,12 +67,6 @@ async def resolve_provenance(payload: ProvenanceRequest = Body(...)):
     page numbers or text fragments. It also resolves any redirecting URLs for
     web sources.
     """
-#    async with httpx.AsyncClient() as client:
-#        tasks = {
-#            i: _resolve_redirect(result.url, client)
-#            for i, result in enumerate(payload.context.web_search_results)
-#        }
-#        resolved_urls = await asyncio.gather(*tasks.values())
     web_search_urls = {index: url for index, url in enumerate(payload.context.web_search_results)}
 
     _find_and_resolve_sources(payload.data, payload.context, web_search_urls)

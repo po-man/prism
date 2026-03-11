@@ -15,8 +15,7 @@ class ProvenanceContext(BaseModel):
     for reports and the original web search results.
     """
 
-    annual_report_url: Optional[AnyHttpUrl] = None
-    financial_report_url: Optional[AnyHttpUrl] = None
+    attached_reports: List[AnyHttpUrl] = Field(default_factory=list)
     web_search_results: List[WebSearchResult] = Field(default_factory=list)
 
 
