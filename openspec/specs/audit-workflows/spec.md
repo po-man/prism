@@ -44,13 +44,13 @@ The system SHALL utilise prompt templates injected with JSON schemas to ensure d
 - **AND** the prompt MUST instruct the model to provide a 3-5 word summary in `intervention_type_other_description` ONLY if "other" is selected.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
-The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts and prioritized impact models.
+The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritized impact models, and highly traceable data provenance.
 
-#### Scenario: Extracting Pan-Asian Metadata and Sorted Impact
-- **WHEN** generating prompts for the Gemini model
-- **THEN** the metadata system prompt MUST instruct the model to locate any official government non-profit registration ID globally, mapping it to `registration_id`.
-- **AND** the impact system prompt MUST instruct the model to extract exact verbatim sentences as `evidence_quote` to justify evidence quality.
-- **AND** the impact system prompt MUST instruct the model to sort the `significant_events` and `metrics` arrays in descending order of significance or scale of impact.
+#### Scenario: Enforcing Absolute PDF Page Indexing
+- **WHEN** generating system prompts for the Gemini model to extract data from PDFs
+- **THEN** the prompt MUST explicitly instruct the LLM to populate the `source` object's `page_number` field using the **1-based absolute PDF page index**.
+- **AND** the prompt MUST strictly instruct the LLM to ignore any printed page numbers found in the document's headers or footers (e.g., Roman numerals, "Page 2 of 50"), as these will break browser PDF routing.
+- **AND** the prompt MUST instruct the LLM to extract exact verbatim sentences into the `quote` field of the `source` object for all data points.
 
 ### Requirement: Document Ingestion Pipeline
 The n8n orchestrator SHALL ingest target charities and their source documents, gracefully combining available PDFs with targeted web intelligence to maximize data extraction.
@@ -70,4 +70,19 @@ The n8n orchestrator SHALL dynamically resolve historical exchange rates to stan
 - **AND** n8n MUST execute an HTTP GET request to the Frankfurter API targeting December 31st of that parsed year (e.g., `https://api.frankfurter.dev/v1/2023-12-31?base=[original_code]&symbols=USD`).
 - **AND** n8n MUST map the returned rate into the `financials.currency.usd_exchange_rate` field before passing the payload to the Data Vault and Utils API.
 - **AND** if the `original_code` is already "USD", n8n MUST gracefully bypass the API call and set the rate to `1.0`.
+
+### Requirement: Centralised Provenance Resolution Endpoint
+The `utils_api` microservice SHALL provide a dedicated endpoint (e.g., `/resolve-provenance`) to programmatically convert raw LLM citations into exact, browser-routable deep links.
+
+#### Scenario: Resolving PDF Deep Links
+- **WHEN** the `utils_api` receives a payload containing a `source` object where `source_type` is `annual_report` or `financial_report`
+- **THEN** it MUST read the corresponding base URL provided in the request context.
+- **AND** it MUST append `#page=N` to the URL (where N is the `page_number` integer).
+- **AND** it MUST assign this concatenated string to the `resolved_url` field.
+
+#### Scenario: Resolving Web Text Fragments
+- **WHEN** the `utils_api` receives a payload containing a `source` object where `source_type` is `web_search`
+- **THEN** it MUST locate the correct URL and original snippet from the provided `web_search_results` context array using the `search_result_index`.
+- **AND** it MUST generate a W3C Text Fragment (`#:~:text=...`) using the `quote` string.
+- **AND** it MUST assign the combined URL and fragment to the `resolved_url` field.
 

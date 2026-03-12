@@ -6,20 +6,18 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Multi-Label Intervention Classification and Granular Taxonomy
+#### Scenario: Embedding Unified Provenance in Impact Data
 - **WHEN** validating the `impact.schema.json`
-- **THEN** the `significant_events.items.properties.intervention_type` MUST be defined as an `array` of strings, allowing multiple classifications per event.
-- **AND** the array items MUST be restricted to the following expanded enum: `["corporate_welfare_campaigns", "policy_and_legal_advocacy", "high_volume_spay_neuter", "vegan_outreach_and_education", "individual_rescue_and_sanctuary", "veterinary_care_and_treatment", "capacity_building_and_grants", "other"]`.
-- **AND** a new string property named `intervention_type_other_description` MUST be present to capture brief descriptions when "other" is selected.
+- **THEN** the items within the `metrics`, `significant_events`, and `beneficiaries` arrays MUST embed the unified `source` object.
+- **AND** the legacy fields `source_citation`, `source_url`, `source_document`, `evidence_quote`, `source_quote`, and `search_result_index` MUST be entirely removed from the root properties of these items.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons.
 
-#### Scenario: Preserving Raw Currency and Exchange Rates
+#### Scenario: Adding Provenance to Financial Data
 - **WHEN** the `financials.schema.json` is validated
-- **THEN** the root of the schema MUST include a `currency` object.
-- **AND** the `currency` object MUST contain `original_code` (string, ISO 4217 format), `usd_exchange_rate` (number), and `rate_date` (string, YYYY-MM-DD format).
-- **AND** all values within the `income`, `expenditure`, and `reserves` objects MUST remain in the raw `original_code` denomination exactly as extracted from the source document.
+- **THEN** the root of the schema MUST include a `sources` array.
+- **AND** the items in this array MUST adhere to the unified `source` object definition, allowing the LLM to cite the primary pages (e.g., Statement of Financial Position, Income Statement) used to extract the financial figures.
 
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.
@@ -35,4 +33,40 @@ The system SHALL define a canonical JSON schema for extracting core identifying 
 #### Scenario: Pan-Asian Charity Extraction
 - **WHEN** validating the metadata of an international charity
 - **THEN** the schema MUST support a generalized `registration_id` field (replacing the HK-specific `s88_id`) to capture official non-profit identifiers globally.
+
+### Requirement: Unified Provenance Schema Object
+The system SHALL define a canonical `source` object to standardize data provenance tracking across all domains, completely replacing unstructured citation strings and fragmented URL/quote fields.
+
+#### Scenario: Enforcing the Unified Source Structure
+- **WHEN** any extraction schema (`impact.schema.json` or `financials.schema.json`) requires provenance tracking
+- **THEN** it MUST embed the following `source` object structure:
+  ```json
+  {
+    "type": "object",
+    "properties": {
+      "source_type": { 
+        "type": "string", 
+        "enum": ["annual_report", "financial_report", "web_search"] 
+      },
+      "page_number": { 
+        "type": ["integer", "null"],
+        "description": "1-based absolute PDF page index."
+      },
+      "search_result_index": { 
+        "type": ["integer", "null"],
+        "description": "0-based index of the search result array."
+      },
+      "quote": { 
+        "type": ["string", "null"],
+        "description": "Exact, verbatim text extracted from the source."
+      },
+      "resolved_url": { 
+        "type": ["string", "null"], 
+        "format": "uri",
+        "description": "Computed deep-link URL (populated by the Utils API)."
+      }
+    },
+    "required": ["source_type", "page_number", "search_result_index", "quote", "resolved_url"]
+  }
+  ```
 

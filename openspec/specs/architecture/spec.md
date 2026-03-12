@@ -2,9 +2,7 @@
 
 ## Purpose
 This specification defines the overall system architecture, technology stack, and core technical conventions for PRISM. It outlines the strict separation of concerns between the orchestrator (n8n), intelligence layer (Gemini API), validation and logic microservice (utils_api), data vault (PocketBase), and renderer (Hugo). It also establishes project-wide conventions for data sovereignty and offline-first presentation.
-
 ## Requirements
-
 ### Requirement: Monorepo Directory Structure
 The project SHALL maintain a strict monorepo structure to organize and isolate orchestration, API services, data definitions, and presentation logic.
 
@@ -22,12 +20,11 @@ The project SHALL maintain a strict monorepo structure to organize and isolate o
 ### Requirement: Separation of Concerns
 The architecture SHALL strictly decouple orchestration, intelligence extraction, data validation, and frontend rendering.
 
-#### Scenario: Executing the data pipeline
-- **WHEN** an evaluation pipeline runs
-- **THEN** the Orchestrator (n8n) MUST manage the flow of data without executing complex business logic.
-- **AND** the Intelligence layer (Gemini) MUST extract unstructured text into JSON without performing compliance threshold checks.
-- **AND** the Logic layer (`utils_api`) MUST enforce JSON schemas and execute deterministic audit calculations.
-- **AND** the Renderer (Hugo) MUST visualize the data without altering the underlying values or performing new calculations.
+#### Scenario: Centralising URL Resolution Logic
+- **WHEN** unstructured references (like PDF page numbers or web search indices) need to be converted into clickable deep-links
+- **THEN** this transformation MUST NOT occur within the Orchestrator (n8n) using inline JavaScript nodes.
+- **AND** the Orchestrator MUST pass the raw extracted JSON and the necessary contextual URLs (report URLs and web search arrays) to a dedicated endpoint in the Logic layer (`utils_api`).
+- **AND** the `utils_api` MUST deterministically construct and inject the `resolved_url` into every `source` object before it is persisted to the Data Vault.
 
 ### Requirement: Schema Centralization
 The `schemas/` directory SHALL serve as the single source of truth for data validation across all services.
@@ -53,3 +50,4 @@ The `web/` directory SHALL contain only presentation logic, producing a complete
 - **WHEN** the build command is triggered (e.g., via GitHub Actions)
 - **THEN** Hugo SHALL ingest the local JSON files from the `data/` directory and Markdown stubs from `web/content/`.
 - **AND** the generated HTML in the `public/` directory MUST NOT rely on any runtime API connections, external databases, or external CDNs (e.g., Google Fonts) for its core reporting functionality.
+

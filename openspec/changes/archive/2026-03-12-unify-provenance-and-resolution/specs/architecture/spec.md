@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Separation of Concerns
 The architecture SHALL strictly decouple orchestration, intelligence extraction, data validation, and frontend rendering.
