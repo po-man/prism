@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T15:47:40.325Z",
+  "updatedAt": "2026-03-11T09:43:18.773Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -253,7 +253,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1248,
+        1200,
         4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -279,7 +279,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2208,
+        2624,
         4832
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -526,7 +526,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
+        1440,
         5072
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
@@ -543,7 +543,7 @@
           "parameters": [
             {
               "name": "impact",
-              "value": "={{\n  {\n    data: $('Resolved Text-fragment URLs (Impact Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').first().json,\n    audit_trails: $('Parsed Content (Impact Metrics)').first().json.search_results\n  }\n}}"
+              "value": "={{\n  {\n    data: $('Merge Provenance (Impact Metrics)').first().json.parsedContentObject,\n    schema: $('Schema Validation (Impact)').first().json,\n    audit_trails: $('Parsed Content (Impact Metrics)').first().json.search_results\n  }\n}}"
             }
           ]
         },
@@ -552,7 +552,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2128,
+        3200,
         5072
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -937,7 +937,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2544,
+        3536,
         4960
       ],
       "id": "4e69b7dd-2676-4d8f-940f-7d3b4bd3c1e1",
@@ -1165,7 +1165,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1424,
+        1776,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -1193,7 +1193,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1904,
+        2352,
         5072
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
@@ -1215,7 +1215,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        864,
+        1856,
         5792
       ],
       "id": "daa94103-de9c-45cd-a111-8ccdf5bd7535",
@@ -1249,7 +1249,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1088,
+        2080,
         5792
       ],
       "id": "7d0a98eb-616a-40eb-b702-8e27938c5a10",
@@ -1284,7 +1284,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1536,
+        2528,
         5792
       ],
       "id": "436a2d59-2ce2-46db-aa21-c50b3ff4d27f",
@@ -1318,7 +1318,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1312,
+        2304,
         5792
       ],
       "id": "ba12ec3b-70da-4ec9-9a06-8764173347bf",
@@ -1332,7 +1332,7 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1744,
+        2736,
         5792
       ],
       "id": "2305608b-3a7a-4308-b756-d42e84750744",
@@ -1347,7 +1347,7 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        2160,
+        3152,
         5792
       ],
       "id": "2f997672-e136-41b1-978a-5f70efc0c365",
@@ -1989,12 +1989,14 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "options": {}
+        "options": {
+          "includeUnpaired": true
+        }
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1024,
+        1072,
         5072
       ],
       "id": "73825109-c66f-4d22-b63d-9f4193e0ac8f",
@@ -2113,7 +2115,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        832,
+        880,
         5200
       ],
       "id": "988a1edc-8224-47c1-ae80-accb08f677c9",
@@ -2124,38 +2126,6 @@
           "name": "Storage API"
         }
       }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-search-urls",
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "={{ $('Parsed Content (Impact Search)').first().json.parsedContentObject }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        608,
-        5200
-      ],
-      "id": "9124d85f-7ed7-4368-9a31-a6b6e3208183",
-      "name": "Resolve URLs (Impact Search)"
-    },
-    {
-      "parameters": {
-        "jsCode": "  // Fetch the resolved search results from the parallel branch\n  const searchResults = $('Merge').first().json.impact_search.data;\n\n  // Helper to generate precise W3C Text Fragments\n  function buildTextFragment(text) {\n      if (!text) return \"\";\n      const words = text.trim().split(/\\s+/);\n      const startText = words.slice(0, 5).join(' ');\n      let fragment = encodeURIComponent(startText).replace(/-/g, '%2D');\n      \n      if (words.length > 8) {\n          const endText = words.slice(-3).join(' ');\n          fragment += ',' + encodeURIComponent(endText).replace(/-/g, '%2D');\n      }\n      return `#:~:text=${fragment}`;\n  }\n\n  // Resolve the indices for all items in the batch\n  for (const item of $input.all()) {\n      const data = item.json.parsedContentObject;\n      if (!data) continue;\n\n      const resolveItem = (obj) => {\n          if (obj.source_document === 'web' && obj.search_result_index) {\n              const snippet = searchResults[obj.search_result_index];\n              if (snippet) {\n                  // Inject actual text and build the fragment URL\n                  obj.source_url = snippet.url + buildTextFragment(snippet.original_text);\n                  \n                  if (obj.hasOwnProperty('evidence_quote')) {\n                      obj.evidence_quote = snippet.original_text;\n                  } else if (obj.hasOwnProperty('source_quote')) {\n                      obj.source_quote = snippet.original_text;\n                  }\n              }\n          }\n      };\n\n      if (data.metrics) data.metrics.forEach(resolveItem);\n      if (data.significant_events) data.significant_events.forEach(resolveItem);\n  }\n\n  return $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1680,
-        5072
-      ],
-      "id": "1ead26ee-6340-4088-b8ef-412d1bb963df",
-      "name": "Resolved Text-fragment URLs (Impact Metrics)"
     },
     {
       "parameters": {
@@ -2259,7 +2229,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1904,
+        2320,
         4608
       ],
       "name": "Call Fill Exchange Rate",
@@ -2293,7 +2263,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1776,
+        2192,
         4784
       ],
       "id": "3af3eb22-8bff-4b17-812e-b46a435254dd",
@@ -2301,12 +2271,12 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const financials = $('Parsed Content (Financials)').first().json.parsedContentObject;\n  financials.currency.rate_date = item.json.rate_date;\n  financials.currency.usd_exchange_rate = item.json.usd_exchange_rate;\n  item.json.parsedContentObject = financials;\n}\n\nreturn $input.all();"
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const financials = $('If Financials Schema Valid').first().json.parsedContentObject;\n  financials.currency.rate_date = item.json.rate_date;\n  financials.currency.usd_exchange_rate = item.json.usd_exchange_rate;\n  item.json.parsedContentObject = financials;\n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2048,
+        2464,
         4608
       ],
       "id": "5fb306b5-8bcd-4507-853c-639b7c66c3a0",
@@ -2321,11 +2291,151 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1600,
+        2016,
         4784
       ],
       "id": "05abeeb3-782f-4eba-b130-064ef062d4d1",
       "name": "Merge Finanicals with Validation"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject.sources ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": []\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1376,
+        4784
+      ],
+      "id": "990306ed-df6d-48d4-ab1d-58fe3ee14c11",
+      "name": "Resolve Provenance (Financials)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const financials = $('Parsed Content (Financials)').first().json.parsedContentObject;\n  financials.sources = item.json.data;\n  item.json.parsedContentObject = financials;\n  delete item.json.data\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        4784
+      ],
+      "id": "8f48e82a-8f86-4677-b57c-58ce4052e02e",
+      "name": "Merge Provenance (Financials)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject.beneficiaries.map(b => b.source) ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge').first().json.impact_search.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        5056
+      ],
+      "id": "56aca867-43b7-4ab8-913b-4d0a83edb30a",
+      "name": "Resolve Provenance (Impact - Beneficiaries)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-search-urls",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "search_results",
+              "value": "={{ $('Parsed Content (Impact Search)').item.json.parsedContentObject.search_results }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        608,
+        5200
+      ],
+      "id": "e7fe9ce2-17e6-4e41-b0f6-929c6ae30c83",
+      "name": "Resolve URLs (Impact Search)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject.metrics.map(m => m.source) ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge').first().json.impact_search.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        5264
+      ],
+      "id": "540bcf10-67ff-477d-a584-760506911b0f",
+      "name": "Resolve Provenance (Impact - Metrics)"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1936,
+        5120
+      ],
+      "id": "9fe403fd-7233-4163-aa11-807df0fcd757",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject.significant_events.map(s => s.source) ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge').first().json.impact_search.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1648,
+        5472
+      ],
+      "id": "24efb124-fd71-42e8-af89-288b18c3f73c",
+      "name": "Resolve Provenance (Impact - Significant Events)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  const impact = $('Parsed Content (Impact Metrics)').first().json.parsedContentObject;\n  const resolvedBeneficiarySources = $('Resolve Provenance (Impact - Beneficiaries)').first().json.data;\n  const resolvedMetricSources = $('Resolve Provenance (Impact - Metrics)').first().json.data;\n  const resolvedSignificantEventSources = $('Resolve Provenance (Impact - Significant Events)').first().json.data;\n  \n  impact.beneficiaries = impact.beneficiaries.map((b, idx) => ({ ...b, source: resolvedBeneficiarySources[idx] }));\n  impact.metrics = impact.metrics.map((m, idx) => ({ ...m, source: resolvedMetricSources[idx] }));\n  impact.significant_events = impact.significant_events.map((s, idx) => ({ ...s, source: resolvedSignificantEventSources[idx] }));\n  item.json.parsedContentObject = impact;\n  delete item.json.data;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2144,
+        5136
+      ],
+      "id": "17ef1066-9f47-4060-b068-63d88c4e32fc",
+      "name": "Merge Provenance (Impact Metrics)"
     }
   ],
   "connections": {
@@ -2429,14 +2539,9 @@
       "main": [
         [
           {
-            "node": "Schema Validation (Financials)",
+            "node": "Resolve Provenance (Financials)",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Merge Finanicals with Validation",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -2555,7 +2660,17 @@
       "main": [
         [
           {
-            "node": "Resolved Text-fragment URLs (Impact Metrics)",
+            "node": "Resolve Provenance (Impact - Beneficiaries)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Resolve Provenance (Impact - Metrics)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Resolve Provenance (Impact - Significant Events)",
             "type": "main",
             "index": 0
           }
@@ -3135,28 +3250,6 @@
         ]
       ]
     },
-    "Resolve URLs (Impact Search)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Impact1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Resolved Text-fragment URLs (Impact Metrics)": {
-      "main": [
-        [
-          {
-            "node": "Schema Validation (Impact)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Exists? (Impact Search)": {
       "main": [
         [
@@ -3225,6 +3318,99 @@
           }
         ]
       ]
+    },
+    "Resolve Provenance (Financials)": {
+      "main": [
+        [
+          {
+            "node": "Merge Provenance (Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Provenance (Financials)": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Financials)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Finanicals with Validation",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Resolve Provenance (Impact - Beneficiaries)": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve URLs (Impact Search)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Charity - Impact1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge Provenance (Impact Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Provenance (Impact - Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Resolve Provenance (Impact - Significant Events)": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Provenance (Impact Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Impact)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3236,27 +3422,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "a1d831a8-ef96-450a-aabe-00300107faf9",
-  "activeVersionId": "81f1a263-6aa2-4307-a126-f2ed581a9e68",
-  "versionCounter": 407,
+  "versionId": "62d74a3c-4dd9-4fdd-b564-bf2b1372a09b",
+  "activeVersionId": "fe6961ae-8af5-4e62-8dab-eed14995cdd0",
+  "versionCounter": 425,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-03-05T06:07:28.083Z",
-      "createdAt": "2026-03-05T06:07:28.083Z",
+      "updatedAt": "2026-03-11T06:38:13.375Z",
+      "createdAt": "2026-03-11T06:38:13.375Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "pZby5XCEm5tZbxzR",
+      "projectId": "NKV9Cgw0ptes3srr",
       "project": {
-        "updatedAt": "2026-03-05T06:11:11.768Z",
-        "createdAt": "2026-03-05T06:07:26.491Z",
-        "id": "pZby5XCEm5tZbxzR",
+        "updatedAt": "2026-03-11T06:38:59.338Z",
+        "createdAt": "2026-03-11T06:38:11.873Z",
+        "id": "NKV9Cgw0ptes3srr",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "88171498-2ee2-4ca4-be6c-a23a2f82b031"
+        "creatorId": "b7516eb7-0eaf-4c73-b2dc-9e51e4819eaa"
       }
     }
   ]

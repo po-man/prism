@@ -2,12 +2,13 @@
   Renders a single demographic item for the Importance card breakdown.
   @context . - A single beneficiary object.
 */}}
-<p class="text-sm text-gray-600">
-  -
+<div class="flex items-center text-sm text-gray-600">
+  <span>-</span>
   {{ if gt (.population | default 0) 0 }}
-    <span class="font-semibold">{{ .population | lang.FormatNumber 0 }}</span>
+    <span class="font-semibold ml-1">{{ .population | lang.FormatNumber 0 }}</span>
   {{ else }}
-    Unknown number of
+    <span class="ml-1">Unknown number of</span>
   {{ end }}
-  {{ .beneficiary_type | humanize | title }}{{ with .location }} in <i class="not-italic">{{ . }}</i>{{ end }}
-</p>
+  <span class="ml-1">{{ .beneficiary_type | humanize | title }}{{ with .location }} in <i class="not-italic">{{ . }}</i>{{ end }}</span>
+  {{ with .source }}{{ partial "provenance-badge.html" . }}{{ end }}
+</div>

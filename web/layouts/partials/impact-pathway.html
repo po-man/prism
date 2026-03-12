@@ -36,15 +36,20 @@
       <h3 class="font-bold text-lg text-gray-700">① Inputs</h3>
       <p class="text-sm text-gray-500 mb-2">Resources used</p>
       <div class="mt-2">
-        <p class="text-xl font-semibold text-gray-900" {{ with $financials.expenditure.total }}
-          {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}
-          {{ $usd_total := mul . $rate }}
-          title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 . }} (Rate: {{ $rate }})"
-        {{ end }}>
-          {{ with $financials.expenditure.total }}
-            {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}{{ $usd_total := mul . $rate }}USD ${{ lang.FormatNumber 0 $usd_total }}
-          {{ else }}N/A{{ end }}
-        </p>
+        <div class="inline-flex items-center">
+          <p class="text-xl font-semibold text-gray-900" {{ with $financials.expenditure.total }}
+            {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}
+            {{ $usd_total := mul . $rate }}
+            title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 . }} (Rate: {{ $rate }})"
+          {{ end }}>
+            {{ with $financials.expenditure.total }}
+              {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}{{ $usd_total := mul . $rate }}USD ${{ lang.FormatNumber 0 $usd_total }}
+            {{ else }}N/A{{ end }}
+          </p>
+          {{ with $financials.sources }}
+            {{ range . }}{{ partial "provenance-badge.html" . }}{{ end }}
+          {{ end }}
+        </div>
         <p class="text-gray-600">Total Annual Expenditure {{ with $financials.financial_year }}(FY {{ . }}){{ end }}</p>
       </div>
     </div>
@@ -63,18 +68,18 @@
               {{ $restEvents := after 3 $events }}
 
               {{ range $firstThreeEvents }}
-                {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote "source_document" .source_document) }}
+                {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "source" .source) }}
               {{ end }}
 
               {{ if gt (len $restEvents) 0 }}
-                <details class="group flex flex-col text-sm">
+                <details class="flex flex-col text-sm">
                   <summary class="cursor-pointer text-blue-600 hover:underline list-none mt-1" style="order: 2;">
                     <span class="show-more">▶ Show {{ len $restEvents }} more activities...</span>
                     <span class="show-less">▲ Show less</span>
                   </summary>
                   <div class="space-y-3">
                     {{ range $restEvents }}
-                      {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "url" .source_url "quote" .source_quote "source_document" .source_document) }}
+                      {{ partial "impact-item.html" (dict "icon" "activity" "text" (.summary | default .event_name) "source" .source) }}
                     {{ end }}
                   </div>
                 </details>
@@ -99,11 +104,11 @@
 
             {{ range $firstThreeMetrics }}
               {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
-              {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote "source_document" .source_document) }}
+              {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "source" .source) }}
             {{ end }}
 
             {{ if gt (len $restMetrics) 0 }}
-              <details class="group flex flex-col text-sm">
+              <details class="flex flex-col text-sm">
                 <summary class="cursor-pointer text-blue-600 hover:underline list-none mt-1 group-open:mt-2" style="order: 2;">
                   <span class="show-more">▶ Show {{ len $restMetrics }} more outcomes...</span>
                   <span class="show-less">▲ Show less</span>
@@ -111,7 +116,7 @@
                 <div class="space-y-3">
                   {{ range $restMetrics }}
                     {{ $metricText := printf `<span class="font-semibold">%s:</span> %s` .metric_name .context_qualifier }}
-                    {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "url" .source_url "quote" .evidence_quote "source_document" .source_document) }}
+                    {{ partial "impact-item.html" (dict "icon" "outcome" "text" $metricText "source" .source) }}
                   {{ end }}
                 </div>
               </details>

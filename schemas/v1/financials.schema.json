@@ -3,6 +3,34 @@
   "title": "Charity Financials",
   "description": "Schema for financial data extracted from a charity's annual financial report.",
   "type": "object",
+  "definitions": {
+    "source": {
+      "type": "object",
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["attached_report", "web_search"],
+          "description": "The strict category of the source document."
+        },
+        "source_index": {
+          "type": ["integer", "null"],
+          "description": "For attached PDF document sources, the 0-based index of the attached document (among all attached documents) where the data was found."
+        },
+        "page_number": {
+          "type": ["integer", "null"],
+          "description": "For attached PDF document sources, the 1-based absolute index of the page (in that attached document) where the data was found."
+        },
+        "search_result_index": {
+          "type": ["integer", "null"],
+          "description": "For web_search sources, the 0-based index of the search result snippet used."
+        },
+        "quote": { "type": ["string", "null"], "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation." },
+        "resolved_url": { "type": ["string", "null"], "format": "uri", "description": "The fully resolved deep-link URL (e.g., with #page=N or #:~:text=...) to the specific source evidence. This is populated programmatically." }
+      },
+      "required": ["source_type", "quote", "resolved_url"]
+    }
+  },
   "properties": {
     "financial_year": {
       "type": "string",
@@ -96,7 +124,12 @@
         "current_liabilities": { "type": ["number", "null"] }
       },
       "required": ["monthly_operating_expenses", "net_current_assets", "current_assets", "current_liabilities"]
+    },
+    "sources": {
+      "type": "array",
+      "description": "An array of source objects referencing the primary pages used for financial data extraction.",
+      "items": { "$ref": "#/definitions/source" }
     }
   },
-  "required": ["financial_year", "currency", "income", "expenditure", "lsg_specifics", "reserves", "ratio_inputs"]
+  "required": ["financial_year", "currency", "income", "expenditure", "lsg_specifics", "reserves", "ratio_inputs", "sources"]
 }

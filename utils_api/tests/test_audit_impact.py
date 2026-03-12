@@ -20,7 +20,7 @@ def test_check_monitoring_and_evaluation(client: TestClient):
     # 1. Pass with high-quality evidence
     record_high_evidence = deepcopy(VALID_BASE_RECORD)
     record_high_evidence["impact"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
-    record_high_evidence["impact"]["metrics"][0]["evidence_quote"] = "We saw a 50% increase."
+    record_high_evidence["impact"]["metrics"][0]["source"]["quote"] = "We saw a 50% increase."
     response = client.post("/audit", json=record_high_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
@@ -31,10 +31,7 @@ def test_check_monitoring_and_evaluation(client: TestClient):
     # 2. Warning with only low-quality evidence
     record_low_evidence = deepcopy(VALID_BASE_RECORD)
     record_low_evidence["impact"]["metrics"][0]["evidence_quality"] = "Pre-Post"
-    record_low_evidence["impact"]["metrics"][0]["evidence_quote"] = None # Explicitly remove for this test
-    record_low_evidence["impact"]["metrics"][0]["source_url"] = None
-    record_low_evidence["impact"]["metrics"][0]["source_document"] = "pdf" # Required field
-
+    record_low_evidence["impact"]["metrics"][0]["source"]["quote"] = None # Explicitly remove for this test
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
@@ -70,19 +67,16 @@ def test_check_intervention_tractability(client: TestClient):
             "summary": "Rescued animals.",
             "intervention_type": ["individual_rescue_and_sanctuary"], # Anecdotal
             "intervention_type_other_description": None,
-            "source_url": None, "source_document": "pdf", "source_quote": "We saw a 50% increase.",
-            "search_result_index": None, "timeframe": "annual"
+            "timeframe": "annual",
+            "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "We rescued animals.", "resolved_url": None}
         },
         {
             "event_name": "Corporate Campaign",
             "summary": "Caged-free campaign.",
             "intervention_type": ["corporate_welfare_campaigns"], # Quasi-Experimental
             "intervention_type_other_description": None,
-            "source_url": None,
-            "source_document": "pdf",
-            "source_quote": "We saw a 50% increase.",
-            "search_result_index": None,
-            "timeframe": "annual"
+            "timeframe": "annual",
+            "source": {"source_type": "annual_report", "page_number": 2, "search_result_index": None, "quote": "Our campaign was successful.", "resolved_url": None}
         }
     ]
     response = client.post("/audit", json=record_pass)
@@ -100,11 +94,8 @@ def test_check_intervention_tractability(client: TestClient):
             "summary": "Rescued animals and did outreach.",
             "intervention_type": ["individual_rescue_and_sanctuary", "vegan_outreach_and_education"], # Both Anecdotal
             "intervention_type_other_description": None,
-            "source_url": None,
-            "source_document": "pdf",
-            "source_quote": "We saw a 50% increase.",
-            "search_result_index": None,
-            "timeframe": "annual"
+            "timeframe": "annual",
+            "source": {"source_type": "annual_report", "page_number": 3, "search_result_index": None, "quote": "We did a mixed event.", "resolved_url": None}
         }
     ]
     response = client.post("/audit", json=record_warning)
@@ -174,7 +165,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     }
     # Base record has HKD rate of 0.128. 25 * 0.128 = 3.2
     response = client.post("/audit", json=record_high)
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item["confidence_tier"] == "HIGH"
     assert item["value"] == 3.2
@@ -187,7 +178,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     del record_medium["impact"]["context"]["explicit_unit_cost"]
     record_medium["financials"]["expenditure"]["program_services"] = 400000 # HKD
     record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
-    record_medium["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
+    record_medium["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     # Program spend USD = 400,000 * 0.1 = 40,000
     # Beneficiaries = 500
     # Cost per outcome = 40,000 / 500 = 80
@@ -236,7 +227,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     record_zero_beneficiaries = deepcopy(VALID_BASE_RECORD)
     record_zero_beneficiaries["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
     del record_zero_beneficiaries["impact"]["context"]["explicit_unit_cost"]
-    record_zero_beneficiaries["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals"}]
+    record_zero_beneficiaries["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_beneficiaries)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -247,7 +238,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     record_zero_spend["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
     del record_zero_spend["impact"]["context"]["explicit_unit_cost"]
     record_zero_spend["financials"]["expenditure"]["program_services"] = 0
-    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals"}]
+    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -312,8 +303,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 1. Pass for >= 50% high-neglectedness population
     record_pass = deepcopy(VALID_BASE_RECORD)
     record_pass["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": 800, "beneficiary_type": "wild_animals"},
-        {"location": "HK", "population": 200, "beneficiary_type": "companion_animals"},
+        {"location": "HK", "population": 800, "beneficiary_type": "wild_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 200, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
@@ -324,8 +315,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 2. Warning for < 50% high-neglectedness population
     record_warning_mixed = deepcopy(VALID_BASE_RECORD)
     record_warning_mixed["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals"},
-        {"location": "HK", "population": 850, "beneficiary_type": "companion_animals"},
+        {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 850, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_warning_mixed)
     assert response.status_code == 200
@@ -336,7 +327,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 3. Fail for 100% low-neglectedness population
     record_warning_low = deepcopy(VALID_BASE_RECORD)
     record_warning_low["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals"}
+        {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_warning_low)
     assert response.status_code == 200
@@ -347,8 +338,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 4. Fallback to presence check (pass) when population is null
     record_fallback_pass = deepcopy(VALID_BASE_RECORD)
     record_fallback_pass["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": None, "beneficiary_type": "wild_animals"},
-        {"location": "HK", "population": None, "beneficiary_type": "companion_animals"},
+        {"location": "HK", "population": None, "beneficiary_type": "wild_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_fallback_pass)
     assert response.status_code == 200
@@ -359,7 +350,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 5. Fallback to presence check (warning) when population is null
     record_fallback_warning = deepcopy(VALID_BASE_RECORD)
     record_fallback_warning["impact"]["beneficiaries"] = [
-        {"location": "HK", "population": None, "beneficiary_type": "companion_animals"}
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "annual_report", "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_fallback_warning)
     assert response.status_code == 200
