@@ -37,13 +37,12 @@ The UI SHALL present the estimated cost per outcome alongside a tangible retail 
 - **AND** if `HIGH` or `MEDIUM`, it MUST display the calculated value, the retail translation, and append the `confidence_note` directly beneath it to ensure total transparency of the calculation's provenance.
 
 ### Requirement: Impact Pathway Display
-The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion.
+The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion, and rendering granular provenance.
 
-#### Scenario: Rendering Normalized Inputs
-- **WHEN** rendering the "Inputs" card (Total Annual Expenditure)
-- **THEN** the Hugo template MUST dynamically multiply the raw total expenditure by the `usd_exchange_rate`.
-- **AND** it MUST render the value with a "USD" prefix (e.g., "USD $50,000").
-- **AND** it MUST include a hover tooltip indicating the original local currency amount and the exchange rate used (e.g., "Original: HKD $390,000 (Rate: 0.128 as of 2023-12-31)").
+#### Scenario: Rendering Line-Item Financial Provenance
+- **WHEN** rendering the "Inputs" card (Total Annual Expenditure) or the "Value for Money" (Expense Breakdown) sections
+- **THEN** the Hugo template MUST read the `.value` property of the respective financial figure.
+- **AND** if a `.source` object is populated for that specific figure, the template MUST render the `provenance-badge.html` partial immediately adjacent to the printed figure, allowing users to verify individual income or expense metrics independently.
 
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
