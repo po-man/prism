@@ -32,15 +32,15 @@
   - Add instructions to populate the `sources` array with the primary pages used to extract the financial statements, adhering to the absolute 1-based PDF index rule.
 
 ## 4. Orchestrator Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 4.1 Delete the existing "Resolve URLs (Impact Search)" HTTP Request node and the "Resolved Text-fragment URLs (Impact Metrics)" Code node.
-- [ ] 4.2 Create a new HTTP Request node called "Resolve Provenance (Impact)" placed after the "Extract Impact Metrics" and "Parsed Content (Impact Metrics)" nodes.
+- [x] 4.1 Delete the existing "Resolve URLs (Impact Search)" HTTP Request node and the "Resolved Text-fragment URLs (Impact Metrics)" Code node.
+- [x] 4.2 Create a new HTTP Request node called "Resolve Provenance (Impact)" placed after the "Extract Impact Metrics" and "Parsed Content (Impact Metrics)" nodes.
   - Method: POST
   - URL: `={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance`
   - Body: Construct the JSON payload with `data` = `{{ $json.parsedContentObject }}` and `context` = `{ annual_report_url: ..., financial_report_url: ..., web_search_results: ... }`. Read URLs from the `Storage API - Get Charity` node.
-- [ ] 4.3 Create a new HTTP Request node called "Resolve Provenance (Financials)" placed after the "Parsed Content (Financials)" node.
+- [x] 4.3 Create a new HTTP Request node called "Resolve Provenance (Financials)" placed after the "Parsed Content (Financials)" node.
   - Configure similarly to 4.2, passing the parsed financials and the report URLs as context.
-- [ ] 4.4 Reroute the outputs of these new nodes into their respective "Schema Validation" nodes.
-- [ ] 4.5 Update the "Storage API - Update Charity - Impact" and "Storage API - Update Charity - Financials" nodes to save the resolved data rather than the raw parsed LLM output.
+- [x] 4.4 Reroute the outputs of these new nodes into their respective "Schema Validation" nodes.
+- [x] 4.5 Update the "Storage API - Update Charity - Impact" and "Storage API - Update Charity - Financials" nodes to save the resolved data rather than the raw parsed LLM output.
 
 ## 5. Frontend / UI Updates (`web/layouts/`)
 - [ ] 5.1 In `partials/impact-item.html`:
