@@ -6,10 +6,10 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Embedding Unified Provenance in Impact Data
+#### Scenario: Handling Ambiguous Beneficiary Types
 - **WHEN** validating the `impact.schema.json`
-- **THEN** the items within the `metrics`, `significant_events`, and `beneficiaries` arrays MUST embed the unified `source` object.
-- **AND** the legacy fields `source_citation`, `source_url`, `source_document`, `evidence_quote`, `source_quote`, and `search_result_index` MUST be entirely removed from the root properties of these items.
+- **THEN** the items within the `beneficiaries` array MUST support an extended enum for `beneficiary_type`: `["companion_animals", "farmed_animals", "wild_animals", "unspecified"]`.
+- **AND** this allows the system to capture quantified populations where the exact taxonomy is not disclosed by the reporting organisation.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
