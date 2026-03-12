@@ -1,0 +1,28 @@
+{{/*
+  Renders an interactive provenance badge for a source object.
+  @context . - A source object.
+*/}}
+{{ with . }}
+<div class="inline-block ml-2 relative group align-middle">
+  <a href="{{ .resolved_url }}" target="_blank" rel="noopener noreferrer"
+     class="flex items-center px-1 py-0.5 text-xs font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200 border border-gray-200"
+     title="Click to view source">
+    {{ if eq .source_type "attached_report" }}
+      {{/* Document Icon */}}
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 1a1 1 0 000 2h6a1 1 0 100-2H6zM6 9a1 1 0 000 2h6a1 1 0 100-2H6z" clip-rule="evenodd" />
+      </svg>
+    {{ else if eq .source_type "web_search" }}
+      {{/* Globe Icon */}}
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v1.5a1.5 1.5 0 01-3 0V12a2 2 0 00-2-2 2 2 0 01-2-2V8.5A1.5 1.5 0 017.5 7c-.667 0-1.155.22-1.582.432z" clip-rule="evenodd" />
+      </svg>
+      Web
+    {{ end }}
+  </a>
+  <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+    <p class="font-semibold">Source Quote{{ if eq .source_type "attached_report" }}{{ with .page_number }} (from P.{{ . }}){{ end }}{{ end }}:</p>
+    <p class="italic">"{{ .quote }}"</p>
+  </div>
+</div>
+{{ end }}

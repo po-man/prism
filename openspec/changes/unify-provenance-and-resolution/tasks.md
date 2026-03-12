@@ -43,13 +43,13 @@
 - [x] 4.5 Update the "Storage API - Update Charity - Impact" and "Storage API - Update Charity - Financials" nodes to save the resolved data rather than the raw parsed LLM output.
 
 ## 5. Frontend / UI Updates (`web/layouts/`)
-- [ ] 5.1 In `partials/impact-item.html`:
+- [x] 5.1 In `partials/impact-item.html`:
   - Update variable references from `.url`, `.quote`, `.source_document` to expect the unified `source` object properties (`.source.resolved_url`, `.source.quote`, `.source.source_type`).
   - Render a small interactive badge linking to `source.resolved_url` with `target="_blank"`. Use a generic document icon for reports and a globe icon for `web_search`.
   - Render a `<details>` element (or a clean tooltip) adjacent to the badge that displays the `source.quote` so the user knows what text to look for on the linked page.
-- [ ] 5.2 In `partials/demographic-item.html`:
+- [x] 5.2 In `partials/demographic-item.html`:
   - Add logic to check for the presence of the `source` object on the beneficiary item. If present, render the same citation badge/quote dropdown.
-- [ ] 5.3 In `partials/impact-pathway.html` (Inputs section):
+- [x] 5.3 In `partials/impact-pathway.html` (Inputs section):
   - Check if `financials.data.sources` exists and has length > 0.
   - If present, render citation badges next to the "Total Annual Expenditure" value, linking to the absolute PDF pages where the financials were sourced.
-- [ ] 5.4 Ensure visual alignment with `web/assets/css/custom.css` so the badges and `<details>` elements do not break the existing flexbox layouts.
+- [x] 5.4 Ensure visual alignment with `web/assets/css/custom.css` so the badges and `<details>` elements do not break the existing flexbox layouts.
