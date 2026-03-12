@@ -2,10 +2,10 @@
 - [x] 1.1 Open `schemas/v1/impact.schema.json`. Update the `beneficiary_type` enum under the `beneficiaries` array to include `"unspecified"`.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 2.1 Open `n8n/prompt-templates/impact.system.md`.
-- [ ] 2.2 Add an instruction to Principle 2 (Conservative Extraction): "Only count actual, realized beneficiaries that were directly impacted during the reporting timeframe. Do NOT count potential, predicted, guessed, or indirect future beneficiaries."
-- [ ] 2.3 Add an instruction to Principle 5 (Disaggregated Populations): "Do NOT classify animal products (e.g., eggs, meals served, pounds of meat) as animal beneficiaries."
-- [ ] 2.4 Add an instruction to Principle 5 defining classification rules: "Classify dogs and cats as `companion_animals` even if they are strays or community animals. For other animals, rely on context (e.g., a pet pig is a `companion_animal`, an agricultural pig is `farmed_animals`). If the species is completely ambiguous or listed generically as 'others', use `unspecified`."
+- [x] 2.1 Open `n8n/prompt-templates/impact.system.md`.
+- [x] 2.2 Add an instruction to Principle 2 (Conservative Extraction): "Only count actual, realized beneficiaries that were directly impacted during the reporting timeframe. Do NOT count potential, predicted, guessed, or indirect future beneficiaries."
+- [x] 2.3 Add an instruction to Principle 5 (Disaggregated Populations): "Do NOT classify animal products (e.g., eggs, meals served, pounds of meat) as animal beneficiaries."
+- [x] 2.4 Add an instruction to Principle 5 defining classification rules: "Classify dogs and cats as `companion_animals` even if they are strays or community animals. For other animals, rely on context (e.g., a pet pig is a `companion_animal`, an agricultural pig is `farmed_animals`). If the species is completely ambiguous or listed generically as 'others', use `unspecified`."
 
 ## 3. Python Audit Engine (`utils_api/app/audits/`)
 - [ ] 3.1 Open `utils_api/app/audits/impact.py`.
