@@ -25,7 +25,7 @@
 - [ ] 2.4 Run `pytest` within the `utils_api` container to ensure all assertions pass with the newly defined schema structure.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 3.1 In `financials.system.md`:
+- [x] 3.1 In `financials.system.md`:
   - Delete the instruction regarding populating the top-level `sources` array.
   - Add an explicit instruction: "For **every** extracted financial figure, you MUST populate its nested `source` object. The `page_number` MUST be the 1-based absolute index of the PDF file... For each line-item source, extract an exact, verbatim quote...".
 
