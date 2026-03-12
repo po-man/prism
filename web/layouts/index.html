@@ -48,9 +48,7 @@
               {{ $s.Set "sourceCount" 0 }}
               {{ $annual_report_url := $org.expand.annual_report.url }}
               {{ $financial_report_url := $org.expand.financial_report.url }}
-              {{ $has_web_source := false }}
-              {{ range $org.impact.data.significant_events }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.metrics }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
               {{ if and $org.annual_report $annual_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if and $org.financial_report $financial_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if $has_web_source }}{{ $s.Add "sourceCount" 1 }}{{ end }}

@@ -76,13 +76,7 @@
               {{ end }}
 
               {{/* Check if any impact data has a source_url, indicating web search was used */}}
-              {{ $s := newScratch }}
-              {{ $s.Set "has_web_source" false }}
-              {{ range $org.impact.data.significant_events }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.metrics }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.beneficiaries }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.financials.data.sources }}{{ if eq .source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ $has_web_source := $s.Get "has_web_source" }}
+              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
 
               {{ if $has_web_source }}
                 <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
