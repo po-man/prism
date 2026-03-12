@@ -37,17 +37,17 @@
       <p class="text-sm text-gray-500 mb-2">Resources used</p>
       <div class="mt-2">
         <div class="inline-flex items-center">
-          <p class="text-xl font-semibold text-gray-900" {{ with $financials.expenditure.total }}
+          <p class="text-xl font-semibold text-gray-900" {{ with $financials.expenditure.total.value }}
             {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}
             {{ $usd_total := mul . $rate }}
             title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 . }} (Rate: {{ $rate }})"
           {{ end }}>
-            {{ with $financials.expenditure.total }}
+            {{ with $financials.expenditure.total.value }}
               {{ $rate := $financials.currency.usd_exchange_rate | default 1.0 }}{{ $usd_total := mul . $rate }}USD ${{ lang.FormatNumber 0 $usd_total }}
             {{ else }}N/A{{ end }}
           </p>
-          {{ with $financials.sources }}
-            {{ range . }}{{ partial "provenance-badge.html" . }}{{ end }}
+          {{ with $financials.expenditure.total.source }}
+            {{ partial "provenance-badge.html" . }}
           {{ end }}
         </div>
         <p class="text-gray-600">Total Annual Expenditure {{ with $financials.financial_year }}(FY {{ . }}){{ end }}</p>

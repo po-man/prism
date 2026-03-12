@@ -21,11 +21,11 @@
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Value for Money</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-    {{ $total_exp := .financials.data.expenditure.total }}
+    {{ $total_exp := .financials.data.expenditure.total.value }}
     {{ if ne $total_exp nil }}
-      {{ $prog_exp := .financials.data.expenditure.program_services }}
-      {{ $admin_exp := .financials.data.expenditure.administration }}
-      {{ $fundraising_exp := .financials.data.expenditure.fundraising }}
+      {{ $prog_exp := .financials.data.expenditure.program_services.value }}
+      {{ $admin_exp := .financials.data.expenditure.administration.value }}
+      {{ $fundraising_exp := .financials.data.expenditure.fundraising.value }}
 
       {{/* Logic for Expense Ratios */}}
       {{ $prog_pct := 0 }}

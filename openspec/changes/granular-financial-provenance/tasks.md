@@ -34,10 +34,10 @@
 - [x] 4.2 Locate the "Merge Provenance (Financials)" Code node. Update the JavaScript logic. Since the API will now return the fully resolved financials tree, simply assign `item.json.parsedContentObject = item.json.data;` and delete `item.json.data;`.
 
 ## 5. Frontend / UI Updates (`web/layouts/`)
-- [ ] 5.1 In `partials/impact-pathway.html`:
+- [x] 5.1 In `partials/impact-pathway.html`:
   - Refactor references: change `$financials.expenditure.total` to `$financials.expenditure.total.value`.
   - Remove the loop over the defunct `$financials.sources`.
   - Render the badge for the total expenditure: `{{ with .financials.data.expenditure.total.source }}{{ partial "provenance-badge.html" . }}{{ end }}`.
-- [ ] 5.2 In `partials/myth-buster.html`:
+- [x] 5.2 In `partials/myth-buster.html`:
   - Update variable assignments to access `.value`: e.g., `{{ $total_exp := .financials.data.expenditure.total.value }}`. Apply this to `$prog_exp`, `$admin_exp`, and `$fundraising_exp`.
-- [ ] 5.3 Test the Hugo build to guarantee it generates templates without errors and visually verifies the new line-item provenance badges are correctly rendered.
+- [x] 5.3 Test the Hugo build to guarantee it generates templates without errors and visually verifies the new line-item provenance badges are correctly rendered.
