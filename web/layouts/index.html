@@ -73,11 +73,11 @@
               </td>
               {{/* Task 3.2: Target Species (Neglectedness) Column */}}
                 {{ $s.Set "totalPop" 0.0 }}
-                {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+                {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0 "unspecified" 0.0) }}
                 {{ range $org.impact.data.beneficiaries }}
                   {{ $pop := .population | default 0 }}
                   {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
-                  {{ $currentPopMap := $s.Get "popMap" }}
+                  {{ $currentPopMap := $s.Get "popMap" }}{{/* Ensure map is initialized with all keys */}}
                   {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
                 {{ end }}
                 {{ $totalPop := $s.Get "totalPop" }}

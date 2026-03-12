@@ -13,9 +13,9 @@
 - [x] 3.3 Ensure the `unspecified` key is accounted for in formatting logic (e.g., title-casing the breakdown string) so it renders correctly in the `AuditDetails` string if present.
 
 ## 4. Hugo UI Updates (`web/`)
-- [ ] 4.1 Create a new SVG icon for the unspecified type: `web/layouts/partials/icons/unspecified-animals.svg` (e.g., a generic animal footprint or question mark).
-- [ ] 4.2 Open `web/layouts/index.html`. In the Target Species column logic (around line 52), update the `$s.Set "popMap"` initialisation to include `"unspecified" 0.0` so it doesn't crash when iterating over the JSON array.
-- [ ] 4.3 Open `web/layouts/partials/itn-scorecard.html`.
-- [ ] 4.4 Update `$s.Set "popMap"` initialisation to include `"unspecified" 0.0`.
-- [ ] 4.5 Update the `$iconMap` dictionary to include `"unspecified" "icons/unspecified-animals.svg"`.
-- [ ] 4.6 Modify the rendering loop for `$sortedBeneficiaries`. Add a Hugo `if` condition to check if the current `.type` is `"unspecified"`. If it is `"unspecified"`, ensure it *only* renders if its `.pop` is `> 0`. For the other 3 types, retain the existing logic that renders them in grayscale when their `.pop` is `<= 0`.
+- [x] 4.1 Create a new SVG icon for the unspecified type: `web/layouts/partials/icons/unspecified-animals.svg` (e.g., a generic animal footprint or question mark).
+- [x] 4.2 Open `web/layouts/index.html`. In the Target Species column logic (around line 52), update the `$s.Set "popMap"` initialisation to include `"unspecified" 0.0` so it doesn't crash when iterating over the JSON array.
+- [x] 4.3 Open `web/layouts/partials/itn-scorecard.html`.
+- [x] 4.4 Update `$s.Set "popMap"` initialisation to include `"unspecified" 0.0`.
+- [x] 4.5 Update the `$iconMap` dictionary to include `"unspecified" "icons/unspecified-animals.svg"`.
+- [x] 4.6 Modify the rendering loop for `$sortedBeneficiaries`. Add a Hugo `if` condition to check if the current `.type` is `"unspecified"`. If it is `"unspecified"`, ensure it *only* renders if its `.pop` is `> 0`. For the other 3 types, retain the existing logic that renders them in grayscale when their `.pop` is `<= 0`.

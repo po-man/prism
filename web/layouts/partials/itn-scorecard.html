@@ -16,7 +16,7 @@
 {{ $s.Set "maxPop" 0.0 }}
 {{ $s.Set "primaryBeneficiary" "N/A" }}
 {{ $s.Set "totalPop" 0.0 }}
-{{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+{{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0 "unspecified" 0.0) }}
 {{ $s.Set "presentTypes" (dict) }}
 
 {{ range $i, $item := $impact.beneficiaries }}
@@ -137,33 +137,34 @@
       <div class="text-gray-600 mt-2">
         <span class="text-sm font-semibold">Beneficiaries:</span>
         <div class="flex flex-col space-y-2 mt-2">
-          {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" }}
+          {{ $iconMap := dict "companion_animals" "icons/companion-animals.svg" "farmed_animals" "icons/farmed-animals.svg" "wild_animals" "icons/wild-animals.svg" "unspecified" "icons/unspecified-animals.svg" }}
           {{ $popMap := $s.Get "popMap" }}
 
           {{/* Create a sortable list of beneficiaries from the map */}}
-          {{ $presentTypes := $s.Get "presentTypes" }}
           {{ $beneficiaryList := slice }}
-          {{ range $type, $pop := $popMap }}{{ $beneficiaryList = $beneficiaryList | append (dict "type" $type "pop" $pop) }}{{ end }}
+          {{ range $type, $pop := $popMap }}{{ if or (ne $type "unspecified") (gt $pop 0) }}{{ $beneficiaryList = $beneficiaryList | append (dict "type" $type "pop" $pop) }}{{ end }}{{ end }}
           {{ $sortedBeneficiaries := sort $beneficiaryList "pop" "desc" }}
 
           {{ range $sortedBeneficiaries }}
             {{ $typePop := .pop }}
-            <span class="flex items-center text-sm {{ if le $typePop 0 }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
-            {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
-            {{ .type | humanize | title }}
-            {{ if gt $totalPop 0 }}
-              {{ $pct_raw := 0.0 }}
-              {{ $pct_rounded_num := 0 }}
-              {{ $prefix := "" }}
-              {{ if gt $typePop 0 }}
-                {{ $pct_raw = div (mul $typePop 100.0) $totalPop }}
-                {{ $pct_rounded_num = int (math.Round $pct_raw) }}
-                {{ if or (and (eq $pct_rounded_num 0) (gt $pct_raw 0)) (and (eq $pct_rounded_num 100) (lt $pct_raw 100)) }}{{ $prefix = "~" }}{{ end }}
+            {{ if or (ne .type "unspecified") (gt $typePop 0) }}
+              <span class="flex items-center text-sm {{ if le $typePop 0 }}text-gray-400 opacity-60 grayscale{{ else }}text-gray-800{{ end }}" title="{{ .type | humanize | title }}">
+              {{ partial (index $iconMap .type) . | replaceRE `class="([^"]+)"` (printf `class="%s"` "w-5 h-5 mr-1") | safeHTML }}
+              {{ .type | humanize | title }}
+              {{ if gt $totalPop 0 }}
+                {{ $pct_raw := 0.0 }}
+                {{ $pct_rounded_num := 0 }}
+                {{ $prefix := "" }}
+                {{ if gt $typePop 0 }}
+                  {{ $pct_raw = div (mul $typePop 100.0) $totalPop }}
+                  {{ $pct_rounded_num = int (math.Round $pct_raw) }}
+                  {{ if or (and (eq $pct_rounded_num 0) (gt $pct_raw 0)) (and (eq $pct_rounded_num 100) (lt $pct_raw 100)) }}{{ $prefix = "~" }}{{ end }}
+                {{ end }}
+                {{/* {{- warnf "DEBUG Neglectedness%%: type=%s, typePop=%f (type: %s), totalPop=%v, pct_raw=%f, pct_rounded_num=%d, prefix='%s'" .type $typePop (printf "%T" $typePop) $totalPop $pct_raw $pct_rounded_num $prefix -}} */}}
+                <span class="ml-1 font-mono text-xs">({{ $prefix }}{{ $pct_rounded_num }}%)</span>
               {{ end }}
-              {{/* {{- warnf "DEBUG Neglectedness%%: type=%s, typePop=%f (type: %s), totalPop=%v, pct_raw=%f, pct_rounded_num=%d, prefix='%s'" .type $typePop (printf "%T" $typePop) $totalPop $pct_raw $pct_rounded_num $prefix -}} */}}
-              <span class="ml-1 font-mono text-xs">({{ $prefix }}{{ $pct_rounded_num }}%)</span>
+              </span>
             {{ end }}
-            </span>
           {{ end }}
         </div>
       </div>
