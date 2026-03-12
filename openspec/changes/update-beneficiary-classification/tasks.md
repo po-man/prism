@@ -1,5 +1,5 @@
 ## 1. Schema Updates (`schemas/`)
-- [ ] 1.1 Open `schemas/v1/impact.schema.json`. Update the `beneficiary_type` enum under the `beneficiaries` array to include `"unspecified"`.
+- [x] 1.1 Open `schemas/v1/impact.schema.json`. Update the `beneficiary_type` enum under the `beneficiaries` array to include `"unspecified"`.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates/`)
 - [ ] 2.1 Open `n8n/prompt-templates/impact.system.md`.

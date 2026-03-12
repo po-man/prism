@@ -48,7 +48,7 @@
           },
           "beneficiary_type": {
             "type": "string",
-            "enum": ["companion_animals", "farmed_animals", "wild_animals"],
+            "enum": ["companion_animals", "farmed_animals", "wild_animals", "unspecified"],
             "description": "The primary category of animal beneficiaries."
           },
           "source": { "$ref": "#/definitions/source" }
