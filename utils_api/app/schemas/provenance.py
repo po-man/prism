@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, AnyHttpUrl, Field
 
 
@@ -25,5 +25,5 @@ class ProvenanceRequest(BaseModel):
     data blob to be processed and the necessary context.
     """
 
-    data: List[Dict[str, Any]]
+    data: Union[Dict[str, Any], List[Dict[str, Any]]]
     context: ProvenanceContext

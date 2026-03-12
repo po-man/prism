@@ -30,7 +30,8 @@ VALID_BASE_RECORD = {
         },
         "sources": [
             {
-                "source_type": "financial_report",
+                "source_type": "attached_report",
+                "source_index": 0,
                 "page_number": 5,
                 "search_result_index": None,
                 "quote": "Statement of Financial Activities for the year ended 31 March 2024.",
@@ -44,7 +45,8 @@ VALID_BASE_RECORD = {
             "population": 500,
             "beneficiary_type": "companion_animals",
             "source": {
-                "source_type": "annual_report",
+                "source_type": "attached_report",
+                "source_index": 0,
                 "page_number": 15,
                 "search_result_index": None,
                 "quote": "We provided services to 500 companion animals in the Hong Kong area.",
@@ -63,7 +65,8 @@ VALID_BASE_RECORD = {
                 "evidence_quality": "RCT/Meta-Analysis",
                 "timeframe": "annual",
                 "source": {
-                    "source_type": "annual_report",
+                    "source_type": "attached_report",
+                    "source_index": 0,
                     "page_number": 12,
                     "search_result_index": None,
                     "quote": "The study showed a significant increase in animal welfare, with 1,000 animals rescued.",
@@ -80,6 +83,7 @@ VALID_BASE_RECORD = {
                 "timeframe": "annual",
                 "source": {
                     "source_type": "web_search",
+                    "source_index": None,
                     "page_number": None,
                     "search_result_index": 0,
                     "quote": "Our new shelter facility, 'Project Shelter', opened this year.",

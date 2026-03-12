@@ -23,7 +23,8 @@ VALID_FINANCIALS = {
     },
     "sources": [
         {
-            "source_type": "financial_report",
+            "source_type": "attached_report",
+            "source_index": 0,
             "page_number": 1,
             "search_result_index": None,
             "quote": "Financial statement for FY 2023-24",
@@ -38,7 +39,8 @@ VALID_IMPACT = {
         "population": 500,
         "beneficiary_type": "companion_animals",
         "source": {
-            "source_type": "annual_report",
+            "source_type": "attached_report",
+            "source_index": 0,
             "page_number": 15,
             "search_result_index": None,
             "quote": "We provided services to 500 companion animals.",
@@ -59,7 +61,8 @@ VALID_IMPACT = {
         "evidence_quality": "RCT/Meta-Analysis",
         "timeframe": "annual",
         "source": {
-            "source_type": "annual_report",
+            "source_type": "attached_report",
+            "source_index": 0,
             "page_number": 12,
             "search_result_index": None,
             "quote": "The study showed a significant increase in animal welfare.",
@@ -74,6 +77,7 @@ VALID_IMPACT = {
         "timeframe": "annual",
         "source": {
             "source_type": "web_search",
+            "source_index": None,
             "page_number": None,
             "search_result_index": 0,
             "quote": "Our new shelter facility, 'Project Shelter', opened this year.",

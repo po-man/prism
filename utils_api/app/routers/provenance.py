@@ -67,7 +67,10 @@ async def resolve_provenance(payload: ProvenanceRequest = Body(...)):
     page numbers or text fragments. It also resolves any redirecting URLs for
     web sources.
     """
-    web_search_urls = {index: url for index, url in enumerate(payload.context.web_search_results)}
+    web_search_urls = {
+        index: result.url
+        for index, result in enumerate(payload.context.web_search_results)
+    }
 
     _find_and_resolve_sources(payload.data, payload.context, web_search_urls)
     return dict(data=payload.data)
