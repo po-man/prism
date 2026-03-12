@@ -1,0 +1,14 @@
+{{/*
+  has-web-source.html
+  Determines if an organisation has any data sourced from a web search.
+
+  @context . - The organisation object.
+
+  @returns Boolean
+*/}}
+{{ $has_web_source := false }}
+{{ range .impact.data.significant_events }}{{ if eq .source.source_type "web_search" }}{{ $has_web_source = true }}{{ end }}{{ end }}
+{{ if not $has_web_source }}{{ range .impact.data.metrics }}{{ if eq .source.source_type "web_search" }}{{ $has_web_source = true }}{{ end }}{{ end }}{{ end }}
+{{ if not $has_web_source }}{{ range .impact.data.beneficiaries }}{{ if eq .source.source_type "web_search" }}{{ $has_web_source = true }}{{ end }}{{ end }}{{ end }}
+{{ if not $has_web_source }}{{ range .financials.data.sources }}{{ if eq .source_type "web_search" }}{{ $has_web_source = true }}{{ end }}{{ end }}{{ end }}
+{{ return $has_web_source }}

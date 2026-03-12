@@ -48,36 +48,34 @@
               {{ $s.Set "sourceCount" 0 }}
               {{ $annual_report_url := $org.expand.annual_report.url }}
               {{ $financial_report_url := $org.expand.financial_report.url }}
-              {{ $has_web_source := false }}
-              {{ range $org.impact.data.significant_events }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.metrics }}{{ if .source_url }}{{ $has_web_source = true }}{{ end }}{{ end }}
+              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
               {{ if and $org.annual_report $annual_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if and $org.financial_report $financial_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if $has_web_source }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Data Sources" data-sort-value="{{ $s.Get "sourceCount" }}">
-                <div class="flex items-center justify-center space-x-2">
+                <div class="flex items-center justify-center space-x-2 text-gray-600 ">
                   {{ if and $org.annual_report $annual_report_url }}
                     <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" title="Annual Report Provided (Click to view)">{{- partial "icons/annual-report.svg" . | safeHTML -}}</a>
                   {{ else }}
-                    <span title="Annual Report Missing" class="opacity-40 grayscale">{{- partial "icons/annual-report.svg" . | safeHTML -}}</span>
+                    <span title="Annual Report Missing" class="grayscale" style="opacity: 0.2;">{{- partial "icons/annual-report.svg" . | safeHTML -}}</span>
                   {{ end }}
                   {{ if and $org.financial_report $financial_report_url }}
                     <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" title="Financial Report Provided (Click to view)">{{- partial "icons/financials.svg" . | safeHTML -}}</a>
                   {{ else }}
-                    <span title="Financial Report Missing" class="opacity-40 grayscale">{{- partial "icons/financials.svg" . | safeHTML -}}</span>
+                    <span title="Financial Report Missing" class="grayscale" style="opacity: 0.2;">{{- partial "icons/financials.svg" . | safeHTML -}}</span>
                   {{ end }}
-                  <span title="Web Search Performed{{ if not $has_web_source }} (No impact data found from web sources){{ end }}" class="{{ if not $has_web_source }}opacity-40 grayscale{{ end }}">
+                  <span title="Web Search Performed{{ if not $has_web_source }} (No impact data found from web sources){{ end }}" class="{{ if not $has_web_source }}grayscale{{ end }}" {{ if not $has_web_source }}style="opacity: 0.2;"{{ end }}>
                     {{- partial "icons/web-search.svg" . | safeHTML -}}
                   </span>
                 </div>
               </td>
               {{/* Task 3.2: Target Species (Neglectedness) Column */}}
                 {{ $s.Set "totalPop" 0.0 }}
-                {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0) }}
+                {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0 "unspecified" 0.0) }}
                 {{ range $org.impact.data.beneficiaries }}
                   {{ $pop := .population | default 0 }}
                   {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
-                  {{ $currentPopMap := $s.Get "popMap" }}
+                  {{ $currentPopMap := $s.Get "popMap" }}{{/* Ensure map is initialized with all keys */}}
                   {{ $s.SetInMap "popMap" .beneficiary_type (add (index $currentPopMap .beneficiary_type) $pop) }}
                 {{ end }}
                 {{ $totalPop := $s.Get "totalPop" }}

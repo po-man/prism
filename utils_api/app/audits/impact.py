@@ -325,6 +325,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
         "farmed_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "farmed_animals" and b.population),
         "wild_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "wild_animals" and b.population),
         "companion_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "companion_animals" and b.population),
+        "unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "unspecified" and b.population),
     }
     total_population = sum(populations.values())
 

@@ -48,15 +48,15 @@
           {{/* Task 2.1: Data Provenance Indicators */}}
           <div class="mt-4 flex items-center space-x-4 border-t pt-4">
             <span class="text-sm font-semibold text-gray-500">Data Sources:</span>
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-4">
               {{ $annual_report_url := $org.expand.annual_report.url }}
               {{ if and $org.annual_report $annual_report_url }}
-                <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Annual Report Provided (Click to view)">
+                <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-600 hover:text-blue-600 hover:underline" title="Annual Report Provided (Click to view)">
                   {{ partial "icons/annual-report.svg" $org }}
                   <span class="ml-0.5">Annual Report</span>
                 </a>
               {{ else }}
-                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Annual Report Missing">
+                <span class="flex items-center text-sm text-gray-700 grayscale" title="Annual Report Missing" style="opacity: 0.2;">
                   {{ partial "icons/annual-report.svg" $org }}
                   <span class="ml-0.5">Annual Report</span>
                 </span>
@@ -64,25 +64,19 @@
 
               {{ $financial_report_url := $org.expand.financial_report.url }}
               {{ if and $org.financial_report $financial_report_url }}
-                <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-700 hover:text-blue-600 hover:underline" title="Financial Report Provided (Click to view)">
+                <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center text-sm text-gray-600 hover:text-blue-600 hover:underline" title="Financial Report Provided (Click to view)">
                   {{ partial "icons/financials.svg" . }}
                   <span class="ml-0.5">Financials</span>
                 </a>
               {{ else }}
-                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Financial Report Missing">
+                <span class="flex items-center text-sm text-gray-700 grayscale" title="Financial Report Missing" style="opacity: 0.2;">
                   {{ partial "icons/financials.svg" . }}
                   <span class="ml-0.5">Financials</span>
                 </span>
               {{ end }}
 
               {{/* Check if any impact data has a source_url, indicating web search was used */}}
-              {{ $s := newScratch }}
-              {{ $s.Set "has_web_source" false }}
-              {{ range $org.impact.data.significant_events }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.metrics }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.impact.data.beneficiaries }}{{ if eq .source.source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ range $org.financials.data.sources }}{{ if eq .source_type "web_search" }}{{ $s.Set "has_web_source" true }}{{ end }}{{ end }}
-              {{ $has_web_source := $s.Get "has_web_source" }}
+              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
 
               {{ if $has_web_source }}
                 <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
@@ -90,7 +84,7 @@
                   <span class="ml-0.5">Web Search</span>
                 </span>
               {{ else }}
-                <span class="flex items-center text-sm text-gray-700 opacity-40 grayscale" title="Web Intelligence Search Performed (No impact data found from web sources)">
+                <span class="flex items-center text-sm text-gray-600 grayscale" title="Web Intelligence Search Performed (No impact data found from web sources)" style="opacity: 0.2;">
                   {{ partial "icons/web-search.svg" $org }}
                   <span class="ml-0.5">Web Search</span>
                 </span>
