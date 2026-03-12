@@ -44,7 +44,7 @@
           },
           "population": {
             "type": ["number", "null"],
-            "description": "The estimated number of animals in the beneficiary group."
+            "description": "The exact number of actual, individual animals directly aided during the reporting year (e.g., through rescue, vaccination, or sheltering). Must NOT include projected, estimated, or indirect populations derived from legislative, policy, or corporate welfare victories."
           },
           "beneficiary_type": {
             "type": "string",
