@@ -30,8 +30,8 @@
   - Add an explicit instruction: "For **every** extracted financial figure, you MUST populate its nested `source` object. The `page_number` MUST be the 1-based absolute index of the PDF file... For each line-item source, extract an exact, verbatim quote...".
 
 ## 4. Orchestrator Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 4.1 Locate the "Resolve Provenance (Financials)" HTTP Request node. Update the JSON body so that the `data` parameter passes the entire financials object (`{{ JSON.stringify($json.parsedContentObject) }}`) instead of the defunct `.sources` array.
-- [ ] 4.2 Locate the "Merge Provenance (Financials)" Code node. Update the JavaScript logic. Since the API will now return the fully resolved financials tree, simply assign `item.json.parsedContentObject = item.json.data;` and delete `item.json.data;`.
+- [x] 4.1 Locate the "Resolve Provenance (Financials)" HTTP Request node. Update the JSON body so that the `data` parameter passes the entire financials object (`{{ JSON.stringify($json.parsedContentObject) }}`) instead of the defunct `.sources` array.
+- [x] 4.2 Locate the "Merge Provenance (Financials)" Code node. Update the JavaScript logic. Since the API will now return the fully resolved financials tree, simply assign `item.json.parsedContentObject = item.json.data;` and delete `item.json.data;`.
 
 ## 5. Frontend / UI Updates (`web/layouts/`)
 - [ ] 5.1 In `partials/impact-pathway.html`:
