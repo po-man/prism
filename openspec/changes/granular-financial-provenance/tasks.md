@@ -1,6 +1,6 @@
 ## 1. JSON Schema Updates (`schemas/v1/`)
-- [ ] 1.1 Edit `financials.schema.json` to remove the root-level `sources` array.
-- [ ] 1.2 Add a new definition under `"definitions"` called `financial_figure`:
+- [x] 1.1 Edit `financials.schema.json` to remove the root-level `sources` array.
+- [x] 1.2 Add a new definition under `"definitions"` called `financial_figure`:
   ```json
   "financial_figure": {
     "type": "object",
@@ -11,7 +11,7 @@
     "required": ["value"]
   }
   ```
-- [ ] 1.3 Refactor all properties inside `income`, `expenditure`, `lsg_specifics`, `reserves`, and `ratio_inputs` to `$ref` the `#/definitions/financial_figure` schema instead of directly taking a `["number", "null"]`.
+- [x] 1.3 Refactor all properties inside `income`, `expenditure`, `lsg_specifics`, `reserves`, and `ratio_inputs` to `$ref` the `#/definitions/financial_figure` schema instead of directly taking a `["number", "null"]`.
 
 ## 2. Utils API Updates (`utils_api/`)
 - [ ] 2.1 In `app/audits/financial.py`:
