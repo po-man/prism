@@ -14,15 +14,15 @@
 - [x] 1.3 Refactor all properties inside `income`, `expenditure`, `lsg_specifics`, `reserves`, and `ratio_inputs` to `$ref` the `#/definitions/financial_figure` schema instead of directly taking a `["number", "null"]`.
 
 ## 2. Utils API Updates (`utils_api/`)
-- [ ] 2.1 In `app/audits/financial.py`:
+- [x] 2.1 In `app/audits/financial.py`:
   - Update `check_reserve_cap` to reference `.value`: e.g., `reserve = record.financials.reserves.total_reserves.value` and `expenditure = record.financials.expenditure.total.value`. Ensure `None` checks handle the nested structure gracefully.
   - Update `check_liquidity` similarly for `net_current_assets.value`, `monthly_operating_expenses.value`, `current_assets.value`, and `current_liabilities.value`.
-- [ ] 2.2 In `app/audits/impact.py`:
+- [x] 2.2 In `app/audits/impact.py`:
   - Update `check_funding_neglectedness` to use `record.financials.income.government_grants.value` and `record.financials.income.total.value`.
   - Update `calculate_cost_per_outcome` to use `record.financials.expenditure.program_services.value`.
-- [ ] 2.3 In `tests/shared.py`:
+- [x] 2.3 In `tests/shared.py`:
   - Refactor `VALID_FINANCIALS` and `VALID_BASE_RECORD["financials"]` to use the nested `{"value": X, "source": {...}}` format for all financial figures. Remove the top-level `sources` array.
-- [ ] 2.4 Run `pytest` within the `utils_api` container to ensure all assertions pass with the newly defined schema structure.
+- [x] 2.4 Run `pytest` within the `utils_api` container to ensure all assertions pass with the newly defined schema structure.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
 - [x] 3.1 In `financials.system.md`:

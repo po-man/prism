@@ -17,7 +17,7 @@ def test_run_audit_with_liquidity_fallback(client: TestClient):
     """
     record_data = deepcopy(VALID_BASE_RECORD)
     # Explicitly set net_current_assets to None to test the fallback
-    record_data["financials"]["ratio_inputs"]["net_current_assets"] = None
+    record_data["financials"]["ratio_inputs"]["net_current_assets"]["value"] = None
 
     OrganisationRecord.model_validate(record_data)
 
@@ -39,8 +39,8 @@ def test_check_reserve_cap(client: TestClient):
 
     # 1. Pass for reserves <= 2 years
     record_pass = deepcopy(VALID_BASE_RECORD)
-    record_pass["financials"]["reserves"]["total_reserves"] = 300000
-    record_pass["financials"]["expenditure"]["total"] = 200000
+    record_pass["financials"]["reserves"]["total_reserves"]["value"] = 300000
+    record_pass["financials"]["expenditure"]["total"]["value"] = 200000
     # Ratio = 1.5 years
     response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
@@ -50,8 +50,8 @@ def test_check_reserve_cap(client: TestClient):
 
     # 2. Warning for reserves > 2 and <= 5 years
     record_warn = deepcopy(VALID_BASE_RECORD)
-    record_warn["financials"]["reserves"]["total_reserves"] = 500000
-    record_warn["financials"]["expenditure"]["total"] = 200000
+    record_warn["financials"]["reserves"]["total_reserves"]["value"] = 500000
+    record_warn["financials"]["expenditure"]["total"]["value"] = 200000
     # Ratio = 2.5 years
     response = client.post("/audit", json=record_warn)
     assert response.status_code == 200
@@ -61,8 +61,8 @@ def test_check_reserve_cap(client: TestClient):
 
     # 3. Fail for reserves > 5 years
     record_fail = deepcopy(VALID_BASE_RECORD)
-    record_fail["financials"]["reserves"]["total_reserves"] = 1200000
-    record_fail["financials"]["expenditure"]["total"] = 200000
+    record_fail["financials"]["reserves"]["total_reserves"]["value"] = 1200000
+    record_fail["financials"]["expenditure"]["total"]["value"] = 200000
     # Ratio = 6.0 years
     response = client.post("/audit", json=record_fail)
     assert response.status_code == 200
@@ -72,7 +72,7 @@ def test_check_reserve_cap(client: TestClient):
 
     # 4. Warning for zero or negative expenditure
     record_zero_exp = deepcopy(VALID_BASE_RECORD)
-    record_zero_exp["financials"]["expenditure"]["total"] = 0
+    record_zero_exp["financials"]["expenditure"]["total"]["value"] = 0
     response = client.post("/audit", json=record_zero_exp)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_reserve_cap")
@@ -81,7 +81,7 @@ def test_check_reserve_cap(client: TestClient):
 
     # 5. Fail status for missing data
     record_missing = deepcopy(VALID_BASE_RECORD)
-    record_missing["financials"]["reserves"]["total_reserves"] = None
+    record_missing["financials"]["reserves"]["total_reserves"]["value"] = None
     response = client.post("/audit", json=record_missing)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_reserve_cap")

@@ -204,12 +204,13 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
         if (
             not record.financials
             or not record.financials.expenditure
-            or record.financials.expenditure.program_services is None
+            or not record.financials.expenditure.program_services
+            or record.financials.expenditure.program_services.value is None
             or not record.impact.beneficiaries
         ):
             return None
 
-        program_spend = record.financials.expenditure.program_services
+        program_spend = record.financials.expenditure.program_services.value
         rate = (
             record.financials.currency.usd_exchange_rate
             if record.financials.currency and record.financials.currency.usd_exchange_rate
@@ -265,11 +266,19 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
         id="check_funding_neglectedness", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
-    if not record.financials or not record.financials.income or record.financials.income.government_grants is None or record.financials.income.total is None:
+    if (
+        not record.financials
+        or not record.financials.income
+        or not record.financials.income.government_grants
+        or record.financials.income.government_grants.value is None
+        or not record.financials.income.total
+        or record.financials.income.total.value is None
+    ):
         base_item.details.calculation = "Financials with income breakdown are missing."
         return base_item
 
-    gov_grants, total_income = record.financials.income.government_grants, record.financials.income.total
+    gov_grants = record.financials.income.government_grants.value
+    total_income = record.financials.income.total.value
 
     if total_income <= 0:
         base_item.details.calculation = f"Total income (${total_income:,.0f}) is not a positive number."
