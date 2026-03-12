@@ -8,9 +8,9 @@
 - [x] 2.4 Add an instruction to Principle 5 defining classification rules: "Classify dogs and cats as `companion_animals` even if they are strays or community animals. For other animals, rely on context (e.g., a pet pig is a `companion_animal`, an agricultural pig is `farmed_animals`). If the species is completely ambiguous or listed generically as 'others', use `unspecified`."
 
 ## 3. Python Audit Engine (`utils_api/app/audits/`)
-- [ ] 3.1 Open `utils_api/app/audits/impact.py`.
-- [ ] 3.2 In `check_cause_area_neglectedness`, update the `populations` dictionary to include: `"unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "unspecified" and b.population)`.
-- [ ] 3.3 Ensure the `unspecified` key is accounted for in formatting logic (e.g., title-casing the breakdown string) so it renders correctly in the `AuditDetails` string if present.
+- [x] 3.1 Open `utils_api/app/audits/impact.py`.
+- [x] 3.2 In `check_cause_area_neglectedness`, update the `populations` dictionary to include: `"unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "unspecified" and b.population)`.
+- [x] 3.3 Ensure the `unspecified` key is accounted for in formatting logic (e.g., title-casing the breakdown string) so it renders correctly in the `AuditDetails` string if present.
 
 ## 4. Hugo UI Updates (`web/`)
 - [ ] 4.1 Create a new SVG icon for the unspecified type: `web/layouts/partials/icons/unspecified-animals.svg` (e.g., a generic animal footprint or question mark).
