@@ -176,7 +176,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     record_medium = deepcopy(VALID_BASE_RECORD)
     record_medium["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
     del record_medium["impact"]["context"]["explicit_unit_cost"]
-    record_medium["financials"]["expenditure"]["program_services"] = 400000 # HKD
+    record_medium["financials"]["expenditure"]["program_services"]["value"] = 400000 # HKD
     record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
     record_medium["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     # Program spend USD = 400,000 * 0.1 = 40,000
@@ -217,7 +217,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     record_medium_fail = deepcopy(VALID_BASE_RECORD)
     record_medium_fail["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
     del record_medium_fail["impact"]["context"]["explicit_unit_cost"]
-    record_medium_fail["financials"]["expenditure"]["program_services"] = None # Missing spend
+    record_medium_fail["financials"]["expenditure"]["program_services"]["value"] = None # Missing spend
     response = client.post("/audit", json=record_medium_fail)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -237,7 +237,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     record_zero_spend = deepcopy(VALID_BASE_RECORD)
     record_zero_spend["impact"]["context"]["operating_scope"] = "pure_animal_advocacy"
     del record_zero_spend["impact"]["context"]["explicit_unit_cost"]
-    record_zero_spend["financials"]["expenditure"]["program_services"] = 0
+    record_zero_spend["financials"]["expenditure"]["program_services"]["value"] = 0
     record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
@@ -252,8 +252,8 @@ def test_check_funding_neglectedness(client: TestClient):
 
     # 1. Pass for medium neglectedness (between 40% and 80% inclusive)
     record_medium = deepcopy(VALID_BASE_RECORD)
-    record_medium["financials"]["income"]["total"] = 1000000
-    record_medium["financials"]["income"]["government_grants"] = 500000 # 50%
+    record_medium["financials"]["income"]["total"]["value"] = 1000000
+    record_medium["financials"]["income"]["government_grants"]["value"] = 500000 # 50%
     response = client.post("/audit", json=record_medium)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")
@@ -262,8 +262,8 @@ def test_check_funding_neglectedness(client: TestClient):
 
     # 2. Pass for high neglectedness (< 40%)
     record_high = deepcopy(VALID_BASE_RECORD)
-    record_high["financials"]["income"]["total"] = 1000000
-    record_high["financials"]["income"]["government_grants"] = 200000 # 20%
+    record_high["financials"]["income"]["total"]["value"] = 1000000
+    record_high["financials"]["income"]["government_grants"]["value"] = 200000 # 20%
     response = client.post("/audit", json=record_high)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")
@@ -272,8 +272,8 @@ def test_check_funding_neglectedness(client: TestClient):
 
     # 3. Fail for low neglectedness (> 80%)
     record_low = deepcopy(VALID_BASE_RECORD)
-    record_low["financials"]["income"]["total"] = 1000000
-    record_low["financials"]["income"]["government_grants"] = 850000 # 85%
+    record_low["financials"]["income"]["total"]["value"] = 1000000
+    record_low["financials"]["income"]["government_grants"]["value"] = 850000 # 85%
     response = client.post("/audit", json=record_low)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")
@@ -282,7 +282,7 @@ def test_check_funding_neglectedness(client: TestClient):
 
     # 4. Handles zero total income
     record_zero_income = deepcopy(VALID_BASE_RECORD)
-    record_zero_income["financials"]["income"]["total"] = 0
+    record_zero_income["financials"]["income"]["total"]["value"] = 0
     response = client.post("/audit", json=record_zero_income)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")

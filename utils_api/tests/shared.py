@@ -2,6 +2,15 @@
 Shared data for tests.
 """
 
+FINANCIAL_FIGURE_SOURCE_TEMPLATE = {
+    "source_type": "attached_report",
+    "source_index": 0,
+    "page_number": 5,
+    "search_result_index": None,
+    "quote": "Statement of Financial Activities for the year ended 31 March 2024.",
+    "resolved_url": None,
+}
+
 # A sample record with all the necessary nested structures.
 # This can be used as a base for tests that require a valid OrganisationRecord.
 VALID_BASE_RECORD = {
@@ -18,26 +27,28 @@ VALID_BASE_RECORD = {
             "usd_exchange_rate": 0.128,
             "rate_date": "2023-12-31",
         },
-        "income": {"donations": 500000, "government_grants": 250000, "total": 750000},
-        "expenditure": {"administration": 100000, "fundraising": 50000, "program_services": 400000, "total": 550000},
-        "reserves": {"total_reserves": 75000},
-        "lsg_specifics": {"lsg_reserve_amount": 50000, "provident_fund_reserve": 10000},
-        "ratio_inputs": {
-            "monthly_operating_expenses": 20000,
-            "net_current_assets": 60000,
-            "current_assets": 80000,
-            "current_liabilities": 20000,
+        "income": {
+            "donations": {"value": 500000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "government_grants": {"value": 250000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "total": {"value": 750000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
         },
-        "sources": [
-            {
-                "source_type": "attached_report",
-                "source_index": 0,
-                "page_number": 5,
-                "search_result_index": None,
-                "quote": "Statement of Financial Activities for the year ended 31 March 2024.",
-                "resolved_url": None
-            }
-        ]
+        "expenditure": {
+            "administration": {"value": 100000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "fundraising": {"value": 50000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "program_services": {"value": 400000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "total": {"value": 550000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+        },
+        "reserves": {"total_reserves": {"value": 75000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE}},
+        "lsg_specifics": {
+            "lsg_reserve_amount": {"value": 50000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "provident_fund_reserve": {"value": 10000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+        },
+        "ratio_inputs": {
+            "monthly_operating_expenses": {"value": 20000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "net_current_assets": {"value": 60000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "current_assets": {"value": 80000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+            "current_liabilities": {"value": 20000, "source": FINANCIAL_FIGURE_SOURCE_TEMPLATE},
+        },
     },
     "impact": {
         "beneficiaries": [{

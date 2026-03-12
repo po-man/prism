@@ -11,26 +11,28 @@ VALID_FINANCIALS = {
         "usd_exchange_rate": 0.128,
         "rate_date": "2023-12-31",
     },
-    "income": {"donations": 100, "government_grants": 200, "total": 300},
-    "expenditure": {"administration": 50, "fundraising": 20, "program_services": 150, "total": 220},
-    "reserves": {"total_reserves": 75000},
-    "lsg_specifics": {"lsg_reserve_amount": 10, "provident_fund_reserve": 5},
-    "ratio_inputs": {
-        "monthly_operating_expenses": 18,
-        "net_current_assets": 40,
-        "current_assets": 50,
-        "current_liabilities": 10
+    "income": {
+        "donations": {"value": 100},
+        "government_grants": {"value": 200},
+        "total": {"value": 300}
     },
-    "sources": [
-        {
-            "source_type": "attached_report",
-            "source_index": 0,
-            "page_number": 1,
-            "search_result_index": None,
-            "quote": "Financial statement for FY 2023-24",
-            "resolved_url": None
-        }
-    ]
+    "expenditure": {
+        "administration": {"value": 50},
+        "fundraising": {"value": 20},
+        "program_services": {"value": 150},
+        "total": {"value": 220}
+    },
+    "reserves": {"total_reserves": {"value": 75000}},
+    "lsg_specifics": {
+        "lsg_reserve_amount": {"value": 10},
+        "provident_fund_reserve": {"value": 5}
+    },
+    "ratio_inputs": {
+        "monthly_operating_expenses": {"value": 18},
+        "net_current_assets": {"value": 40},
+        "current_assets": {"value": 50},
+        "current_liabilities": {"value": 10}
+    }
 }
 
 VALID_IMPACT = {

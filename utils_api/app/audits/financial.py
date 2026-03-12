@@ -19,15 +19,17 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
     if (
         not record.financials
         or not record.financials.reserves
+        or not record.financials.reserves.total_reserves
+        or record.financials.reserves.total_reserves.value is None
         or not record.financials.expenditure
-        or record.financials.reserves.total_reserves is None
-        or record.financials.expenditure.total is None
+        or not record.financials.expenditure.total
+        or record.financials.expenditure.total.value is None
     ):
         base_item.details.calculation = "Required financial data is missing."
         return base_item
 
-    reserve = record.financials.reserves.total_reserves
-    expenditure = record.financials.expenditure.total
+    reserve = record.financials.reserves.total_reserves.value
+    expenditure = record.financials.expenditure.total.value
 
     if expenditure <= 0:
         base_item.status = "warning"
@@ -67,15 +69,22 @@ def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
         return base_item
 
     ratio_inputs = record.financials.ratio_inputs
-    net_assets = ratio_inputs.net_current_assets
-    monthly_expenses = ratio_inputs.monthly_operating_expenses
+    net_assets = ratio_inputs.net_current_assets.value if ratio_inputs.net_current_assets else None
+    monthly_expenses = ratio_inputs.monthly_operating_expenses.value if ratio_inputs.monthly_operating_expenses else None
     calculation_string = ""
 
-    if net_assets is None and ratio_inputs.current_assets is not None and ratio_inputs.current_liabilities is not None:
-        current_assets = ratio_inputs.current_assets
-        current_liabilities = ratio_inputs.current_liabilities
+    if (
+        net_assets is None
+        and ratio_inputs.current_assets
+        and ratio_inputs.current_assets.value is not None
+        and ratio_inputs.current_liabilities
+        and ratio_inputs.current_liabilities.value is not None
+    ):
+        current_assets = ratio_inputs.current_assets.value
+        current_liabilities = ratio_inputs.current_liabilities.value
         net_assets = current_assets - current_liabilities
-        calculation_string = f"((${current_assets:,.0f} - ${current_liabilities:,.0f}) / ${monthly_expenses:,.0f})"
+        if monthly_expenses is not None:
+            calculation_string = f"((${current_assets:,.0f} - ${current_liabilities:,.0f}) / ${monthly_expenses:,.0f})"
 
     if net_assets is None or monthly_expenses is None:
         base_item.details.calculation = "Required financial data is missing."
