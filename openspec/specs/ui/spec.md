@@ -6,11 +6,11 @@ This specification defines how the audit checklist is presented to the end-user.
 ### Requirement: ITN Scorecard Rendering
 The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence, while explicitly bounding and labelling temporal scopes.
 
-#### Scenario: Displaying Intervention-Based Tractability
+#### Scenario: Displaying the Verified Leverage Portfolio
 - **WHEN** rendering the "Tractability" card on the ITN Scorecard
-- **THEN** the UI MUST derive the tractability score and description from the `analytics.check_items` array (specifically `check_intervention_tractability`), rather than parsing the `evidence_quality` from the raw impact metrics.
-- **AND** it MUST display the highest matched EA evidence tier (e.g., "Quasi-Experimental") as the primary metric.
-- **AND** it MUST display the EA rationale string (from the audit details) as the supporting text, replacing the charity's self-reported quote.
+- **THEN** the UI MUST label the block "Highest Intervention Leverage".
+- **AND** it MUST parse the stringified JSON array in the `details.elaboration` field to dynamically render the complete verified portfolio of interventions, grouped by their respective Tiers.
+- **AND** for every listed intervention, it MUST append an interactive `provenance-badge.html` using the exact source object provided in the payload, allowing users to verify the exact text validating that classification.
 
 ### Requirement: Data Provenance Indicators
 The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency, including temporal bounding.
@@ -60,9 +60,10 @@ The UI SHALL render the deterministic audit results, filtering out noise and pro
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually.
 
-#### Scenario: Default Sorting Behaviour
-- **WHEN** a user interacts with a sortable column header in the Master Directory for the first time
-- **THEN** the table MUST sort the data in descending order (highest to lowest, or newest to oldest) to immediately surface the most impactful or relevant records.
+#### Scenario: Intuitive Leverage Tier Presentation
+- **WHEN** rendering the Tractability column in the Master Directory (now titled "Highest Leverage (Tractability)")
+- **THEN** the UI MUST abstract the backend tier outputs into immediately understandable, colour-coded visual badges (e.g., Tier 1, Tier 2, Tier 3).
+- **AND** the table's vanilla Javascript sorting logic MUST accurately sort these tiers hierarchically in descending order, where Tier 1 > Tier 2 > Tier 3 > Not Assessed.
 
 ### Requirement: Interactive Provenance Badges
 The UI SHALL render explicit, interactive citation badges for all quantitative figures and claims to facilitate immediate human verification against source documents.

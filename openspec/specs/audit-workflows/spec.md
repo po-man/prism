@@ -6,10 +6,12 @@ This specification defines the system's core data processing pipelines, managed 
 ### Requirement: EA Animal Advocacy Audit Logic
 The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system, separating intervention-level tractability from organisation-level monitoring capabilities.
 
-#### Scenario: Safely Parsing Unspecified Populations for Neglectedness
-- **WHEN** the `check_cause_area_neglectedness` function evaluates the `beneficiaries` array
-- **THEN** it MUST initialise and parse the `unspecified` population count alongside the original three types.
-- **AND** the `unspecified` population MUST be included in the `total_population` denominator, naturally diluting the high-neglectedness ratio if a charity fails to specify its beneficiaries, without crashing the audit engine.
+#### Scenario: Aggregating an Intervention Leverage Portfolio
+- **WHEN** the `check_intervention_tractability` function evaluates the `significant_events` array
+- **THEN** it MUST map all interventions with verifiable source quotes to their corresponding "Intervention Leverage Tiers" (Tier 1: Systemic Change, Tier 2: Preventative Scale, Tier 3: Direct Care & Indirect Action).
+- **AND** it MUST determine the highest tier achieved and inject it as a string into the `details.calculation` field.
+- **AND** it MUST compile all verified interventions, grouped by tier, into a single structured list of dictionaries. This list MUST be serialized into a JSON string and injected into the `details.elaboration` field so the UI can parse and render the complete portfolio.
+- **AND** it MUST assign a "pass" status if the organisation possesses at least one verified Tier 1 or Tier 2 intervention, and a "warning" if the portfolio consists solely of Tier 3 interventions or if no verifiable interventions are present.
 
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, dynamically assigning a Confidence Tier to prevent misrepresentation of multi-domain charities.
@@ -32,17 +34,10 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.
 
-#### Scenario: Preventing Extraction of Products and Potential Impacts
+#### Scenario: Enforcing Expanded Intervention Classification
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST explicitly instruct the LLM to only extract *actual, historical outcomes* that occurred during the reporting period, strictly excluding any projected, guessed, or potential future beneficiaries.
-- **AND** the prompt MUST explicitly prohibit the classification of animal products (e.g., eggs, meals, pounds of meat) as animal beneficiaries.
-
-#### Scenario: Clarifying Contextual Species Classification
-- **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST provide clear rules for assigning `beneficiary_type`. 
-- **AND** it MUST explicitly state that dogs and cats fall under `companion_animals` even if they are strays or unowned community animals.
-- **AND** it MUST instruct the model to use context for dual-purpose animals (e.g., pet pigs as `companion_animals` vs. agricultural pigs as `farmed_animals`).
-- **AND** it MUST instruct the model to fall back to `unspecified` only when the species or context is entirely ambiguous.
+- **THEN** the system prompt MUST include a comprehensive rubric explicitly defining all 13 acceptable `intervention_type` options.
+- **AND** it MUST instruct the model to accurately classify events according to their systemic leverage (e.g., mapping legislative wins to `policy_and_legal_advocacy` and street activism to `vegan_outreach_and_dietary_change`), only resorting to the `other` fallback when absolutely necessary.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritized impact models, and highly traceable data provenance.
