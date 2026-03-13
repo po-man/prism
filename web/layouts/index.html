@@ -26,7 +26,7 @@
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Data Sources</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Target Species (Neglectedness)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Total Beneficiaries (Importance)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="tractability">Evidence Quality (Tractability)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="tractability">Highest Leverage (Tractability)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Cost per Outcome (USD)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="audit">Audit Summary</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="date">Last Updated</th>
@@ -123,19 +123,22 @@
                 {{ end }}
                 {{ if gt $total_beneficiaries 0 }}{{ lang.FormatNumber 0 $total_beneficiaries }}{{ else }}N/A{{ end }}
               </td>
-              {{ $tractabilitySortMap := dict "RCT/Meta-Analysis" 5 "Quasi-Experimental" 4 "Pre-Post" 3 "Anecdotal" 2 "None" 1 "Not Assessed" 0 }}
-              <td class="px-4 py-3 text-gray-700 text-center truncate" data-label="Evidence Quality (Tractability)"
-                data-sort-value="{{-
-                  $tractabilityCheck := index (where $org.analytics.check_items "id" "check_intervention_tractability") 0 -}}
-                  {{- $tractabilityTier := "Not Assessed" -}}
-                  {{- if $tractabilityCheck }}{{ $tractabilityTier = $tractabilityCheck.details.calculation }}{{ end -}}
-                  {{- index $tractabilitySortMap $tractabilityTier | default 0 -}}
-                ">
-                {{ $tractabilityCheck := index (where $org.analytics.check_items "id" "check_intervention_tractability") 0 }}
-                {{ $tractabilityTier := "Not Assessed" }}
-                {{ if $tractabilityCheck }}{{ $tractabilityTier = $tractabilityCheck.details.calculation }}{{ end }}
-                {{ $tractabilityTier }}
+              {{/* Task 3.1 & 3.2: Update Tractability Column and Sorting Logic */}}
+              {{ $tractabilityCheck := index (where $org.analytics.check_items "id" "check_intervention_tractability") 0 }}
+              {{ $tierString := "Not Assessed" }}
+              {{ if $tractabilityCheck }}{{ $tierString = $tractabilityCheck.details.calculation }}{{ end }}
+
+              {{ $s.Set "badgeText" "N/A" }}{{ $s.Set "badgeClass" "bg-gray-100 text-gray-800" }}{{ $s.Set "sortVal" 0 }}
+              {{ if findRE `Tier 1` $tierString }}{{ $s.Set "badgeText" "Tier 1" }}{{ $s.Set "badgeClass" "bg-green-100 text-green-800" }}{{ $s.Set "sortVal" 3 }}{{ end }}
+              {{ if findRE `Tier 2` $tierString }}{{ $s.Set "badgeText" "Tier 2" }}{{ $s.Set "badgeClass" "bg-yellow-100 text-yellow-800" }}{{ $s.Set "sortVal" 2 }}{{ end }}
+              {{ if findRE `Tier 3` $tierString }}{{ $s.Set "badgeText" "Tier 3" }}{{ $s.Set "badgeClass" "bg-orange-100 text-orange-800" }}{{ $s.Set "sortVal" 1 }}{{ end }}
+
+              <td class="px-4 py-3 text-center" data-label="Highest Leverage (Tractability)" data-sort-value="{{ $s.Get "sortVal" }}">
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full {{ $s.Get "badgeClass" }}">
+                  {{ $s.Get "badgeText" }}
+                </span>
               </td>
+
               {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
               {{ $sort_value := -2 }} {{/* Default for missing data */}}
               {{ if $cost_metric }}
@@ -260,11 +263,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     return 0;
                 } else if (sortType === 'tractability') {
-                    // 'Not Assessed' is 0, so it will be lowest.
-                    valA = parseFloat(valA);
-                    valB = parseFloat(valB);
+                    // Tier 1 (3) > Tier 2 (2) > Tier 3 (1) > Not Assessed (0)
+                    const tierMap = { '3': 3, '2': 2, '1': 1, '0': 0 };
+                    valA = tierMap[valA] || 0;
+                    valB = tierMap[valB] || 0;
+                } else if (sortType === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
                 } else {
-                    // Case-insensitive string comparison
                     valA = valA.toLowerCase();
                     valB = valB.toLowerCase();
                 }

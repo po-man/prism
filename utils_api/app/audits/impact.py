@@ -1,6 +1,7 @@
 import json
 from app.schemas.organisation import Metric, OrganisationRecord
 from app.schemas.analytics import AuditCheckItem, AuditDetails, CalculatedMetric
+from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
 from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
 
@@ -117,7 +118,7 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     sorted_portfolio = sorted(portfolio_by_tier.items(), key=lambda x: x[1]['tier'])
     
     structured_portfolio = [{"tier_name": name, "interventions": data["interventions"]} for name, data in sorted_portfolio]
-    base_item.details.elaboration = json.dumps(structured_portfolio)
+    base_item.details.elaboration = json.dumps(structured_portfolio, cls=CustomEncoder)
 
     # 4. Set calculation and status
     base_item.details.calculation = highest_tier_name
