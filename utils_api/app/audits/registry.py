@@ -1,4 +1,4 @@
-from app.audits import financial, impact
+from app.audits import financial, impact, transparency
 
 # The registry holds all audit check functions to be executed.
 # These functions are expected to return an `AuditCheckItem`.
@@ -12,6 +12,9 @@ AUDIT_CHECKS = [
     impact.check_counterfactual_baseline,
     impact.check_funding_neglectedness,
     impact.check_cause_area_neglectedness,
+    # Transparency Checks
+    transparency.check_negative_impact_disclosure,
+    transparency.check_live_release_transparency,
 ]
 
 # This registry holds all metric calculation functions.
