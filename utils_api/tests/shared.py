@@ -109,6 +109,22 @@ VALID_BASE_RECORD = {
                 "currency": "HKD",
                 "description": "Cost to spay one dog."
             },
+        },
+        "transparency_indicators": {
+            "unintended_consequences_reported": {
+                "value": False
+            },
+            "euthanasia_statistics_reported": {
+                "value": True,
+                "source": {
+                    "source_type": "attached_report",
+                    "source_index": 0,
+                    "page_number": 1,
+                    "search_result_index": None,
+                    "quote": "The euthanasia is 2%",
+                    "resolved_url": None
+                }
+            }
         }
     },
 }

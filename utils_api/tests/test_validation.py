@@ -93,6 +93,14 @@ VALID_IMPACT = {
             "currency": "HKD",
             "description": "Cost to spay one dog."
         },
+    },
+    "transparency_indicators": {
+        "unintended_consequences_reported": {
+            "value": False
+        },
+        "euthanasia_statistics_reported": {
+            "value": False
+        }
     }
 }
 
