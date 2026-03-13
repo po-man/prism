@@ -10,18 +10,18 @@
   - Instruct the LLM to prioritise specific categories over `other`.
 
 ## 2. Utils API Updates
-- [ ] 2.1 **Update Constants (`utils_api/app/audits/constants.py`)**:
+- [x] 2.1 **Update Constants (`utils_api/app/audits/constants.py`)**:
   - Remove `INTERVENTION_TRACTABILITY_MAP`.
   - Add `INTERVENTION_LEVERAGE_MAP`. Key this dictionary by the 13 `intervention_type` strings.
   - For each key, assign a `tier` (integer 1, 2, or 3), a `tier_name` (e.g., "Tier 1: Systemic Change"), and a `note` containing the EA rationale.
-- [ ] 2.2 **Update Audit Logic (`utils_api/app/audits/impact.py`)**:
+- [x] 2.2 **Update Audit Logic (`utils_api/app/audits/impact.py`)**:
   - Rewrite `check_intervention_tractability(record: OrganisationRecord)`.
   - Filter `record.impact.significant_events` to only those with a valid `source.quote`.
   - Iterate through the verified events and group them by `tier_name` using `INTERVENTION_LEVERAGE_MAP`.
   - Determine the highest tier achieved overall (Tier 1 is highest priority). Set `base_item.details.calculation` to the highest `tier_name` found.
   - Assign status: `pass` if the highest tier is 1 or 2. `warning` if the highest tier is 3 or if no events are found.
   - Construct a structured portfolio dictionary. Format: `[{"tier_name": "Tier 1: Systemic Change", "interventions": [{"name": "Policy And Legal Advocacy", "source": {...}}]}]`. Serialize this dictionary to a JSON string and assign it to `base_item.details.elaboration`.
-- [ ] 2.3 **Update Tests (`utils_api/tests/test_audit_impact.py`)**:
+- [x] 2.3 **Update Tests (`utils_api/tests/test_audit_impact.py`)**:
   - Refactor `test_check_intervention_tractability` to mock events from the new 13-item taxonomy.
   - Assert that the output `status` correctly follows the Tier 1/2 (Pass) vs Tier 3 (Warning) logic.
   - Assert that `item["details"]["elaboration"]` is valid, parseable JSON containing the structured portfolio.
