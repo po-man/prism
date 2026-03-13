@@ -3,7 +3,7 @@
 - [x] 1.2 Update `v1/impact.schema.json`: Add a `transparency_indicators` object containing `unintended_consequences_reported` and `euthanasia_statistics_reported`. Both should be objects containing a `value` (boolean) and a `$ref` to `#/definitions/source`.
 
 ## 2. LLM Prompt Updates (`n8n/prompt-templates/`)
-- [ ] 2.1 Update `impact.system.md`: Add explicit instructions for the LLM to search for admissions of negative/unintended impacts and, if applicable, euthanasia/live release rates. Enforce that these must be backed by verbatim quotes, otherwise set the value to `false` and source to `null`.
+- [x] 2.1 Update `impact.system.md`: Add explicit instructions for the LLM to search for admissions of negative/unintended impacts and, if applicable, euthanasia/live release rates. Enforce that these must be backed by verbatim quotes, otherwise set the value to `false` and source to `undefined`.
 
 ## 3. Python Audit Engine (`utils_api/`)
 - [ ] 3.1 Create `app/audits/transparency.py`.
