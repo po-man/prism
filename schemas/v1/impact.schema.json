@@ -208,7 +208,29 @@
           }
         }
       }
+    },
+    "transparency_indicators": {
+      "type": "object",
+      "description": "Indicators of operational transparency and epistemic humility.",
+      "properties": {
+        "unintended_consequences_reported": {
+          "type": "object",
+          "description": "Disclosure of unintended negative impacts or failures. (Only self-reported disclosure (from the attached reports) counts)",
+          "properties": {
+            "value": { "type": "boolean" },
+            "source": { "$ref": "#/definitions/source" }
+          }
+        },
+        "euthanasia_statistics_reported": {
+          "type": "object",
+          "description": "Disclosure of exact euthanasia or live-release rates. (Only self-reported disclosure (from the attached reports) counts)",
+          "properties": {
+            "value": { "type": "boolean" },
+            "source": { "$ref": "#/definitions/source" }
+          }
+        }
+      }
     }
   },
-  "required": ["beneficiaries", "metrics", "significant_events", "context"]
+  "required": ["beneficiaries", "metrics", "significant_events", "context", "transparency_indicators"]
 }

@@ -32,7 +32,7 @@
         "status": {
           "type": "string",
           "description": "The result status of the check.",
-          "enum": ["pass", "fail", "warning"]
+          "enum": ["pass", "fail", "warning", "bonus", "not_disclosed", "n_a"]
         },
         "significance": {
           "type": "string",
@@ -46,7 +46,8 @@
             "Financial Health",
             "Governance",
             "Impact Awareness",
-            "Risk Management"
+            "Risk Management",
+            "Transparency"
           ]
         },
         "details": {

@@ -1,6 +1,6 @@
 ## 1. Schema Modifications (`schemas/`)
-- [ ] 1.1 Update `v1/analytics.schema.json`: Add `"bonus"`, `"not_disclosed"`, and `"n_a"` to the `status` enum in `checkItem`. Add `"Transparency"` to the `category` enum.
-- [ ] 1.2 Update `v1/impact.schema.json`: Add a `transparency_indicators` object containing `unintended_consequences_reported` and `euthanasia_statistics_reported`. Both should be objects containing a `value` (boolean) and a `$ref` to `#/definitions/source`.
+- [x] 1.1 Update `v1/analytics.schema.json`: Add `"bonus"`, `"not_disclosed"`, and `"n_a"` to the `status` enum in `checkItem`. Add `"Transparency"` to the `category` enum.
+- [x] 1.2 Update `v1/impact.schema.json`: Add a `transparency_indicators` object containing `unintended_consequences_reported` and `euthanasia_statistics_reported`. Both should be objects containing a `value` (boolean) and a `$ref` to `#/definitions/source`.
 
 ## 2. LLM Prompt Updates (`n8n/prompt-templates/`)
 - [ ] 2.1 Update `impact.system.md`: Add explicit instructions for the LLM to search for admissions of negative/unintended impacts and, if applicable, euthanasia/live release rates. Enforce that these must be backed by verbatim quotes, otherwise set the value to `false` and source to `null`.
