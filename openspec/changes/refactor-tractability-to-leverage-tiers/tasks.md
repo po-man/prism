@@ -1,10 +1,10 @@
 # openspec/changes/refactor-tractability-to-leverage-tiers/tasks.md
 
 ## 1. Schema & Prompt Updates
-- [ ] 1.1 **Update Schema (`schemas/v1/impact.schema.json`)**:
+- [x] 1.1 **Update Schema (`schemas/v1/impact.schema.json`)**:
   - Locate the `intervention_type` enum inside the `significant_events` items definition.
   - Expand the array to exactly these 13 values: `corporate_welfare_campaigns`, `policy_and_legal_advocacy`, `alternative_protein_and_food_tech`, `scientific_and_welfare_research`, `high_volume_spay_neuter`, `undercover_investigations_and_exposes`, `capacity_building_and_movement_growth`, `individual_rescue_and_sanctuary`, `veterinary_care_and_treatment`, `disaster_response_and_emergency_relief`, `wildlife_conservation_and_habitat_protection`, `vegan_outreach_and_dietary_change`, `humane_education_and_community_support`, `other`.
-- [ ] 1.2 **Update Prompt (`n8n/prompt-templates/impact.system.md`)**:
+- [x] 1.2 **Update Prompt (`n8n/prompt-templates/impact.system.md`)**:
   - Replace the existing *Intervention Classification Rubric* with a new, comprehensive rubric detailing the 13 expanded types. 
   - Add definitions for the new types (e.g., `- alternative_protein_and_food_tech: Funding, researching, or promoting plant-based, precision-fermentation, or cultivated alternatives.`).
   - Instruct the LLM to prioritise specific categories over `other`.
