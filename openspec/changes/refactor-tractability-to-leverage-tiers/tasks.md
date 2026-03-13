@@ -27,17 +27,17 @@
   - Assert that `item["details"]["elaboration"]` is valid, parseable JSON containing the structured portfolio.
 
 ## 3. UI & Frontend Updates
-- [ ] 3.1 **Update Master Directory Columns (`web/layouts/index.html`)**:
+- [x] 3.1 **Update Master Directory Columns (`web/layouts/index.html`)**:
   - Change the table header `<th>` from "Evidence Quality (Tractability)" to "Highest Leverage (Tractability)".
   - In the `<tbody>`, locate the `<td>` for Tractability. Extract the tier from `$tractabilityTier`. 
   - Render a visual badge using Tailwind classes (e.g., `bg-green-100 text-green-800` for Tier 1, `bg-yellow-100` for Tier 2, `bg-orange-100` for Tier 3, `bg-gray-100` for Not Assessed).
-- [ ] 3.2 **Update Sorting Logic (`web/layouts/index.html`)**:
+- [x] 3.2 **Update Sorting Logic (`web/layouts/index.html`)**:
   - Locate the `<script>` tag at the bottom.
   - Update the `if (sortType === 'tractability')` block. Map the string values to numeric weights for sorting: "Tier 1: Systemic Change" -> 3, "Tier 2: Preventative Scale" -> 2, "Tier 3: Direct Care" -> 1, "Not Assessed" -> 0.
-- [ ] 3.3 **Update Glossary (`web/layouts/partials/index-how-to-read.html`)**:
+- [x] 3.3 **Update Glossary (`web/layouts/partials/index-how-to-read.html`)**:
   - Change `data-highlight-column="Evidence Quality (Tractability)"` to match the new header.
   - Rewrite the explanatory `<p>` and `<ul>` to explain the Leverage Tiers (Systemic, Preventative, Direct Care) instead of RCTs/Anecdotal evidence.
-- [ ] 3.4 **Update Tractability Card (`web/layouts/partials/itn-scorecard.html`)**:
+- [x] 3.4 **Update Tractability Card (`web/layouts/partials/itn-scorecard.html`)**:
   - Locate the "Tractability" grid column. Change the sub-header to "Highest Intervention Leverage".
   - Refactor the `{{ if gt (len $tractabilityElaboration) 0 }}` block. 
   - Iterate over the unmarshaled `$tractabilityElaboration` array (which is now a structured portfolio of objects, not a list of strings).
