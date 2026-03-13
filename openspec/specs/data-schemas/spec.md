@@ -6,10 +6,11 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Expanded Intervention Taxonomy
-- **WHEN** validating the `intervention_type` array within `significant_events`
-- **THEN** the schema MUST support an expanded array of 13 specific intervention types designed to capture the full spectrum of animal advocacy leverage.
-- **AND** the allowed enum MUST strictly be: `corporate_welfare_campaigns`, `policy_and_legal_advocacy`, `alternative_protein_and_food_tech`, `scientific_and_welfare_research`, `high_volume_spay_neuter`, `undercover_investigations_and_exposes`, `capacity_building_and_movement_growth`, `individual_rescue_and_sanctuary`, `veterinary_care_and_treatment`, `disaster_response_and_emergency_relief`, `wildlife_conservation_and_habitat_protection`, `vegan_outreach_and_dietary_change`, `humane_education_and_community_support`, and `other`.
+#### Scenario: Extracting Transparency Indicators
+- **WHEN** validating the `impact.schema.json`
+- **THEN** it MUST include a top-level `transparency_indicators` object.
+- **AND** this object MUST contain `unintended_consequences_reported` and `euthanasia_statistics_reported`.
+- **AND** both properties MUST be objects containing a `value` (boolean) and a strictly validated `source` object to guarantee the provenance of the disclosure.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
@@ -23,10 +24,10 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.
 
-#### Scenario: Tiering Calculated Metrics
-- **WHEN** the `analytics.schema.json` is validated
-- **THEN** items within `calculated_metrics` MUST include `confidence_tier` (enum: `["HIGH", "MEDIUM", "LOW"]`) and `confidence_note` (string).
-- **AND** the `value` property MUST allow `null` to accommodate aborted calculations in Low Confidence scenarios.
+#### Scenario: Advanced Check Taxonomy
+- **WHEN** validating the `analytics.schema.json`
+- **THEN** the `category` enum MUST include `"Transparency"`.
+- **AND** the `status` enum MUST support Advanced Checks by allowing `"bonus"`, `"not_disclosed"`, and `"n_a"`, alongside the existing `"pass"`, `"warning"`, and `"fail"`.
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.

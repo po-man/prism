@@ -34,10 +34,10 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.
 
-#### Scenario: Enforcing Expanded Intervention Classification
+#### Scenario: Instructing the LLM on Epistemic Humility
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST include a comprehensive rubric explicitly defining all 13 acceptable `intervention_type` options.
-- **AND** it MUST instruct the model to accurately classify events according to their systemic leverage (e.g., mapping legislative wins to `policy_and_legal_advocacy` and street activism to `vegan_outreach_and_dietary_change`), only resorting to the `other` fallback when absolutely necessary.
+- **THEN** the system prompt MUST explicitly instruct the LLM to search for admissions of failure, unintended consequences, or negative impacts within the text.
+- **AND** it MUST instruct the LLM to search for exact euthanasia or live-release numbers, explicitly warning the LLM *not* to infer these numbers from generic "animals saved" metrics.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritized impact models, and highly traceable data provenance.
@@ -73,4 +73,18 @@ The `utils_api` microservice SHALL provide a dedicated endpoint (e.g., `/resolve
 - **WHEN** the Orchestrator passes the `financials` payload to the `/resolve-provenance` endpoint
 - **THEN** it MUST transmit the entire, nested `financials` object rather than a flat array.
 - **AND** the recursive `_find_and_resolve_sources` logic MUST automatically traverse the nested `income`, `expenditure`, and `reserves` objects, mutating and injecting the `resolved_url` for every discovered line-item source.
+
+### Requirement: Epistemic Humility Audit Logic
+The `utils_api` microservice SHALL execute deterministic transparency audit functions to reward epistemic humility and operational transparency, utilising the Advanced Check taxonomy (`bonus`, `not_disclosed`, `n_a`).
+
+#### Scenario: Evaluating Negative Impact Disclosure
+- **WHEN** the `check_negative_impact_disclosure` function evaluates the `transparency_indicators`
+- **THEN** it MUST assign a `bonus` status if `unintended_consequences_reported` is true and verified with a source.
+- **AND** it MUST assign a `not_disclosed` status if it is false, explicitly noting that non-disclosure is the industry norm and does not constitute a failure.
+
+#### Scenario: Conditionally Evaluating Live Release Rates
+- **WHEN** the `check_live_release_transparency` function executes
+- **THEN** it MUST first scan the `significant_events` array for `individual_rescue_and_sanctuary` or `veterinary_care_and_treatment`.
+- **AND** if neither intervention is present, the audit MUST immediately return an `n_a` (Not Applicable) status with the calculation "Organisation does not engage in direct animal sheltering; metric not applicable."
+- **AND** if applicable, it MUST evaluate `euthanasia_statistics_reported`, returning `bonus` for true, and `not_disclosed` for false.
 

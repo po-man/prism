@@ -52,18 +52,19 @@ The UI SHALL present the charity's logic model hierarchically, normalising all f
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
 
-#### Scenario: Isolated Organization Views
-- **WHEN** a user navigates to an individual organization's URL at the root level (e.g., `/<organization-slug>`)
-- **THEN** the UI MUST render the ITN Scorecard, Impact Pathway, Value for Money, and Audit Checklist exclusively for that specific organization.
-- **AND** the page MUST include a "Back to Directory" navigation link to return to the Master Table at the root path (`/`).
+#### Scenario: Rendering Advanced Check Statuses
+- **WHEN** rendering items in the Audit Checklist (`audit-checklist.html`)
+- **THEN** the template MUST map the `bonus` status to a distinct positive visual indicator (e.g., a purple dot and `bg-purple-100` background).
+- **AND** it MUST map `not_disclosed` and `n_a` statuses to a neutral visual indicator (e.g., a grey dot and `bg-gray-100` background).
+- **AND** the internal sorting logic MUST place `bonus` items at the top of their respective category blocks, followed by `pass`, `warning`, `fail`, `not_disclosed`, and `n_a`.
 
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually.
 
-#### Scenario: Intuitive Leverage Tier Presentation
-- **WHEN** rendering the Tractability column in the Master Directory (now titled "Highest Leverage (Tractability)")
-- **THEN** the UI MUST abstract the backend tier outputs into immediately understandable, colour-coded visual badges (e.g., Tier 1, Tier 2, Tier 3).
-- **AND** the table's vanilla Javascript sorting logic MUST accurately sort these tiers hierarchically in descending order, where Tier 1 > Tier 2 > Tier 3 > Not Assessed.
+#### Scenario: Including Bonuses in the Audit Summary Column
+- **WHEN** rendering the "Audit Summary" column in the Master Directory (`index.html`)
+- **THEN** the UI MUST parse and display the count of `bonus` checks achieved by the organisation alongside the existing pass/warn/fail counts.
+- **AND** the vanilla JavaScript table sorting logic MUST be updated to account for the bonus count, prioritizing organisations with a higher number of bonuses when sorted descending (best to worst).
 
 ### Requirement: Interactive Provenance Badges
 The UI SHALL render explicit, interactive citation badges for all quantitative figures and claims to facilitate immediate human verification against source documents.
