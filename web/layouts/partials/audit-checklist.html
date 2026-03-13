@@ -20,7 +20,10 @@
     {{ end }}
 
     {{ $significanceOrder := dict "HIGH" 1 "MEDIUM" 2 "LOW" 3 }}
-    {{ $statusOrder := dict "fail" 1 "warning" 2 "pass" 3 }}
+    {{/* Task 4.3: Update sorting logic to include new statuses.
+         Order: bonus, pass, warning, fail, not_disclosed, n_a */}}
+    {{ $statusOrder := dict "bonus" 1 "pass" 2 "warning" 3 "fail" 4 "not_disclosed" 5 "n_a" 6 }}
+
 
     {{/* Task 3.1: Create a dictionary for threshold tooltips */}}
     {{ $tooltips := dict
@@ -39,21 +42,33 @@
         {{ $sortedItems := sort $items "significance" "asc" (index $significanceOrder) "status" "asc" (index $statusOrder) }}
         {{ range $sortedItems }}
           {{ $item := . }}
-          <details class="bg-gray-50 border border-gray-200 rounded-md transition hover:bg-gray-100">
+          {{/* Task 4.1: Add background color for bonus and neutral statuses */}}
+          {{ $bgClass := "bg-gray-50" }}
+          {{ if eq $item.status "bonus" }}{{ $bgClass = "bg-purple-50" }}{{ end }}
+          {{ if or (eq $item.status "not_disclosed") (eq $item.status "n_a") }}{{ $bgClass = "bg-gray-50" }}{{ end }}
+
+          <details class="{{ $bgClass }} border border-gray-200 rounded-md transition hover:bg-gray-100">
             <summary class="flex items-center justify-between p-4 cursor-pointer list-none">
               <div class="flex items-center" title="{{ index $tooltips $item.id }}">
-                {{/* Traffic light indicator */}}
+                {{/* Task 4.1: Update traffic light indicator for new statuses */}}
                 {{ if eq $item.status "fail" }}
                   <span class="w-4 h-4 rounded-full bg-red-500 mr-3 flex-shrink-0"></span>
                 {{ else if eq $item.status "warning" }}
                   <span class="w-4 h-4 rounded-full bg-yellow-400 mr-3 flex-shrink-0"></span>
                 {{ else if eq $item.status "pass" }}
                   <span class="w-4 h-4 rounded-full bg-green-500 mr-3 flex-shrink-0"></span>
+                {{ else if eq $item.status "bonus" }}
+                  <span class="w-4 h-4 rounded-full bg-purple-500 mr-3 flex-shrink-0"></span>
+                {{ else if or (eq $item.status "not_disclosed") (eq $item.status "n_a") }}
+                  <span class="w-4 h-4 rounded-full bg-gray-400 mr-3 flex-shrink-0"></span>
                 {{ end }}
                 <span class="font-medium text-gray-800">{{ $item.id | humanize | title }}</span>
               </div>
               <div class="flex items-center">
-                <span class="text-sm font-semibold px-2 py-0.5 rounded {{ if eq $item.status "pass" }} bg-green-100 text-green-700 {{ else if eq $item.status "fail" }} bg-red-100 text-red-700 {{ else if eq $item.status "warning" }} bg-yellow-100 text-yellow-700 {{ else }} bg-gray-200 text-gray-600 {{ end }}">{{ $item.status | upper }}</span>
+                {{/* Task 4.1 & 4.2: Update status badge styles and text rendering */}}
+                <span class="text-sm font-semibold px-2 py-0.5 rounded {{ if eq $item.status "pass" }} bg-green-100 text-green-700 {{ else if eq $item.status "fail" }} bg-red-100 text-red-700 {{ else if eq $item.status "warning" }} bg-yellow-100 text-yellow-700 {{ else if eq $item.status "bonus" }} bg-purple-100 text-purple-700 {{ else if eq $item.status "not_disclosed" }} bg-gray-100 text-gray-600 {{ else if eq $item.status "n_a" }} bg-gray-100 text-gray-600 {{ else }} bg-gray-200 text-gray-600 {{ end }}">
+                  {{ if eq $item.status "n_a" }}N/A{{ else if eq $item.status "not_disclosed" }}NOT DISCLOSED{{ else }}{{ $item.status | upper }}{{ end }}
+                </span>
                 <span class="ml-4 transition-transform duration-200 group-open:rotate-180"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></span>
               </div>
             </summary>

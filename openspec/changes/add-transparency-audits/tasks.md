@@ -13,6 +13,6 @@
 - [x] 3.5 Write unit tests in `tests/test_audit_transparency.py` to verify conditional logic and new statuses.
 
 ## 4. Frontend Updates (`web/`)
-- [ ] 4.1 Update `layouts/partials/audit-checklist.html` styles: Add colour mapping for `bonus` (`bg-purple-100 text-purple-700`, `bg-purple-500` dot), `not_disclosed` (`bg-gray-100 text-gray-600`, `bg-gray-400` dot), and `n_a` (`bg-gray-100 text-gray-400`, empty/grey dot).
-- [ ] 4.2 Update `layouts/partials/audit-checklist.html` text rendering: Map the raw string `"n_a"` to display as `"N/A"` and `"not_disclosed"` to display as `"NOT DISCLOSED"`, rather than relying on the default `upper` filter.
-- [ ] 4.3 Update `layouts/partials/audit-checklist.html` sorting logic: Place `bonus` highest in the category block, and push `not_disclosed` and `n_a` to the bottom.
+- [x] 4.1 Update `layouts/partials/audit-checklist.html` styles: Add colour mapping for `bonus` (`bg-purple-100 text-purple-700`, `bg-purple-500` dot), `not_disclosed` (`bg-gray-100 text-gray-600`, `bg-gray-400` dot), and `n_a` (`bg-gray-100 text-gray-400`, empty/grey dot).
+- [x] 4.2 Update `layouts/partials/audit-checklist.html` text rendering: Map the raw string `"n_a"` to display as `"N/A"` and `"not_disclosed"` to display as `"NOT DISCLOSED"`, rather than relying on the default `upper` filter.
+- [x] 4.3 Update `layouts/partials/audit-checklist.html` sorting logic: Place `bonus` highest in the category block, and push `not_disclosed` and `n_a` to the bottom.
