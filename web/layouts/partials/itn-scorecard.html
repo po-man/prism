@@ -102,21 +102,32 @@
 
     <!-- Tractability -->
     <div class="p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Tractability</h3>
-      <p class="text-sm text-gray-500 mb-2">Rigor of evidence</p>
+      <h3 class="font-bold text-lg text-gray-700">Highest Intervention Leverage</h3>
+      <p class="text-sm text-gray-500 mb-2">Verified intervention portfolio</p>
       <p class="text-xl font-semibold text-gray-900">{{ $tractabilityTier }}</p>
-      <p class="text-gray-600 mb-2">Highest EA evidence tier found.</p>
       {{ if gt (len $tractabilityElaboration) 0 }}
-        <div class="space-y-2 border-l-2 border-gray-300 pl-2 text-sm text-gray-600">
+        <div class="mt-2 pt-2 border-t">
           {{ range $tractabilityElaboration }}
-            {{ $line := . }}
-            {{ if and (not (findRE `^Quote: None$` $line)) (ne $line "Quote: ") }}
-              {{ if findRE `^Quote: ` $line }}
-                <p class="italic">"{{ replace $line "Quote: " "" }}"</p>
-              {{ else }}
-                <p>{{ $line }}</p>
+            <div class="mt-2">
+              <h4 class="text-sm font-bold text-gray-700 border-b pb-1">{{ .tier_name }}</h4>
+              {{/* Group interventions by name to consolidate provenance badges */}}
+              {{ $groupedInterventions := newScratch }}
+              {{ range .interventions }}
+                {{ $name := .name }}
+                {{ $sources := $groupedInterventions.Get $name | default (slice) }}
+                {{ $groupedInterventions.Set $name ( $sources | append .source ) }}
               {{ end }}
-            {{ end }}
+              <ul class="mt-1 space-y-2">
+                {{ range $name, $sources := $groupedInterventions.Values }}
+                  <li class="text-sm text-gray-600 flex items-start">
+                    <span class="flex-shrink-0 mt-px mr-1">{{ $name }}:</span>
+                    <div class="flex flex-wrap items-center">
+                      {{ range $sources }}{{ partial "provenance-badge.html" . }}{{ end }}
+                    </div>
+                  </li>
+                {{ end }}
+              </ul>
+            </div>
           {{ end }}
         </div>
       {{ end }}

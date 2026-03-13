@@ -39,7 +39,7 @@
         {{ $sortedItems := sort $items "significance" "asc" (index $significanceOrder) "status" "asc" (index $statusOrder) }}
         {{ range $sortedItems }}
           {{ $item := . }}
-          <details class="group bg-gray-50 border border-gray-200 rounded-md transition hover:bg-gray-100">
+          <details class="bg-gray-50 border border-gray-200 rounded-md transition hover:bg-gray-100">
             <summary class="flex items-center justify-between p-4 cursor-pointer list-none">
               <div class="flex items-center" title="{{ index $tooltips $item.id }}">
                 {{/* Traffic light indicator */}}
@@ -61,23 +61,35 @@
               <p class="text-gray-700">{{ $item.details.calculation | default "No calculation details available." }}</p>
               {{ with $item.details.elaboration }}
                 {{ $elaboration := . }}
-                {{ if findRE `^\[.*\]$` (string $elaboration) }}
-                  {{/* It's a JSON array string */}}
+                {{ if and (findRE `^\[.*\]$` (string $elaboration)) (findRE `"tier_name"` (string $elaboration)) }}
+                  {{/* It's the new structured portfolio JSON */}}
                   {{ $elaborationList := $elaboration | unmarshal }}
-                  <div class="mt-2 space-y-2 border-l-2 border-gray-300 pl-2 text-sm text-gray-600">
+                  <div class="mt-2 pt-2 border-t">
                     {{ range $elaborationList }}
-                      {{ $line := . }}
-                      {{ if and (not (findRE `^Quote: None$` $line)) (ne $line "Quote: ") }}
-                        {{ if findRE `^Quote: ` $line }}
-                          <p class="italic">"{{ replace $line "Quote: " "" }}"</p>
-                        {{ else }}
-                          <p>{{ $line }}</p>
+                      <div class="mt-2">
+                        <h4 class="text-sm font-bold text-gray-700 border-b pb-1">{{ .tier_name }}</h4>
+                        {{/* Group interventions by name to consolidate provenance badges */}}
+                        {{ $groupedInterventions := newScratch }}
+                        {{ range .interventions }}
+                          {{ $name := .name }}
+                          {{ $sources := $groupedInterventions.Get $name | default (slice) }}
+                          {{ $groupedInterventions.Set $name ( $sources | append .source ) }}
                         {{ end }}
-                      {{ end }}
+                        <ul class="mt-1 space-y-2">
+                          {{ range $name, $sources := $groupedInterventions.Values }}
+                            <li class="text-sm text-gray-600 flex items-start">
+                              <span class="flex-shrink-0 mt-px mr-1">{{ $name }}:</span>
+                              <div class="flex flex-wrap items-center">
+                                {{ range $sources }}{{ partial "provenance-badge.html" . }}{{ end }}
+                              </div>
+                            </li>
+                          {{ end }}
+                        </ul>
+                      </div>
                     {{ end }}
                   </div>
                 {{ else }}
-                  {{/* It's a simple string */}}
+                  {{/* It's a simple string or an old-style list of strings */}}
                   <p class="mt-2 text-sm text-gray-700 italic border-l-2 border-gray-300 pl-2">{{ $elaboration }}</p>
                 {{ end }}
               {{ end }}

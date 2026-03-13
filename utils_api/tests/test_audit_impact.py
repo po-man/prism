@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 from fastapi.testclient import TestClient
 
 # A valid base record to ensure requests pass Pydantic validation.
@@ -58,14 +59,14 @@ def test_check_monitoring_and_evaluation(client: TestClient):
 
 
 def test_check_intervention_tractability(client: TestClient):
-    """Tests the check_intervention_tractability audit for various intervention mappings."""
-    # 1. Pass: Highest tractability is 'Quasi-Experimental'
-    record_pass = deepcopy(VALID_BASE_RECORD)
-    record_pass["impact"]["significant_events"] = [
+    """Tests the check_intervention_tractability audit for the new Leverage Tier mappings."""
+    # 1. Pass: A mix of Tier 1 and Tier 3 interventions should result in a 'pass' and a Tier 1 calculation.
+    record_tier1 = deepcopy(VALID_BASE_RECORD)
+    record_tier1["impact"]["significant_events"] = [
         {
             "event_name": "Rescue Operation",
             "summary": "Rescued animals.",
-            "intervention_type": ["individual_rescue_and_sanctuary"], # Anecdotal
+            "intervention_type": ["individual_rescue_and_sanctuary"], # Tier 3
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We rescued animals.", "resolved_url": None}
@@ -73,37 +74,46 @@ def test_check_intervention_tractability(client: TestClient):
         {
             "event_name": "Corporate Campaign",
             "summary": "Caged-free campaign.",
-            "intervention_type": ["corporate_welfare_campaigns"], # Quasi-Experimental
+            "intervention_type": ["corporate_welfare_campaigns"], # Tier 1
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Our campaign was successful.", "resolved_url": None}
         }
     ]
-    response = client.post("/audit", json=record_pass)
+    response = client.post("/audit", json=record_tier1)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_intervention_tractability")
     assert item["status"] == "pass"
-    assert "Highest tractability intervention found: 'Corporate Welfare Campaigns'" in item["details"]["elaboration"]
-    assert "Corporate campaigns have a strong, documented history" in item["details"]["elaboration"]
+    assert item["details"]["calculation"] == "Tier 1: Systemic Change"
+    
+    # Assert the elaboration contains a structured, parseable JSON portfolio
+    portfolio = json.loads(item["details"]["elaboration"])
+    assert len(portfolio) == 2 # One for each tier
+    assert portfolio[0]["tier_name"] == "Tier 1: Systemic Change"
+    assert portfolio[0]["interventions"][0]["name"] == "Corporate Welfare Campaigns"
+    assert portfolio[1]["tier_name"] == "Tier 3: Direct Care & Indirect Action"
+    assert portfolio[1]["interventions"][0]["name"] == "Individual Rescue And Sanctuary"
 
-    # 2. Warning: Highest tractability is 'Anecdotal'
-    record_warning = deepcopy(VALID_BASE_RECORD)
-    record_warning["impact"]["significant_events"] = [
+    # 2. Warning: Only Tier 3 interventions should result in a 'warning'.
+    record_tier3 = deepcopy(VALID_BASE_RECORD)
+    record_tier3["impact"]["significant_events"] = [
         {
-            "event_name": "Mixed Event",
-            "summary": "Rescued animals and did outreach.",
-            "intervention_type": ["individual_rescue_and_sanctuary", "vegan_outreach_and_education"], # Both Anecdotal
+            "event_name": "Vet Care",
+            "summary": "Provided vet care.",
+            "intervention_type": ["veterinary_care_and_treatment"], # Tier 3
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "search_result_index": None, "quote": "We did a mixed event.", "resolved_url": None}
         }
     ]
-    response = client.post("/audit", json=record_warning)
+    response = client.post("/audit", json=record_tier3)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_intervention_tractability")
     assert item["status"] == "warning"
-    # The exact one it finds first depends on set ordering, so we check for a known rationale
-    assert "EA Rationale:" in item["details"]["elaboration"]
+    assert item["details"]["calculation"] == "Tier 3: Direct Care & Indirect Action"
+    portfolio = json.loads(item["details"]["elaboration"])
+    assert len(portfolio) == 1
+    assert portfolio[0]["tier_name"] == "Tier 3: Direct Care & Indirect Action"
 
     # 3. Warning: No significant events reported
     record_no_events = deepcopy(VALID_BASE_RECORD)
@@ -111,8 +121,9 @@ def test_check_intervention_tractability(client: TestClient):
     response = client.post("/audit", json=record_no_events)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_intervention_tractability")
-    assert item["status"] == "warning"
-    assert item["details"]["elaboration"] == "No significant events or interventions were reported to assess tractability."
+    assert item["status"] == "warning" # The default status is warning
+    assert item["details"]["calculation"] == "No significant events were reported to assess tractability."
+    assert item["details"]["elaboration"] is None
 
     # 4. Warning: No impact data at all
     record_no_impact = deepcopy(VALID_BASE_RECORD)
@@ -120,8 +131,8 @@ def test_check_intervention_tractability(client: TestClient):
     response = client.post("/audit", json=record_no_impact)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_intervention_tractability")
-    assert item["status"] == "warning"
-    assert item["details"]["elaboration"] == "No significant events or interventions were reported to assess tractability."
+    assert item["status"] == "warning" # The default status is warning
+    assert item["details"]["calculation"] == "No significant events were reported to assess tractability."
 
 
 def test_check_counterfactual_baseline(client: TestClient):

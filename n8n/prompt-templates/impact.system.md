@@ -31,9 +31,15 @@ You are an Analyst specialized in evaluating animal advocacy charities using the
 You must classify all `significant_events` using the `intervention_type` array. Use the following definitions to guide your selection. You may select multiple intervention types.
 - `corporate_welfare_campaigns`: Pressuring/partnering with companies to adopt welfare policies.
 - `policy_and_legal_advocacy`: Lobbying governments or pursuing litigation for animal protection.
+- `alternative_protein_and_food_tech`: Funding, researching, or promoting plant-based, precision-fermentation, or cultivated alternatives.
+- `scientific_and_welfare_research`: Conducting or funding research to improve animal welfare standards or scientific understanding.
 - `high_volume_spay_neuter`: Catch-neuter-vaccinate-release (CNVR) and mass sterilisation.
-- `vegan_outreach_and_education`: Promoting dietary change to individuals via media or events.
+- `undercover_investigations_and_exposes`: Documenting conditions in farms, labs, or other facilities to expose animal cruelty.
+- `capacity_building_and_movement_growth`: Funding, training, or providing resources to other animal advocacy groups.
 - `individual_rescue_and_sanctuary`: Direct rescue, sheltering, or rehoming of specific animals.
 - `veterinary_care_and_treatment`: Mobile clinics or hospitals treating owned/street animals.
-- `capacity_building_and_grants`: Funding or training other advocacy groups.
-- `other`: Use this only if no other category fits. If you must select 'other', you MUST provide a 3-5 word summary in the `intervention_type_other_description` field. Otherwise, leave it null.
+- `disaster_response_and_emergency_relief`: Providing aid to animals affected by natural disasters or other emergencies.
+- `wildlife_conservation_and_habitat_protection`: Protecting wild animal populations and their natural environments.
+- `vegan_outreach_and_dietary_change`: Promoting dietary change to individuals via media, events, or online campaigns.
+- `humane_education_and_community_support`: Educating the public, especially youth, on animal welfare and compassion.
+- `other`: Use this fallback only if no other category is a suitable fit. If you must select 'other', you MUST provide a 3-5 word summary in the `intervention_type_other_description` field. Otherwise, leave it null.

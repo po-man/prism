@@ -1,8 +1,9 @@
 import json
 from app.schemas.organisation import Metric, OrganisationRecord
 from app.schemas.analytics import AuditCheckItem, AuditDetails, CalculatedMetric
+from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
-from app.audits.constants import INTERVENTION_TRACTABILITY_MAP, EVIDENCE_HIERARCHY
+from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
 
 
 def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckItem:
@@ -64,65 +65,68 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckIte
 
 def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckItem:
     """
-    Evaluates the tractability of a charity's interventions against a predefined
-    map of EA-aligned evidence levels. This check is based on the general
-    proven effectiveness of an intervention type, not the charity's own M&E.
+    Evaluates the tractability of a charity's interventions by mapping them to
+    Intervention Leverage Tiers (Systemic, Preventative, Direct). It aggregates
+    all verified interventions into a portfolio for UI display.
     """
     base_details = AuditDetails(
-        formula="Mapping of charity's intervention types against the EA Intervention Tractability evidence base.",
+        formula="Mapping of verified intervention types to the Intervention Leverage Tier framework.",
         elaboration=None,
         calculation="Not computed",
     )
     base_item = AuditCheckItem(
-        id="check_intervention_tractability", status="fail", significance="HIGH", category="Impact Awareness", details=base_details
+        id="check_intervention_tractability", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
     if not record.impact or not record.impact.significant_events:
-        base_item.details.elaboration = "No significant events or interventions were reported to assess tractability."
-        base_item.status = "warning"
+        base_item.details.calculation = "No significant events were reported to assess tractability."
         return base_item
 
-    def get_highest_level_for_event(event):
-        """Helper to find the highest evidence level for a single event's interventions."""
-        highest_level_index = len(EVIDENCE_HIERARCHY)  # Default to lowest
-        highest_intervention = None
-        for intervention in event.intervention_type:
-            level = INTERVENTION_TRACTABILITY_MAP.get(intervention, {}).get("level")
-            if level in EVIDENCE_HIERARCHY:
-                idx = EVIDENCE_HIERARCHY.index(level)
-                if idx < highest_level_index:
-                    highest_level_index = idx
-                    highest_intervention = intervention
-        return highest_level_index, highest_intervention
-
-    # Filter events that have a source quote and calculate their evidence level
-    events_with_evidence = []
+    # 1. Filter for verified events and map them to tiers
+    verified_interventions = []
     for event in record.impact.significant_events:
         if event.source and event.source.quote:
-            level_index, intervention = get_highest_level_for_event(event)
-            if intervention:
-                events_with_evidence.append((level_index, intervention, event))
+            for intervention_type in event.intervention_type:
+                if intervention_type in INTERVENTION_LEVERAGE_MAP:
+                    tier_info = INTERVENTION_LEVERAGE_MAP[intervention_type]
+                    verified_interventions.append({
+                        "name": intervention_type.replace('_', ' ').title(),
+                        "tier": tier_info["tier"],
+                        "tier_name": tier_info["tier_name"],
+                        "source": event.source.model_dump(exclude_unset=True)
+                    })
 
-    if not events_with_evidence:
-        base_item.details.elaboration = "No interventions with a source quote were found to assess tractability."
-        base_item.status = "warning"
+    if not verified_interventions:
+        base_item.details.calculation = "No verifiable interventions found to assess tractability."
         return base_item
 
-    # Sort by evidence level (lower index is better)
-    events_with_evidence.sort(key=lambda x: x[0])
+    # 2. Group by tier and determine the highest tier achieved
+    highest_tier = 3
+    highest_tier_name = "Tier 3: Direct Care & Indirect Action"
+    portfolio_by_tier = {}
+    for item in verified_interventions:
+        if item["tier"] < highest_tier:
+            highest_tier = item["tier"]
+            highest_tier_name = item["tier_name"]
 
-    # Take the top event
-    top_level_index, top_intervention, top_event = events_with_evidence[0]
-    highest_level_found = EVIDENCE_HIERARCHY[top_level_index]
-    highest_intervention_details = INTERVENTION_TRACTABILITY_MAP[top_intervention]
+        if item["tier_name"] not in portfolio_by_tier:
+            portfolio_by_tier[item["tier_name"]] = {"tier": item["tier"], "interventions": []}
+        portfolio_by_tier[item["tier_name"]]["interventions"].append({"name": item["name"], "source": item["source"]})
 
-    base_item.details.elaboration = json.dumps([
-        f"Quote: {top_event.source.quote}",
-        f"Highest tractability intervention found: '{top_intervention.replace('_', ' ').title()}'",
-        f"EA Rationale: {highest_intervention_details['note']}",
-    ])
-    base_item.details.calculation = highest_level_found.replace("_", " ").title()
-    base_item.status = "pass" if highest_level_found in ["RCT/Meta-Analysis", "Quasi-Experimental"] else "warning"
+    # 3. Format the portfolio for the 'elaboration' field
+    # Sort tiers: Tier 1, Tier 2, Tier 3
+    sorted_portfolio = sorted(portfolio_by_tier.items(), key=lambda x: x[1]['tier'])
+    
+    structured_portfolio = [{"tier_name": name, "interventions": data["interventions"]} for name, data in sorted_portfolio]
+    base_item.details.elaboration = json.dumps(structured_portfolio, cls=CustomEncoder)
+
+    # 4. Set calculation and status
+    base_item.details.calculation = highest_tier_name
+    if highest_tier in [1, 2]:
+        base_item.status = "pass"
+    else: # Tier 3 or no verifiable interventions
+        base_item.status = "warning"
+
     return base_item
 
 
