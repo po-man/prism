@@ -5,8 +5,8 @@
 - [x] 1.4 Add a `"source": { "$ref": "#/definitions/source" }` property to the `explicit_unit_cost` object.
 
 ## 2. Prompt Injection Updates (`n8n/prompt-templates/impact.system.md`)
-- [ ] 2.1 Update rule #1 (Context Hierarchy and Provenance) to explicitly instruct the LLM: "If an explicit unit cost is not found, you MUST set the amount, currency, and description to `null`. Do not hallucinate `0`."
-- [ ] 2.2 Add instructions stating that both `operating_scope` and `explicit_unit_cost` now require strict provenance via the `source` object, including verbatim quotes.
+- [x] 2.1 Update rule #1 (Context Hierarchy and Provenance) to explicitly instruct the LLM: "If an explicit unit cost is not found, you MUST set the amount, currency, and description to `null`. Do not hallucinate `0`."
+- [x] 2.2 Add instructions stating that both `operating_scope` and `explicit_unit_cost` now require strict provenance via the `source` object, including verbatim quotes.
 
 ## 3. Logic Layer Updates (`utils_api/app/audits/transparency.py`)
 - [ ] 3.1 In `check_negative_impact_disclosure`, modify the `if disclosure:` block. Extract the quote using `record.impact.transparency_indicators.unintended_consequences_reported.source.quote` and assign it to `item.details.elaboration` using an f-string (e.g., `f"Quote: '{quote}'"`).
