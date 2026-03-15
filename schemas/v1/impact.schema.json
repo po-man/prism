@@ -191,21 +191,36 @@
       "description": "Contextual information about the charity's operations and stated costs.",
       "properties": {
         "operating_scope": {
-          "type": "string",
+          "type": "object",
           "description": "Classification of the charity's primary operational focus.",
-          "enum": [
-            "pure_animal_advocacy",
-            "multi_domain_operations"
-          ]
+          "properties": {
+            "value": {
+              "type": "string",
+              "enum": [
+                "pure_animal_advocacy",
+                "multi_domain_operations"
+              ]
+            },
+            "source": {
+              "$ref": "#/definitions/source"
+            }
+          }
         },
         "explicit_unit_cost": {
           "type": "object",
           "description": "Unit cost explicitly stated by the charity in their reporting.",
           "properties": {
-            "amount": { "type": "number" },
-            "currency": { "type": "string" },
-            "description": { "type": "string" }
-          }
+            "amount": { "type": ["number", "null"] },
+            "currency": {
+              "type": ["string", "null"],
+              "description": "The 3-letter ISO 4217 code of the currency (e.g., USD, HKD, INR)."
+            },
+            "description": { "type": ["string", "null"] },
+            "source": {
+              "$ref": "#/definitions/source"
+            }
+          },
+          "required": ["amount", "currency", "description", "source"]
         }
       }
     },

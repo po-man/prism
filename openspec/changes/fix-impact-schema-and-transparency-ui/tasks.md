@@ -1,8 +1,8 @@
 ## 1. Schema Updates (`schemas/v1/impact.schema.json`)
-- [ ] 1.1 Update `properties.context.properties.operating_scope` to include a `"source": { "$ref": "#/definitions/source" }` property.
-- [ ] 1.2 Update `properties.context.properties.explicit_unit_cost.properties.currency` description to: "The 3-letter ISO 4217 code of the currency (e.g., USD, HKD, INR)."
-- [ ] 1.3 Update the types within `explicit_unit_cost` (`amount`, `currency`, `description`) to allow nulls (e.g., `["number", "null"]`, `["string", "null"]`).
-- [ ] 1.4 Add a `"source": { "$ref": "#/definitions/source" }` property to the `explicit_unit_cost` object.
+- [x] 1.1 Update `properties.context.properties.operating_scope` to include a `"source": { "$ref": "#/definitions/source" }` property.
+- [x] 1.2 Update `properties.context.properties.explicit_unit_cost.properties.currency` description to: "The 3-letter ISO 4217 code of the currency (e.g., USD, HKD, INR)."
+- [x] 1.3 Update the types within `explicit_unit_cost` (`amount`, `currency`, `description`) to allow nulls (e.g., `["number", "null"]`, `["string", "null"]`).
+- [x] 1.4 Add a `"source": { "$ref": "#/definitions/source" }` property to the `explicit_unit_cost` object.
 
 ## 2. Prompt Injection Updates (`n8n/prompt-templates/impact.system.md`)
 - [ ] 2.1 Update rule #1 (Context Hierarchy and Provenance) to explicitly instruct the LLM: "If an explicit unit cost is not found, you MUST set the amount, currency, and description to `null`. Do not hallucinate `0`."
