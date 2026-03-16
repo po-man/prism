@@ -17,12 +17,13 @@ def test_check_negative_impact_disclosure(client: TestClient):
     """
     # 1. Bonus: Disclosure is True
     record_bonus = deepcopy(VALID_BASE_RECORD)
-    record_bonus["impact"]["transparency_indicators"]["unintended_consequences_reported"]["value"] = True
+    record_bonus["impact"]["transparency_indicators"]["unintended_consequences_reported"] = {"value": True, "source": { "source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We admit this was a failure.", "resolved_url": None }}
     response = client.post("/audit", json=record_bonus)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_negative_impact_disclosure")
     assert item is not None
     assert item["status"] == "bonus"
+    assert item["details"]["elaboration"] == "Quote: 'We admit this was a failure.'"
     assert "self-reported on unintended negative impacts" in item["details"]["calculation"]
 
     # 2. Not Disclosed: Disclosure is False
@@ -71,6 +72,7 @@ def test_check_live_release_transparency(client: TestClient):
     assert item is not None
     assert item["status"] == "bonus"
     assert "provided euthanasia or live-release statistics" in item["details"]["calculation"]
+    assert item["details"]["elaboration"] == "Quote: 'The euthanasia is 2%'"
 
     # 3. Not Disclosed: Applicable org does NOT disclose euthanasia stats
     record_not_disclosed = deepcopy(VALID_BASE_RECORD)

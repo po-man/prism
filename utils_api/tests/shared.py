@@ -103,12 +103,30 @@ VALID_BASE_RECORD = {
             }
         ],
         "context": {
-            "operating_scope": "pure_animal_advocacy",
+            "operating_scope": {
+                "value": "pure_animal_advocacy",
+                "source": {
+                    "source_type": "web_search",
+                    "source_index": None,
+                    "page_number": None,
+                    "search_result_index": 0,
+                    "quote": "We are an organisation dedicated to animal advocacy.",
+                    "resolved_url": None
+                }
+            },
             "explicit_unit_cost": {
                 "amount": 25,
                 "currency": "HKD",
-                "description": "Cost to spay one dog."
-            },
+                "description": "Cost to spay one dog.",
+                "source": {
+                    "source_type": "attached_report",
+                    "source_index": 0,
+                    "page_number": 18,
+                    "search_result_index": None,
+                    "quote": "It costs just $25 to spay one dog.",
+                    "resolved_url": None
+                }
+            }
         },
         "transparency_indicators": {
             "unintended_consequences_reported": {

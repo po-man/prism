@@ -87,19 +87,53 @@ VALID_IMPACT = {
         }
     }],
     "context": {
-        "operating_scope": "pure_animal_advocacy",
+        "operating_scope": {
+            "value": "pure_animal_advocacy",
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 1,
+                "search_result_index": None,
+                "quote": "We are an organisation dedicated to animal advocacy.",
+                "resolved_url": None
+            }
+        },
         "explicit_unit_cost": {
             "amount": 100,
             "currency": "HKD",
-            "description": "Cost to spay one dog."
+            "description": "Cost to spay one dog.",
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 1,
+                "search_result_index": None,
+                "quote": "It costs just $25 to spay one dog.",
+                "resolved_url": None
+            }
         },
     },
     "transparency_indicators": {
         "unintended_consequences_reported": {
-            "value": False
+            "value": True,
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 1,
+                "search_result_index": None,
+                "quote": "We admit this was a failure.",
+                "resolved_url": None
+            }
         },
         "euthanasia_statistics_reported": {
-            "value": False
+            "value": True,
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 1,
+                "search_result_index": None,
+                "quote": "The euthanasia is 2%",
+                "resolved_url": None
+            }
         }
     }
 }

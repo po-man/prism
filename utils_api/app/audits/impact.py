@@ -170,7 +170,9 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
     context = record.impact.context
     explicit_cost = context.explicit_unit_cost
-    operating_scope = context.operating_scope
+    operating_scope = None
+    if context.operating_scope and context.operating_scope.value:
+        operating_scope = context.operating_scope.value
 
     # --- HIGH CONFIDENCE ---
     if explicit_cost and explicit_cost.amount is not None:
