@@ -7,6 +7,7 @@
 ## 2. Prompt Injection Updates (`n8n/prompt-templates/impact.system.md`)
 - [x] 2.1 Update rule #1 (Context Hierarchy and Provenance) to explicitly instruct the LLM: "If an explicit unit cost is not found, you MUST set the amount, currency, and description to `null`. Do not hallucinate `0`."
 - [x] 2.2 Add instructions stating that both `operating_scope` and `explicit_unit_cost` now require strict provenance via the `source` object, including verbatim quotes.
+- [x] 2.3 Modify the `operating_scope` instruction to read: "You must assess the charity's overall operations. If they focus on animal interventions, set `operating_scope` to `pure_animal_advocacy`, even if those interventions result in secondary benefits to humans (e.g., public health improvements from rabies control, community safety). Set it to `multi_domain_operations` ONLY if they dedicate distinct, heavy financial investments to non-animal sectors (e.g., building human schools, broad climate change initiatives, or human disaster relief)."
 
 ## 3. Logic Layer Updates (`utils_api/app/audits/transparency.py`)
 - [x] 3.1 In `check_negative_impact_disclosure`, modify the `if disclosure:` block. Extract the quote using `record.impact.transparency_indicators.unintended_consequences_reported.source.quote` and assign it to `item.details.elaboration` using an f-string (e.g., `f"Quote: '{quote}'"`).
