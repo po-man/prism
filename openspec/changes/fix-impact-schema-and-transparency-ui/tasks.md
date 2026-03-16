@@ -9,6 +9,6 @@
 - [x] 2.2 Add instructions stating that both `operating_scope` and `explicit_unit_cost` now require strict provenance via the `source` object, including verbatim quotes.
 
 ## 3. Logic Layer Updates (`utils_api/app/audits/transparency.py`)
-- [ ] 3.1 In `check_negative_impact_disclosure`, modify the `if disclosure:` block. Extract the quote using `record.impact.transparency_indicators.unintended_consequences_reported.source.quote` and assign it to `item.details.elaboration` using an f-string (e.g., `f"Quote: '{quote}'"`).
-- [ ] 3.2 In `check_live_release_transparency`, modify the `if disclosure:` block to extract the `euthanasia_statistics_reported` quote and assign it to `item.details.elaboration`.
-- [ ] 3.3 Ensure unit tests in `utils_api/tests/test_audit_transparency.py` are updated to assert the presence of the `elaboration` quotes when the status is `bonus`.
+- [x] 3.1 In `check_negative_impact_disclosure`, modify the `if disclosure:` block. Extract the quote using `record.impact.transparency_indicators.unintended_consequences_reported.source.quote` and assign it to `item.details.elaboration` using an f-string (e.g., `f"Quote: '{quote}'"`).
+- [x] 3.2 In `check_live_release_transparency`, modify the `if disclosure:` block to extract the `euthanasia_statistics_reported` quote and assign it to `item.details.elaboration`.
+- [x] 3.3 Ensure unit tests in `utils_api/tests/test_audit_transparency.py` are updated to assert the presence of the `elaboration` quotes when the status is `bonus`.

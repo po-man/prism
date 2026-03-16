@@ -20,17 +20,21 @@ def check_negative_impact_disclosure(record: OrganisationRecord) -> AuditCheckIt
         details=details,
     )
 
-    disclosure = False
+    disclosure_indicator = None
     if (
         record.impact
         and record.impact.transparency_indicators
         and record.impact.transparency_indicators.unintended_consequences_reported
     ):
-        disclosure = record.impact.transparency_indicators.unintended_consequences_reported.value
+        disclosure_indicator = record.impact.transparency_indicators.unintended_consequences_reported
 
-    if disclosure:
+    if disclosure_indicator and disclosure_indicator.value:
         item.status = "bonus"
         item.details.calculation = "Organisation self-reported on unintended negative impacts."
+        if disclosure_indicator.source and disclosure_indicator.source.quote:
+            item.details.elaboration = f"Quote: '{disclosure_indicator.source.quote}'"
+        else:
+            item.details.elaboration = "Disclosure confirmed, but quote was not provided."
     else:
         item.status = "not_disclosed"
         item.details.calculation = "No disclosure of unintended negative impacts found. This is the industry norm."
@@ -70,20 +74,23 @@ def check_live_release_transparency(record: OrganisationRecord) -> AuditCheckIte
         item.details.calculation = "Organisation does not engage in direct animal sheltering; metric not applicable."
         return item
 
-    disclosure = False
+    disclosure_indicator = None
     if (
         record.impact
         and record.impact.transparency_indicators
         and record.impact.transparency_indicators.euthanasia_statistics_reported
     ):
-        disclosure = record.impact.transparency_indicators.euthanasia_statistics_reported.value
+        disclosure_indicator = record.impact.transparency_indicators.euthanasia_statistics_reported
 
-    if disclosure:
+    if disclosure_indicator and disclosure_indicator.value:
         item.status = "bonus"
         item.details.calculation = "Organisation provided euthanasia or live-release statistics."
+        if disclosure_indicator.source and disclosure_indicator.source.quote:
+            item.details.elaboration = f"Quote: '{disclosure_indicator.source.quote}'"
+        else:
+            item.details.elaboration = "Disclosure confirmed, but quote was not provided."
     else:
         item.status = "not_disclosed"
         item.details.calculation = "No disclosure of euthanasia or live-release rates found."
-
-    item.details.elaboration = "This check rewards transparency for a sensitive operational metric."
+        item.details.elaboration = "This check rewards transparency for a sensitive operational metric."
     return item
