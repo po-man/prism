@@ -19,7 +19,7 @@
 - [x] 3.4 Add unit tests in `utils_api/tests/test_validation.py` to verify that the reversal logic correctly restores deeply nested keys before validation.
 
 ## 4. Orchestrator Integration (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 4.1 Update the `Vars - Utils API & Schemas` Set node to define new string variables for the extraction schemas (e.g., `financials_extract_schema: v1/financials.extract.schema.json`).
-- [ ] 4.2 Update the `Read JSON schema (Financials)`, `Read JSON schema (Impact)`, and `Read JSON schema (Impact Search)` nodes to target these new `*.extract.schema.json` variables for prompt injection.
-- [ ] 4.3 Insert an HTTP Request node immediately after each Gemini extraction node (e.g., after `Extract Financials` and `Extract Impact Metrics`) to call the new `utils_api/normalize-extraction` endpoint.
-- [ ] 4.4 Ensure the subsequent `Schema Validation` HTTP Request nodes receive the normalised (canonical) JSON payload from the normalisation node, preserving the existing validation flow.
+- [x] 4.1 Update the `Vars - Utils API & Schemas` Set node to define new string variables for the extraction schemas (e.g., `financials_extract_schema: v1/financials.extract.schema.json`).
+- [x] 4.2 Update the `Read JSON schema (Financials)`, `Read JSON schema (Impact)`, and `Read JSON schema (Impact Search)` nodes to target these new `*.extract.schema.json` variables for prompt injection.
+- [x] 4.3 Insert an HTTP Request node immediately after each Gemini extraction node (e.g., after `Extract Financials` and `Extract Impact Metrics`) to call the new `utils_api/normalize-extraction` endpoint.
+- [x] 4.4 Ensure the subsequent `Schema Validation` HTTP Request nodes receive the normalised (canonical) JSON payload from the normalisation node, preserving the existing validation flow.

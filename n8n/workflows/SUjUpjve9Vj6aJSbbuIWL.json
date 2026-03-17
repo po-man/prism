@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-12T13:54:17.522Z",
+  "updatedAt": "2026-03-17T14:45:27.138Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -253,7 +253,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
+        1472,
         4784
       ],
       "id": "3333d458-13cd-4ba2-8999-793ac197f545",
@@ -279,7 +279,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2624,
+        2976,
         4832
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
@@ -526,7 +526,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1440,
+        1472,
         5072
       ],
       "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
@@ -552,7 +552,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        3200,
+        2976,
         5072
       ],
       "id": "11eed72d-0760-4c49-a86d-d9684350d124",
@@ -1036,7 +1036,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.financials_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.financials_extract_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -1064,7 +1064,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.impact_schema }}",
+        "fileSelector": "=/home/node/.n8n-files/schemas/{{ $('Vars - Utils API & Schemas').first().json.impact_extract_schema }}",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -1129,6 +1129,18 @@
               "name": "search_schema",
               "value": "v1/search.schema.json",
               "type": "string"
+            },
+            {
+              "id": "dc577b89-662b-488c-b190-061dd1d11a61",
+              "name": "financials_extract_schema",
+              "value": "v1/financials.schema.extract.schema.json",
+              "type": "string"
+            },
+            {
+              "id": "7adb87c1-afb2-4fe1-8883-0b788de42044",
+              "name": "impact_extract_schema",
+              "value": "v1/impact.schema.extract.schema.json",
+              "type": "string"
             }
           ]
         },
@@ -1165,7 +1177,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1776,
+        2144,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -1193,7 +1205,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2352,
+        2144,
         5072
       ],
       "id": "952e0b4d-b417-49c7-8e2f-689293a77d15",
@@ -1553,7 +1565,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1024,
+        1248,
         4784
       ],
       "id": "f74f320f-326c-4e5f-a53a-fdc2f4a168b0",
@@ -2229,7 +2241,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2320,
+        2672,
         4608
       ],
       "name": "Call Fill Exchange Rate",
@@ -2263,7 +2275,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2192,
+        2544,
         4784
       ],
       "id": "3af3eb22-8bff-4b17-812e-b46a435254dd",
@@ -2276,7 +2288,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2464,
+        2816,
         4608
       ],
       "id": "5fb306b5-8bcd-4507-853c-639b7c66c3a0",
@@ -2291,7 +2303,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2016,
+        2368,
         4784
       ],
       "id": "05abeeb3-782f-4eba-b130-064ef062d4d1",
@@ -2303,13 +2315,13 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": []\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": []\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1408,
+        1920,
         4784
       ],
       "id": "990306ed-df6d-48d4-ab1d-58fe3ee14c11",
@@ -2345,7 +2357,63 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json.parsedContentObject ) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge').first().json.impact_search.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge').first().json.impact_search.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1920,
+        5072
+      ],
+      "id": "56aca867-43b7-4ab8-913b-4d0a83edb30a",
+      "name": "Resolve Provenance (Impact Metrics)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/normalize",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "schema_name",
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.financials_schema }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.parsedContentObject }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1696,
+        4784
+      ],
+      "id": "94342739-e919-4f7b-83e5-198b08a9a2aa",
+      "name": "Normalise (Financials)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/normalize",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "schema_name",
+              "value": "={{ $('Vars - Utils API & Schemas').first().json.impact_schema }}"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json.parsedContentObject }}"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2354,8 +2422,8 @@
         1696,
         5072
       ],
-      "id": "56aca867-43b7-4ab8-913b-4d0a83edb30a",
-      "name": "Resolve Provenance (Impact Metrics)"
+      "id": "2a985744-c241-40fd-acd3-41659556d238",
+      "name": "Normalise (Impact Metrics)"
     }
   ],
   "connections": {
@@ -2459,7 +2527,7 @@
       "main": [
         [
           {
-            "node": "Resolve Provenance (Financials)",
+            "node": "Normalise (Financials)",
             "type": "main",
             "index": 0
           }
@@ -2580,7 +2648,7 @@
       "main": [
         [
           {
-            "node": "Resolve Provenance (Impact Metrics)",
+            "node": "Normalise (Impact Metrics)",
             "type": "main",
             "index": 0
           }
@@ -3266,6 +3334,28 @@
           }
         ]
       ]
+    },
+    "Normalise (Financials)": {
+      "main": [
+        [
+          {
+            "node": "Resolve Provenance (Financials)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise (Impact Metrics)": {
+      "main": [
+        [
+          {
+            "node": "Resolve Provenance (Impact Metrics)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -3277,27 +3367,27 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "7d3aa13f-5b19-4017-a903-776d017dfc21",
-  "activeVersionId": "fe6961ae-8af5-4e62-8dab-eed14995cdd0",
-  "versionCounter": 432,
+  "versionId": "1fd3c31d-c341-4e1e-ab25-c3bb825c4d73",
+  "activeVersionId": "d73303cb-2058-4f55-9bc5-755360b78dc0",
+  "versionCounter": 438,
   "triggerCount": 1,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-03-11T06:38:13.375Z",
-      "createdAt": "2026-03-11T06:38:13.375Z",
+      "updatedAt": "2026-03-13T16:14:16.838Z",
+      "createdAt": "2026-03-13T16:14:16.838Z",
       "role": "workflow:owner",
       "workflowId": "SUjUpjve9Vj6aJSbbuIWL",
-      "projectId": "NKV9Cgw0ptes3srr",
+      "projectId": "0CDnAnmukwXKoJua",
       "project": {
-        "updatedAt": "2026-03-11T06:38:59.338Z",
-        "createdAt": "2026-03-11T06:38:11.873Z",
-        "id": "NKV9Cgw0ptes3srr",
+        "updatedAt": "2026-03-13T16:15:14.246Z",
+        "createdAt": "2026-03-13T16:14:15.358Z",
+        "id": "0CDnAnmukwXKoJua",
         "name": "Po Man CHENG <poman+n8n@outlook.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "b7516eb7-0eaf-4c73-b2dc-9e51e4819eaa"
+        "creatorId": "7461a6f9-5b91-42ec-8618-72523044007d"
       }
     }
   ]
