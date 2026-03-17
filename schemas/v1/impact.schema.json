@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Charity Impact",
+  "title": "Impact",
   "description": "Schema for charity impact metrics, focusing on animal advocacy.",
   "type": "object",
   "definitions": {

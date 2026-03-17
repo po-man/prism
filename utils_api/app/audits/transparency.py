@@ -1,18 +1,18 @@
 from app.schemas.organisation import OrganisationRecord
-from app.schemas.analytics import AuditCheckItem, AuditDetails
+from app.schemas.analytics import CheckItem, Details
 
 
-def check_negative_impact_disclosure(record: OrganisationRecord) -> AuditCheckItem:
+def check_negative_impact_disclosure(record: OrganisationRecord) -> CheckItem:
     """
     Checks if the organization reported on unintended negative impacts.
     This is an advanced check that rewards transparency.
     """
-    details = AuditDetails(
+    details = Details(
         formula="Check for self-reported unintended consequences or failures.",
         calculation="Not computed",
         elaboration="This check rewards epistemic humility. Non-disclosure is standard and not a failure.",
     )
-    item = AuditCheckItem(
+    item = CheckItem(
         id="check_negative_impact_disclosure",
         status="not_disclosed",
         significance="MEDIUM",
@@ -42,17 +42,17 @@ def check_negative_impact_disclosure(record: OrganisationRecord) -> AuditCheckIt
     return item
 
 
-def check_live_release_transparency(record: OrganisationRecord) -> AuditCheckItem:
+def check_live_release_transparency(record: OrganisationRecord) -> CheckItem:
     """
     Checks if organizations engaged in direct rescue provide euthanasia/live-release data.
     This is a conditional advanced check.
     """
-    details = AuditDetails(
+    details = Details(
         formula="For direct rescue orgs, check for euthanasia/live-release rate disclosure.",
         calculation="Not computed",
         elaboration=None,
     )
-    item = AuditCheckItem(
+    item = CheckItem(
         id="check_live_release_transparency",
         status="not_disclosed",
         significance="HIGH",
@@ -64,7 +64,7 @@ def check_live_release_transparency(record: OrganisationRecord) -> AuditCheckIte
     is_applicable = False
     if record.impact and record.impact.significant_events:
         is_applicable = any(
-            intervention in applicable_interventions
+            intervention.value in applicable_interventions
             for event in record.impact.significant_events
             for intervention in event.intervention_type
         )

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Charity Financials",
+  "title": "Financials",
   "description": "Schema for financial data extracted from a charity's annual financial report.",
   "type": "object",
   "definitions": {

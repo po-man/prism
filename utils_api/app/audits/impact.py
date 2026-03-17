@@ -1,23 +1,23 @@
 import json
 from app.schemas.organisation import Metric, OrganisationRecord
-from app.schemas.analytics import AuditCheckItem, AuditDetails, CalculatedMetric
+from app.schemas.analytics import CheckItem, Details, CalculatedMetric
 from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
 from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
 
 
-def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckItem:
+def check_monitoring_and_evaluation(record: OrganisationRecord) -> CheckItem:
     """
     Checks the quality of self-reported evidence (M&E) in a charity's impact claims.
     This evaluates the organisation's capacity for rigorous self-assessment,
     independent of the general tractability of the interventions they perform.
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="Highest level of self-reported evidence cited in impact metrics",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
+    base_item = CheckItem(
         id="check_monitoring_and_evaluation", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
@@ -32,7 +32,7 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckIte
         base_item.details.calculation = "No impact metrics were provided to assess evidence quality."
         return base_item
 
-    evidence_levels = [metric.evidence_quality for metric in record.impact.metrics if metric.evidence_quality]
+    evidence_levels = [metric.evidence_quality.value for metric in record.impact.metrics if metric.evidence_quality]
 
     if not any(evidence_levels):
         base_item.status = "warning"
@@ -44,7 +44,7 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckIte
 
     for level in EVIDENCE_HIERARCHY: # Find the highest evidence level present
         for metric in record.impact.metrics:
-            if metric.evidence_quality == level:
+            if metric.evidence_quality.value == level:
                 highest_evidence = level
                 highest_evidence_metric = metric
                 break
@@ -63,18 +63,18 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> AuditCheckIte
     return base_item
 
 
-def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckItem:
+def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
     """
     Evaluates the tractability of a charity's interventions by mapping them to
     Intervention Leverage Tiers (Systemic, Preventative, Direct). It aggregates
     all verified interventions into a portfolio for UI display.
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="Mapping of verified intervention types to the Intervention Leverage Tier framework.",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
+    base_item = CheckItem(
         id="check_intervention_tractability", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
@@ -87,10 +87,10 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     for event in record.impact.significant_events:
         if event.source and event.source.quote:
             for intervention_type in event.intervention_type:
-                if intervention_type in INTERVENTION_LEVERAGE_MAP:
-                    tier_info = INTERVENTION_LEVERAGE_MAP[intervention_type]
+                if intervention_type.value in INTERVENTION_LEVERAGE_MAP:
+                    tier_info = INTERVENTION_LEVERAGE_MAP[intervention_type.value]
                     verified_interventions.append({
-                        "name": intervention_type.replace('_', ' ').title(),
+                        "name": intervention_type.value.replace('_', ' ').title(),
                         "tier": tier_info["tier"],
                         "tier_name": tier_info["tier_name"],
                         "source": event.source.model_dump(exclude_unset=True)
@@ -130,16 +130,16 @@ def check_intervention_tractability(record: OrganisationRecord) -> AuditCheckIte
     return base_item
 
 
-def check_counterfactual_baseline(record: OrganisationRecord) -> AuditCheckItem:
+def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
     """
     Checks if a quantified counterfactual baseline is provided.
     Pass if description and value are populated.
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="Presence of a quantified counterfactual baseline", elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
+    base_item = CheckItem(
         id="check_counterfactual_baseline", status="fail", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
@@ -172,7 +172,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
     explicit_cost = context.explicit_unit_cost
     operating_scope = None
     if context.operating_scope and context.operating_scope.value:
-        operating_scope = context.operating_scope.value
+        operating_scope = context.operating_scope.value.value
 
     # --- HIGH CONFIDENCE ---
     if explicit_cost and explicit_cost.amount is not None:
@@ -259,16 +259,16 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
     )
 
 
-def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
+def check_funding_neglectedness(record: OrganisationRecord) -> CheckItem:
     """
     Calculates the ratio of government grants to total income.
     Warning if > 80% (low neglectedness), Pass if < 40% (high neglectedness).
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="government_grants / total_income", elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
+    base_item = CheckItem(
         id="check_funding_neglectedness", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
@@ -304,7 +304,7 @@ def check_funding_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
     return base_item
 
 
-def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem:
+def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
     """
     Checks the neglectedness of the charity's cause area based on beneficiary type.
     If population data is available, it calculates the proportion of high-neglectedness
@@ -314,11 +314,11 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
     - 100% low-neglectedness ('companion_animals') -> warning
     If population data is missing, it falls back to presence-based logic.
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="Proportional analysis of beneficiary populations (farmed/wild vs. companion)", elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(
+    base_item = CheckItem(
         id="check_cause_area_neglectedness", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
@@ -328,10 +328,10 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
         return base_item
 
     populations = {
-        "farmed_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "farmed_animals" and b.population),
-        "wild_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "wild_animals" and b.population),
-        "companion_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "companion_animals" and b.population),
-        "unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type == "unspecified" and b.population),
+        "farmed_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "farmed_animals" and b.population),
+        "wild_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "wild_animals" and b.population),
+        "companion_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "companion_animals" and b.population),
+        "unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "unspecified" and b.population),
     }
     total_population = sum(populations.values())
 
@@ -355,7 +355,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> AuditCheckItem
         return base_item
 
     # Fallback to presence-based logic if no population data
-    beneficiary_types = {b.beneficiary_type for b in record.impact.beneficiaries if b.beneficiary_type}
+    beneficiary_types = {b.beneficiary_type.value for b in record.impact.beneficiaries if b.beneficiary_type}
     base_item.details.formula = "Evaluation of beneficiary_type presence against EA principles for animal advocacy"
 
     high_neglectedness = {"farmed_animals", "wild_animals"}

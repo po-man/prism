@@ -1,20 +1,20 @@
 from app.schemas.organisation import OrganisationRecord
-from app.schemas.analytics import AuditCheckItem, AuditDetails
+from app.schemas.analytics import CheckItem, Details
 
 
-def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
+def check_reserve_cap(record: OrganisationRecord) -> CheckItem:
     """
     Checks if general reserve is within a reasonable range of operating expenditure.
     - Pass: <= 2 years
     - Warn: > 2 and <= 5 years
     - Fail: > 5 years
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="total_reserves / total_expenditure",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(id="check_reserve_cap", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
+    base_item = CheckItem(id="check_reserve_cap", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
 
     if (
         not record.financials
@@ -50,19 +50,19 @@ def check_reserve_cap(record: OrganisationRecord) -> AuditCheckItem:
     return base_item
 
 
-def check_liquidity(record: OrganisationRecord) -> AuditCheckItem:
+def check_liquidity(record: OrganisationRecord) -> CheckItem:
     """
     Checks if the liquidity ratio is sufficient.
     - Pass: >= 6 months
     - Warn: >= 3 and < 6 months
     - Fail: < 3 months
     """
-    base_details = AuditDetails(
+    base_details = Details(
         formula="(current_assets - current_liabilities) / monthly_operating_expenses",
         elaboration=None,
         calculation="Not computed",
     )
-    base_item = AuditCheckItem(id="check_liquidity", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
+    base_item = CheckItem(id="check_liquidity", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
 
     if not record.financials or not record.financials.ratio_inputs:
         base_item.details.calculation = "Required financial data for liquidity check is missing."

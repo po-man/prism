@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Analytics Check-Item Schema",
+  "title": "Analytics",
   "description": "Schema for the results of the pass/fail audit checklist.",
   "type": "object",
   "properties": {

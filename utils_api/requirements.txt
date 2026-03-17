@@ -1,5 +1,4 @@
 fastapi
 uvicorn[standard]
 jsonschema
-json-schema-to-pydantic
 httpx
