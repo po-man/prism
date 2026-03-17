@@ -3,9 +3,24 @@ from fastapi import APIRouter, HTTPException
 from jsonschema import validate, ValidationError
 
 from app.schemas.validation import ValidationRequest
+from app.services.schema_mapper import load_key_mapping, reverse_extracted_keys
 from app.services.schema_loader import load_schema
 
 router = APIRouter()
+
+
+@router.post("/normalize", tags=["Validation"])
+async def normalize_data(request: ValidationRequest):
+    """
+    Normalizes a JSON payload by reversing abbreviated keys and then validates
+    it against the specified canonical JSON schema.
+    """
+    # 1. Load the key mapping and reverse the keys in the payload
+    key_mapping = load_key_mapping()
+    normalized_data = reverse_extracted_keys(request.data, key_mapping)
+
+    return normalized_data
+
 
 @router.post("/validate", tags=["Validation"])
 async def validate_data(request: ValidationRequest):

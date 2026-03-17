@@ -1,5 +1,9 @@
+import json
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import patch, mock_open
 
 
 # --- Test Data ---
@@ -137,6 +141,81 @@ VALID_IMPACT = {
         }
     }
 }
+
+
+# --- Test Data for Normalization ---
+
+ABBREVIATED_IMPACT_PAYLOAD = {
+    "beneficiaries": [{
+        "location": "Test Location",
+        "population": 100,
+        "beneficiary_type": "farmed_animals"
+    }],
+    "significant_events": [{
+        "event_name": "A special event",
+        "intervention_type": ["other"],
+        "other_desc": "A custom intervention type."
+    }],
+    "transparency_indicators": {
+        "unintended_rep": {"value": True},
+        "euthanasia_rep": {"value": False}
+    }
+}
+
+CANONICAL_IMPACT_PAYLOAD = {
+    "beneficiaries": [{
+        "location": "Test Location",
+        "population": 100,
+        "beneficiary_type": "farmed_animals"
+    }],
+    "significant_events": [{
+        "event_name": "A special event",
+        "intervention_type": ["other"],
+        "intervention_type_other_description": "A custom intervention type."
+    }],
+    "transparency_indicators": {
+        "unintended_consequences_reported": {"value": True},
+        "euthanasia_statistics_reported": {"value": False}
+    }
+}
+
+MOCK_KEY_MAPPING = {
+    "other_desc": "intervention_type_other_description",
+    "unintended_rep": "unintended_consequences_reported",
+    "euthanasia_rep": "euthanasia_statistics_reported",
+    "prov_fund_res": "provident_fund_reserve",
+    "monthly_op_ex": "monthly_operating_expenses"
+}
+
+
+@patch('app.routers.validation.load_key_mapping', return_value=MOCK_KEY_MAPPING)
+def test_normalize_and_validate_reverses_keys(mock_load_mapping, client):
+    """
+    Tests that the /normalize-and-validate endpoint correctly reverses abbreviated keys
+    before attempting validation. The payload is incomplete but should fail validation
+    on a missing canonical key if reversal is successful.
+    """
+    response = client.post(
+        "/normalize",
+        json={"schema_name": "v1/impact.schema.json", "data": ABBREVIATED_IMPACT_PAYLOAD}
+    )
+
+    # Assert that our high-level mock was called, which is cleaner and more robust.
+    mock_load_mapping.assert_called_once()
+
+    assert response.status_code == 200
+
+    response_validated = client.post(
+        "/validate",
+        json={"schema_name": "v1/impact.schema.json", "data": response.json()}
+    )
+
+    assert response_validated.status_code == 200
+    result = response_validated.json()
+    assert result["valid"] is False
+    # This error confirms that reversal happened, because 'metrics' is required in the
+    # canonical schema but was not in the abbreviated payload.
+    assert "'metrics' is a required property" in result["details"]["message"]
 
 
 @pytest.mark.parametrize("schema_name, valid_data", [
