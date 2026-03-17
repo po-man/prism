@@ -84,26 +84,10 @@
         "original_code": {
           "type": "string",
           "description": "The 3-letter ISO 4217 code of the original currency from the report (e.g., HKD, INR, USD)."
-        },
-        "usd_exchange_rate": {
-          "type": [
-            "number",
-            "null"
-          ],
-          "description": "The exchange rate to convert 1 unit of the original currency to USD."
-        },
-        "rate_date": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "description": "The date (YYYY-MM-DD) for which the exchange rate is valid."
         }
       },
       "required": [
-        "original_code",
-        "usd_exchange_rate",
-        "rate_date"
+        "original_code"
       ]
     },
     "income": {

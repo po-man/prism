@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-17T14:45:27.138Z",
+  "updatedAt": "2026-03-17T15:53:32.057Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2259,11 +2259,11 @@
           "conditions": [
             {
               "id": "8c01a38b-3017-4eb6-8f60-971be0e940d8",
-              "leftValue": "={{ $json.valid }}",
+              "leftValue": "={{ $json.data.currency }}",
               "rightValue": false,
               "operator": {
-                "type": "boolean",
-                "operation": "true",
+                "type": "object",
+                "operation": "exists",
                 "singleValue": true
               }
             }
@@ -3367,9 +3367,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "1fd3c31d-c341-4e1e-ab25-c3bb825c4d73",
+  "versionId": "d8cf2b9d-d5c8-48d7-a7bf-4d410a232f9f",
   "activeVersionId": "d73303cb-2058-4f55-9bc5-755360b78dc0",
-  "versionCounter": 438,
+  "versionCounter": 439,
   "triggerCount": 1,
   "tags": [],
   "shared": [

@@ -1,8 +1,19 @@
 import json
 import os
-import re
 from pathlib import Path
 
+# Configuration for fields to be pruned from the extraction schemas.
+# These fields are populated by downstream processes, not by the LLM.
+# Paths are dot-separated keys to navigate the schema dictionary.
+FIELDS_TO_PRUNE = [
+    "definitions.source.properties.resolved_url",
+    "properties.currency.properties.usd_exchange_rate",
+    "properties.currency.properties.rate_date",
+]
+
+
+class PruningError(Exception):
+    """Custom exception for schema pruning errors."""
 
 def humanize_key(key: str) -> str:
     """Converts a snake_case key to a human-readable Title Case string."""
@@ -64,6 +75,41 @@ def process_node(node, key_mapping):
     return node
 
 
+def prune_fields(schema: dict, paths_to_prune: list[str]):
+    """
+    Prunes specified fields from a schema dictionary based on a list of dot-separated paths.
+
+    Args:
+        schema: The schema dictionary to modify.
+        paths_to_prune: A list of strings, where each string is a dot-separated path to a field to remove.
+    """
+    for path_str in paths_to_prune:
+        path_parts = path_str.split('.')
+        field_to_remove = path_parts[-1]
+        parent_path_parts = path_parts[:-1]
+
+        # Navigate to the parent dictionary
+        try:
+            parent_node = schema
+            for part in parent_path_parts:
+                parent_node = parent_node[part]
+        except KeyError:
+            # Path does not exist in this schema, which is acceptable.
+            continue
+
+        # Prune the field if it exists
+        if isinstance(parent_node, dict) and field_to_remove in parent_node:
+            del parent_node[field_to_remove]
+            print(f"  - Pruned '{path_str}'")
+
+            # Also remove it from the parent's 'required' array, if present
+            grandparent_path_parts = path_parts[:-2]
+            grandparent_node = schema
+            for part in grandparent_path_parts:
+                grandparent_node = grandparent_node[part]
+            if "required" in grandparent_node and isinstance(grandparent_node["required"], list) and field_to_remove in grandparent_node["required"]:
+                grandparent_node["required"].remove(field_to_remove)
+
 def generate_extraction_schemas(source_dir: Path, output_dir: Path):
     """
     Generates lightweight extraction schemas from canonical validation schemas.
@@ -83,17 +129,8 @@ def generate_extraction_schemas(source_dir: Path, output_dir: Path):
         with open(schema_path, "r") as f:
             schema_data = json.load(f)
 
-        # --- Field Pruning ---
-        # Per spec, prune 'resolved_url' from the source definition
-        source_definition = schema_data.get("definitions", {}).get("source", {})
-        if "properties" in source_definition and "resolved_url" in source_definition["properties"]:
-            del source_definition["properties"]["resolved_url"]
-            print("  - Pruned 'resolved_url' from source definition.")
-
-        # Also remove it from the 'required' array if present
-        if "required" in source_definition and "resolved_url" in source_definition["required"]:
-            source_definition["required"].remove("resolved_url")
-
+        # --- Field Pruning (Configurable) ---
+        prune_fields(schema_data, FIELDS_TO_PRUNE)
         # --- AST Traversal and Transformation ---
         transformed_schema = process_node(schema_data, key_mapping)
 
