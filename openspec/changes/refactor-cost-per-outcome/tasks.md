@@ -1,23 +1,21 @@
-## 1. Schema Modifications (`schemas/v1/`)
-- [ ] 1.1 Edit `impact.schema.json`: Add `intervention_category` to the `metrics` array items. Reference the existing enum used in `significant_events`.
-- [ ] 1.2 Edit `financials.schema.json`: Add `granular_program_services` array to the `expenditure` object. Each item must contain `intervention_category` and `cost` (using `$ref: "#/definitions/financial_figure"`).
-- [ ] 1.3 Ensure `utils_api/app/services/schema_loader.py` and dynamic Pydantic models cleanly inherit these changes.
+## 1. Schema Updates (`schemas/v1/`)
+- [ ] 1.1 Update `impact.schema.json`: Replace the `explicit_unit_cost` object with an `explicit_unit_costs` array of objects. Add the `intervention_type` field referencing `InterventionTypeEnum` to each object.
+- [ ] 1.2 Update `financials.schema.json`: Add a `program_breakdowns` array to the `expenditure` object, containing `programme_name` and an `amount` referencing `financial_figure`.
+- [ ] 1.3 Run `python scripts/generate_extraction_schemas.py` to regenerate the `.extract.schema.json` variants for the LLM.
 
-## 2. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 2.1 Update `impact.system.md`: Add strict instructions to map every quantitative metric to the `intervention_category` enum. Emphasise avoiding hallucinated categorisations (use `other` if ambiguous).
-- [ ] 2.2 Update `financials.system.md`: Add instructions to actively seek breakdown notes in the AFR (Annual Financial Report) and extract line-item costs into the new `granular_program_services` array using the exact same enum.
+## 2. Prompt Template Updates (`n8n/prompt-templates/`)
+- [ ] 2.1 Update `impact.system.md`: Instruct the LLM to actively extract an array of explicitly stated costs for specific interventions (e.g., "Sponsor a farm rescue for £50").
+- [ ] 2.2 Update `financials.system.md`: Instruct the LLM to extract granular line-item programmatic spending from the statement of comprehensive income or notes to the accounts into the `program_breakdowns` array.
 
-## 3. Audit Engine Refactoring (`utils_api/app/audits/`)
-- [ ] 3.1 Edit `impact.py`: Completely rewrite the `calculate_cost_per_outcome` function.
-- [ ] 3.2 Implement logic to check for explicit unit costs (High Confidence).
-- [ ] 3.3 Implement logic to iterate through `granular_program_services` and match against `metrics` grouped by `intervention_category` (Medium/High Confidence).
-- [ ] 3.4 Implement fallback logic: If granular financials are missing, calculate the percentage of total beneficiaries per `intervention_category`. If one category is >90%, allocate total `program_services` spend to it (Medium Confidence).
-- [ ] 3.5 Implement abort logic: If no category is >90% and granular financials are missing, return a `LOW` confidence `cost_per_outcome` metric explaining the multi-intervention blending issue.
-- [ ] 3.6 Update `tests/test_audit_impact.py` to cover these new discrete calculation pathways, testing the High/Medium/Low confidence logic tree against the new sparse matrix paradigm.
+## 3. Audit Engine Updates (`utils_api/app/audits/`)
+- [ ] 3.1 Modify `app/schemas/impact.py` and `app/schemas/financials.py` Pydantic models to reflect the new schema arrays (`explicit_unit_costs` and `program_breakdowns`).
+- [ ] 3.2 Rewrite `calculate_cost_per_outcome` in `app/audits/impact.py` to process the `explicit_unit_costs` array first, returning a HIGH confidence array of costs if found.
+- [ ] 3.3 Implement the programmatic matching logic: Attempt to align `program_breakdowns` with specific `significant_events` using basic string matching or allocation thresholds.
+- [ ] 3.4 Implement the Pure-Play cohort logic: Check if >80% of `program_services` spend goes to a single programme. If so, execute the division and return as MEDIUM confidence.
+- [ ] 3.5 Ensure the fallback gracefully returns a LOW confidence `null` for unattributable multi-domain portfolios.
+- [ ] 3.6 Update `tests/test_audit_impact.py` to provide coverage for the array extraction, pure-play detection, and multi-domain abortion scenarios.
 
-## 4. Frontend Presentation (`web/layouts/`)
-- [ ] 4.1 Update `partials/myth-buster.html`: Refactor the "Value for Money" block to iterate over metrics matching `^cost_per_outcome:.*`. Render multiple cost cards if a charity successfully returns multiple granular unit costs. Implement the fallback UI for the generic `LOW` confidence blended cost.
-- [ ] 4.2 Update `index.html`: Rename the "Cost per Outcome (USD)" column to "Key Interventions & Unit Costs".
-- [ ] 4.3 Update `index.html`: Refactor the table cell to render a list of intervention badges (e.g., 💉, 🏠). Append the calculated cost text specifically to the matching badge.
-- [ ] 4.4 Update `index.html`: Refactor the vanilla JavaScript sorting logic (`#audits-table`) to handle the new compound data structure. (Consider sorting based on the lowest available unit cost, or categorising by Tier 1/Tier 2 intervention presence).
-- [ ] 4.5 Update `partials/index-how-to-read.html`: Revise the explanation text to educate users on why blended "Cost per Outcome" metrics are harmful and how to interpret the new intervention-specific sparse matrix.
+## 4. Frontend Rendering Updates (`web/layouts/partials/`)
+- [ ] 4.1 Update `myth-buster.html` to handle the new calculation output format from `utils_api`.
+- [ ] 4.2 Add Go/Hugo template logic to iterate over arrays of costs, rendering each intervention type and its associated cost cleanly.
+- [ ] 4.3 Add conditional UI logic to display a "Pure-Play Benchmark" tag if the cost was derived using the cohort methodology.

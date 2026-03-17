@@ -1,22 +1,16 @@
-# Change: Refactor Cost per Outcome Calculation to Intervention-Specific Metrics
-
 ## Why
-Currently, PRISM calculates a blended "Cost per Outcome" by dividing an organisation's total programme expenditure by its total quantified animal beneficiaries. This approach mathematically penalises charities performing deep, high-cost interventions (e.g., lifelong sanctuary care, complex veterinary surgeries) while artificially inflating the apparent cost-effectiveness of organisations performing shallow, high-volume interventions (e.g., mass rabies vaccinations). From an Effective Altruism perspective, blending these fundamentally different outcomes produces a misleading metric. We must disaggregate costs by specific intervention types to ensure donors are comparing equivalent activities across the sector.
+[cite_start]Currently, PRISM's `cost_per_outcome` calculation divides total programme expenditure by a lumped sum of all animal beneficiaries across all programmes[cite: 1952, 1953]. This creates mathematically distorted and practically unusable metrics for multi-domain charities, as it treats a high-volume, low-cost intervention (e.g., vaccination) identically to a high-cost, low-volume intervention (e.g., complex wildlife rescue). [cite_start]To provide genuine value to asset owners and allocators making decisions based on EA principles[cite: 2581, 2582], we must replace this with an architecture that supports Activity-Based Costing and Pure-Play Cohort benchmarking.
 
 ## What Changes
-- ****BREAKING** Schema Updates:** Modify `v1/impact.schema.json` to map quantitative metrics to a strict taxonomy of intervention types. Modify `v1/financials.schema.json` to allow granular extraction of programme expenses mapped to these same intervention categories, rather than relying solely on a single `program_services` lump sum.
-- **LLM Extraction Alignment:** Update the Gemini prompt templates (`impact.system.md`, `financials.system.md`) to enforce extraction against these new granular taxonomies, strictly prohibiting the LLM from hallucinating cost allocations that are not explicitly detailed in the source financial reports.
-- **Audit Engine Refactoring:** Overhaul `calculate_cost_per_outcome` in `utils_api/app/audits/impact.py`. The logic will shift from a single division calculation to an intervention-specific attribution model. It will calculate a unit cost *only* when programme expenses can be explicitly linked to a specific intervention's outputs, or when an organisation is so specialised that >90% of its outputs fall under a single intervention. If costs are blended across multiple major interventions, the calculation will gracefully abort and flag as LOW confidence to prevent misrepresentation.
-- **Frontend Presentation Shift:** Update the Hugo templates (`web/layouts/index.html`, `web/layouts/partials/myth-buster.html`) to handle a sparse data matrix. Instead of a single "Cost per Outcome" column, the UI will display primary intervention badges (e.g., "Vaccination", "Rescue") and render the specific unit cost within or alongside the badge only if the data successfully passed the audit engine's confidence checks.
+- **Data Schemas (`impact` & `financials`):** - Refactor `explicit_unit_cost` from a single object into an array of `explicit_unit_costs`, enabling the LLM to extract multiple stated costs mapped directly to specific `InterventionTypeEnum` values.
+  - Introduce a `program_breakdowns` array into the `financials.expenditure` schema to capture line-item programmatic spending.
+- **Extraction Prompts:** Update the n8n prompt templates to instruct the LLM to actively hunt for intervention-specific funding appeals and granular programmatic financial breakdowns.
+- **Audit Engine (`utils_api`):** Overhaul the `calculate_cost_per_outcome` function to:
+  1. Calculate high-confidence costs directly from the new `explicit_unit_costs` array.
+  2. Identify "Pure-Play" cohorts (where >80% of programmatic spend is dedicated to a single intervention) to safely calculate intervention-specific costs.
+  3. Attempt to match granular `program_breakdowns` to specific `significant_events`.
+- **Frontend UI (`web`):** Update the "Value for Money" scorecard to display an array of intervention-specific costs rather than a single, potentially misleading organisational average.
 
 ## Impact
 - **Affected specs:** `data-schemas`, `audit-workflows`, `ui`
-- **Affected code:** - `schemas/v1/impact.schema.json`
-  - `schemas/v1/financials.schema.json`
-  - `n8n/prompt-templates/impact.system.md`
-  - `n8n/prompt-templates/financials.system.md`
-  - `utils_api/app/audits/impact.py`
-  - `utils_api/app/schemas/analytics.py`
-  - `web/layouts/index.html`
-  - `web/layouts/partials/myth-buster.html`
-  - `web/layouts/partials/index-how-to-read.html`
+- **Affected code:** `schemas/v1/*`, `n8n/prompt-templates/*`, `utils_api/app/audits/impact.py`, `utils_api/tests/*`, `web/layouts/partials/myth-buster.html`
