@@ -5,18 +5,18 @@
 - [x] 1.2 Edit `financials.schema.json`: Apply the `"x-extract-key"` property to lengthy keys such as `provident_fund_reserve` and `monthly_operating_expenses`.
 
 ## 2. Build Script Implementation (`scripts/`)
-- [ ] 2.1 Create `scripts/generate_extraction_schemas.py`.
-- [ ] 2.2 Implement the Abstract Syntax Tree (AST) traversal logic to parse canonical schemas from `schemas/v1/`.
-- [ ] 2.3 Implement the **Field Pruning** function: Target and delete `definitions.source.resolved_url` (which contains the problematic `"format": "uri"`) from the schema tree.
-- [ ] 2.4 Implement the **Enum Transformation** function: Locate all `"enum"` arrays, extract the values, delete the `"enum"` key, set `"type": "string"`, and append `[ALLOWED VALUES: 'val1', 'val2', ...]` to the `"description"`.
-- [ ] 2.5 Implement the **Semantic Shortening** function: Swap keys containing `"x-extract-key"`, prepend the humanised original key name to the `"description"`, and populate a global dictionary with the mapping.
-- [ ] 2.6 Configure the script to output the lightweight schemas as `*.extract.schema.json` within the `schemas/v1/` directory and export the mapping dictionary as `schemas/v1/key_mapping.json`.
+- [x] 2.1 Create `scripts/generate_extraction_schemas.py`.
+- [x] 2.2 Implement the Abstract Syntax Tree (AST) traversal logic to parse canonical schemas from `schemas/v1/`.
+- [x] 2.3 Implement the **Field Pruning** function: Target and delete `definitions.source.resolved_url` (which contains the problematic `"format": "uri"`) from the schema tree.
+- [x] 2.4 Implement the **Enum Transformation** function: Locate all `"enum"` arrays, extract the values, delete the `"enum"` key, set `"type": "string"`, and append `[ALLOWED VALUES: 'val1', 'val2', ...]` to the `"description"`.
+- [x] 2.5 Implement the **Semantic Shortening** function: Swap keys containing `"x-extract-key"`, prepend the humanised original key name to the `"description"`, and populate a global dictionary with the mapping.
+- [x] 2.6 Configure the script to output the lightweight schemas as `*.extract.schema.json` within the `schemas/v1/` directory and export the mapping dictionary as `schemas/v1/key_mapping.json`.
 
 ## 3. Microservice Reversal Logic (`utils_api/`)
-- [ ] 3.1 Create `utils_api/app/services/schema_mapper.py` to house the recursive key-reversal algorithm.
-- [ ] 3.2 Implement a function `reverse_extracted_keys(payload: dict, mapping_file: str = "key_mapping.json") -> dict` that recursively traverses the raw LLM JSON payload and swaps any abbreviated keys back to their canonical forms.
-- [ ] 3.3 Create a new endpoint in `utils_api/app/routers/validation.py` (e.g., `POST /normalize-extraction`) that accepts the raw LLM payload, applies `reverse_extracted_keys`, and returns the canonicalised JSON ready for standard validation.
-- [ ] 3.4 Add unit tests in `utils_api/tests/test_validation.py` to verify that the reversal logic correctly restores deeply nested keys and leaves unmapped keys untouched.
+- [x] 3.1 Create `utils_api/app/services/schema_mapper.py` to house the recursive key-reversal algorithm.
+- [x] 3.2 Implement a function `reverse_extracted_keys(data: Any, mapping: Dict[str, str]) -> Any` that recursively traverses the raw LLM JSON payload and swaps any abbreviated keys back to their canonical forms.
+- [x] 3.3 Create a new endpoint in `utils_api/app/routers/validation.py` (`POST /normalize-and-validate`) that accepts the raw LLM payload, applies `reverse_extracted_keys`, and validates the result against the canonical schema.
+- [x] 3.4 Add unit tests in `utils_api/tests/test_validation.py` to verify that the reversal logic correctly restores deeply nested keys before validation.
 
 ## 4. Orchestrator Integration (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
 - [ ] 4.1 Update the `Vars - Utils API & Schemas` Set node to define new string variables for the extraction schemas (e.g., `financials_extract_schema: v1/financials.extract.schema.json`).

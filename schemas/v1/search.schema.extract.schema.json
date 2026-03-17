@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Search",
+  "description": "Schema for charity impact searched from Internet.",
+  "type": "object",
+  "properties": {
+    "search_results": {
+      "type": "array",
+      "description": "",
+      "items": {
+        "type": "object",
+        "properties": {
+          "original_text": {
+            "type": "string",
+            "description": "Original text/snippets from the search."
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of the search result.",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "original_text",
+          "url"
+        ]
+      }
+    }
+  },
+  "required": [
+    "search_results"
+  ]
+}

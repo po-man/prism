@@ -28,7 +28,7 @@ def _find_and_resolve_sources(
 ) -> None:
     """Recursively traverses the data to find and resolve 'source' objects."""
     if isinstance(data, dict):
-        if "source_type" in data and "resolved_url" in data:
+        if "source_type" in data:
             source = data
             source_type = source.get("source_type")
             page_number = source.get("page_number")

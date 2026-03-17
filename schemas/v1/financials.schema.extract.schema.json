@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Financials",
+  "description": "Schema for financial data extracted from a charity's annual financial report.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": "object",
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "description": "The strict category of the source document. [ALLOWED VALUES: 'attached_report', 'web_search']"
+        },
+        "source_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For attached PDF document sources, the 0-based index of the attached document (among all attached documents) where the data was found."
+        },
+        "page_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For attached PDF document sources, the 1-based absolute index of the page (in that attached document) where the data was found."
+        },
+        "search_result_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For web_search sources, the 0-based index of the search result snippet used."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation."
+        }
+      },
+      "required": [
+        "source_type",
+        "quote"
+      ]
+    },
+    "financial_figure": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "source": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "description": "A container for a financial value and its specific source."
+    }
+  },
+  "properties": {
+    "financial_year": {
+      "type": "string",
+      "description": "The financial year of the report, e.g., '2024-25'."
+    },
+    "currency": {
+      "type": "object",
+      "description": "Details about the original currency and its exchange rate to USD.",
+      "properties": {
+        "original_code": {
+          "type": "string",
+          "description": "The 3-letter ISO 4217 code of the original currency from the report (e.g., HKD, INR, USD)."
+        },
+        "usd_exchange_rate": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The exchange rate to convert 1 unit of the original currency to USD."
+        },
+        "rate_date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The date (YYYY-MM-DD) for which the exchange rate is valid."
+        }
+      },
+      "required": [
+        "original_code",
+        "usd_exchange_rate",
+        "rate_date"
+      ]
+    },
+    "income": {
+      "type": "object",
+      "description": "Breakdown of income sources.",
+      "properties": {
+        "donations": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Voluntary contributions, sponsorships, or public donations."
+        },
+        "government_grants": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Total SWD subvention, including LSG, Rent & Rates, and Central Items."
+        },
+        "total": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Total Revenue/Income for the year."
+        }
+      },
+      "required": [
+        "donations",
+        "government_grants",
+        "total"
+      ]
+    },
+    "expenditure": {
+      "type": "object",
+      "description": "Breakdown of expenditures.",
+      "properties": {
+        "administration": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses."
+        },
+        "fundraising": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Costs related to appeals, flag days, or donation solicitations."
+        },
+        "program_services": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Costs directly attributed to welfare services."
+        },
+        "total": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Total Expenditure/Expenses for the year."
+        }
+      },
+      "required": [
+        "administration",
+        "fundraising",
+        "program_services",
+        "total"
+      ]
+    },
+    "lsg_specifics": {
+      "type": "object",
+      "description": "Lump Sum Grant (LSG) specific figures.",
+      "properties": {
+        "lsg_reserve_amount": {
+          "$ref": "#/definitions/financial_figure"
+        },
+        "prov_fund_res": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Provident Fund Reserve: "
+        }
+      },
+      "required": [
+        "lsg_reserve_amount",
+        "prov_fund_res"
+      ]
+    },
+    "reserves": {
+      "type": "object",
+      "description": "General reserves for non-subvented charities.",
+      "properties": {
+        "total_reserves": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Total unrestricted reserves or fund balance at year end."
+        }
+      },
+      "required": [
+        "total_reserves"
+      ]
+    },
+    "ratio_inputs": {
+      "type": "object",
+      "description": "Inputs for calculating financial ratios.",
+      "properties": {
+        "net_current_assets": {
+          "$ref": "#/definitions/financial_figure"
+        },
+        "current_assets": {
+          "$ref": "#/definitions/financial_figure"
+        },
+        "current_liabilities": {
+          "$ref": "#/definitions/financial_figure"
+        },
+        "monthly_op_ex": {
+          "$ref": "#/definitions/financial_figure",
+          "description": "Monthly Operating Expenses: "
+        }
+      },
+      "required": [
+        "net_current_assets",
+        "current_assets",
+        "current_liabilities",
+        "monthly_op_ex"
+      ]
+    }
+  },
+  "required": [
+    "financial_year",
+    "currency",
+    "income",
+    "expenditure",
+    "lsg_specifics",
+    "reserves",
+    "ratio_inputs"
+  ]
+}

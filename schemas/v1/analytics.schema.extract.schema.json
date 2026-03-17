@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analytics",
+  "description": "Schema for the results of the pass/fail audit checklist.",
+  "type": "object",
+  "properties": {
+    "check_items": {
+      "type": "array",
+      "description": "A list of audit check-item results.",
+      "items": {
+        "$ref": "#/definitions/checkItem"
+      }
+    },
+    "calculated_metrics": {
+      "type": "array",
+      "description": "A list of informational metrics derived from the audit.",
+      "items": {
+        "$ref": "#/definitions/calculatedMetric"
+      }
+    }
+  },
+  "required": [
+    "check_items",
+    "calculated_metrics"
+  ],
+  "definitions": {
+    "checkItem": {
+      "type": "object",
+      "description": "A single audit check-item result.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug for the check-item (e.g., 'check_reserve_cap')."
+        },
+        "status": {
+          "type": "string",
+          "description": "The result status of the check. [ALLOWED VALUES: 'pass', 'fail', 'warning', 'bonus', 'not_disclosed', 'n_a']"
+        },
+        "significance": {
+          "type": "string",
+          "description": "The priority or importance of the check. [ALLOWED VALUES: 'HIGH', 'MEDIUM', 'LOW']"
+        },
+        "category": {
+          "type": "string",
+          "description": "The domain of the audit check. [ALLOWED VALUES: 'Financial Health', 'Governance', 'Impact Awareness', 'Risk Management', 'Transparency']"
+        },
+        "details": {
+          "type": "object",
+          "description": "Transparent details about how the result was obtained.",
+          "properties": {
+            "formula": {
+              "type": "string",
+              "description": "The generic formula used for the check."
+            },
+            "calculation": {
+              "type": "string",
+              "description": "The specific calculation with values for this charity."
+            },
+            "elaboration": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "formula",
+            "calculation",
+            "elaboration"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "significance",
+        "category",
+        "details"
+      ]
+    },
+    "calculatedMetric": {
+      "type": "object",
+      "description": "A single informational metric.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug for the metric (e.g., 'cost_per_outcome')."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the metric (e.g., 'Cost Per Outcome')."
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ],
+          "description": "The calculated value of the metric."
+        },
+        "confidence_tier": {
+          "type": "string",
+          "description": "The confidence level of the calculated metric. [ALLOWED VALUES: 'HIGH', 'MEDIUM', 'LOW']"
+        },
+        "confidence_note": {
+          "type": "string",
+          "description": "An explanation of how the confidence tier was determined."
+        },
+        "details": {
+          "type": "object",
+          "description": "Transparent details about how the result was obtained.",
+          "properties": {
+            "formula": {
+              "type": "string"
+            },
+            "calculation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "formula",
+            "calculation"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "value",
+        "confidence_tier",
+        "confidence_note",
+        "details"
+      ]
+    }
+  }
+}

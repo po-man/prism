@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata",
+  "description": "Schema for core identifying metadata about a charity, such as names, web domains, and tax identifiers.",
+  "type": "object",
+  "properties": {
+    "chinese_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The official Chinese name of the charity."
+    },
+    "aliases": {
+      "type": "array",
+      "description": "A list of commonly used acronyms or alternative names for the charity",
+      "items": {
+        "type": "string",
+        "description": "Commonly used acronyms or alternative names for the charity (e.g., 'SPCA', 'WWF-HK')."
+      }
+    },
+    "domains": {
+      "type": "array",
+      "description": "A list of official website domains associated with the charity.",
+      "items": {
+        "type": "string",
+        "description": "An official domain name (e.g., 'spca.org.hk')."
+      }
+    },
+    "registration_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The official non-profit registration identifier for the charity's jurisdiction (e.g., HK s88 ID, US EIN, UK Charity Number)."
+    }
+  },
+  "required": [
+    "chinese_name",
+    "aliases",
+    "domains",
+    "registration_id"
+  ]
+}
