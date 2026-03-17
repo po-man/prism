@@ -40,12 +40,12 @@ The system SHALL utilise prompt templates injected with JSON schemas to ensure d
 - **AND** it MUST instruct the LLM to search for exact euthanasia or live-release numbers, explicitly warning the LLM *not* to infer these numbers from generic "animals saved" metrics.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
-The system SHALL utilize prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritized impact models, and highly traceable data provenance.
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
 
-#### Scenario: Line-Item Financial Provenance Instructions
-- **WHEN** generating system prompts for the Gemini model to extract financial data
-- **THEN** the prompt MUST instruct the model to attach a specific `source` object to *every* extracted financial figure.
-- **AND** the prompt MUST explicitly prohibit summarising sources into a top-level array, forcing the LLM to justify each extracted number (e.g., `income.donations.source`) with its exact, absolute page number and verifiable verbatim quote.
+#### Scenario: Injecting Lightweight Schemas in n8n
+- **WHEN** the "Prepare Prompts" sub-workflow executes the "Read JSON schema" nodes
+- **THEN** it MUST target the newly generated extraction schemas (e.g., `impact.extract.schema.json`) located in the mounted schemas directory.
+- **AND** the subsequent Gemini extraction nodes MUST use these lightweight schemas to guide the FSM, whilst relying on the modified `description` fields to enforce semantic classification and enum adherence.
 
 ### Requirement: Document Ingestion Pipeline
 The n8n orchestrator SHALL ingest target charities and their source documents, gracefully combining available PDFs with targeted web intelligence to maximize data extraction.
@@ -89,4 +89,13 @@ The `utils_api` microservice SHALL execute deterministic transparency audit func
 - **AND** if neither intervention is present, the audit MUST immediately return an `n_a` (Not Applicable) status with the calculation "Organisation does not engage in direct animal sheltering; metric not applicable."
 - **AND** if applicable, it MUST evaluate `euthanasia_statistics_reported`, returning `bonus` for true, and `not_disclosed` for false.
 - **AND** if a `bonus` is awarded, it MUST dynamically append the verbatim `source.quote` to the `details.elaboration` string.
+
+### Requirement: Extraction Payload Reversal and Validation
+The `utils_api` microservice SHALL intercept LLM extraction payloads and deterministically reverse any structural abbreviations applied during the extraction schema compilation phase before executing standard validation.
+
+#### Scenario: Reversing Shortened Keys in `utils_api`
+- **WHEN** the `utils_api` receives an unvalidated JSON payload from the orchestrator's extraction nodes
+- **THEN** it MUST execute a recursive reversal function utilising the `key_mapping.json` artifact (or by dynamically reading `x-extract-key` definitions from the in-memory validation schema).
+- **AND** it MUST safely swap all abbreviated keys (e.g., `other_desc`) back to their canonical long-form names (e.g., `intervention_type_other_description`).
+- **AND** only after this structural restoration is complete SHALL the payload be passed to the `jsonschema.validate()` method against the canonical validation schema.
 
