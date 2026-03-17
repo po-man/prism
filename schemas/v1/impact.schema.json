@@ -166,6 +166,7 @@
             }
           },
           "intervention_type_other_description": {
+            "x-extract-key": "other_desc",
             "type": ["string", "null"],
             "description": "If 'other' is selected for intervention_type, provide a 3-5 word summary (max 100 chars) of the intervention. Otherwise, this should be null."
           },
@@ -229,6 +230,7 @@
       "description": "Indicators of operational transparency and epistemic humility.",
       "properties": {
         "unintended_consequences_reported": {
+          "x-extract-key": "unintended_rep",
           "type": "object",
           "description": "Disclosure of unintended negative impacts or failures. (Only self-reported disclosure (from the attached reports) counts)",
           "properties": {
@@ -237,6 +239,7 @@
           }
         },
         "euthanasia_statistics_reported": {
+          "x-extract-key": "euthanasia_rep",
           "type": "object",
           "description": "Disclosure of exact euthanasia or live-release rates. (Only self-reported disclosure (from the attached reports) counts)",
           "properties": {

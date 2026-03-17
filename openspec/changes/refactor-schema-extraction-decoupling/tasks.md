@@ -1,8 +1,8 @@
 # openspec/changes/refactor-schema-extraction-decoupling/tasks.md
 
 ## 1. Schema Metadata Enrichment (`schemas/v1/`)
-- [ ] 1.1 Edit `impact.schema.json`: Identify properties with excessively long names (e.g., `intervention_type_other_description`, `unintended_consequences_reported`, `euthanasia_statistics_reported`) and inject the `"x-extract-key"` property with a terse equivalent (e.g., `other_desc`, `unintended_rep`, `euthanasia_rep`).
-- [ ] 1.2 Edit `financials.schema.json`: Apply the `"x-extract-key"` property to lengthy keys such as `provident_fund_reserve` and `monthly_operating_expenses`.
+- [x] 1.1 Edit `impact.schema.json`: Identify properties with excessively long names (e.g., `intervention_type_other_description`, `unintended_consequences_reported`, `euthanasia_statistics_reported`) and inject the `"x-extract-key"` property with a terse equivalent (e.g., `other_desc`, `unintended_rep`, `euthanasia_rep`).
+- [x] 1.2 Edit `financials.schema.json`: Apply the `"x-extract-key"` property to lengthy keys such as `provident_fund_reserve` and `monthly_operating_expenses`.
 
 ## 2. Build Script Implementation (`scripts/`)
 - [ ] 2.1 Create `scripts/generate_extraction_schemas.py`.
