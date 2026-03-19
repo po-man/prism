@@ -36,6 +36,17 @@ def _find_and_resolve_sources(
             search_index = source.get("search_result_index")
             quote = source.get("quote")
 
+            if source_type == "attached_report" and source_index is None:
+                if context.attached_reports and len(context.attached_reports) == 1:
+                    source_index = 0
+                    source["source_index"] = source_index
+
+            if source_type == "web_search" and search_index is None and source_index is not None:
+                # Handle case where web_search source is missing search_result_index but has source_index
+                search_index = source_index
+                source["search_result_index"] = search_index
+                source["source_index"] = None
+
             if source_type == "attached_report" and page_number:
                 base_url = context.attached_reports[source_index]
                 if base_url:
@@ -49,6 +60,8 @@ def _find_and_resolve_sources(
 
         for key, value in data.items():
             _find_and_resolve_sources(value, context, web_search_urls)
+            if key == "source" and isinstance(value, dict) and "resolved_url" not in value:
+                data[key] = None
 
     elif isinstance(data, list):
         for item in data:
