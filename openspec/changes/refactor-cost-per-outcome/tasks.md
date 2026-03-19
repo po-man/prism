@@ -16,6 +16,6 @@
 - [x] 3.6 Update `tests/test_audit_impact.py` to provide coverage for the array extraction, pure-play detection, and multi-domain abortion scenarios.
 
 ## 4. Frontend Rendering Updates (`web/layouts/partials/`)
-- [ ] 4.1 Update `myth-buster.html` to handle the new calculation output format from `utils_api`.
-- [ ] 4.2 Add Go/Hugo template logic to iterate over arrays of costs, rendering each intervention type and its associated cost cleanly.
-- [ ] 4.3 Add conditional UI logic to display a "Pure-Play Benchmark" tag if the cost was derived using the cohort methodology.
+- [x] 4.1 Update `myth-buster.html` to handle the new calculation output format from `utils_api`.
+- [x] 4.2 Add Go/Hugo template logic to iterate over arrays of costs, rendering each intervention type and its associated cost cleanly.
+- [x] 4.3 Add conditional UI logic to display a "Pure-Play Benchmark" tag if the cost was derived using the cohort methodology.

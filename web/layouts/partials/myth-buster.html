@@ -68,7 +68,21 @@
 
     <!-- Right Column: Cost Per Outcome -->
     <div class="p-4 bg-white rounded-lg shadow flex flex-col">
-      {{ if and $cost_metric (eq $cost_metric.confidence_tier "LOW") }}
+      {{ $is_low := and $cost_metric (eq $cost_metric.confidence_tier "LOW") }}
+      {{ $cost_value := cond $cost_metric $cost_metric.value nil }}
+      {{ $is_list_value := false }}
+      {{ if $cost_value }}
+        {{/* Check if $cost_value is a slice by testing if we can access the first element */}}
+        {{ if (reflect.IsSlice $cost_value) }}
+          {{ $is_list_value = true }}
+        {{ end }}
+      {{ end }}
+      {{ $pure_play := false }}
+      {{ if and $cost_metric $cost_metric.confidence_note }}
+        {{ $pure_play = gt (len (findRE "Pure-Play" $cost_metric.confidence_note)) 0 }}
+      {{ end }}
+
+      {{ if $is_low }}
         <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome (USD)</h3>
         <div class="flex-grow flex items-center justify-center">
           <div class="p-4 bg-gray-100 border border-gray-200 rounded-md text-center">
@@ -76,15 +90,43 @@
           </div>
         </div>
       {{ else }}
-        <div class="flex items-center">
+        <div class="flex items-start justify-between">
           <h3 class="font-bold text-lg text-gray-700">Estimated Cost per Outcome (USD)</h3>
+          {{ if $pure_play }}
+            <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Pure-Play Benchmark</span>
+          {{ end }}
         </div>
         {{ with $cost_metric.details.formula }}
           <p class="text-sm text-gray-500 mb-3">{{ . | replaceRE "_" " " | title }}</p>
         {{ else }}
           <p class="text-sm text-gray-500 mb-3">The investment needed for a specific result</p>
         {{ end }}
-        <p class="text-base font-mono text-gray-800">{{ $cost_per_outcome | default "Not calculated" }}</p>
+
+        {{ if $is_list_value }}
+          <ul class="mt-2 space-y-2">
+            {{ range $cost_value }}
+              <li class="border border-gray-200 rounded px-3 py-2">
+                {{ if .intervention_type }}
+                  <span class="font-semibold">{{ .intervention_type | humanize | title }}</span>:
+                  <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
+                  {{ if and .amount .currency }}
+                    <span class="text-gray-500">(based on {{ printf "%.2f" .amount }} {{ .currency }})</span>
+                  {{ end }}
+                {{ else if .programme_name }}
+                  <span class="font-semibold">{{ .programme_name }}</span>:
+                  <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
+                  {{ if .matched_event }}<span class="text-gray-500">(matched to "{{ .matched_event }}")</span>{{ end }}
+                  {{ if .population }}<span class="text-gray-500">(population: {{ .population }})</span>{{ end }}
+                {{ else }}
+                  <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
+                {{ end }}
+              </li>
+            {{ end }}
+          </ul>
+        {{ else }}
+          <p class="text-base font-mono text-gray-800">{{ $cost_per_outcome | default "Not calculated" }}</p>
+        {{ end }}
+
         {{ if $retail_translation }}
         <div class="mt-auto pt-3">
           <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r-md">
