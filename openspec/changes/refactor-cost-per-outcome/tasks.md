@@ -4,8 +4,8 @@
 - [x] 1.3 Run `python scripts/generate_extraction_schemas.py` to regenerate the `.extract.schema.json` variants for the LLM.
 
 ## 2. Prompt Template Updates (`n8n/prompt-templates/`)
-- [ ] 2.1 Update `impact.system.md`: Instruct the LLM to actively extract an array of explicitly stated costs for specific interventions (e.g., "Sponsor a farm rescue for £50").
-- [ ] 2.2 Update `financials.system.md`: Instruct the LLM to extract granular line-item programmatic spending from the statement of comprehensive income or notes to the accounts into the `program_breakdowns` array.
+- [x] 2.1 Update `impact.system.md`: Instruct the LLM to actively extract an array of explicitly stated costs for specific interventions (e.g., "Sponsor a farm rescue for £50").
+- [x] 2.2 Update `financials.system.md`: Instruct the LLM to extract granular line-item programmatic spending from the statement of comprehensive income or notes to the accounts into the `program_breakdowns` array.
 
 ## 3. Audit Engine Updates (`utils_api/app/audits/`)
 - [ ] 3.1 Modify `app/schemas/impact.py` and `app/schemas/financials.py` Pydantic models to reflect the new schema arrays (`explicit_unit_costs` and `program_breakdowns`).
