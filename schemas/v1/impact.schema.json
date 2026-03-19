@@ -5,7 +5,7 @@
   "type": "object",
   "definitions": {
     "source": {
-      "type": "object",
+      "type": ["object", "null"],
       "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
       "properties": {
         "source_type": {

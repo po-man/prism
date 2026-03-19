@@ -5,7 +5,7 @@
   "type": "object",
   "definitions": {
     "source": {
-      "type": "object",
+      "type": ["object", "null"],
       "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
       "properties": {
         "source_type": {
@@ -34,10 +34,10 @@
       "type": "object",
       "properties": {
         "value": { "type": ["number", "null"] },
-        "source": { "oneOf": [{ "$ref": "#/definitions/source" }, { "type": "null" }] }
+        "source": { "$ref": "#/definitions/source" }
       },
       "required": ["value"],
-      "description": "A container for a financial value and its specific source."
+      "description": "A container for a financial value and its specific source, where the source is nullable if nothing to be quoted."
     }
   },
   "properties": {
