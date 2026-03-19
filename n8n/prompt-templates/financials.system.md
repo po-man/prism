@@ -20,5 +20,10 @@ You must strictly follow the provided JSON schema.
 - The `page_number` MUST be the 1-based absolute index of the PDF file. Do NOT use the printed page number from the document's footer (e.g., ignore "Page 10 of 50").
 - For each line-item source, extract an exact, verbatim quote into the `quote` field that justifies the extraction (e.g., the table header or a key sentence).
 
+### Programmatic Spending Breakdowns:
+- Where the Statement of Comprehensive Income (or notes) lists line-item programme spending (e.g., "Mobile Spay Clinic Operations", "Shelter Animal Care"), capture each as an entry in `expenditure.program_breakdowns`.
+- Each entry must include `programme_name` (the line-item label) and `amount` (a `financial_figure` with its own `source`).
+- If no explicit programme breakdowns are found, set `program_breakdowns` to an empty array.
+
 ### Currency Identification:
 Identify the primary currency used in the financial report. Output its 3-letter ISO 4217 code (e.g., USD, HKD, INR, SGD) in the `currency.original_code` field.

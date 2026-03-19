@@ -73,7 +73,7 @@ class CalculatedMetric(BaseModel):
         ...,
         description="Human-readable name for the metric (e.g., 'Cost Per Outcome').",
     )
-    value: float | str | None = Field(
+    value: float | str | list[dict] | None = Field(
         ..., description='The calculated value of the metric.'
     )
     confidence_tier: ConfidenceTier = Field(

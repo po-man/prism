@@ -142,22 +142,41 @@
               {{ $cost_metric := index (where $org.analytics.calculated_metrics "id" "cost_per_outcome") 0 }}
               {{ $sort_value := -2 }} {{/* Default for missing data */}}
               {{ if $cost_metric }}
+                {{ $cost_val := cond $cost_metric $cost_metric.value nil }}
+                {{ $is_list := and $cost_val (reflect.IsSlice $cost_val) }}
                 {{ if eq $cost_metric.confidence_tier "LOW" }}
                   {{ if in $cost_metric.details.formula "multi-domain" }}
                     {{ $sort_value = -1 }} {{/* Sort multi-domain slightly higher than missing data */}}
                   {{ end }}
+                {{ else if $is_list }}
+                  {{ $first := index $cost_val 0 }}
+                  {{ if and $first (isset $first "cost_usd") }}
+                    {{ $sort_value = index $first "cost_usd" }}
+                  {{ end }}
                 {{ else if and (isset $cost_metric "value") (ne $cost_metric.value nil) }}
-                {{ $sort_value = $cost_metric.value }}
+                  {{ $sort_value = $cost_metric.value }}
                 {{ end }}
               {{ end }}
               <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Cost per Outcome (USD)" data-sort-value="{{ $sort_value }}">
                 {{ if $cost_metric }}
+                  {{ $cost_val := cond $cost_metric $cost_metric.value nil }}
+                  {{ $is_list := and $cost_val (reflect.IsSlice $cost_val) }}
                   {{ if eq $cost_metric.confidence_tier "LOW" }}
                     <div class="flex items-center justify-end space-x-1.5 text-gray-400" title="{{ $cost_metric.confidence_note }}">
                       <span>N/A</span>
                       {{ if in $cost_metric.details.formula "multi-domain" }}
                         {{- partial "icons/multi-domains.svg" . | safeHTML -}}
                       {{ end }}
+                    </div>
+                  {{ else if $is_list }}
+                    {{ $first := index $cost_val 0 }}
+                    {{ $display_cost := 0.0 }}
+                    {{ if and $first (isset $first "cost_usd") }}
+                      {{ $display_cost = index $first "cost_usd" }}
+                    {{ end }}
+                    <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">
+                      <span>${{ printf "%.2f" $display_cost }} ({{ len $cost_val }} items)</span>
+                      {{- partial "icons/calculator.svg" . | safeHTML -}}
                     </div>
                   {{ else if eq $cost_metric.confidence_tier "HIGH" }}
                     <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">

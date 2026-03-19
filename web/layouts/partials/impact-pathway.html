@@ -13,7 +13,7 @@
 {{/* Find the first available counterfactual description for the callout */}}
 {{ $counterfactual := "" }}
 {{ range $impact.metrics }}
-  {{ if and (not $counterfactual) .counterfactual_baseline.description }}
+  {{ if and (not $counterfactual) .counterfactual_baseline.value }}
     {{ $counterfactual = .counterfactual_baseline.description }}
   {{ end }}
 {{ end }}

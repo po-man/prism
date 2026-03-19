@@ -102,19 +102,22 @@ VALID_IMPACT = {
                 "resolved_url": None
             }
         },
-        "explicit_unit_cost": {
-            "amount": 100,
-            "currency": "HKD",
-            "description": "Cost to spay one dog.",
-            "source": {
-                "source_type": "attached_report",
-                "source_index": 0,
-                "page_number": 1,
-                "search_result_index": None,
-                "quote": "It costs just $25 to spay one dog.",
-                "resolved_url": None
+        "explicit_unit_costs": [
+            {
+                "intervention_type": "high_volume_spay_neuter",
+                "amount": 100,
+                "currency": "HKD",
+                "description": "Cost to spay one dog.",
+                "source": {
+                    "source_type": "attached_report",
+                    "source_index": 0,
+                    "page_number": 1,
+                    "search_result_index": None,
+                    "quote": "It costs just $25 to spay one dog.",
+                    "resolved_url": None
+                }
             }
-        },
+        ],
     },
     "transparency_indicators": {
         "unintended_consequences_reported": {

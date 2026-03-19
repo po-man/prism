@@ -5,7 +5,7 @@
   "type": "object",
   "definitions": {
     "source": {
-      "type": "object",
+      "type": ["object", "null"],
       "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
       "properties": {
         "source_type": {
@@ -34,10 +34,10 @@
       "type": "object",
       "properties": {
         "value": { "type": ["number", "null"] },
-        "source": { "oneOf": [{ "$ref": "#/definitions/source" }, { "type": "null" }] }
+        "source": { "$ref": "#/definitions/source" }
       },
       "required": ["value"],
-      "description": "A container for a financial value and its specific source."
+      "description": "A container for a financial value and its specific source, where the source is nullable if nothing to be quoted."
     }
   },
   "properties": {
@@ -81,7 +81,19 @@
         "administration": { "$ref": "#/definitions/financial_figure", "description": "Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses." },
         "fundraising": { "$ref": "#/definitions/financial_figure", "description": "Costs related to appeals, flag days, or donation solicitations." },
         "program_services": { "$ref": "#/definitions/financial_figure", "description": "Costs directly attributed to welfare services." },
-        "total": { "$ref": "#/definitions/financial_figure", "description": "Total Expenditure/Expenses for the year." }
+        "total": { "$ref": "#/definitions/financial_figure", "description": "Total Expenditure/Expenses for the year." },
+        "program_breakdowns": {
+          "type": "array",
+          "description": "Granular line-item spending on specific programmes.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "programme_name": { "type": "string" },
+              "amount": { "$ref": "#/definitions/financial_figure" }
+            },
+            "required": ["programme_name", "amount"]
+          }
+        }
       },
       "required": ["administration", "fundraising", "program_services", "total"]
     },

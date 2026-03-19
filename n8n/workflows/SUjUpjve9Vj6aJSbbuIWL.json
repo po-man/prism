@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-17T15:53:32.057Z",
+  "updatedAt": "2026-03-19T14:59:08.054Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -279,8 +279,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2976,
-        4832
+        3072,
+        4784
       ],
       "id": "e5307cb1-7e6a-4b46-97ba-a7a853380adb",
       "name": "Storage API - Update Charity - Financials",
@@ -1177,7 +1177,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2144,
+        2784,
         4784
       ],
       "id": "aa74cb56-95e5-460d-a243-e21ac462ce07",
@@ -2241,7 +2241,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        2672,
+        2512,
         4608
       ],
       "name": "Call Fill Exchange Rate",
@@ -2275,7 +2275,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        2544,
+        2384,
         4784
       ],
       "id": "3af3eb22-8bff-4b17-812e-b46a435254dd",
@@ -2288,7 +2288,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2816,
+        2656,
         4608
       ],
       "id": "5fb306b5-8bcd-4507-853c-639b7c66c3a0",
@@ -2303,7 +2303,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2368,
+        2928,
         4784
       ],
       "id": "05abeeb3-782f-4eba-b130-064ef062d4d1",
@@ -2872,7 +2872,7 @@
           {
             "node": "Merge Finanicals with Validation",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ],
         []
@@ -3257,7 +3257,12 @@
         ],
         [
           {
-            "node": "Storage API - Update Charity - Financials",
+            "node": "Schema Validation (Financials)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Finanicals with Validation",
             "type": "main",
             "index": 0
           }
@@ -3279,7 +3284,7 @@
       "main": [
         [
           {
-            "node": "If Financials Schema Valid",
+            "node": "Storage API - Update Charity - Financials",
             "type": "main",
             "index": 0
           }
@@ -3290,7 +3295,12 @@
       "main": [
         [
           {
-            "node": "Storage API - Update Charity - Financials",
+            "node": "Schema Validation (Financials)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Finanicals with Validation",
             "type": "main",
             "index": 0
           }
@@ -3301,12 +3311,7 @@
       "main": [
         [
           {
-            "node": "Merge Finanicals with Validation",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Schema Validation (Financials)",
+            "node": "If Financials Schema Valid",
             "type": "main",
             "index": 0
           }
@@ -3367,9 +3372,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "d8cf2b9d-d5c8-48d7-a7bf-4d410a232f9f",
+  "versionId": "05ed381c-d1ea-4b87-ad15-004a2a4306c1",
   "activeVersionId": "d73303cb-2058-4f55-9bc5-755360b78dc0",
-  "versionCounter": 439,
+  "versionCounter": 440,
   "triggerCount": 1,
   "tags": [],
   "shared": [
