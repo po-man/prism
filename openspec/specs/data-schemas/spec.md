@@ -6,20 +6,20 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Enforcing Currency Standards and Nullability for Unit Costs
-- **WHEN** validating the `explicit_unit_cost` object within `impact.context`
-- **THEN** the `currency` field MUST explicitly demand a 3-letter ISO 4217 code to prevent ambiguous symbol usage.
-- **AND** the internal properties (`amount`, `currency`, `description`) MUST accept `null` values to gracefully handle missing data without triggering strict validator failures or hallucinated zeroes.
-- **AND** both `operating_scope` and `explicit_unit_cost` MUST include a `source` object property referencing the unified provenance schema.
+#### Scenario: Extracting Multiple Explicit Unit Costs
+- **WHEN** validating the `context` object within `impact.schema.json`
+- **THEN** the schema MUST define `explicit_unit_costs` as an array of objects, rather than a single object.
+- **AND** each object in the array MUST contain an `intervention_type` field referencing the `InterventionTypeEnum` to link the cost to a specific EA cause area.
+- **AND** each object MUST retain the `amount`, `currency`, `description`, and `source` fields to ensure strict provenance.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
 
-#### Scenario: Enforcing Figure-Level Provenance
-- **WHEN** the `financials.schema.json` is validated
-- **THEN** the root of the schema MUST NOT contain a top-level `sources` array.
-- **AND** a new definition called `financial_figure` MUST be created, comprising a `value` (number or null) and a `source` (referencing the unified source object, or null).
-- **AND** all individual metrics within the `income`, `expenditure`, `reserves`, `lsg_specifics`, and `ratio_inputs` objects MUST strictly adhere to the `financial_figure` definition, enabling line-item attribution.
+#### Scenario: Extracting Programmatic Financial Breakdowns
+- **WHEN** validating the `expenditure` object within `financials.schema.json`
+- **THEN** the schema MUST include a `program_breakdowns` array.
+- **AND** this array MUST accept objects containing `programme_name` (string) and `amount` (referencing the `financial_figure` definition).
+- **AND** this allows the system to capture granular line-item spending (e.g., "Mobile Spay Clinic Operations: $50,000") beyond the aggregated `program_services` total.
 
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.

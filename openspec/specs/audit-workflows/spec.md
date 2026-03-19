@@ -16,20 +16,26 @@ The `utils_api` microservice SHALL execute deterministic audit functions, utiliz
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, dynamically assigning a Confidence Tier to prevent misrepresentation of multi-domain charities.
 
-#### Scenario: Evaluating High Confidence Unit Costs
-- **WHEN** `check_cost_per_outcome` executes AND `impact.context.explicit_unit_cost` is populated
-- **THEN** it MUST convert the explicitly stated amount to USD (using the financial exchange rate).
-- **AND** it MUST set the `confidence_tier` to `HIGH` and the `confidence_note` to "This unit cost is explicitly stated by the organisation in their reporting."
+#### Scenario: Evaluating High Confidence Unit Costs from Arrays
+- **WHEN** `check_cost_per_outcome` executes AND the `explicit_unit_costs` array contains one or more valid entries
+- **THEN** the audit function MUST evaluate and convert each explicitly stated amount to USD.
+- **AND** it MUST set the `confidence_tier` to `HIGH` and output a structured list of these costs, explicitly noting the intervention type they apply to.
 
-#### Scenario: Evaluating Medium Confidence Unit Costs
-- **WHEN** `explicit_unit_cost` is null AND `operating_scope` is `pure_animal_advocacy`
-- **THEN** it MUST calculate the cost by dividing total program services expenditure (USD) by total animal beneficiaries.
-- **AND** it MUST set the `confidence_tier` to `MEDIUM` and the `confidence_note` to "This unit cost is estimated by PRISM by dividing total programme expenditure by the total quantified animal beneficiaries."
+#### Scenario: Medium Confidence via Programmatic Financial Matching
+- **WHEN** `explicit_unit_costs` is empty AND `program_breakdowns` contains valid financial data
+- **THEN** the system MUST attempt to match the `programme_name` to a reported intervention in `significant_events` or a specific beneficiary group.
+- **AND** if a reasonable match is found, it MUST divide that specific programmatic spend by the specific outcome population to calculate an intervention-specific cost.
+- **AND** it MUST set the `confidence_tier` to `MEDIUM` with a note explaining the programmatic derivation.
 
-#### Scenario: Aborting Low Confidence Unit Costs
-- **WHEN** `explicit_unit_cost` is null AND `operating_scope` is `multi_domain_operations`
-- **THEN** it MUST set the metric `value` to `null`.
-- **AND** it MUST set the `confidence_tier` to `LOW` and the `confidence_note` to "Cost per outcome calculation is not available. This organisation conducts significant multi-domain work (e.g., human education, environmental conservation). Dividing the total budget solely by quantified animal outcomes would artificially inflate the cost and misrepresent their financial efficiency."
+#### Scenario: Medium Confidence via Pure-Play Cohorts
+- **WHEN** granular programmatic matching is not possible
+- **THEN** the system MUST evaluate if the charity is a "Pure-Play" organisation (defined as allocating >80% of its `program_services` expenditure to a single, identifiable intervention type).
+- **AND** if it qualifies as a Pure-Play, the system MUST divide total programmatic spend by the primary outcome, labelling the result as a benchmarkable Pure-Play cost with `MEDIUM` confidence.
+
+#### Scenario: Aborting Low Confidence Unit Costs for Unattributable Multi-Domain Charities
+- **WHEN** the charity is multi-domain, lacks explicit unit costs, is not a Pure-Play, and lacks attributable programmatic financial breakdowns
+- **THEN** the system MUST set the metric `value` to `null`.
+- **AND** it MUST set the `confidence_tier` to `LOW`, explaining that dividing a multi-domain budget by a lumped sum of outcomes would produce a mathematically distorted and misleading cost.
 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.

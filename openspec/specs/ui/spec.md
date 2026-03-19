@@ -35,11 +35,11 @@ The UI SHALL visually categorize the charity's beneficiaries to immediately comm
 ### Requirement: Overhead vs. Impact Myth-Buster Display
 The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, dynamically suppressing the calculation if the data confidence is low.
 
-#### Scenario: Suppressing Low Confidence Calculations on Profiles
-- **WHEN** rendering the Value for Money component on a charity's individual profile
-- **THEN** the template MUST check the `confidence_tier` of the `cost_per_outcome` metric.
-- **AND** if `LOW`, it MUST hide the large numeric value and the retail donation translation, replacing it with a grey, subdued text box displaying the `confidence_note`.
-- **AND** if `HIGH` or `MEDIUM`, it MUST display the calculated value, the retail translation, and append the `confidence_note` directly beneath it to ensure total transparency of the calculation's provenance.
+#### Scenario: Rendering Arrays of Intervention-Specific Costs
+- **WHEN** rendering the Value for Money component on a charity's individual profile (`myth-buster.html`)
+- **THEN** the template MUST parse the `cost_per_outcome` metric to determine if multiple intervention-specific costs were identified (e.g., from the `explicit_unit_costs` array).
+- **AND** if multiple costs exist, it MUST render them as a list, displaying the specific intervention name (e.g., "High Volume Spay Neuter: $25", "Individual Rescue: $450") instead of a single blended number.
+- **AND** if the metric was derived via the Pure-Play cohort logic, it MUST display a specific badge or text indicating it as a "Pure-Play Benchmark".
 
 ### Requirement: Impact Pathway Display
 The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion, and rendering granular provenance.
