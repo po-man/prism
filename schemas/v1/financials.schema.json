@@ -81,7 +81,19 @@
         "administration": { "$ref": "#/definitions/financial_figure", "description": "Overhead, 'Central Administrative Costs', or 'Management/General Office' expenses." },
         "fundraising": { "$ref": "#/definitions/financial_figure", "description": "Costs related to appeals, flag days, or donation solicitations." },
         "program_services": { "$ref": "#/definitions/financial_figure", "description": "Costs directly attributed to welfare services." },
-        "total": { "$ref": "#/definitions/financial_figure", "description": "Total Expenditure/Expenses for the year." }
+        "total": { "$ref": "#/definitions/financial_figure", "description": "Total Expenditure/Expenses for the year." },
+        "program_breakdowns": {
+          "type": "array",
+          "description": "Granular line-item spending on specific programmes.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "programme_name": { "type": "string" },
+              "amount": { "$ref": "#/definitions/financial_figure" }
+            },
+            "required": ["programme_name", "amount"]
+          }
+        }
       },
       "required": ["administration", "fundraising", "program_services", "total"]
     },

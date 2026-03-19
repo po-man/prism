@@ -1,7 +1,7 @@
 ## 1. Schema Updates (`schemas/v1/`)
-- [ ] 1.1 Update `impact.schema.json`: Replace the `explicit_unit_cost` object with an `explicit_unit_costs` array of objects. Add the `intervention_type` field referencing `InterventionTypeEnum` to each object.
-- [ ] 1.2 Update `financials.schema.json`: Add a `program_breakdowns` array to the `expenditure` object, containing `programme_name` and an `amount` referencing `financial_figure`.
-- [ ] 1.3 Run `python scripts/generate_extraction_schemas.py` to regenerate the `.extract.schema.json` variants for the LLM.
+- [x] 1.1 Update `impact.schema.json`: Replace the `explicit_unit_cost` object with an `explicit_unit_costs` array of objects. Add the `intervention_type` field referencing `InterventionTypeEnum` to each object.
+- [x] 1.2 Update `financials.schema.json`: Add a `program_breakdowns` array to the `expenditure` object, containing `programme_name` and an `amount` referencing `financial_figure`.
+- [x] 1.3 Run `python scripts/generate_extraction_schemas.py` to regenerate the `.extract.schema.json` variants for the LLM.
 
 ## 2. Prompt Template Updates (`n8n/prompt-templates/`)
 - [ ] 2.1 Update `impact.system.md`: Instruct the LLM to actively extract an array of explicitly stated costs for specific interventions (e.g., "Sponsor a farm rescue for £50").

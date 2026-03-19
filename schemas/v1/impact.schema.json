@@ -207,21 +207,43 @@
             }
           }
         },
-        "explicit_unit_cost": {
-          "type": "object",
-          "description": "Unit cost explicitly stated by the charity in their reporting.",
-          "properties": {
-            "amount": { "type": ["number", "null"] },
-            "currency": {
-              "type": ["string", "null"],
-              "description": "The 3-letter ISO 4217 code of the currency (e.g., USD, HKD, INR)."
+        "explicit_unit_costs": {
+          "type": "array",
+          "description": "Array of unit costs explicitly stated by the charity, each linked to a specific intervention type.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "intervention_type": {
+                "type": "string",
+                "enum": [
+                  "corporate_welfare_campaigns",
+                  "policy_and_legal_advocacy",
+                  "alternative_protein_and_food_tech",
+                  "scientific_and_welfare_research",
+                  "high_volume_spay_neuter",
+                  "undercover_investigations_and_exposes",
+                  "capacity_building_and_movement_growth",
+                  "individual_rescue_and_sanctuary",
+                  "veterinary_care_and_treatment",
+                  "disaster_response_and_emergency_relief",
+                  "wildlife_conservation_and_habitat_protection",
+                  "vegan_outreach_and_dietary_change",
+                  "humane_education_and_community_support",
+                  "other"
+                ]
+              },
+              "amount": { "type": ["number", "null"] },
+              "currency": {
+                "type": ["string", "null"],
+                "description": "The 3-letter ISO 4217 code of the currency (e.g., USD, HKD, INR)."
+              },
+              "description": { "type": ["string", "null"] },
+              "source": {
+                "$ref": "#/definitions/source"
+              }
             },
-            "description": { "type": ["string", "null"] },
-            "source": {
-              "$ref": "#/definitions/source"
-            }
-          },
-          "required": ["amount", "currency", "description", "source"]
+            "required": ["intervention_type", "amount", "currency", "description", "source"]
+          }
         }
       }
     },
