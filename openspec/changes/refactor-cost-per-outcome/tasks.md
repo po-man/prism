@@ -8,12 +8,12 @@
 - [x] 2.2 Update `financials.system.md`: Instruct the LLM to extract granular line-item programmatic spending from the statement of comprehensive income or notes to the accounts into the `program_breakdowns` array.
 
 ## 3. Audit Engine Updates (`utils_api/app/audits/`)
-- [ ] 3.1 Modify `app/schemas/impact.py` and `app/schemas/financials.py` Pydantic models to reflect the new schema arrays (`explicit_unit_costs` and `program_breakdowns`).
-- [ ] 3.2 Rewrite `calculate_cost_per_outcome` in `app/audits/impact.py` to process the `explicit_unit_costs` array first, returning a HIGH confidence array of costs if found.
-- [ ] 3.3 Implement the programmatic matching logic: Attempt to align `program_breakdowns` with specific `significant_events` using basic string matching or allocation thresholds.
-- [ ] 3.4 Implement the Pure-Play cohort logic: Check if >80% of `program_services` spend goes to a single programme. If so, execute the division and return as MEDIUM confidence.
-- [ ] 3.5 Ensure the fallback gracefully returns a LOW confidence `null` for unattributable multi-domain portfolios.
-- [ ] 3.6 Update `tests/test_audit_impact.py` to provide coverage for the array extraction, pure-play detection, and multi-domain abortion scenarios.
+- [x] 3.1 Modify `app/schemas/impact.py` and `app/schemas/financials.py` Pydantic models to reflect the new schema arrays (`explicit_unit_costs` and `program_breakdowns`).
+- [x] 3.2 Rewrite `calculate_cost_per_outcome` in `app/audits/impact.py` to process the `explicit_unit_costs` array first, returning a HIGH confidence array of costs if found.
+- [x] 3.3 Implement the programmatic matching logic: Attempt to align `program_breakdowns` with specific `significant_events` using basic string matching or allocation thresholds.
+- [x] 3.4 Implement the Pure-Play cohort logic: Check if >80% of `program_services` spend goes to a single programme. If so, execute the division and return as MEDIUM confidence.
+- [x] 3.5 Ensure the fallback gracefully returns a LOW confidence `null` for unattributable multi-domain portfolios.
+- [x] 3.6 Update `tests/test_audit_impact.py` to provide coverage for the array extraction, pure-play detection, and multi-domain abortion scenarios.
 
 ## 4. Frontend Rendering Updates (`web/layouts/partials/`)
 - [ ] 4.1 Update `myth-buster.html` to handle the new calculation output format from `utils_api`.

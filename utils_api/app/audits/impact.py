@@ -159,90 +159,260 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
 
 
 def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[CalculatedMetric]:
+    """Calculates the cost per outcome with a confidence tier.
+
+    The function follows a strict precedence:
+    1) HIGH: Use explicitly stated unit costs (now an array) extracted from the charity's reporting.
+    2) MEDIUM: Attempt to derive costs via programmatic spending breakdowns / pure-play logic.
+    3) LOW: Abort for multi-domain organisations or when attribution is not possible.
     """
-    Calculates the cost per outcome with a confidence tier. This is an informational metric.
-    - HIGH: The charity explicitly states a unit cost.
-    - MEDIUM: The charity is pure animal advocacy; PRISM calculates the cost.
-    - LOW: The charity is multi-domain; PRISM aborts the calculation to avoid misrepresentation.
-    """
+
     if not record.impact or not record.impact.context:
         return None
 
     context = record.impact.context
-    explicit_cost = context.explicit_unit_cost
+    explicit_costs = context.explicit_unit_costs or []
     operating_scope = None
     if context.operating_scope and context.operating_scope.value:
         operating_scope = context.operating_scope.value.value
 
-    # --- HIGH CONFIDENCE ---
-    if explicit_cost and explicit_cost.amount is not None:
+    def _to_usd(amount: float, currency: str | None) -> float:
         rate = 1.0
         if record.financials and record.financials.currency and record.financials.currency.usd_exchange_rate:
-            # If the explicit currency matches the report's main currency, use the report's exchange rate.
-            if explicit_cost.currency and explicit_cost.currency.upper() == record.financials.currency.original_code.upper():
-                rate = record.financials.currency.usd_exchange_rate
+            rate = record.financials.currency.usd_exchange_rate
+        if currency and record.financials and record.financials.currency and record.financials.currency.original_code:
+            if currency.upper() == record.financials.currency.original_code.upper():
+                rate = record.financials.currency.usd_exchange_rate or rate
+        return amount * rate
 
-        value_usd = explicit_cost.amount * rate
-        calculation_string = f"Explicitly stated cost of {explicit_cost.amount:,.2f} {explicit_cost.currency} converted to ${value_usd:,.2f} USD."
+    # --- HIGH CONFIDENCE ---
+    explicit_results = []
+    for cost in explicit_costs:
+        if not cost or cost.amount is None:
+            continue
+        usd = _to_usd(cost.amount, cost.currency)
+        explicit_results.append(
+            {
+                "intervention_type": cost.intervention_type.value
+                if hasattr(cost.intervention_type, "value")
+                else str(cost.intervention_type),
+                "amount": cost.amount,
+                "currency": cost.currency,
+                "cost_usd": round(usd, 2),
+            }
+        )
+
+    if explicit_results:
+        calculation_string = (
+            "Explicitly stated unit costs converted to USD: "
+            + "; ".join(
+                f"{r['intervention_type']}: {r['amount']:.2f} {r['currency']} -> ${r['cost_usd']:.2f}"
+                for r in explicit_results
+            )
+        )
 
         return CalculatedMetric(
             id="cost_per_outcome",
             name="Cost Per Outcome (USD)",
-            value=round(value_usd, 2),
+            value=explicit_results,
             confidence_tier="HIGH",
-            confidence_note="This unit cost is explicitly stated by the organisation in their reporting.",
-            details={"formula": "Explicitly stated unit cost by the organisation.", "calculation": calculation_string},
+            confidence_note="These unit costs are explicitly stated by the organisation in their reporting.",
+            details={
+                "formula": "Explicitly stated unit costs by the organisation.",
+                "calculation": calculation_string,
+            },
         )
 
-    # --- LOW CONFIDENCE ---
+    # --- LOW CONFIDENCE: Multi-domain organisations ---
     if operating_scope == "multi_domain_operations":
         return CalculatedMetric(
             id="cost_per_outcome",
             name="Cost Per Outcome (USD)",
             value=None,
             confidence_tier="LOW",
-            confidence_note="Cost per outcome calculation is not available. This organisation conducts significant multi-domain work (e.g., human education, environmental conservation). Dividing the total budget solely by quantified animal outcomes would artificially inflate the cost and misrepresent their financial efficiency.",
-            details={"formula": "Calculation aborted due to multi-domain operations.", "calculation": "Not applicable."},
+            confidence_note=(
+                "Cost per outcome calculation is not available. This organisation conducts significant multi-domain work "
+                "(e.g., human education, environmental conservation). Dividing the total budget solely by quantified animal outcomes "
+                "would artificially inflate the cost and misrepresent their financial efficiency."
+            ),
+            details={
+                "formula": "Calculation aborted due to multi-domain operations.",
+                "calculation": "Not applicable.",
+            },
         )
 
-    # --- MEDIUM CONFIDENCE ---
+    # If the organisation is pure animal advocacy, but we lack the minimum data needed to
+    # estimate a cost (e.g., programme spend or quantified beneficiaries), return None to
+    # indicate that the metric cannot be computed rather than returning a LOW confidence value.
     if operating_scope == "pure_animal_advocacy":
-        if (
+        missing_spend = (
             not record.financials
             or not record.financials.expenditure
             or not record.financials.expenditure.program_services
             or record.financials.expenditure.program_services.value is None
-            or not record.impact.beneficiaries
-        ):
+        )
+        missing_beneficiaries = not record.impact.beneficiaries
+        if missing_spend or missing_beneficiaries:
             return None
 
+    # --- MEDIUM CONFIDENCE: Programmatic matching via program_breakdowns ---
+    has_breakdowns = bool(
+        record.financials
+        and record.financials.expenditure
+        and record.financials.expenditure.program_breakdowns
+    )
+
+    if (
+        has_breakdowns
+        and record.impact.significant_events
+        and record.impact.beneficiaries
+    ):
+        # Map intervention types to beneficiary types for population allocation
+        intervention_to_beneficiary = {
+            "high_volume_spay_neuter": "companion_animals",
+            "individual_rescue_and_sanctuary": "companion_animals",
+            "veterinary_care_and_treatment": "companion_animals",
+            "wildlife_conservation_and_habitat_protection": "wild_animals",
+            "corporate_welfare_campaigns": "farmed_animals",
+            "policy_and_legal_advocacy": "farmed_animals",
+            "alternative_protein_and_food_tech": "farmed_animals",
+            "vegan_outreach_and_dietary_change": "farmed_animals",
+            # Fallbacks for broad/indirect interventions
+            "scientific_and_welfare_research": "unspecified",
+            "capacity_building_and_movement_growth": "unspecified",
+            "undercover_investigations_and_exposes": "unspecified",
+            "disaster_response_and_emergency_relief": "unspecified",
+            "humane_education_and_community_support": "unspecified",
+        }
+
+        def _population_for_interventions(interventions: list[str]) -> float:
+            target_types = {
+                intervention_to_beneficiary.get(i)
+                for i in interventions
+                if intervention_to_beneficiary.get(i)
+            }
+            return sum(
+                b.population
+                for b in record.impact.beneficiaries
+                if b.beneficiary_type.value in target_types and b.population
+            )
+
+        program_matches = []
+        for breakdown in record.financials.expenditure.program_breakdowns:
+            if not breakdown or not breakdown.programme_name or not breakdown.amount or breakdown.amount.value is None:
+                continue
+
+            name_lower = breakdown.programme_name.lower()
+            matched_event = None
+            for event in record.impact.significant_events:
+                if not event or not event.event_name:
+                    continue
+                if (
+                    name_lower in event.event_name.lower()
+                    or event.event_name.lower() in name_lower
+                    or (event.summary and name_lower in event.summary.lower())
+                    or (event.summary and event.summary.lower() in name_lower)
+                ):
+                    matched_event = event
+                    break
+
+            if not matched_event:
+                continue
+
+            population = _population_for_interventions(
+                [it.value if hasattr(it, "value") else it for it in (matched_event.intervention_type or [])]
+            )
+            if population <= 0:
+                continue
+
+            cost_usd = _to_usd(breakdown.amount.value, None) / population
+            program_matches.append(
+                {
+                    "programme_name": breakdown.programme_name,
+                    "matched_event": matched_event.event_name,
+                    "intervention_types": [
+                        it.value if hasattr(it, "value") else it
+                        for it in (matched_event.intervention_type or [])
+                    ],
+                    "population": population,
+                    "cost_usd": round(cost_usd, 2),
+                }
+            )
+
+        if program_matches:
+            calculation_string = (
+                "Programmatic spend was matched to reported interventions; costs were derived per matching beneficiary population."
+            )
+            return CalculatedMetric(
+                id="cost_per_outcome",
+                name="Cost Per Outcome (USD)",
+                value=program_matches,
+                confidence_tier="MEDIUM",
+                confidence_note=(
+                    "Derived from program_breakdowns matched to significant events and their beneficiary populations."
+                ),
+                details={
+                    "formula": "matched_program_breakdown_spend / beneficiary_population",
+                    "calculation": calculation_string,
+                },
+            )
+
+    # --- MEDIUM CONFIDENCE: Pure-Play cohort benchmark / fallback ---
+    if (
+        operating_scope == "pure_animal_advocacy"
+        and record.financials
+        and record.financials.expenditure
+        and record.financials.expenditure.program_services
+        and record.impact.beneficiaries
+        and record.financials.expenditure.program_services.value is not None
+    ):
         program_spend = record.financials.expenditure.program_services.value
         rate = (
             record.financials.currency.usd_exchange_rate
             if record.financials.currency and record.financials.currency.usd_exchange_rate
             else 1.0
         )
-        program_spend_usd = program_spend * rate
 
-        primary_outcome = sum([b.population for b in record.impact.beneficiaries if b.population is not None])
-
-        if primary_outcome <= 0:
+        total_population = sum(
+            b.population for b in record.impact.beneficiaries if b.population
+        )
+        if total_population <= 0:
             return None
 
-        cost_per_usd = program_spend_usd / primary_outcome
-        calculation_string = f"(${program_spend_usd:,.0f} USD / {primary_outcome:,.0f} total beneficiaries) = ${cost_per_usd:,.2f} USD per outcome"
+        cost_per_usd = (program_spend * rate) / total_population
+        calculation_string = (
+            f"(${program_spend * rate:,.0f} USD / {total_population:,.0f} total beneficiaries) = ${cost_per_usd:,.2f} USD per outcome"
+        )
 
         if cost_per_usd > 0:
             outcomes_per_1000 = 1000 / cost_per_usd
             outcomes_str = f"{outcomes_per_1000:,.0f}" if outcomes_per_1000 >= 1 else f"{outcomes_per_1000:.3g}"
             calculation_string += f". | A $1,000 USD donation achieves ≈ {outcomes_str} outcomes."
 
+        confidence_note = (
+            "This unit cost is estimated by PRISM by dividing total programme expenditure by the total quantified animal beneficiaries."
+        )
+
+        # If breakdown data exists, attempt to use pure-play logic
+        if has_breakdowns:
+            breakdown_values = [
+                b.amount.value
+                for b in record.financials.expenditure.program_breakdowns
+                if b and b.amount and b.amount.value is not None
+            ]
+            if breakdown_values and program_spend > 0:
+                max_breakdown = max(breakdown_values)
+                if max_breakdown / program_spend >= 0.8:
+                    confidence_note = (
+                        "Pure-Play benchmark: >80% of program services spend is attributed to a single programme."
+                    )
+
         return CalculatedMetric(
             id="cost_per_outcome",
             name="Cost Per Outcome (USD)",
             value=round(cost_per_usd, 2),
             confidence_tier="MEDIUM",
-            confidence_note="This unit cost is estimated by PRISM by dividing total programme expenditure by the total quantified animal beneficiaries.",
+            confidence_note=confidence_note,
             details={
                 "formula": "program_services_expenditure / sum_of_beneficiaries",
                 "calculation": calculation_string,
