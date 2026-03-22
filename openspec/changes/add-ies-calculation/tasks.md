@@ -1,8 +1,8 @@
 # openspec/changes/add-ies-calculation/tasks.md
 
 ## 1. Data Vault & Schema Updates
-- [ ] 1.1 Create PocketBase migrations for `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines` collections.
-- [ ] 1.2 Seed the new reference collections with consensus EA data (e.g., GiveWell/Rethink Priorities estimates).
+- [x] 1.1 Create PocketBase migrations for `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines` collections.
+- [x] 1.2 Seed the new reference collections with consensus EA data (e.g., GiveWell/Rethink Priorities estimates).
 - [ ] 1.3 Update `schemas/v1/impact.schema.json` to ensure `species`, `evidence_claim`, and `intervention_typology` are strictly defined for extraction.
 - [ ] 1.4 Update `schemas/v1/analytics.schema.json` to accommodate the IES payload inside `calculated_metrics`.
 - [ ] 1.5 Run `scripts/generate_extraction_schemas.py` to compile the updated LLM extraction schemas.
