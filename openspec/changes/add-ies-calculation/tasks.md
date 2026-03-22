@@ -9,7 +9,7 @@
 
 ## 2. Logic Layer (`utils_api`)
 - [x] 2.1 Implement a PocketBase client service in Python to fetch reference data ($W_{species}$, $D_{evidence}$) during the audit phase.
-- [ ] 2.2 Implement external API integration modules (e.g., FAOSTAT wrapper for animal populations, World Bank wrapper for PPP adjustments).
+- [x] 2.2 Implement external API integration modules (e.g., FAOSTAT wrapper for animal populations, World Bank wrapper for PPP adjustments).
 - [ ] 2.3 Create `calculate_ies` function in `app/audits/impact.py`.
 - [ ] 2.4 Implement the systemic BOTEC logic within `calculate_ies` to generate $W_{leverage}$ based on intervention typology and region.
 - [ ] 2.5 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
