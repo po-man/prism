@@ -8,7 +8,7 @@
 - [x] 1.5 Run `scripts/generate_extraction_schemas.py` to compile the updated LLM extraction schemas.
 
 ## 2. Logic Layer (`utils_api`)
-- [ ] 2.1 Implement a PocketBase client service in Python to fetch reference data ($W_{species}$, $D_{evidence}$) during the audit phase.
+- [x] 2.1 Implement a PocketBase client service in Python to fetch reference data ($W_{species}$, $D_{evidence}$) during the audit phase.
 - [ ] 2.2 Implement external API integration modules (e.g., FAOSTAT wrapper for animal populations, World Bank wrapper for PPP adjustments).
 - [ ] 2.3 Create `calculate_ies` function in `app/audits/impact.py`.
 - [ ] 2.4 Implement the systemic BOTEC logic within `calculate_ies` to generate $W_{leverage}$ based on intervention typology and region.
