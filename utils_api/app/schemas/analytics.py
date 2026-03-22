@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -88,10 +88,27 @@ class CalculatedMetric(BaseModel):
     )
 
 
+class Breakdown(BaseModel):
+    outcomes: float | None = None
+    species_weight: float | None = None
+    leverage_multiplier: float | None = None
+    evidence_discount: float | None = None
+
+
+class Details2(BaseModel):
+    breakdown: Breakdown | None = None
+
+
+class IesMetric(CalculatedMetric):
+    id: Literal['impact_equivalency_score'] = 'impact_equivalency_score'
+    value: int | None = None
+    details: Details2 | None = None
+
+
 class Analytics(BaseModel):
     check_items: list[CheckItem] = Field(
         ..., description='A list of audit check-item results.'
     )
-    calculated_metrics: list[CalculatedMetric] = Field(
+    calculated_metrics: list[IesMetric | CalculatedMetric] = Field(
         ..., description='A list of informational metrics derived from the audit.'
     )

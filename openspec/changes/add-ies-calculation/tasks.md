@@ -3,9 +3,9 @@
 ## 1. Data Vault & Schema Updates
 - [x] 1.1 Create PocketBase migrations for `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines` collections.
 - [x] 1.2 Seed the new reference collections with consensus EA data (e.g., GiveWell/Rethink Priorities estimates).
-- [ ] 1.3 Update `schemas/v1/impact.schema.json` to ensure `species`, `evidence_claim`, and `intervention_typology` are strictly defined for extraction.
-- [ ] 1.4 Update `schemas/v1/analytics.schema.json` to accommodate the IES payload inside `calculated_metrics`.
-- [ ] 1.5 Run `scripts/generate_extraction_schemas.py` to compile the updated LLM extraction schemas.
+- [x] 1.3 Update `schemas/v1/impact.schema.json` to ensure `species`, `evidence_claim`, and `intervention_typology` are strictly defined for extraction.
+- [x] 1.4 Update `schemas/v1/analytics.schema.json` to accommodate the IES payload inside `calculated_metrics`.
+- [x] 1.5 Run `scripts/generate_extraction_schemas.py` to compile the updated LLM extraction schemas.
 
 ## 2. Logic Layer (`utils_api`)
 - [ ] 2.1 Implement a PocketBase client service in Python to fetch reference data ($W_{species}$, $D_{evidence}$) during the audit phase.

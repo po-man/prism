@@ -15,7 +15,10 @@
       "type": "array",
       "description": "A list of informational metrics derived from the audit.",
       "items": {
-        "$ref": "#/definitions/calculatedMetric"
+        "oneOf": [
+          { "$ref": "#/definitions/iesMetric" },
+          { "$ref": "#/definitions/calculatedMetric" }
+        ]
       }
     }
   },
@@ -109,6 +112,36 @@
         }
       },
       "required": ["id", "name", "value", "confidence_tier", "confidence_note", "details"]
+    },
+    "iesMetric": {
+      "type": "object",
+      "description": "Schema for the Impact Equivalency Score (IES) metric.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/calculatedMetric"
+        }
+      ],
+      "properties": {
+        "id": {
+          "const": "impact_equivalency_score"
+        },
+        "value": {
+          "type": "integer"
+        },
+        "details": {
+          "properties": {
+            "breakdown": {
+              "type": "object",
+              "properties": {
+                "outcomes": { "type": "number" },
+                "species_weight": { "type": "number" },
+                "leverage_multiplier": { "type": "number" },
+                "evidence_discount": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
