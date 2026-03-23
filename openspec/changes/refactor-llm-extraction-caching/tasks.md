@@ -3,9 +3,9 @@
 
 ## 2. Prompt & Schema Engineering
 - [x] 2.1 Consolidate `financials.system.md`, `impact.system.md` into a single `master_auditor.system.md`.
-- [ ] 2.2 Split the impact extraction schemas into smaller logical units (e.g., `impact_demographics.extract.schema.json`, `impact_interventions.extract.schema.json`, `impact_metrics.extract.schema.json`, `impact_transparency.extract.schema.json`).
+- [x] 2.2 Split the impact extraction schemas into smaller logical units (e.g., `impact_demographics.schema.json`, `impact_interventions.schema.json`, `impact_metrics.schema.json`, `impact_transparency.extract.json`).
 - [ ] 2.3 Create corresponding targeted user prompt templates for each split schema.
-- [ ] 2.4 Update `generate_extraction_schemas.py` to handle the generation of these split schemas from the master `impact.schema.json`.
+- [x] 2.4 Update `generate_extraction_schemas.py` to handle the generation of these split schemas from the master `impact.schema.json`.
 
 ## 3. Orchestration (n8n) Refactoring
 - [ ] 3.1 Create a new sub-workflow: `Ensure Context Cache is on Gemini`. It should accept document URIs and the master system prompt, call the Gemini Cache API, and update the organisation's record with the cache metadata.

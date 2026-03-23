@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact-Interventions",
+  "description": "Schema for key interventions, significant events, and explicitly stated costs undertaken by the charity.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "description": "[ALLOWED VALUES: 'attached_report', 'web_search']"
+        },
+        "source_index": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_number": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "search_result_index": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source_type",
+        "quote"
+      ]
+    }
+  },
+  "properties": {
+    "significant_events": {
+      "type": "array",
+      "description": "Key interventions or events undertaken by the charity, sorted in descending order of significance.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_name": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "intervention_type": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "[ALLOWED VALUES: 'corporate_welfare_campaigns', 'policy_and_legal_advocacy', 'alternative_protein_and_food_tech', 'scientific_and_welfare_research', 'high_volume_spay_neuter', 'undercover_investigations_and_exposes', 'capacity_building_and_movement_growth', 'individual_rescue_and_sanctuary', 'veterinary_care_and_treatment', 'disaster_response_and_emergency_relief', 'wildlife_conservation_and_habitat_protection', 'vegan_outreach_and_dietary_change', 'humane_education_and_community_support', 'other']"
+            }
+          },
+          "intervention_type_other_description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "[ALLOWED VALUES: 'annual', 'cumulative', 'unspecified']"
+          },
+          "source": {
+            "$ref": "#/definitions/source"
+          }
+        },
+        "required": [
+          "event_name",
+          "summary",
+          "intervention_type",
+          "intervention_type_other_description",
+          "timeframe",
+          "source"
+        ]
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "operating_scope": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "description": "[ALLOWED VALUES: 'pure_animal_advocacy', 'multi_domain_operations']"
+            },
+            "source": {
+              "$ref": "#/definitions/source"
+            }
+          }
+        },
+        "explicit_unit_costs": {
+          "type": "array",
+          "description": "Array of unit costs explicitly stated by the charity, each linked to a specific intervention type.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "intervention_type": {
+                "type": "string",
+                "description": "[ALLOWED VALUES: 'corporate_welfare_campaigns', 'policy_and_legal_advocacy', 'alternative_protein_and_food_tech', 'scientific_and_welfare_research', 'high_volume_spay_neuter', 'undercover_investigations_and_exposes', 'capacity_building_and_movement_growth', 'individual_rescue_and_sanctuary', 'veterinary_care_and_treatment', 'disaster_response_and_emergency_relief', 'wildlife_conservation_and_habitat_protection', 'vegan_outreach_and_dietary_change', 'humane_education_and_community_support', 'other']"
+              },
+              "amount": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "$ref": "#/definitions/source"
+              }
+            },
+            "required": [
+              "intervention_type",
+              "amount",
+              "currency",
+              "description",
+              "source"
+            ]
+          }
+        }
+      },
+      "required": [
+        "operating_scope",
+        "explicit_unit_costs"
+      ]
+    }
+  },
+  "required": [
+    "significant_events",
+    "context"
+  ]
+}

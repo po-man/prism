@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact-Beneficiaries",
+  "description": "Schema for the demographics of a charity's primary beneficiaries, tailored for animal advocacy.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "description": "[ALLOWED VALUES: 'attached_report', 'web_search']"
+        },
+        "source_index": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "page_number": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "search_result_index": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source_type",
+        "quote"
+      ]
+    }
+  },
+  "properties": {
+    "beneficiaries": {
+      "type": "array",
+      "description": "Demographics of the primary beneficiaries, tailored for animal advocacy. MUST represent animals helped during the specific reporting year.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string"
+          },
+          "population": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "beneficiary_type": {
+            "type": "string",
+            "description": "[ALLOWED VALUES: 'companion_animals', 'farmed_animals', 'wild_animals', 'unspecified']"
+          },
+          "source": {
+            "$ref": "#/definitions/source"
+          }
+        },
+        "required": [
+          "location",
+          "population",
+          "beneficiary_type"
+        ]
+      }
+    }
+  },
+  "required": [
+    "beneficiaries"
+  ]
+}

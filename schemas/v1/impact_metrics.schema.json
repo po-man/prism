@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact-Metrics",
+  "description": "Schema for specific, quantifiable impact metrics from a charity.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": ["object", "null"],
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": { "type": "string", "enum": ["attached_report", "web_search"] },
+        "source_index": { "type": ["integer", "null"] },
+        "page_number": { "type": ["integer", "null"] },
+        "search_result_index": { "type": ["integer", "null"] },
+        "quote": { "type": ["string", "null"] },
+        "resolved_url": { "type": ["string", "null"], "format": "uri" }
+      },
+      "required": ["source_type", "quote", "resolved_url"]
+    }
+  },
+  "properties": {
+    "metrics": {
+      "type": "array",
+      "description": "A list of specific, quantifiable impact metrics, sorted in descending order of significance.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric_name": { "type": "string" },
+          "quantitative_data": {
+            "type": "object",
+            "properties": {
+              "value": { "type": ["number", "null"] },
+              "unit": { "type": "string" }
+            },
+            "required": ["value", "unit"]
+          },
+          "context_qualifier": { "type": "string" },
+          "counterfactual_baseline": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "value": { "type": ["number", "null"] }
+            },
+            "required": ["description"]
+          },
+          "evidence_quality": {
+            "type": "string",
+            "enum": ["RCT/Meta-Analysis", "Quasi-Experimental", "Pre-Post", "Anecdotal", "None"]
+          },
+          "timeframe": {
+            "type": "string",
+            "enum": ["annual", "cumulative", "unspecified"]
+          },
+          "source": { "$ref": "#/definitions/source" }
+        },
+        "required": ["metric_name", "quantitative_data", "context_qualifier", "counterfactual_baseline", "evidence_quality", "timeframe", "source"]
+      }
+    }
+  },
+  "required": ["metrics"]
+}

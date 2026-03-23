@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact-Transpar",
+  "description": "Schema for indicators of a charity's operational transparency, epistemic humility, and overall operating scope.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": ["object", "null"],
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": { "type": "string", "enum": ["attached_report", "web_search"] },
+        "source_index": { "type": ["integer", "null"] },
+        "page_number": { "type": ["integer", "null"] },
+        "search_result_index": { "type": ["integer", "null"] },
+        "quote": { "type": ["string", "null"] },
+        "resolved_url": { "type": ["string", "null"], "format": "uri" }
+      },
+      "required": ["source_type", "quote", "resolved_url"]
+    }
+  },
+  "properties": {
+    "transparency_indicators": {
+      "type": "object",
+      "description": "Indicators of operational transparency and epistemic humility.",
+      "properties": {
+        "unintended_consequences_reported": {
+          "type": "object",
+          "properties": { "value": { "type": "boolean" }, "source": { "$ref": "#/definitions/source" } }
+        },
+        "euthanasia_statistics_reported": {
+          "type": "object",
+          "properties": { "value": { "type": "boolean" }, "source": { "$ref": "#/definitions/source" } }
+        }
+      }
+    }
+  },
+  "required": ["transparency_indicators"]
+}
