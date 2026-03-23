@@ -1,5 +1,5 @@
 ## 1. Data Vault (PocketBase) Migrations
-- [ ] 1.1 Create migration script to add `gemini_cache_name` (text) and `gemini_cache_expire_time` (date) fields to the `organisations` collection.
+- [x] 1.1 Create migration script to add `gemini_cache_name` (text) and `gemini_cached` (date) fields to the `organisations` collection.
 
 ## 2. Prompt & Schema Engineering
 - [ ] 2.1 Consolidate `financials.system.md`, `impact.system.md`, and `meta.system.md` into a single `master_auditor.system.md`.
