@@ -2,7 +2,7 @@
 - [x] 1.1 Create migration script to add `gemini_cache_name` (text) and `gemini_cached` (date) fields to the `organisations` collection.
 
 ## 2. Prompt & Schema Engineering
-- [ ] 2.1 Consolidate `financials.system.md`, `impact.system.md`, and `meta.system.md` into a single `master_auditor.system.md`.
+- [x] 2.1 Consolidate `financials.system.md`, `impact.system.md` into a single `master_auditor.system.md`.
 - [ ] 2.2 Split the impact extraction schemas into smaller logical units (e.g., `impact_demographics.extract.schema.json`, `impact_interventions.extract.schema.json`, `impact_metrics.extract.schema.json`, `impact_transparency.extract.schema.json`).
 - [ ] 2.3 Create corresponding targeted user prompt templates for each split schema.
 - [ ] 2.4 Update `generate_extraction_schemas.py` to handle the generation of these split schemas from the master `impact.schema.json`.
