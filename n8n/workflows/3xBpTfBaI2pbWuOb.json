@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-03-23T06:15:31.000Z",
-  "createdAt": "2026-02-21T04:29:00.999Z",
-  "id": "7WmUvPfyMRFCI864",
-  "name": "Ensure File is on Gemini",
+  "updatedAt": "2026-03-23T07:29:51.452Z",
+  "createdAt": "2026-03-23T06:23:35.495Z",
+  "id": "3xBpTfBaI2pbWuOb",
+  "name": "Ensure Context Cache is on Gemini",
   "description": null,
   "active": true,
   "isArchived": false,
@@ -19,7 +19,7 @@
           "conditions": [
             {
               "id": "11b93258-89d4-4b38-9909-1cd9f5bc678d",
-              "leftValue": "={{ $json.gemini_file_uploaded }}",
+              "leftValue": "={{ $json.gemini_cache_name }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -28,7 +28,7 @@
             },
             {
               "id": "feb1715e-7949-4df5-b8fc-63a2aa05c0c2",
-              "leftValue": "={{ new Date($now).getTime() - new Date($json.gemini_file_uploaded || $now).getTime() > ($('Start').first().json.gemini_file_lifetime_hr || 46)*60*60*1000}}",
+              "leftValue": "={{ new Date($now).getTime() - new Date($json.gemini_cached || $now).getTime() > ($('Start').first().json.gemini_cache_lifetime_sec || 20)*1000}}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -45,58 +45,10 @@
       "typeVersion": 2.3,
       "position": [
         2384,
-        3792
+        3768
       ],
-      "id": "45f76489-72f3-48b8-ba29-c7f16885bd63",
+      "id": "1ae0acb8-f076-4086-98a3-4bdfa72f4813",
       "name": "If"
-    },
-    {
-      "parameters": {
-        "resource": "file",
-        "inputType": "binary"
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        2832,
-        3792
-      ],
-      "id": "bbe4892a-87e5-46de-a349-fe0eb5eae7d0",
-      "name": "Upload a media file",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "7EY3kWdzHSKXrfnm",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "url": "={{ $('Start').first().json.storage_api_host }}/files/source_artifacts/{{ $json.id }}/{{ $json.raw }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "file"
-            }
-          }
-        }
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        2608,
-        3792
-      ],
-      "id": "94a8b796-445f-442a-8a8c-f552a70f3b2f",
-      "name": "Storage API - Download",
-      "credentials": {
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
     },
     {
       "parameters": {
@@ -106,22 +58,35 @@
               "name": "storage_api_host"
             },
             {
-              "name": "artifact_id"
+              "name": "organisation_id"
             },
             {
-              "name": "gemini_file_lifetime_hr",
+              "name": "gemini_cache_lifetime_sec",
               "type": "number"
+            },
+            {
+              "name": "document_uris",
+              "type": "array"
+            },
+            {
+              "name": "system_prompt"
+            },
+            {
+              "name": "gemini_url"
+            },
+            {
+              "name": "gemini_model"
             }
           ]
         }
       },
-      "id": "5a92265e-88d3-440d-b756-7c2ad8bff31d",
+      "id": "fa03db8c-53ab-4621-9453-e2bfafbcd071",
       "typeVersion": 1.1,
       "name": "Start",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
         1712,
-        3792
+        3768
       ]
     },
     {
@@ -136,9 +101,9 @@
       "typeVersion": 4.3,
       "position": [
         1936,
-        3792
+        3768
       ],
-      "id": "34225c50-1a60-4c10-a9f1-10455f268a6d",
+      "id": "eaef53be-e3de-417e-9ad4-90144f129b2f",
       "name": "Auth Storage API",
       "credentials": {
         "httpCustomAuth": {
@@ -149,18 +114,27 @@
     },
     {
       "parameters": {
-        "url": "={{ $('Start').first().json.storage_api_host }}/collections/source_artifacts/records/{{ $('Start').first().json.artifact_id }}",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/organisations/records/{{ $('Start').first().json.organisation_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "gemini_cache_name,gemini_cached"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
         2160,
-        3792
+        3768
       ],
-      "id": "6042f003-3617-4738-9de4-2358898fd963",
+      "id": "a416ad4c-d1da-4639-8be7-52e639690458",
       "name": "Storage API - Get Artifact",
       "credentials": {
         "httpBearerAuth": {
@@ -172,19 +146,28 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ $('Start').first().json.storage_api_host }}/collections/source_artifacts/records/{{ $('If').first().json.id }}",
+        "url": "={{ $('Start').first().json.storage_api_host }}/collections/organisations/records/{{ $('Start').first().json.organisation_id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpBearerAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "gemini_cache_name"
+            }
+          ]
+        },
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
-              "name": "gemini_file_uri",
-              "value": "={{ $json.fileUri }}"
+              "name": "gemini_cache_name",
+              "value": "={{ $json.name }}"
             },
             {
-              "name": "gemini_file_uploaded",
-              "value": "={{ $now }}"
+              "name": "gemini_cached",
+              "value": "={{ new Date($json.updateTime) }}"
             }
           ]
         },
@@ -193,10 +176,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        3056,
-        3792
+        2832,
+        3696
       ],
-      "id": "a9412fd2-eed0-4c5f-ae72-e95c77c0a50c",
+      "id": "1893f464-14a4-463d-8f20-a3157561a5c0",
       "name": "Storage API - Update Artifact",
       "credentials": {
         "httpBearerAuth": {
@@ -211,10 +194,36 @@
       "typeVersion": 3.2,
       "position": [
         3056,
-        4048
+        3768
       ],
-      "id": "bc474514-fbf6-4dc2-9af7-5aaf853b63e9",
+      "id": "57c76c73-9763-44ef-9b81-b19a4728149b",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Start').first().json.gemini_url }}/cachedContents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"{{ $('Start').item.json.gemini_model }}\",\n  \"contents\": [\n    {\n      \"parts\": {{ JSON.stringify($('Start').first().json.document_uris.map(uri => ({\n  \"file_data\": {\n    \"mime_type\": \"application/pdf\",\n    \"file_uri\": uri\n  }\n}))) }},\n      \"role\": \"user\"\n    }\n  ],\n  \"systemInstruction\": {\n    \"parts\": [\n      {\n        \"text\": {{ JSON.stringify($('Start').first().json.system_prompt) }}\n      }\n    ]\n  },\n  \"ttl\": \"{{ $('Start').item.json.gemini_cache_lifetime_sec }}s\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2608,
+        3696
+      ],
+      "id": "0ec7c74f-4620-467b-9d9f-ecf4791f394d",
+      "name": "Cache Context",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     }
   ],
   "connections": {
@@ -222,7 +231,7 @@
       "main": [
         [
           {
-            "node": "Storage API - Download",
+            "node": "Cache Context",
             "type": "main",
             "index": 0
           }
@@ -232,28 +241,6 @@
             "node": "Merge",
             "type": "main",
             "index": 1
-          }
-        ]
-      ]
-    },
-    "Storage API - Download": {
-      "main": [
-        [
-          {
-            "node": "Upload a media file",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upload a media file": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Artifact",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -301,6 +288,17 @@
           }
         ]
       ]
+    },
+    "Cache Context": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Update Artifact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -310,17 +308,17 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "53e5078a-5f78-467f-b0e4-5392dd54a4be",
-  "activeVersionId": "53e5078a-5f78-467f-b0e4-5392dd54a4be",
-  "versionCounter": 33,
+  "versionId": "25c502bc-dda7-49a4-8be5-9ca8ad71d1e1",
+  "activeVersionId": "25c502bc-dda7-49a4-8be5-9ca8ad71d1e1",
+  "versionCounter": 44,
   "triggerCount": 0,
   "tags": [],
   "shared": [
     {
-      "updatedAt": "2026-03-23T06:15:26.452Z",
-      "createdAt": "2026-03-23T06:15:26.452Z",
+      "updatedAt": "2026-03-23T06:23:35.498Z",
+      "createdAt": "2026-03-23T06:23:35.498Z",
       "role": "workflow:owner",
-      "workflowId": "7WmUvPfyMRFCI864",
+      "workflowId": "3xBpTfBaI2pbWuOb",
       "projectId": "MLrAMrYp6Pd9fMCA",
       "project": {
         "updatedAt": "2026-03-23T06:16:28.555Z",

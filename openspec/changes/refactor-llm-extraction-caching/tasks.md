@@ -8,9 +8,9 @@
 - [x] 2.4 Update `generate_extraction_schemas.py` to handle the generation of these split schemas from the master `impact.schema.json`.
 
 ## 3. Orchestration (n8n) Refactoring
-- [ ] 3.1 Create a new sub-workflow: `Ensure Context Cache is on Gemini`. It should accept document URIs and the master system prompt, call the Gemini Cache API, and update the organisation's record with the cache metadata.
-- [ ] 3.2 Refactor the main `Charity Analysis` workflow to call the caching sub-workflow immediately after fetching the charity record and verifying document URLs.
-- [ ] 3.3 Replace the sequential Gemini generation nodes with parallel execution branches for Meta, Financials, and the split Impact queries, ensuring all point to the `cachedContent` URI.
+- [x] 3.1 Create a new sub-workflow: `Ensure Context Cache is on Gemini`. It should accept document URIs and the master system prompt, call the Gemini Cache API, and update the organisation's record with the cache metadata.
+- [x] 3.2 Refactor the main `Charity Analysis` workflow to call the caching sub-workflow immediately after fetching the charity record and verifying document URLs.
+- [x] 3.3 Replace the sequential Gemini generation nodes with parallel execution branches for Financials, and the split Impact queries, ensuring all point to the `cachedContent` URI.
 - [ ] 3.4 Implement a robust Merge step to recursively combine the split JSON outputs into the standard canonical structure before submitting to `utils_api/normalize`.
 
 ## 4. Verification & Testing

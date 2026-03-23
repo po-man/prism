@@ -1,0 +1,86 @@
+{
+  "updatedAt": "2026-03-23T08:09:54.325Z",
+  "createdAt": "2026-03-23T08:07:38.414Z",
+  "id": "J8UhBTBiMD1hu5vT",
+  "name": "Parse Content from Gemini",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "746bc941-4d55-42ce-8fd4-b11c74263912",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1264,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function parseStreamedJSON(rawStreamText) {\n  const lines = rawStreamText.split('\\n');\n  let accumulatedString = '';\n\n  for (const line of lines) {\n    const trimmedLine = line.trim();\n    \n    // Process only lines that start with \"data: \"\n    if (trimmedLine.startsWith('data: ')) {\n      // Remove \"data: \" to get the raw JSON chunk\n      const jsonChunk = trimmedLine.slice(6); \n      \n      try {\n        const parsedChunk = JSON.parse(jsonChunk);\n        \n        // Safely extract the text fragment using optional chaining\n        const textFragment = parsedChunk.candidates?.[0]?.content?.parts?.[0]?.text;\n        \n        if (textFragment) {\n          accumulatedString += textFragment;\n        }\n      } catch (error) {\n        console.warn(\"Failed to parse an individual chunk:\", error);\n      }\n    }\n  }\n\n  // Parse the fully assembled string into the final JSON object\n  try {\n    const finalData = JSON.parse(accumulatedString);\n    return finalData;\n  } catch (error) {\n    console.error(\"Failed to parse the final assembled string. The combined JSON might be invalid.\", error);\n    return null;\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  let data = parseStreamedJSON(item.json.data);\n  console.log(data)\n  item.json.parsedContentObject = data;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        5072
+      ],
+      "id": "0b3ae788-3a95-41e6-81be-9e2e486bceba",
+      "name": "Parsed Content"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "9c4dff73-1327-4ee2-a4b9-158a94a98abe",
+  "activeVersionId": "9c4dff73-1327-4ee2-a4b9-158a94a98abe",
+  "versionCounter": 6,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-03-23T08:07:38.421Z",
+      "createdAt": "2026-03-23T08:07:38.421Z",
+      "role": "workflow:owner",
+      "workflowId": "J8UhBTBiMD1hu5vT",
+      "projectId": "MLrAMrYp6Pd9fMCA",
+      "project": {
+        "updatedAt": "2026-03-23T06:16:28.555Z",
+        "createdAt": "2026-03-23T06:15:24.033Z",
+        "id": "MLrAMrYp6Pd9fMCA",
+        "name": "Po Man CHENG <poman+n8n@outlook.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "a53db5d5-be10-41da-aa5f-38590a7aa9ac"
+      }
+    }
+  ]
+}
