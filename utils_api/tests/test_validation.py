@@ -40,106 +40,114 @@ VALID_FINANCIALS = {
 }
 
 VALID_IMPACT = {
-    "beneficiaries": [{
-        "location": "Hong Kong",
-        "population": 500,
-        "beneficiary_type": "companion_animals",
-        "source": {
-            "source_type": "attached_report",
-            "source_index": 0,
-            "page_number": 15,
-            "search_result_index": None,
-            "quote": "We provided services to 500 companion animals.",
-            "resolved_url": None
-        }
-    }],
-    "metrics": [{
-        "metric_name": "Animals Rescued",
-        "quantitative_data": {
-            "value": 1000,
-            "unit": "animals"
-        },
-        "context_qualifier": "Rescued from unsafe conditions.",
-        "counterfactual_baseline": {
-            "description": "Without intervention, these animals would have remained at risk.",
-            "value": 50
-        },
-        "evidence_quality": "RCT/Meta-Analysis",
-        "timeframe": "annual",
-        "source": {
-            "source_type": "attached_report",
-            "source_index": 0,
-            "page_number": 12,
-            "search_result_index": None,
-            "quote": "The study showed a significant increase in animal welfare.",
-            "resolved_url": None
-        }
-    }],
-    "significant_events": [{
-        "event_name": "Project Shelter",
-        "summary": "Built a new shelter facility.",
-        "intervention_type": ["individual_rescue_and_sanctuary"],
-        "intervention_type_other_description": None,
-        "timeframe": "annual",
-        "source": {
-            "source_type": "web_search",
-            "source_index": None,
-            "page_number": None,
-            "search_result_index": 0,
-            "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
-            "resolved_url": None
-        }
-    }],
-    "context": {
-        "operating_scope": {
-            "value": "pure_animal_advocacy",
+    "beneficiaries": {
+        "beneficiaries": [{
+            "location": "Hong Kong",
+            "population": 500,
+            "beneficiary_type": "companion_animals",
             "source": {
                 "source_type": "attached_report",
                 "source_index": 0,
-                "page_number": 1,
+                "page_number": 15,
                 "search_result_index": None,
-                "quote": "We are an organisation dedicated to animal advocacy.",
+                "quote": "We provided services to 500 companion animals.",
                 "resolved_url": None
             }
-        },
-        "explicit_unit_costs": [
-            {
-                "intervention_type": "high_volume_spay_neuter",
-                "amount": 100,
-                "currency": "HKD",
-                "description": "Cost to spay one dog.",
+        }]
+    },
+    "metrics": {
+        "metrics": [{
+            "metric_name": "Animals Rescued",
+            "quantitative_data": {
+                "value": 1000,
+                "unit": "animals"
+            },
+            "context_qualifier": "Rescued from unsafe conditions.",
+            "counterfactual_baseline": {
+                "description": "Without intervention, these animals would have remained at risk.",
+                "value": 50
+            },
+            "evidence_quality": "RCT/Meta-Analysis",
+            "timeframe": "annual",
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 12,
+                "search_result_index": None,
+                "quote": "The study showed a significant increase in animal welfare.",
+                "resolved_url": None
+            }
+        }]
+    },
+    "interventions": {
+        "significant_events": [{
+            "event_name": "Project Shelter",
+            "summary": "Built a new shelter facility.",
+            "intervention_type": ["individual_rescue_and_sanctuary"],
+            "intervention_type_other_description": None,
+            "timeframe": "annual",
+            "source": {
+                "source_type": "web_search",
+                "source_index": None,
+                "page_number": None,
+                "search_result_index": 0,
+                "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
+                "resolved_url": None
+            }
+        }],
+        "context": {
+            "operating_scope": {
+                "value": "pure_animal_advocacy",
                 "source": {
                     "source_type": "attached_report",
                     "source_index": 0,
                     "page_number": 1,
                     "search_result_index": None,
-                    "quote": "It costs just $25 to spay one dog.",
+                    "quote": "We are an organisation dedicated to animal advocacy.",
                     "resolved_url": None
                 }
-            }
-        ],
+            },
+            "explicit_unit_costs": [
+                {
+                    "intervention_type": "high_volume_spay_neuter",
+                    "amount": 100,
+                    "currency": "HKD",
+                    "description": "Cost to spay one dog.",
+                    "source": {
+                        "source_type": "attached_report",
+                        "source_index": 0,
+                        "page_number": 1,
+                        "search_result_index": None,
+                        "quote": "It costs just $25 to spay one dog.",
+                        "resolved_url": None
+                    }
+                }
+            ],
+        }
     },
-    "transparency_indicators": {
-        "unintended_consequences_reported": {
-            "value": True,
-            "source": {
-                "source_type": "attached_report",
-                "source_index": 0,
-                "page_number": 1,
-                "search_result_index": None,
-                "quote": "We admit this was a failure.",
-                "resolved_url": None
-            }
-        },
-        "euthanasia_statistics_reported": {
-            "value": True,
-            "source": {
-                "source_type": "attached_report",
-                "source_index": 0,
-                "page_number": 1,
-                "search_result_index": None,
-                "quote": "The euthanasia is 2%",
-                "resolved_url": None
+    "transparency": {
+        "transparency_indicators": {
+            "unintended_consequences_reported": {
+                "value": True,
+                "source": {
+                    "source_type": "attached_report",
+                    "source_index": 0,
+                    "page_number": 1,
+                    "search_result_index": None,
+                    "quote": "We admit this was a failure.",
+                    "resolved_url": None
+                }
+            },
+            "euthanasia_statistics_reported": {
+                "value": True,
+                "source": {
+                    "source_type": "attached_report",
+                    "source_index": 0,
+                    "page_number": 1,
+                    "search_result_index": None,
+                    "quote": "The euthanasia is 2%",
+                    "resolved_url": None
+                }
             }
         }
     }
@@ -149,36 +157,48 @@ VALID_IMPACT = {
 # --- Test Data for Normalization ---
 
 ABBREVIATED_IMPACT_PAYLOAD = {
-    "beneficiaries": [{
-        "location": "Test Location",
-        "population": 100,
-        "beneficiary_type": "farmed_animals"
-    }],
-    "significant_events": [{
-        "event_name": "A special event",
-        "intervention_type": ["other"],
-        "other_desc": "A custom intervention type."
-    }],
-    "transparency_indicators": {
-        "unintended_rep": {"value": True},
-        "euthanasia_rep": {"value": False}
+    "beneficiaries": {
+        "beneficiaries": [{
+            "location": "Test Location",
+            "population": 100,
+            "beneficiary_type": "farmed_animals"
+        }]
+    },
+    "interventions": {
+        "significant_events": [{
+            "event_name": "A special event",
+            "intervention_type": ["other"],
+            "other_desc": "A custom intervention type."
+        }]
+    },
+    "transparency": {
+        "transparency_indicators": {
+            "unintended_rep": {"value": True},
+            "euthanasia_rep": {"value": False}
+        }
     }
 }
 
 CANONICAL_IMPACT_PAYLOAD = {
-    "beneficiaries": [{
-        "location": "Test Location",
-        "population": 100,
-        "beneficiary_type": "farmed_animals"
-    }],
-    "significant_events": [{
-        "event_name": "A special event",
-        "intervention_type": ["other"],
-        "intervention_type_other_description": "A custom intervention type."
-    }],
-    "transparency_indicators": {
-        "unintended_consequences_reported": {"value": True},
-        "euthanasia_statistics_reported": {"value": False}
+    "beneficiaries": {
+        "beneficiaries": [{
+            "location": "Test Location",
+            "population": 100,
+            "beneficiary_type": "farmed_animals"
+        }]
+    },
+    "interventions": {
+        "significant_events": [{
+            "event_name": "A special event",
+            "intervention_type": ["other"],
+            "intervention_type_other_description": "A custom intervention type."
+        }]
+    },
+    "transparency": {
+        "transparency_indicators": {
+            "unintended_consequences_reported": {"value": True},
+            "euthanasia_statistics_reported": {"value": False}
+        }
     }
 }
 
@@ -223,7 +243,10 @@ def test_normalize_and_validate_reverses_keys(mock_load_mapping, client):
 
 @pytest.mark.parametrize("schema_name, valid_data", [
     ("v1/financials.schema.json", VALID_FINANCIALS),
-    ("v1/impact.schema.json", VALID_IMPACT),
+    ("v1/impact_beneficiaries.schema.json", VALID_IMPACT["beneficiaries"]),
+    ("v1/impact_metrics.schema.json", VALID_IMPACT["metrics"]),
+    ("v1/impact_interventions.schema.json", VALID_IMPACT["interventions"]),
+    ("v1/impact_transparency.schema.json", VALID_IMPACT["transparency"]),
 ])
 def test_validate_valid_data(client, schema_name, valid_data):
     """Tests that valid data passes validation for each schema."""
@@ -241,8 +264,8 @@ def test_validate_valid_data(client, schema_name, valid_data):
         if k != "income"
     }, "'income' is a required property"),
     # Impact: wrong type for a nested field
-    ("v1/impact.schema.json", {
-        **VALID_IMPACT,
+    ("v1/impact_beneficiaries.schema.json", {
+        **VALID_IMPACT["beneficiaries"],
         "beneficiaries": "not-an-array"
     }, "is not of type 'array'"),
 ])
