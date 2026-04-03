@@ -23,10 +23,11 @@ def check_negative_impact_disclosure(record: OrganisationRecord) -> CheckItem:
     disclosure_indicator = None
     if (
         record.impact
-        and record.impact.transparency_indicators
-        and record.impact.transparency_indicators.unintended_consequences_reported
+        and record.impact.transparency
+        and record.impact.transparency.transparency_indicators
+        and record.impact.transparency.transparency_indicators.unintended_consequences_reported
     ):
-        disclosure_indicator = record.impact.transparency_indicators.unintended_consequences_reported
+        disclosure_indicator = record.impact.transparency.transparency_indicators.unintended_consequences_reported
 
     if disclosure_indicator and disclosure_indicator.value:
         item.status = "bonus"
@@ -62,10 +63,10 @@ def check_live_release_transparency(record: OrganisationRecord) -> CheckItem:
 
     applicable_interventions = {"individual_rescue_and_sanctuary", "veterinary_care_and_treatment"}
     is_applicable = False
-    if record.impact and record.impact.significant_events:
+    if record.impact and record.impact.interventions and record.impact.interventions.significant_events:
         is_applicable = any(
             intervention.value in applicable_interventions
-            for event in record.impact.significant_events
+            for event in record.impact.interventions.significant_events
             for intervention in event.intervention_type
         )
 
@@ -77,10 +78,11 @@ def check_live_release_transparency(record: OrganisationRecord) -> CheckItem:
     disclosure_indicator = None
     if (
         record.impact
-        and record.impact.transparency_indicators
-        and record.impact.transparency_indicators.euthanasia_statistics_reported
+        and record.impact.transparency
+        and record.impact.transparency.transparency_indicators
+        and record.impact.transparency.transparency_indicators.euthanasia_statistics_reported
     ):
-        disclosure_indicator = record.impact.transparency_indicators.euthanasia_statistics_reported
+        disclosure_indicator = record.impact.transparency.transparency_indicators.euthanasia_statistics_reported
 
     if disclosure_indicator and disclosure_indicator.value:
         item.status = "bonus"

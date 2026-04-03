@@ -86,7 +86,7 @@
           "description": "Human-readable name for the metric (e.g., 'Cost Per Outcome')."
         },
         "value": {
-          "type": ["number", "string", "null"],
+          "type": ["number", "string", "null", "array"],
           "description": "The calculated value of the metric."
         },
         "confidence_tier": {

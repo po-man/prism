@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 from app.schemas.meta import Metadata
-from app.schemas.impact import Impact, Metric
+from app.schemas.impact import Impact
 from app.schemas.financials import Financials
 
 

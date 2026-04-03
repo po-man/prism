@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for schema in {analytics,meta,impact,financials,search}; do
+for schema in {analytics,meta,impact_beneficiaries,impact_interventions,impact_metrics,impact_transparency,financials,search}; do
     datamodel-codegen \
         --input schemas/v1/$schema.schema.json \
         --input-file-type jsonschema \
