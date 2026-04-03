@@ -338,6 +338,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
                     ],
                     "population": population,
                     "cost_usd": round(cost_usd, 2),
+                    "source": breakdown.amount.source.model_dump(exclude_unset=True) if breakdown.amount.source else None,
                 }
             )
 

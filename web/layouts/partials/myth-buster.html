@@ -106,8 +106,8 @@
           <ul class="mt-2 space-y-2">
             {{ range $cost_value }}
               <li class="border border-gray-200 rounded px-3 py-2 flex justify-between items-center">
-                {{ if .intervention_type }}
-                  <div>
+                <div> {{/* All content on the left side of the list item should be wrapped in a single div for proper flex alignment. */}}
+                  {{ if .intervention_type }}
                     <span class="font-semibold">{{ .intervention_type | humanize | title }}</span>:
                     <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
                     {{ if and .amount .currency }}

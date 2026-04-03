@@ -176,7 +176,11 @@
                     {{ end }}
                     <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">
                       <span>${{ printf "%.2f" $display_cost }} ({{ len $cost_val }} items)</span>
-                      {{- partial "icons/checkmark.svg" . | safeHTML -}}
+                      {{ if eq $cost_metric.confidence_tier "HIGH" }}
+                        {{- partial "icons/checkmark.svg" . | safeHTML -}}
+                      {{ else }}
+                        {{- partial "icons/calculator.svg" . | safeHTML -}}
+                      {{ end }}
                     </div>
                   {{ else if eq $cost_metric.confidence_tier "HIGH" }}
                     <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">

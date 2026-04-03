@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-03T13:39:21.882Z",
+  "updatedAt": "2026-04-03T17:54:23.461Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -604,8 +604,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1328,
-        4976
+        -1744,
+        4944
       ],
       "id": "28387461-e581-4a38-a6e0-1d4757b0c40b",
       "name": "Storage API - Get Charity",
@@ -2344,8 +2344,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -1008,
-        4976
+        -1072,
+        5008
       ],
       "id": "65c2394c-07b4-4345-b10a-573167adaa46",
       "name": "Call 'Ensure Context Cache is on Gemini'"
@@ -2396,8 +2396,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        -1168,
-        4976
+        -1296,
+        5008
       ],
       "id": "ee522d37-03f7-48d7-ac09-88cb4f3bd08a",
       "name": "Call 'Prompt Injection' - Master"
@@ -2421,8 +2421,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -816,
-        4976
+        -848,
+        4944
       ],
       "id": "5786cfb8-66aa-4adb-b4a8-e83810755d43",
       "name": "Storage API - Get Charity2",
@@ -3358,6 +3358,110 @@
       ],
       "id": "62877729-bd54-4f43-865f-5e1cd5631407",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d89bb7d9-6f3a-4e00-a103-b49baf8c178b",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f01593b2-1582-4f1f-a3ef-c3be8efd6fea",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.beneficiaries?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "375d00ff-d26c-4026-af98-0fac8c683979",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.interventions?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "645f4b35-5436-4798-98b0-662a1538f0c7",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.metrics?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "822f79ae-ed94-48bd-b8c6-3667a2810cde",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.transparency?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "feb5576e-b533-4693-ae59-e04bfa00ae1d",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.financials }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b425e4cf-7536-44df-8019-e68e8db378b9",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.financials?.schema?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "eda34bd4-85c4-4834-9c6a-49c42e066794",
+              "leftValue": "={{ $('Vars - Input Data').item.json.force_rerun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1520,
+        4944
+      ],
+      "id": "d38179e7-5c66-4e0a-80ba-bc501562c217",
+      "name": "Exists? (Financials+Impact)"
     }
   ],
   "connections": {
@@ -3608,7 +3712,7 @@
       "main": [
         [
           {
-            "node": "Call 'Prompt Injection' - Master",
+            "node": "Exists? (Financials+Impact)",
             "type": "main",
             "index": 0
           }
@@ -4681,6 +4785,24 @@
           }
         ]
       ]
+    },
+    "Exists? (Financials+Impact)": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'Prompt Injection' - Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4692,9 +4814,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "9a570968-71b2-4212-8ac9-0d5fb8eccfe2",
-  "activeVersionId": "503bb7bf-0dd4-45d4-bc58-1d80e8f30f56",
-  "versionCounter": 459,
+  "versionId": "a87faea8-20b6-4540-9f5f-298a73c9ea61",
+  "activeVersionId": "9a570968-71b2-4212-8ac9-0d5fb8eccfe2",
+  "versionCounter": 462,
   "triggerCount": 1,
   "tags": [],
   "shared": [
