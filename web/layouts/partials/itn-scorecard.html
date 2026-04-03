@@ -19,7 +19,7 @@
 {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0 "unspecified" 0.0) }}
 {{ $s.Set "presentTypes" (dict) }}
 
-{{ range $i, $item := $impact.beneficiaries }}
+{{ range $i, $item := $impact.beneficiaries.beneficiaries }}
   {{ $pop := .population | default 0 }}
   {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
   {{ $currentPopMap := $s.Get "popMap" }}
@@ -74,7 +74,7 @@
       {{ if gt $totalPop 0 }}
         <div class="mt-2 pt-2 border-t">
           <div class="space-y-1">
-            {{ $sortedBeneficiaries := sort $impact.beneficiaries "population" "desc" }}
+            {{ $sortedBeneficiaries := sort $impact.beneficiaries.beneficiaries "population" "desc" }}
             {{ $firstThree := first 3 $sortedBeneficiaries }}
             {{ $rest := after 3 $sortedBeneficiaries }}
 

@@ -72,7 +72,7 @@
               {{/* Task 3.2: Target Species (Neglectedness) Column */}}
                 {{ $s.Set "totalPop" 0.0 }}
                 {{ $s.Set "popMap" (dict "companion_animals" 0.0 "farmed_animals" 0.0 "wild_animals" 0.0 "unspecified" 0.0) }}
-                {{ range $org.impact.data.beneficiaries }}
+                {{ range $org.impact.data.beneficiaries.beneficiaries }}
                   {{ $pop := .population | default 0 }}
                   {{ $s.Set "totalPop" (add ($s.Get "totalPop") $pop) }}
                   {{ $currentPopMap := $s.Get "popMap" }}{{/* Ensure map is initialized with all keys */}}
@@ -118,7 +118,7 @@
               </td>
               <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Total Beneficiaries (Importance)">
                 {{ $total_beneficiaries := 0 }}
-                {{ range $org.impact.data.beneficiaries }}
+                {{ range $org.impact.data.beneficiaries.beneficiaries }}
                   {{ $total_beneficiaries = add $total_beneficiaries (.population | default 0) }}
                 {{ end }}
                 {{ if gt $total_beneficiaries 0 }}{{ lang.FormatNumber 0 $total_beneficiaries }}{{ else }}N/A{{ end }}
@@ -176,7 +176,7 @@
                     {{ end }}
                     <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">
                       <span>${{ printf "%.2f" $display_cost }} ({{ len $cost_val }} items)</span>
-                      {{- partial "icons/calculator.svg" . | safeHTML -}}
+                      {{- partial "icons/checkmark.svg" . | safeHTML -}}
                     </div>
                   {{ else if eq $cost_metric.confidence_tier "HIGH" }}
                     <div class="flex items-center justify-end space-x-1.5" title="{{ $cost_metric.confidence_note }}">

@@ -200,6 +200,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
                 "amount": cost.amount,
                 "currency": cost.currency,
                 "cost_usd": round(usd, 2),
+                "source": cost.source.model_dump(exclude_unset=True) if cost.source else None,
             }
         )
 

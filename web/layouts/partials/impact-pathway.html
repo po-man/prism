@@ -12,8 +12,8 @@
 
 {{/* Find the first available counterfactual description for the callout */}}
 {{ $counterfactual := "" }}
-{{ range $impact.metrics }}
-  {{ if and (not $counterfactual) .counterfactual_baseline.value }}
+{{ range $impact.metrics.metrics }}
+  {{ if and (not $counterfactual) .counterfactual_baseline .counterfactual_baseline.value }}
     {{ $counterfactual = .counterfactual_baseline.description }}
   {{ end }}
 {{ end }}
@@ -63,7 +63,7 @@
         </div>
         <div class="p-4 pt-0">
             <div class="space-y-3 border-t pt-4">
-              {{ $events := $impact.significant_events }}
+              {{ $events := $impact.interventions.significant_events | default slice }}
               {{ $firstThreeEvents := first 3 $events }}
               {{ $restEvents := after 3 $events }}
 
@@ -98,7 +98,7 @@
         </div>
         <div class="p-4 pt-0">
           <div class="space-y-3 border-t pt-4">
-            {{ $metrics := $impact.metrics }}
+            {{ $metrics := $impact.metrics.metrics }}
             {{ $firstThreeMetrics := first 3 $metrics }}
             {{ $restMetrics := after 3 $metrics }}
 
