@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-23T08:42:50.167Z",
+  "updatedAt": "2026-04-03T13:39:21.882Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -474,7 +474,37 @@
             },
             {
               "id": "f01593b2-1582-4f1f-a3ef-c3be8efd6fea",
-              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.valid }}",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.beneficiaries?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "375d00ff-d26c-4026-af98-0fac8c683979",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.interventions?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "645f4b35-5436-4798-98b0-662a1538f0c7",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.metrics?.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "822f79ae-ed94-48bd-b8c6-3667a2810cde",
+              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact?.schema?.transparency?.valid }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -530,7 +560,7 @@
           "parameters": [
             {
               "name": "impact",
-              "value": "={{\n  {\n    data: {\n      \"beneficiaries\": $('Resolve Provenance (Impact - Beneficiaries)').item.json.data,\n      \"intervetions\": $('Resolve Provenance (Impact - Interventions)').first().json.data,\n      \"metrics\": $('Resolve Provenance (Impact - Metrics)').first().json.data,\n      \"transparency\": $('Resolve Provenance (Impact - Transparency)').first().json.data\n    },\n    schema: {\n      \"beneficiaries\": $('Schema Validation (Impact - Beneficiaries)').first().json,\n      \"intervetions\": $('Schema Validation (Impact - Interventions)').first().json,\n      \"metrics\": $('Schema Validation (Impact - Metrics)').first().json,\n      \"transparency\": $('Schema Validation (Impact - Transparency)').first().json\n    }\n  }\n}}"
+              "value": "={{\n  {\n    data: {\n      \"beneficiaries\": $('Resolve Provenance (Impact - Beneficiaries)').item.json.data,\n      \"interventions\": $('Resolve Provenance (Impact - Interventions)').first().json.data,\n      \"metrics\": $('Resolve Provenance (Impact - Metrics)').first().json.data,\n      \"transparency\": $('Resolve Provenance (Impact - Transparency)').first().json.data\n    },\n    schema: {\n      \"beneficiaries\": $('Schema Validation (Impact - Beneficiaries)').first().json,\n      \"interventions\": $('Schema Validation (Impact - Interventions)').first().json,\n      \"metrics\": $('Schema Validation (Impact - Metrics)').first().json,\n      \"transparency\": $('Schema Validation (Impact - Transparency)').first().json\n    }\n  }\n}}"
             }
           ]
         },
@@ -1438,7 +1468,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').first().json.injected_prompts[1]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Financials)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Financials').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Financials)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -4662,9 +4692,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "4b439e5a-2c60-4c36-ae98-25406ca9d2ab",
-  "activeVersionId": "0b3c34dc-a616-402d-bca9-7c19f7dfc387",
-  "versionCounter": 454,
+  "versionId": "9a570968-71b2-4212-8ac9-0d5fb8eccfe2",
+  "activeVersionId": "503bb7bf-0dd4-45d4-bc58-1d80e8f30f56",
+  "versionCounter": 459,
   "triggerCount": 1,
   "tags": [],
   "shared": [
