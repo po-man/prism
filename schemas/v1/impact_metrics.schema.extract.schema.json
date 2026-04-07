@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Impact-Metrics",
+  "description": "Schema for specific, quantifiable impact metrics from a charity.",
+  "type": "object",
+  "definitions": {
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "A unified, programmatic data structure for referencing the source of an extracted data point.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "description": "The strict category of the source document. [ALLOWED VALUES: 'attached_report', 'web_search']"
+        },
+        "source_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For attached PDF document sources, the 0-based index of the attached document (among all attached documents) where the data was found."
+        },
+        "page_number": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For attached PDF document sources, the 1-based absolute index of the page (in that attached document) where the data was found."
+        },
+        "search_result_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "For web_search sources, the 0-based index of the search result snippet used."
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation."
+        }
+      },
+      "required": [
+        "source_type",
+        "quote"
+      ]
+    }
+  },
+  "properties": {
+    "metrics": {
+      "type": "array",
+      "description": "A list of specific, quantifiable impact metrics, sorted in descending order of significance.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metric_name": {
+            "type": "string"
+          },
+          "quantitative_data": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "unit"
+            ]
+          },
+          "context_qualifier": {
+            "type": "string"
+          },
+          "counterfactual_baseline": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "value": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "description"
+            ]
+          },
+          "evidence_quality": {
+            "type": "string",
+            "description": "[ALLOWED VALUES: 'RCT/Meta-Analysis', 'Quasi-Experimental', 'Pre-Post', 'Anecdotal', 'None']"
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "[ALLOWED VALUES: 'annual', 'cumulative', 'unspecified']"
+          },
+          "source": {
+            "$ref": "#/definitions/source"
+          }
+        },
+        "required": [
+          "metric_name",
+          "quantitative_data",
+          "context_qualifier",
+          "counterfactual_baseline",
+          "evidence_quality",
+          "timeframe",
+          "source"
+        ]
+      }
+    }
+  },
+  "required": [
+    "metrics"
+  ]
+}

@@ -1,5 +1,6 @@
 import json
-from app.schemas.organisation import Metric, OrganisationRecord
+from app.schemas.organisation import OrganisationRecord
+from app.schemas.impact_metrics import Metric
 from app.schemas.analytics import CheckItem, Details, CalculatedMetric
 from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
@@ -26,15 +27,15 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> CheckItem:
         return base_item
 
     # Now we know record.impact exists. Check for metrics.
-    if not record.impact.metrics:
+    if not record.impact.metrics or not record.impact.metrics.metrics:
         # This case is different from no evidence *specified*. It means there are no impact claims at all.
         base_item.status = "warning"
         base_item.details.calculation = "No impact metrics were provided to assess evidence quality."
         return base_item
 
-    evidence_levels = [metric.evidence_quality.value for metric in record.impact.metrics if metric.evidence_quality]
+    evidence_levels = [metric.evidence_quality.value for metric in record.impact.metrics.metrics if metric.evidence_quality]
 
-    if not any(evidence_levels):
+    if not any(evidence_levels) or not record.impact.metrics.metrics:
         base_item.status = "warning"
         base_item.details.calculation = "No evidence quality was specified in any impact claim."
         return base_item
@@ -42,8 +43,8 @@ def check_monitoring_and_evaluation(record: OrganisationRecord) -> CheckItem:
     highest_evidence = "None"
     highest_evidence_metric: Metric | None = None
 
-    for level in EVIDENCE_HIERARCHY: # Find the highest evidence level present
-        for metric in record.impact.metrics:
+    for level in EVIDENCE_HIERARCHY:  # Find the highest evidence level present
+        for metric in record.impact.metrics.metrics:
             if metric.evidence_quality.value == level:
                 highest_evidence = level
                 highest_evidence_metric = metric
@@ -78,13 +79,13 @@ def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
         id="check_intervention_tractability", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.significant_events:
+    if not record.impact or not record.impact.interventions or not record.impact.interventions.significant_events:
         base_item.details.calculation = "No significant events were reported to assess tractability."
         return base_item
 
     # 1. Filter for verified events and map them to tiers
     verified_interventions = []
-    for event in record.impact.significant_events:
+    for event in record.impact.interventions.significant_events:
         if event.source and event.source.quote:
             for intervention_type in event.intervention_type:
                 if intervention_type.value in INTERVENTION_LEVERAGE_MAP:
@@ -143,11 +144,11 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
         id="check_counterfactual_baseline", status="fail", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.metrics:
+    if not record.impact or not record.impact.metrics or not record.impact.metrics.metrics:
         base_item.details.calculation = "Impact data with metrics is missing."
         return base_item
 
-    for metric in record.impact.metrics:
+    for metric in record.impact.metrics.metrics:
         if metric.counterfactual_baseline and metric.counterfactual_baseline.description and metric.counterfactual_baseline.value is not None:
             base_item.status = "pass"
             base_item.details.calculation = "A quantified counterfactual baseline was provided."
@@ -167,11 +168,11 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
     3) LOW: Abort for multi-domain organisations or when attribution is not possible.
     """
 
-    if not record.impact or not record.impact.context:
+    if not record.impact or not record.impact.interventions or not record.impact.interventions.context:
         return None
 
-    context = record.impact.context
-    explicit_costs = context.explicit_unit_costs or []
+    context = record.impact.interventions.context
+    explicit_costs = context.explicit_unit_costs if context else []
     operating_scope = None
     if context.operating_scope and context.operating_scope.value:
         operating_scope = context.operating_scope.value.value
@@ -199,6 +200,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
                 "amount": cost.amount,
                 "currency": cost.currency,
                 "cost_usd": round(usd, 2),
+                "source": cost.source.model_dump(exclude_unset=True) if cost.source else None,
             }
         )
 
@@ -251,7 +253,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
             or not record.financials.expenditure.program_services
             or record.financials.expenditure.program_services.value is None
         )
-        missing_beneficiaries = not record.impact.beneficiaries
+        missing_beneficiaries = not record.impact.beneficiaries or not record.impact.beneficiaries.beneficiaries
         if missing_spend or missing_beneficiaries:
             return None
 
@@ -264,8 +266,8 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
     if (
         has_breakdowns
-        and record.impact.significant_events
-        and record.impact.beneficiaries
+        and record.impact.interventions and record.impact.interventions.significant_events
+        and record.impact.beneficiaries and record.impact.beneficiaries.beneficiaries
     ):
         # Map intervention types to beneficiary types for population allocation
         intervention_to_beneficiary = {
@@ -293,7 +295,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
             }
             return sum(
                 b.population
-                for b in record.impact.beneficiaries
+                for b in record.impact.beneficiaries.beneficiaries
                 if b.beneficiary_type.value in target_types and b.population
             )
 
@@ -304,7 +306,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
             name_lower = breakdown.programme_name.lower()
             matched_event = None
-            for event in record.impact.significant_events:
+            for event in record.impact.interventions.significant_events:
                 if not event or not event.event_name:
                     continue
                 if (
@@ -336,6 +338,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
                     ],
                     "population": population,
                     "cost_usd": round(cost_usd, 2),
+                    "source": breakdown.amount.source.model_dump(exclude_unset=True) if breakdown.amount.source else None,
                 }
             )
 
@@ -364,6 +367,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
         and record.financials.expenditure
         and record.financials.expenditure.program_services
         and record.impact.beneficiaries
+        and record.impact.beneficiaries.beneficiaries
         and record.financials.expenditure.program_services.value is not None
     ):
         program_spend = record.financials.expenditure.program_services.value
@@ -374,7 +378,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
         )
 
         total_population = sum(
-            b.population for b in record.impact.beneficiaries if b.population
+            b.population for b in record.impact.beneficiaries.beneficiaries if b.population
         )
         if total_population <= 0:
             return None
@@ -492,16 +496,16 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
         id="check_cause_area_neglectedness", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.beneficiaries:
+    if not record.impact or not record.impact.beneficiaries or not record.impact.beneficiaries.beneficiaries:
         base_item.status = "warning"
         base_item.details.calculation = "Impact data with beneficiary types is missing."
         return base_item
 
     populations = {
-        "farmed_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "farmed_animals" and b.population),
-        "wild_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "wild_animals" and b.population),
-        "companion_animals": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "companion_animals" and b.population),
-        "unspecified": sum(b.population for b in record.impact.beneficiaries if b.beneficiary_type.value == "unspecified" and b.population),
+        "farmed_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "farmed_animals" and b.population),
+        "wild_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "wild_animals" and b.population),
+        "companion_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "companion_animals" and b.population),
+        "unspecified": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "unspecified" and b.population),
     }
     total_population = sum(populations.values())
 
@@ -525,7 +529,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
         return base_item
 
     # Fallback to presence-based logic if no population data
-    beneficiary_types = {b.beneficiary_type.value for b in record.impact.beneficiaries if b.beneficiary_type}
+    beneficiary_types = {b.beneficiary_type.value for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type}
     base_item.details.formula = "Evaluation of beneficiary_type presence against EA principles for animal advocacy"
 
     high_neglectedness = {"farmed_animals", "wild_animals"}

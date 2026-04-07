@@ -105,13 +105,14 @@
         {{ if $is_list_value }}
           <ul class="mt-2 space-y-2">
             {{ range $cost_value }}
-              <li class="border border-gray-200 rounded px-3 py-2">
-                {{ if .intervention_type }}
-                  <span class="font-semibold">{{ .intervention_type | humanize | title }}</span>:
-                  <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
-                  {{ if and .amount .currency }}
-                    <span class="text-gray-500">(based on {{ printf "%.2f" .amount }} {{ .currency }})</span>
-                  {{ end }}
+              <li class="border border-gray-200 rounded px-3 py-2 flex justify-between items-center">
+                <div> {{/* All content on the left side of the list item should be wrapped in a single div for proper flex alignment. */}}
+                  {{ if .intervention_type }}
+                    <span class="font-semibold">{{ .intervention_type | humanize | title }}</span>:
+                    <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
+                    {{ if and .amount .currency }}
+                      <span class="text-gray-500">(based on {{ printf "%.2f" .amount }} {{ .currency }})</span>
+                    {{ end }}
                 {{ else if .programme_name }}
                   <span class="font-semibold">{{ .programme_name }}</span>:
                   <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
@@ -120,6 +121,8 @@
                 {{ else }}
                   <span class="font-mono">${{ printf "%.2f" .cost_usd }}</span> USD per outcome
                 {{ end }}
+                </div>
+                {{ with .source }}{{ partial "provenance-badge.html" . }}{{ end }}
               </li>
             {{ end }}
           </ul>

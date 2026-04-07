@@ -17,7 +17,7 @@ def test_check_negative_impact_disclosure(client: TestClient):
     """
     # 1. Bonus: Disclosure is True
     record_bonus = deepcopy(VALID_BASE_RECORD)
-    record_bonus["impact"]["transparency_indicators"]["unintended_consequences_reported"] = {"value": True, "source": { "source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We admit this was a failure.", "resolved_url": None }}
+    record_bonus["impact"]["transparency"]["transparency_indicators"]["unintended_consequences_reported"] = {"value": True, "source": { "source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We admit this was a failure.", "resolved_url": None }}
     response = client.post("/audit", json=record_bonus)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_negative_impact_disclosure")
@@ -28,7 +28,7 @@ def test_check_negative_impact_disclosure(client: TestClient):
 
     # 2. Not Disclosed: Disclosure is False
     record_not_disclosed = deepcopy(VALID_BASE_RECORD)
-    record_not_disclosed["impact"]["transparency_indicators"]["unintended_consequences_reported"]["value"] = False
+    record_not_disclosed["impact"]["transparency"]["transparency_indicators"]["unintended_consequences_reported"]["value"] = False
     response = client.post("/audit", json=record_not_disclosed)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_negative_impact_disclosure")
@@ -38,7 +38,7 @@ def test_check_negative_impact_disclosure(client: TestClient):
 
     # 3. Not Disclosed: Data is missing
     record_missing = deepcopy(VALID_BASE_RECORD)
-    del record_missing["impact"]["transparency_indicators"]["unintended_consequences_reported"]
+    del record_missing["impact"]["transparency"]["transparency_indicators"]["unintended_consequences_reported"]
     response = client.post("/audit", json=record_missing)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_negative_impact_disclosure")
@@ -55,7 +55,7 @@ def test_check_live_release_transparency(client: TestClient):
     """
     # 1. N/A: Org does not engage in applicable interventions
     record_na = deepcopy(VALID_BASE_RECORD)
-    record_na["impact"]["significant_events"][0]["intervention_type"] = ["corporate_welfare_campaigns"]
+    record_na["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["corporate_welfare_campaigns"]
     response = client.post("/audit", json=record_na)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")
@@ -76,7 +76,7 @@ def test_check_live_release_transparency(client: TestClient):
 
     # 3. Not Disclosed: Applicable org does NOT disclose euthanasia stats
     record_not_disclosed = deepcopy(VALID_BASE_RECORD)
-    record_not_disclosed["impact"]["transparency_indicators"]["euthanasia_statistics_reported"]["value"] = False
+    record_not_disclosed["impact"]["transparency"]["transparency_indicators"]["euthanasia_statistics_reported"]["value"] = False
     response = client.post("/audit", json=record_not_disclosed)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")
@@ -86,8 +86,8 @@ def test_check_live_release_transparency(client: TestClient):
 
     # 4. Bonus: Applicable via 'veterinary_care_and_treatment'
     record_bonus_vet = deepcopy(VALID_BASE_RECORD)
-    record_bonus_vet["impact"]["significant_events"][0]["intervention_type"] = ["veterinary_care_and_treatment"]
-    record_bonus_vet["impact"]["transparency_indicators"]["euthanasia_statistics_reported"]["value"] = True
+    record_bonus_vet["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["veterinary_care_and_treatment"]
+    record_bonus_vet["impact"]["transparency"]["transparency_indicators"]["euthanasia_statistics_reported"]["value"] = True
     response = client.post("/audit", json=record_bonus_vet)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")
@@ -96,7 +96,7 @@ def test_check_live_release_transparency(client: TestClient):
 
     # 5. N/A: No significant events at all
     record_no_events = deepcopy(VALID_BASE_RECORD)
-    record_no_events["impact"]["significant_events"] = []
+    record_no_events["impact"]["interventions"]["significant_events"] = []
     response = client.post("/audit", json=record_no_events)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")

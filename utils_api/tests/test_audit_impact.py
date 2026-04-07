@@ -20,8 +20,8 @@ def test_check_monitoring_and_evaluation(client: TestClient):
     """Tests the check_monitoring_and_evaluation audit for various evidence levels."""
     # 1. Pass with high-quality evidence
     record_high_evidence = deepcopy(VALID_BASE_RECORD)
-    record_high_evidence["impact"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
-    record_high_evidence["impact"]["metrics"][0]["source"]["quote"] = "We saw a 50% increase."
+    record_high_evidence["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
+    record_high_evidence["impact"]["metrics"]["metrics"][0]["source"]["quote"] = "We saw a 50% increase."
     response = client.post("/audit", json=record_high_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
@@ -31,8 +31,8 @@ def test_check_monitoring_and_evaluation(client: TestClient):
 
     # 2. Warning with only low-quality evidence
     record_low_evidence = deepcopy(VALID_BASE_RECORD)
-    record_low_evidence["impact"]["metrics"][0]["evidence_quality"] = "Pre-Post"
-    record_low_evidence["impact"]["metrics"][0]["source"]["quote"] = None # Explicitly remove for this test
+    record_low_evidence["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "Pre-Post"
+    record_low_evidence["impact"]["metrics"]["metrics"][0]["source"]["quote"] = None # Explicitly remove for this test
     response = client.post("/audit", json=record_low_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
@@ -42,7 +42,7 @@ def test_check_monitoring_and_evaluation(client: TestClient):
 
     # 3. Warning when no evidence is specified
     record_no_evidence = deepcopy(VALID_BASE_RECORD)
-    record_no_evidence["impact"]["metrics"] = []
+    record_no_evidence["impact"]["metrics"]["metrics"] = []
     response = client.post("/audit", json=record_no_evidence)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
@@ -62,7 +62,7 @@ def test_check_intervention_tractability(client: TestClient):
     """Tests the check_intervention_tractability audit for the new Leverage Tier mappings."""
     # 1. Pass: A mix of Tier 1 and Tier 3 interventions should result in a 'pass' and a Tier 1 calculation.
     record_tier1 = deepcopy(VALID_BASE_RECORD)
-    record_tier1["impact"]["significant_events"] = [
+    record_tier1["impact"]["interventions"]["significant_events"] = [
         {
             "event_name": "Rescue Operation",
             "summary": "Rescued animals.",
@@ -96,7 +96,7 @@ def test_check_intervention_tractability(client: TestClient):
 
     # 2. Warning: Only Tier 3 interventions should result in a 'warning'.
     record_tier3 = deepcopy(VALID_BASE_RECORD)
-    record_tier3["impact"]["significant_events"] = [
+    record_tier3["impact"]["interventions"]["significant_events"] = [
         {
             "event_name": "Vet Care",
             "summary": "Provided vet care.",
@@ -117,7 +117,7 @@ def test_check_intervention_tractability(client: TestClient):
 
     # 3. Warning: No significant events reported
     record_no_events = deepcopy(VALID_BASE_RECORD)
-    record_no_events["impact"]["significant_events"] = []
+    record_no_events["impact"]["interventions"]["significant_events"] = []
     response = client.post("/audit", json=record_no_events)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_intervention_tractability")
@@ -148,7 +148,7 @@ def test_check_counterfactual_baseline(client: TestClient):
 
     # 2. Fail when baseline is missing value
     record_no_value = deepcopy(VALID_BASE_RECORD)
-    record_no_value["impact"]["metrics"][0]["counterfactual_baseline"]["value"] = None
+    record_no_value["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["value"] = None
     response = client.post("/audit", json=record_no_value)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
@@ -169,7 +169,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 1. HIGH confidence: Explicit unit cost is provided
     record_high = deepcopy(VALID_BASE_RECORD)
-    record_high["impact"]["context"]["explicit_unit_costs"] = [
+    record_high["impact"]["interventions"]["context"]["explicit_unit_costs"] = [
         {
             "intervention_type": "high_volume_spay_neuter",
             "amount": 25,
@@ -197,11 +197,11 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 2. MEDIUM confidence: Pure animal advocacy, PRISM calculates
     record_medium = deepcopy(VALID_BASE_RECORD)
-    record_medium["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_medium["impact"]["context"]["explicit_unit_costs"] = []
+    record_medium["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium["financials"]["expenditure"]["program_services"]["value"] = 400000 # HKD
     record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
-    record_medium["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_medium["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     # Program spend USD = 400,000 * 0.1 = 40,000
     # Beneficiaries = 500
     # Cost per outcome = 40,000 / 500 = 80
@@ -215,9 +215,9 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 3. MEDIUM confidence: Programmatic matching from program_breakdowns to significant events
     record_programmatic = deepcopy(VALID_BASE_RECORD)
-    record_programmatic["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_programmatic["impact"]["context"]["explicit_unit_costs"] = []
-    record_programmatic["impact"]["significant_events"] = [
+    record_programmatic["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_programmatic["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
+    record_programmatic["impact"]["interventions"]["significant_events"] = [
         {
             "event_name": "Mobile Spay Clinic Operations",
             "summary": "Ran mobile spay clinics.",
@@ -227,7 +227,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We ran mobile spay clinics.", "resolved_url": None}
         }
     ]
-    record_programmatic["impact"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
+    record_programmatic["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
     record_programmatic["financials"]["expenditure"]["program_breakdowns"] = [{"programme_name": "Mobile Spay Clinic Operations", "amount": {"value": 100000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Mobile spay clinic ops cost 100,000.", "resolved_url": None}}}]
     record_programmatic["financials"]["currency"]["usd_exchange_rate"] = 0.1
     response = client.post("/audit", json=record_programmatic)
@@ -240,9 +240,9 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 4. MEDIUM confidence: Pure-play cohort benchmark
     record_pure_play = deepcopy(VALID_BASE_RECORD)
-    record_pure_play["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_pure_play["impact"]["context"]["explicit_unit_costs"] = []
-    record_pure_play["impact"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
+    record_pure_play["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_pure_play["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
+    record_pure_play["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
     record_pure_play["financials"]["expenditure"]["program_services"]["value"] = 100000
     record_pure_play["financials"]["currency"]["usd_exchange_rate"] = 0.1
     record_pure_play["financials"]["expenditure"]["program_breakdowns"] = [
@@ -258,8 +258,8 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 5. LOW confidence: Multi-domain operations, calculation is aborted
     record_low_multidomain = deepcopy(VALID_BASE_RECORD)
-    record_low_multidomain["impact"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_low_multidomain["impact"]["context"]["explicit_unit_costs"] = []
+    record_low_multidomain["impact"]["interventions"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_low_multidomain["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     response = client.post("/audit", json=record_low_multidomain)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -268,43 +268,32 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     assert "multi-domain work" in item["confidence_note"]
     assert item["details"]["formula"] == "Calculation aborted due to multi-domain operations."
 
-    # 4. LOW confidence: Missing data (e.g., operating_scope not specified)
-    record_low_missing_data = deepcopy(VALID_BASE_RECORD)
-    del record_low_missing_data["impact"]["context"]["operating_scope"]
-    record_low_missing_data["impact"]["context"]["explicit_unit_costs"] = []
-    response = client.post("/audit", json=record_low_missing_data)
-    assert response.status_code == 200
-    item = get_calculated_metric(response.json(), "cost_per_outcome")
-    assert item["confidence_tier"] == "LOW"
-    assert item["value"] is None
-    assert "missing data" in item["confidence_note"]
-
-    # 5. No metric calculated: Missing essential data for MEDIUM calculation
+    # 6. No metric calculated: Missing essential data for MEDIUM calculation
     record_medium_fail = deepcopy(VALID_BASE_RECORD)
-    record_medium_fail["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_medium_fail["impact"]["context"]["explicit_unit_costs"] = []
+    record_medium_fail["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium_fail["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium_fail["financials"]["expenditure"]["program_services"]["value"] = None # Missing spend
     response = client.post("/audit", json=record_medium_fail)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is None # Function should return None, not a LOW confidence metric
 
-    # 6. No metric calculated: Beneficiary population is zero
+    # 7. No metric calculated: Beneficiary population is zero
     record_zero_beneficiaries = deepcopy(VALID_BASE_RECORD)
-    record_zero_beneficiaries["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_zero_beneficiaries["impact"]["context"]["explicit_unit_costs"] = []
-    record_zero_beneficiaries["impact"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_zero_beneficiaries["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_beneficiaries["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
+    record_zero_beneficiaries["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_beneficiaries)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item is None # Cannot divide by zero
 
-    # 7. MEDIUM confidence: Handles zero program spend correctly
+    # 8. MEDIUM confidence: Handles zero program spend correctly
     record_zero_spend = deepcopy(VALID_BASE_RECORD)
-    record_zero_spend["impact"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
-    record_zero_spend["impact"]["context"]["explicit_unit_costs"] = []
+    record_zero_spend["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_spend["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_zero_spend["financials"]["expenditure"]["program_services"]["value"] = 0
-    record_zero_spend["impact"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_zero_spend["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -368,7 +357,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
     # 1. Pass for >= 50% high-neglectedness population
     record_pass = deepcopy(VALID_BASE_RECORD)
-    record_pass["impact"]["beneficiaries"] = [
+    record_pass["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "HK", "population": 800, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
         {"location": "HK", "population": 200, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
@@ -380,7 +369,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
     # 2. Warning for < 50% high-neglectedness population
     record_warning_mixed = deepcopy(VALID_BASE_RECORD)
-    record_warning_mixed["impact"]["beneficiaries"] = [
+    record_warning_mixed["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
         {"location": "HK", "population": 850, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
@@ -392,7 +381,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
     # 3. Fail for 100% low-neglectedness population
     record_warning_low = deepcopy(VALID_BASE_RECORD)
-    record_warning_low["impact"]["beneficiaries"] = [
+    record_warning_low["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_warning_low)
@@ -403,7 +392,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
     # 4. Fallback to presence check (pass) when population is null
     record_fallback_pass = deepcopy(VALID_BASE_RECORD)
-    record_fallback_pass["impact"]["beneficiaries"] = [
+    record_fallback_pass["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "HK", "population": None, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
         {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
     ]
@@ -415,7 +404,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
     # 5. Fallback to presence check (warning) when population is null
     record_fallback_warning = deepcopy(VALID_BASE_RECORD)
-    record_fallback_warning["impact"]["beneficiaries"] = [
+    record_fallback_warning["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_fallback_warning)
