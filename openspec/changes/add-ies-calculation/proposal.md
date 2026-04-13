@@ -4,7 +4,7 @@ Currently, PRISM extracts raw impact metrics but lacks a unified, cross-species,
 ## What Changes
 - **PocketBase Reference Data:** Introduce new collections (`ref_moral_weights`, `ref_evidence_discounts`, `ref_intervention_baselines`) to store hardcoded philosophical and epistemic constants.
 - **Data Schemas:** Expand the extraction schemas to explicitly capture `species`, `intervention_typology`, and `evidence_claim`. Expand the analytics schema to store the computed IES breakdown.
-- **Logic Layer (`utils_api`):** Implement the IES calculation engine. The API will dynamically fetch PocketBase constants, query external macroeconomic/agricultural APIs (e.g., FAOSTAT, World Bank) for addressable populations and PPP adjustments, and execute the BOTEC (Back-of-the-Envelope Calculation) for systemic leverage.
+- **Logic Layer (`utils_api`):** Implement the IES calculation engine. The API will dynamically fetch PocketBase constants and execute a deterministic BOTEC (Back-of-the-Envelope Calculation) using ONLY the charity's explicitly claimed outcomes, discounted by our static baseline probabilities and epistemic penalties.
 - **Frontend (Hugo):** Add a self-explanatory IES breakdown card to the charity profile page to transparently display how the score was calculated.
 
 ## Impact

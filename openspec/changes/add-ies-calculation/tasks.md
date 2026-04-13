@@ -1,5 +1,3 @@
-# openspec/changes/add-ies-calculation/tasks.md
-
 ## 1. Data Vault & Schema Updates
 - [x] 1.1 Create PocketBase migrations for `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines` collections.
 - [x] 1.2 Seed the new reference collections with consensus EA data (e.g., GiveWell/Rethink Priorities estimates).
@@ -8,12 +6,11 @@
 - [x] 1.5 Run `scripts/generate_extraction_schemas.py` to compile the updated LLM extraction schemas.
 
 ## 2. Logic Layer (`utils_api`)
-- [x] 2.1 Implement a PocketBase client service in Python to fetch reference data ($W_{species}$, $D_{evidence}$) during the audit phase.
-- [x] 2.2 Implement external API integration modules (e.g., FAOSTAT wrapper for animal populations, World Bank wrapper for PPP adjustments).
-- [ ] 2.3 Create `calculate_ies` function in `app/audits/impact.py`.
-- [ ] 2.4 Implement the systemic BOTEC logic within `calculate_ies` to generate $W_{leverage}$ based on intervention typology and region.
-- [ ] 2.5 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
-- [ ] 2.6 Write unit tests in `tests/test_audit_impact.py` to verify the deterministic math of the IES formula.
+- [x] 2.1 Implement a PocketBase client service in Python to fetch reference data (W_species, D_evidence) during the audit phase.
+- [ ] 2.2 Create `calculate_ies` function in `app/audits/impact.py`.
+- [ ] 2.3 Implement the deterministic BOTEC logic within `calculate_ies` to generate the Expected Value using solely extracted claims and PocketBase baseline multipliers, avoiding external API dependencies.
+- [ ] 2.4 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
+- [ ] 2.5 Write unit tests in `tests/test_audit_impact.py` to verify the deterministic math of the IES formula.
 
 ## 3. Orchestration (`n8n`)
 - [ ] 3.1 Update the Prompt Templates (`impact.user.md`, `impact.system.md`) to explicitly instruct Gemini to extract the required IES variables as `null` if absent.
