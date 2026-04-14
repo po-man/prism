@@ -12,12 +12,8 @@
 - [x] 2.4 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
 - [ ] 2.5 Write unit tests in `tests/test_audit_impact.py` to verify the deterministic math of the IES formula.
 
-## 3. Orchestration (`n8n`)
-- [ ] 3.1 Update the Prompt Templates (`impact.user.md`, `impact.system.md`) to explicitly instruct Gemini to extract the required IES variables as `null` if absent.
-- [ ] 3.2 Update the `SUjUpjve9Vj6aJSbbuIWL.json` workflow to ensure the `/audit` HTTP request correctly maps the new extracted fields.
-
-## 4. Frontend (`web`)
-- [ ] 4.1 Create a new Hugo partial `web/layouts/partials/ies-scorecard.html`.
-- [ ] 4.2 Implement the UI logic to parse the IES metric from `analytics.calculated_metrics` and display the mathematical breakdown ($Outcomes_i \times W_{species} \times W_{leverage} \times D_{evidence}$).
-- [ ] 4.3 Add styling in Tailwind CSS to visually differentiate empirical extracted data from hardcoded EA constants.
-- [ ] 4.4 Inject `{{ partial "ies-scorecard.html" $org }}` into `web/layouts/_default/single.html`.
+## 3. Frontend (`web`)
+- [ ] 3.1 Create a new Hugo partial `web/layouts/partials/ies-scorecard.html`.
+- [ ] 3.2 Implement the UI logic to parse the IES metric from `analytics.calculated_metrics` and display the mathematical breakdown ($Outcomes_i \times W_{species} \times W_{leverage} \times D_{evidence}$).
+- [ ] 3.3 Add styling in Tailwind CSS to visually differentiate empirical extracted data from hardcoded EA constants.
+- [ ] 3.4 Inject `{{ partial "ies-scorecard.html" $org }}` into `web/layouts/_default/single.html`.
