@@ -13,7 +13,7 @@
 - [ ] 2.5 Write unit tests in `tests/test_audit_impact.py` to verify the deterministic math of the IES formula.
 
 ## 3. Frontend (`web`)
-- [ ] 3.1 Create a new Hugo partial `web/layouts/partials/ies-scorecard.html`.
-- [ ] 3.2 Implement the UI logic to parse the IES metric from `analytics.calculated_metrics` and display the mathematical breakdown ($Outcomes_i \times W_{species} \times W_{leverage} \times D_{evidence}$).
-- [ ] 3.3 Add styling in Tailwind CSS to visually differentiate empirical extracted data from hardcoded EA constants.
-- [ ] 3.4 Inject `{{ partial "ies-scorecard.html" $org }}` into `web/layouts/_default/single.html`.
+- [x] 3.1 Create a new Hugo partial `web/layouts/partials/ies-scorecard.html`.
+- [x] 3.2 Implement the UI logic to parse the IES metric from `analytics.calculated_metrics` and display the mathematical breakdown ($Outcomes_i \times W_{species} \times W_{leverage} \times D_{evidence}$).
+- [x] 3.3 Add styling in Tailwind CSS to visually differentiate empirical extracted data from hardcoded EA constants.
+- [x] 3.4 Inject `{{ partial "ies-scorecard.html" $org }}` into `web/layouts/_default/single.html`.
