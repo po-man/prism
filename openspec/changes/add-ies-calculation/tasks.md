@@ -7,9 +7,9 @@
 
 ## 2. Logic Layer (`utils_api`)
 - [x] 2.1 Implement a PocketBase client service in Python to fetch reference data (W_species, D_evidence) during the audit phase.
-- [ ] 2.2 Create `calculate_ies` function in `app/audits/impact.py`.
-- [ ] 2.3 Implement the deterministic BOTEC logic within `calculate_ies` to generate the Expected Value using solely extracted claims and PocketBase baseline multipliers, avoiding external API dependencies.
-- [ ] 2.4 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
+- [x] 2.2 Create `calculate_ies` function in `app/audits/impact.py`.
+- [x] 2.3 Implement the deterministic BOTEC logic within `calculate_ies` to generate the Expected Value using solely extracted claims and PocketBase baseline multipliers, avoiding external API dependencies.
+- [x] 2.4 Register `calculate_ies` in `app/audits/registry.py` under `METRIC_CALCULATORS`.
 - [ ] 2.5 Write unit tests in `tests/test_audit_impact.py` to verify the deterministic math of the IES formula.
 
 ## 3. Orchestration (`n8n`)

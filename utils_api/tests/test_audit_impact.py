@@ -420,3 +420,43 @@ def test_check_cause_area_neglectedness(client: TestClient):
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cause_area_neglectedness")
     assert "Impact data with beneficiary types is missing" in item["details"]["calculation"]
+
+
+def test_calculate_ies_metric(client: TestClient):
+    """
+    Tests the async `calculate_ies` metric calculation.
+    This test relies on the mock PocketBase client provided by the `client` fixture.
+    """
+    record_data = deepcopy(VALID_BASE_RECORD)
+
+    # Setup data for IES calculation
+    # Metric 1: Rescue with high evidence
+    record_data["impact"]["metrics"]["metrics"][0]["metric_name"] = "Chickens Rescued"
+    record_data["impact"]["metrics"]["metrics"][0]["quantitative_data"] = {"value": 1000, "unit": "chickens"}
+    record_data["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "RCT/Meta-Analysis"
+    record_data["impact"]["metrics"]["metrics"][0]["source"]["quote"] = "Rescued 1000 chickens."
+
+    # Metric 2: Another metric to be ignored (no matching event)
+    record_data["impact"]["metrics"]["metrics"].append(deepcopy(record_data["impact"]["metrics"]["metrics"][0]))
+    record_data["impact"]["metrics"]["metrics"][1]["metric_name"] = "Dogs Helped"
+    record_data["impact"]["metrics"]["metrics"][1]["source"]["quote"] = "Helped some dogs."
+
+    # Event matching Metric 1
+    record_data["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["individual_rescue_and_sanctuary"]
+    record_data["impact"]["interventions"]["significant_events"][0]["source"]["quote"] = "Rescued 1000 chickens."
+
+    # Beneficiary data
+    record_data["impact"]["beneficiaries"]["beneficiaries"] = [
+        {"location": "Global", "population": 1000, "beneficiary_type": "farmed_animals", "source": None}
+    ]
+
+    response = client.post("/audit", json=record_data)
+    assert response.status_code == 200
+    result = response.json()
+
+    ies_metric = get_calculated_metric(result, "impact_equivalency_score")
+    assert ies_metric is not None
+    assert ies_metric["confidence_tier"] == "MEDIUM"
+    # Expected IES = outcome * w_species * w_leverage * d_evidence
+    # 1000 * 1.0 (chicken) * 0.2 (rescue) * 1.0 (RCT) = 200
+    assert ies_metric["value"] == 200

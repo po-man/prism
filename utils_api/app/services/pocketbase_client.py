@@ -60,24 +60,24 @@ class PocketBaseClient:
             print(f"Network error fetching collection '{collection_name}': {e}")
             return []
 
-    @lru_cache(maxsize=1)
     async def get_moral_weights(self) -> Dict[str, float]:
         """Fetches and caches moral weights, mapping species_key to weight."""
         records = await self._get_full_list("ref_moral_weights")
         return {record.get("species_key"): record.get("weight") for record in records}
 
-    @lru_cache(maxsize=1)
     async def get_evidence_discounts(self) -> Dict[str, float]:
         """Fetches and caches evidence discounts, mapping evidence_key to multiplier."""
         records = await self._get_full_list("ref_evidence_discounts")
         return {record.get("evidence_key"): record.get("multiplier") for record in records}
 
-    @lru_cache(maxsize=1)
     async def get_intervention_baselines(self) -> Dict[str, float]:
         """Fetches and caches intervention baselines, mapping intervention_key to probability."""
         records = await self._get_full_list("ref_intervention_baselines")
         return {record.get("intervention_key"): record.get("baseline_probability") for record in records}
 
+@lru_cache()
+def get_pb_client() -> PocketBaseClient:
+    return PocketBaseClient()
 
 # Create a singleton instance to be used across the application
 pb_client = PocketBaseClient()

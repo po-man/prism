@@ -220,7 +220,7 @@ def test_normalize_and_validate_reverses_keys(mock_load_mapping, client):
     """
     response = client.post(
         "/normalize",
-        json={"schema_name": "v1/impact.schema.json", "data": ABBREVIATED_IMPACT_PAYLOAD}
+        json={"schema_name": "v1/impact_beneficiaries.schema.json", "data": ABBREVIATED_IMPACT_PAYLOAD['beneficiaries']}
     )
 
     # Assert that our high-level mock was called, which is cleaner and more robust.
@@ -230,15 +230,12 @@ def test_normalize_and_validate_reverses_keys(mock_load_mapping, client):
 
     response_validated = client.post(
         "/validate",
-        json={"schema_name": "v1/impact.schema.json", "data": response.json()}
+        json={"schema_name": "v1/impact_beneficiaries.schema.json", "data": response.json()}
     )
 
     assert response_validated.status_code == 200
     result = response_validated.json()
-    assert result["valid"] is False
-    # This error confirms that reversal happened, because 'metrics' is required in the
-    # canonical schema but was not in the abbreviated payload.
-    assert "'metrics' is a required property" in result["details"]["message"]
+    assert result["valid"] is True
 
 
 @pytest.mark.parametrize("schema_name, valid_data", [
