@@ -131,12 +131,46 @@
         "details": {
           "properties": {
             "breakdown": {
-              "type": "object",
-              "properties": {
-                "outcomes": { "type": "number" },
-                "species_weight": { "type": "number" },
-                "leverage_multiplier": { "type": "number" },
-                "evidence_discount": { "type": "number" }
+              "type": "array",
+              "description": "A detailed breakdown of the IES calculation for each individual impact metric.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "metric_name": { "type": "string" },
+                  "outcome": {
+                    "type": "object",
+                    "properties": {
+                      "value": { "type": "number" },
+                      "source_quote": { "type": ["string", "null"] }
+                    }
+                  },
+                  "w_species": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": ["string", "null"] },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "w_leverage": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": "string" },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "d_evidence": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": "string" },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "ies": { "type": "number" },
+                  "calculation": { "type": "string" }
+                }
               }
             }
           }
