@@ -5,9 +5,9 @@
 - [x] 1.2 Update the `ref_evidence_discounts` collection/migrations to adjust multipliers (e.g., raising `Pre-Post` to 0.6 and `Anecdotal` to 0.3) to better reflect sector realities.
 
 ## 2. Schema Updates (`schemas/v1/`)
-- [ ] 2.1 In `impact_interventions.schema.json`, add a `primary_intervention_type` string field (using the `InterventionTypeEnum`) to the `SignificantEvent` object to designate the core driver of the event.
-- [ ] 2.2 In `analytics.schema.json`, update the `IesMetric` definition. Rename the `value` field (or add adjacent fields) to support `claimed_ies` and `evaluated_ies`. Update the `BreakdownItem` to include `claimed_ies_i`.
-- [ ] 2.3 Run `scripts/generate_extraction_schemas.py` to compile the new extraction schemas for the LLM.
+- [x] 2.1 In `impact_interventions.schema.json`, add a `primary_intervention_type` string field (using the `InterventionTypeEnum`) to the `SignificantEvent` object to designate the core driver of the event.
+- [x] 2.2 In `analytics.schema.json`, update the `IesMetric` definition. Rename the `value` field (or add adjacent fields) to support `claimed_ies` and `evaluated_ies`. Update the `BreakdownItem` to include `claimed_ies_i`.
+- [x] 2.3 Run `scripts/generate_extraction_schemas.py` to compile the new extraction schemas for the LLM.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
 - [ ] 3.1 In `impact.system.md`, append the strict zero-hallucination constraints:

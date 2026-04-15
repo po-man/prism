@@ -125,8 +125,13 @@
         "id": {
           "const": "impact_equivalency_score"
         },
-        "value": {
-          "type": "integer"
+        "claimed_ies": {
+          "type": "integer",
+          "description": "The Impact Equivalency Score (IES) calculated without epistemic discounts."
+        },
+        "evaluated_ies": {
+          "type": "integer",
+          "description": "The Impact Equivalency Score (IES) calculated with epistemic discounts applied."
         },
         "details": {
           "properties": {
@@ -168,6 +173,7 @@
                       "source": { "type": "string" }
                     }
                   },
+                  "claimed_ies_i": { "type": "number", "description": "The claimed IES for this individual metric, before epistemic discounts." },
                   "ies": { "type": "number" },
                   "calculation": { "type": "string" }
                 }
@@ -175,7 +181,8 @@
             }
           }
         }
-      }
+      },
+      "required": ["id", "claimed_ies", "evaluated_ies", "confidence_tier", "confidence_note", "details"]
     }
   }
 }

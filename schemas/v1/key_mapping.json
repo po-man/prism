@@ -1,7 +1,4 @@
 {
-  "euthanasia_rep": "euthanasia_statistics_reported",
   "monthly_op_ex": "monthly_operating_expenses",
-  "other_desc": "intervention_type_other_description",
-  "prov_fund_res": "provident_fund_reserve",
-  "unintended_rep": "unintended_consequences_reported"
+  "prov_fund_res": "provident_fund_reserve"
 }

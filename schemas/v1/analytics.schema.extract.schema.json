@@ -101,7 +101,8 @@
           "type": [
             "number",
             "string",
-            "null"
+            "null",
+            "array"
           ],
           "description": "The calculated value of the metric."
         },
@@ -151,30 +152,107 @@
         "id": {
           "const": "impact_equivalency_score"
         },
-        "value": {
-          "type": "integer"
+        "claimed_ies": {
+          "type": "integer",
+          "description": "The Impact Equivalency Score (IES) calculated without epistemic discounts."
+        },
+        "evaluated_ies": {
+          "type": "integer",
+          "description": "The Impact Equivalency Score (IES) calculated with epistemic discounts applied."
         },
         "details": {
           "properties": {
             "breakdown": {
-              "type": "object",
-              "properties": {
-                "outcomes": {
-                  "type": "number"
-                },
-                "species_weight": {
-                  "type": "number"
-                },
-                "leverage_multiplier": {
-                  "type": "number"
-                },
-                "evidence_discount": {
-                  "type": "number"
+              "type": "array",
+              "description": "A detailed breakdown of the IES calculation for each individual impact metric.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "metric_name": {
+                    "type": "string"
+                  },
+                  "outcome": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "number"
+                      },
+                      "source_quote": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "w_species": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "value": {
+                        "type": "number"
+                      },
+                      "source": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "w_leverage": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "number"
+                      },
+                      "source": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "d_evidence": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "number"
+                      },
+                      "source": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "claimed_ies_i": {
+                    "type": "number",
+                    "description": "The claimed IES for this individual metric, before epistemic discounts."
+                  },
+                  "ies": {
+                    "type": "number"
+                  },
+                  "calculation": {
+                    "type": "string"
+                  }
                 }
               }
             }
           }
-        }
+        },
+        "required": [
+          "id",
+          "claimed_ies",
+          "evaluated_ies",
+          "confidence_tier",
+          "confidence_note",
+          "details"
+        ]
       }
     }
   }
