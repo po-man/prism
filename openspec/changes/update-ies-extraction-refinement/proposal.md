@@ -8,7 +8,7 @@ Testing the v1 IES engine against unstructured, real-world charity reports revea
 ## What Changes
 - **Data Schemas:** Expand `ref_moral_weights` to include generic baselines. Update `impact.schema.json` to handle primary intervention designation to prevent leverage inflation. Expand `analytics.schema.json` to return both a `claimed_ies` and an `evaluated_ies`.
 - **Extraction Prompts (`n8n`):** Introduce strict positive and negative constraints to the `impact.system.md` to prevent financial/potential-impact hallucinations, mandate egg count inclusion, and properly bound `multi_domain_operations`.
-- **Audit Engine (`utils_api`):** Refactor `calculate_ies` to filter for `annual` metrics, apply a bounding cap against total unique beneficiaries, use fuzzy matching for metric-to-event attribution, and query PocketBase for dynamic species fallbacks.
+- **Audit Engine (`utils_api`):** Refactor `calculate_ies` to filter for `annual` metrics, use fuzzy matching for metric-to-event attribution, and query PocketBase for dynamic species fallbacks.
 - **Frontend UI (`web`):** Update the IES Scorecard to prominently display the "Claimed Impact" alongside an "Epistemic Confidence Rating" (the $D_{evidence}$ discount applied).
 
 ## Impact
