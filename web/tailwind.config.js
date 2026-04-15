@@ -3,9 +3,10 @@ module.exports = {
   content: [
     './layouts/**/*.html',
   ],
-  safelist: [
-    'text-yellow-500',
-  ],
+  safelist: [{
+    pattern: /(text-blue-600|text-yellow-500|text-orange-600)/,
+    variants: ['hover', 'focus'],
+  }, ],
   theme: {
     extend: {},
   },

@@ -22,3 +22,8 @@ AUDIT_CHECKS = [
 METRIC_CALCULATORS = [
     impact.calculate_cost_per_outcome,
 ]
+
+# This registry holds all ASYNC metric calculation functions.
+ASYNC_METRIC_CALCULATORS = [
+    impact.calculate_ies,
+]

@@ -15,7 +15,10 @@
       "type": "array",
       "description": "A list of informational metrics derived from the audit.",
       "items": {
-        "$ref": "#/definitions/calculatedMetric"
+        "oneOf": [
+          { "$ref": "#/definitions/iesMetric" },
+          { "$ref": "#/definitions/calculatedMetric" }
+        ]
       }
     }
   },
@@ -109,6 +112,70 @@
         }
       },
       "required": ["id", "name", "value", "confidence_tier", "confidence_note", "details"]
+    },
+    "iesMetric": {
+      "type": "object",
+      "description": "Schema for the Impact Equivalency Score (IES) metric.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/calculatedMetric"
+        }
+      ],
+      "properties": {
+        "id": {
+          "const": "impact_equivalency_score"
+        },
+        "value": {
+          "type": "integer"
+        },
+        "details": {
+          "properties": {
+            "breakdown": {
+              "type": "array",
+              "description": "A detailed breakdown of the IES calculation for each individual impact metric.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "metric_name": { "type": "string" },
+                  "outcome": {
+                    "type": "object",
+                    "properties": {
+                      "value": { "type": "number" },
+                      "source_quote": { "type": ["string", "null"] }
+                    }
+                  },
+                  "w_species": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": ["string", "null"] },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "w_leverage": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": "string" },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "d_evidence": {
+                    "type": "object",
+                    "properties": {
+                      "key": { "type": "string" },
+                      "value": { "type": "number" },
+                      "source": { "type": "string" }
+                    }
+                  },
+                  "ies": { "type": "number" },
+                  "calculation": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

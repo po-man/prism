@@ -1,9 +1,11 @@
 import json
 from app.schemas.organisation import OrganisationRecord
 from app.schemas.impact_metrics import Metric
-from app.schemas.analytics import CheckItem, Details, CalculatedMetric
+import asyncio
+from app.schemas.analytics import CheckItem, Details, CalculatedMetric, IesMetric
 from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
+from app.services.pocketbase_client import pb_client
 from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
 
 
@@ -546,3 +548,146 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
         base_item.details.calculation = "No beneficiary types were specified."
 
     return base_item
+
+
+async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
+    """
+    Calculates the Impact Equivalency Score (IES) for a charity.
+    IES = sum(Outcome * W_species * W_leverage * D_evidence) for each impact claim.
+    """
+    if not record:
+        return None
+
+    if not all([
+        record.impact,
+        record.impact and record.impact.metrics and record.impact.metrics.metrics,
+        record.impact and record.impact.interventions and record.impact.interventions.significant_events,
+        record.impact and record.impact.beneficiaries and record.impact.beneficiaries.beneficiaries,
+    ]):
+        return None
+
+    # Fetch all reference data concurrently
+    moral_weights, evidence_discounts, leverage_multipliers = await asyncio.gather(
+        pb_client.get_moral_weights(),
+        pb_client.get_evidence_discounts(),
+        pb_client.get_intervention_baselines()
+    )
+
+    # Map beneficiary_type to species_key for moral weight lookup
+    beneficiary_to_species_map = {
+        "companion_animals": "dog",  # Use 'dog' as a proxy for companion animals
+        "farmed_animals": "chicken", # Use 'chicken' as a common proxy
+        "wild_animals": "songbird",  # Use 'songbird' as a proxy for wild animals
+    }
+
+    total_ies = 0
+    ies_breakdown = []
+
+    # Find the dominant beneficiary type to use as a fallback for species weight
+    populations = {
+        "companion_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "companion_animals" and b.population),
+        "farmed_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "farmed_animals" and b.population),
+        "wild_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "wild_animals" and b.population),
+    }
+    dominant_beneficiary_type = max(populations, key=populations.get) if any(populations.values()) else "unspecified"
+
+    for metric in record.impact.metrics.metrics:
+        if not metric.quantitative_data or metric.quantitative_data.value is None or metric.quantitative_data.value <= 0:
+            continue
+
+        # 1. Outcome
+        outcome = metric.quantitative_data.value
+
+        # 2. Evidence Discount (D_evidence)
+        d_evidence = evidence_discounts.get(metric.evidence_quality.value, 0.0)
+
+        # 3. Find associated event to get intervention_type for W_leverage
+        matched_event = None
+        if metric.source and metric.source.quote:
+            for event in record.impact.interventions.significant_events:
+                if event.source and event.source.quote and metric.source.quote in event.source.quote:
+                    matched_event = event
+                    break
+
+        if not matched_event:
+            continue
+
+        # 4. Leverage Multiplier (W_leverage)
+        # Use the highest leverage multiplier if multiple intervention types are listed
+        w_leverage = 0.0
+        leverage_key = "unknown"
+        for itype in matched_event.intervention_type:
+            leverage = leverage_multipliers.get(itype.value, 0.0)
+            if leverage > w_leverage:
+                w_leverage = leverage
+                leverage_key = itype.value
+
+        # 5. Species Weight (W_species)
+        # Attempt to find a species from the metric's unit, otherwise fallback to dominant beneficiary
+        species_key = None
+        unit_lower = metric.quantitative_data.unit.lower()
+        for key in moral_weights:
+            if key in unit_lower or key.rstrip('s') in unit_lower:
+                species_key = key
+                break
+
+        if not species_key:
+            species_key = beneficiary_to_species_map.get(dominant_beneficiary_type)
+
+        w_species = moral_weights.get(species_key, 0.0) if species_key else 0.0
+
+        # Calculate IES for this metric
+        ies_i = outcome * w_species * w_leverage * d_evidence
+        total_ies += ies_i
+
+        ies_breakdown.append({
+            "metric_name": metric.metric_name,
+            "outcome": {
+                "value": outcome,
+                "source_quote": metric.source.quote if metric.source else None,
+            },
+            "w_species": {
+                "key": species_key,
+                "value": w_species,
+                "source": f"Moral weight for '{species_key}'. Fallback: dominant beneficiary type '{dominant_beneficiary_type}'.",
+            },
+            "w_leverage": {
+                "key": leverage_key,
+                "value": w_leverage,
+                "source": f"Baseline probability for intervention '{leverage_key}'.",
+            },
+            "d_evidence": {
+                "key": metric.evidence_quality.value,
+                "value": d_evidence,
+                "source": f"Epistemic discount for '{metric.evidence_quality.value}' evidence.",
+            },
+            "ies": round(ies_i),
+            "calculation": f"{outcome} * {w_species} * {w_leverage} * {d_evidence} = {round(ies_i)}"
+        })
+
+    if not ies_breakdown:
+        return IesMetric(
+            id="impact_equivalency_score",
+            name="Impact Equivalency Score (IES)",
+            value=0,
+            confidence_tier="LOW",
+            confidence_note="IES could not be calculated. No valid, quantifiable impact claims were found that could be mapped to interventions and species.",
+            details={
+                "formula": "IES = Σ(Outcome_i * W_species * W_leverage * D_evidence)",
+                "calculation": "No valid metrics found to perform calculation.",
+                "breakdown": []
+            }
+        )
+
+    return IesMetric(
+        id="impact_equivalency_score",
+        name="Impact Equivalency Score (IES)",
+        value=round(total_ies),
+        confidence_tier="MEDIUM",
+        confidence_note="IES is a Back-of-the-Envelope Calculation (BOTEC) to standardize impact across interventions and species. It relies on philosophical and empirical assumptions.",
+        details={
+            "formula": "IES = Σ(Outcome_i * W_species * W_leverage * D_evidence)",
+            "calculation": f"Total IES = {round(total_ies)}",
+            "breakdown": ies_breakdown
+        }
+    )

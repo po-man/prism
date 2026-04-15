@@ -1,0 +1,102 @@
+{{/*
+  IES Scorecard Partial
+  This partial displays the calculated Impact Equivalency Score (IES) and its breakdown.
+
+  @context . - The full organisation data object.
+
+  @access public
+*/}}
+
+{{ $ies_metric := index (where .analytics.calculated_metrics "id" "impact_equivalency_score") 0 }}
+
+{{ if $ies_metric }}
+<div class="my-8 p-6 bg-purple-50 rounded-lg border border-purple-200">
+  <div class="flex justify-between items-start mb-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">Impact Equivalency Score (IES)</h2>
+      <p class="text-sm text-gray-600 max-w-2xl">{{ $ies_metric.confidence_note }}</p>
+    </div>
+    <div class="text-right flex-shrink-0 ml-4">
+      <p class="text-4xl font-bold text-purple-700">{{ $ies_metric.value | default 0 }}</p>
+      <p class="text-sm text-gray-500">Total Score</p>
+    </div>
+  </div>
+
+  {{ with $ies_metric.details.breakdown }}
+  <div class="mt-6">
+    <h3 class="text-lg font-semibold text-gray-700 mb-2">Calculation Breakdown</h3>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-100 text-gray-600">
+          <tr>
+            <th class="p-3 text-left font-semibold">Impact Claim</th>
+            <th class="p-3 text-center font-semibold">Outcome (O)</th>
+            <th class="p-3 text-center font-semibold">W<sub class="text-xs">species</sub></th>
+            <th class="p-3 text-center font-semibold">W<sub class="text-xs">leverage</sub></th>
+            <th class="p-3 text-center font-semibold">D<sub class="text-xs">evidence</sub></th>
+            <th class="p-3 text-center font-semibold">Claim Score (IES<sub class="text-xs">i</sub>)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {{ range . }}
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-medium text-gray-800 italic w-1/3">"{{ .metric_name }}"</td>
+            <!-- Outcome -->
+            <td class="p-3 text-center relative group">
+              <p class="text-lg font-bold text-blue-600">{{ .outcome.value | lang.FormatNumber 0 }}</p>
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+                <p class="font-bold text-blue-700">Empirical Data</p>
+                <p>This value was extracted directly from the charity's reporting.</p>
+                <p class="mt-1 italic border-l-2 pl-2">"{{ .outcome.source_quote }}"</p>
+              </div>
+            </td>
+            <!-- W_species -->
+            <td class="p-3 text-center relative group">
+              <p class="text-lg font-bold text-orange-600">{{ .w_species.value }}</p>
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+                <p class="font-bold text-orange-700">Philosophical Assumption</p>
+                <p>This is a moral weight based on estimated welfare capacity.</p>
+                <p class="mt-1 italic border-l-2 pl-2">{{ .w_species.source }}</p>
+              </div>
+            </td>
+            <!-- W_leverage -->
+            <td class="p-3 text-center relative group">
+              <p class="text-lg font-bold text-orange-600">{{ .w_leverage.value }}</p>
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+                <p class="font-bold text-orange-700">Probabilistic Assumption</p>
+                <p>This is a baseline probability of success for the intervention type.</p>
+                <p class="mt-1 italic border-l-2 pl-2">{{ .w_leverage.source }}</p>
+              </div>
+            </td>
+            <!-- D_evidence -->
+            <td class="p-3 text-center relative group">
+              <p class="text-lg font-bold text-orange-600">{{ .d_evidence.value }}</p>
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+                <p class="font-bold text-orange-700">Epistemic Discount</p>
+                <p>This is a penalty multiplier based on the quality of evidence provided.</p>
+                <p class="mt-1 italic border-l-2 pl-2">{{ .d_evidence.source }}</p>
+              </div>
+            </td>
+            <!-- IES_i -->
+            <td class="p-3 text-center">
+              <p class="text-lg font-bold text-purple-700">{{ .ies | lang.FormatNumber 0 }}</p>
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{ else }}
+  <div class="mt-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+    <h3 class="text-lg font-semibold text-gray-700">Calculation Breakdown</h3>
+    <p class="mt-2 text-gray-600">{{ $ies_metric.details.calculation | default "No breakdown available." }}</p>
+          </div>
+  {{ end }}
+
+  <div class="mt-4 text-xs text-gray-500 italic">
+    <p><span class="font-bold text-blue-600">Blue values</span> are empirical claims extracted from source documents.</p>
+    <p><span class="font-bold text-orange-600">Orange values</span> are philosophical or probabilistic assumptions from PRISM's reference data.</p>
+  </div>
+</div>
+{{ end }}

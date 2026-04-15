@@ -82,5 +82,11 @@ services:
       - ./schemas:/schemas:ro # Mount schemas read-only
     environment:
       - SCHEMA_DIR=/schemas
+      - POCKETBASE_URL=http://storage_api:8090
+      - POCKETBASE_ADMIN_EMAIL=${PB_ADMIN_EMAIL}
+      - POCKETBASE_ADMIN_PASSWORD=${PB_ADMIN_PASSWORD}
     restart: unless-stopped
+    depends_on:
+      storage_api:
+        condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
