@@ -1,4 +1,5 @@
 import json
+import re
 from app.schemas.organisation import OrganisationRecord
 from app.schemas.impact_metrics import Metric
 import asyncio
@@ -550,6 +551,45 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
     return base_item
 
 
+def _fuzzy_match(str1: str, str2: str) -> bool:
+    """
+    Performs a case-insensitive fuzzy match by checking for keyword overlap.
+    Returns True if the strings share enough keywords (at least 2 words in common).
+    Also supports substring matching as a fallback.
+    """
+    if not str1 or not str2:
+        return False
+
+    s1_lower = str1.lower()
+    s2_lower = str2.lower()
+
+    # First try exact substring matching
+    if s1_lower in s2_lower or s2_lower in s1_lower:
+        return True
+
+    # Then try keyword/word overlap matching
+    # Split on whitespace, remove punctuation, and compare
+    words1 = set(re.findall(r'\b\w+(?:-\w+)*\b', s1_lower))
+    words2 = set(re.findall(r'\b\w+(?:-\w+)*\b', s2_lower))
+
+    # Remove common stop words
+    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'was', 'were', 'be', 'been'}
+    words1 = words1 - stop_words
+    words2 = words2 - stop_words
+
+    # Check if there's significant overlap (at least 2 common words or more than 50% of shorter string)
+    common_words = words1 & words2
+    if len(common_words) >= 2:
+        return True
+
+    # Alternative: if more than 40% of the shorter string's words are in the longer string
+    min_len = min(len(words1), len(words2))
+    if min_len > 0 and len(common_words) >= min_len * 0.4:
+        return True
+
+    return False
+
+
 async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
     """
     Calculates the Impact Equivalency Score (IES) for a charity.
@@ -575,12 +615,14 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
 
     # Map beneficiary_type to species_key for moral weight lookup
     beneficiary_to_species_map = {
-        "companion_animals": "dog",  # Use 'dog' as a proxy for companion animals
-        "farmed_animals": "chicken", # Use 'chicken' as a common proxy
-        "wild_animals": "songbird",  # Use 'songbird' as a proxy for wild animals
+        "companion_animals": "generic_companion",
+        "farmed_animals": "generic_farmed",
+        "wild_animals": "generic_wild",
+        "unspecified": "generic_unspecified"
     }
 
-    total_ies = 0
+    total_claimed_ies = 0
+    total_evaluated_ies = 0
     ies_breakdown = []
 
     # Find the dominant beneficiary type to use as a fallback for species weight
@@ -592,40 +634,52 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
     dominant_beneficiary_type = max(populations, key=populations.get) if any(populations.values()) else "unspecified"
 
     for metric in record.impact.metrics.metrics:
-        if not metric.quantitative_data or metric.quantitative_data.value is None or metric.quantitative_data.value <= 0:
+        # Task 4.1: Pre-processing filter to exclude non-annual metrics
+        if not metric.timeframe or metric.timeframe.value != 'annual':
+            continue
+
+        if not metric.quantitative_data or metric.quantitative_data.value is None or metric.quantitative_data.value <= 0 :
             continue
 
         # 1. Outcome
         outcome = metric.quantitative_data.value
 
         # 2. Evidence Discount (D_evidence)
-        d_evidence = evidence_discounts.get(metric.evidence_quality.value, 0.0)
+        d_evidence = evidence_discounts.get(metric.evidence_quality.value, 0.0) if metric.evidence_quality else 0.0
 
         # 3. Find associated event to get intervention_type for W_leverage
+        # Task 4.2: Refactor Metric-to-Event matching to use fuzzy string matching
         matched_event = None
         if metric.source and metric.source.quote:
             for event in record.impact.interventions.significant_events:
-                if event.source and event.source.quote and metric.source.quote in event.source.quote:
+                # Fuzzy match on quote, event_name, or summary
+                if event.source and event.source.quote and _fuzzy_match(metric.source.quote, event.source.quote):
+                    matched_event = event
+                    break
+                if event.event_name and _fuzzy_match(metric.metric_name, event.event_name):
+                    matched_event = event
+                    break
+                if event.summary and _fuzzy_match(metric.metric_name, event.summary):
                     matched_event = event
                     break
 
         if not matched_event:
-            continue
+            # Task 4.2: If match fails, assign conservative fallback leverage
+            leverage_key = "fallback"
+            w_leverage = 0.1
+        else:
+            # Task 4.3: Update leverage multiplier to use primary_intervention_type
+            leverage_key = matched_event.primary_intervention_type.value if matched_event.primary_intervention_type else "other"
+            w_leverage = leverage_multipliers.get(leverage_key, 0.0)
 
-        # 4. Leverage Multiplier (W_leverage)
-        # Use the highest leverage multiplier if multiple intervention types are listed
-        w_leverage = 0.0
-        leverage_key = "unknown"
-        for itype in matched_event.intervention_type:
-            leverage = leverage_multipliers.get(itype.value, 0.0)
-            if leverage > w_leverage:
-                w_leverage = leverage
-                leverage_key = itype.value
+        # If no event matched, use conservative fallback leverage (Task 4.2)
+        if not matched_event:
+            w_leverage = 0.1  # Conservative baseline probability
 
         # 5. Species Weight (W_species)
         # Attempt to find a species from the metric's unit, otherwise fallback to dominant beneficiary
         species_key = None
-        unit_lower = metric.quantitative_data.unit.lower()
+        unit_lower = metric.quantitative_data.unit.lower() if metric.quantitative_data.unit else ""
         for key in moral_weights:
             if key in unit_lower or key.rstrip('s') in unit_lower:
                 species_key = key
@@ -633,14 +687,20 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
 
         if not species_key:
             species_key = beneficiary_to_species_map.get(dominant_beneficiary_type)
+            # Task 4.4: Refactor species mapping to query generic_* keys
+            if not species_key or species_key not in moral_weights:
+                species_key = "generic_unspecified"
 
         w_species = moral_weights.get(species_key, 0.0) if species_key else 0.0
 
-        # Calculate IES for this metric
-        ies_i = outcome * w_species * w_leverage * d_evidence
-        total_ies += ies_i
+        # Task 4.5: Calculate and supply both claimed_ies and evaluated_ies
+        claimed_ies_i = outcome * w_species * w_leverage
+        evaluated_ies_i = claimed_ies_i * d_evidence
+        total_claimed_ies += claimed_ies_i
+        total_evaluated_ies += evaluated_ies_i
 
         ies_breakdown.append({
+            "claimed_ies_i": round(claimed_ies_i),
             "metric_name": metric.metric_name,
             "outcome": {
                 "value": outcome,
@@ -657,37 +717,41 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
                 "source": f"Baseline probability for intervention '{leverage_key}'.",
             },
             "d_evidence": {
-                "key": metric.evidence_quality.value,
+                "key": metric.evidence_quality.value if metric.evidence_quality else "None",
                 "value": d_evidence,
-                "source": f"Epistemic discount for '{metric.evidence_quality.value}' evidence.",
+                "source": f"Epistemic discount for '{metric.evidence_quality.value if metric.evidence_quality else 'None'}' evidence.",
             },
-            "ies": round(ies_i),
-            "calculation": f"{outcome} * {w_species} * {w_leverage} * {d_evidence} = {round(ies_i)}"
+            "ies": round(evaluated_ies_i),
+            "calculation": f"{outcome} * {w_species} * {w_leverage} * {d_evidence} = {round(evaluated_ies_i)}"
         })
 
     if not ies_breakdown:
         return IesMetric(
             id="impact_equivalency_score",
             name="Impact Equivalency Score (IES)",
-            value=0,
+            claimed_ies=0,
+            evaluated_ies=0,
             confidence_tier="LOW",
             confidence_note="IES could not be calculated. No valid, quantifiable impact claims were found that could be mapped to interventions and species.",
             details={
                 "formula": "IES = Σ(Outcome_i * W_species * W_leverage * D_evidence)",
                 "calculation": "No valid metrics found to perform calculation.",
                 "breakdown": []
-            }
+            },
+            value=0 # Backwards compatibility
         )
 
     return IesMetric(
         id="impact_equivalency_score",
         name="Impact Equivalency Score (IES)",
-        value=round(total_ies),
+        claimed_ies=round(total_claimed_ies),
+        evaluated_ies=round(total_evaluated_ies),
         confidence_tier="MEDIUM",
         confidence_note="IES is a Back-of-the-Envelope Calculation (BOTEC) to standardize impact across interventions and species. It relies on philosophical and empirical assumptions.",
         details={
             "formula": "IES = Σ(Outcome_i * W_species * W_leverage * D_evidence)",
-            "calculation": f"Total IES = {round(total_ies)}",
+            "calculation": f"Total Evaluated IES = {round(total_evaluated_ies)}",
             "breakdown": ies_breakdown
-        }
+        },
+        value=round(total_evaluated_ies) # Backwards compatibility
     )

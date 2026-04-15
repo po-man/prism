@@ -67,6 +67,7 @@ def test_check_intervention_tractability(client: TestClient):
             "event_name": "Rescue Operation",
             "summary": "Rescued animals.",
             "intervention_type": ["individual_rescue_and_sanctuary"], # Tier 3
+            "primary_intervention_type": "individual_rescue_and_sanctuary",
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We rescued animals.", "resolved_url": None}
@@ -75,6 +76,7 @@ def test_check_intervention_tractability(client: TestClient):
             "event_name": "Corporate Campaign",
             "summary": "Caged-free campaign.",
             "intervention_type": ["corporate_welfare_campaigns"], # Tier 1
+            "primary_intervention_type": "corporate_welfare_campaigns",
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Our campaign was successful.", "resolved_url": None}
@@ -101,6 +103,7 @@ def test_check_intervention_tractability(client: TestClient):
             "event_name": "Vet Care",
             "summary": "Provided vet care.",
             "intervention_type": ["veterinary_care_and_treatment"], # Tier 3
+            "primary_intervention_type": "veterinary_care_and_treatment",
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "search_result_index": None, "quote": "We did a mixed event.", "resolved_url": None}
@@ -222,6 +225,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
             "event_name": "Mobile Spay Clinic Operations",
             "summary": "Ran mobile spay clinics.",
             "intervention_type": ["high_volume_spay_neuter"],
+            "primary_intervention_type": "high_volume_spay_neuter",
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We ran mobile spay clinics.", "resolved_url": None}
@@ -424,39 +428,88 @@ def test_check_cause_area_neglectedness(client: TestClient):
 
 def test_calculate_ies_metric(client: TestClient):
     """
-    Tests the async `calculate_ies` metric calculation.
+    Tests the async `calculate_ies` metric calculation, verifying the logic from tasks 4.1-4.5.
+    - Task 4.1: Filters for 'annual' metrics.
+    - Task 4.2: Uses fuzzy matching (metric_name -> event summary).
+    - Task 4.3: Uses `primary_intervention_type`.
+    - Task 4.4: Falls back to generic species weight.
+    - Task 4.5: Returns `claimed_ies` and `evaluated_ies`.
     This test relies on the mock PocketBase client provided by the `client` fixture.
     """
     record_data = deepcopy(VALID_BASE_RECORD)
 
     # Setup data for IES calculation
-    # Metric 1: Rescue with high evidence
-    record_data["impact"]["metrics"]["metrics"][0]["metric_name"] = "Chickens Rescued"
-    record_data["impact"]["metrics"]["metrics"][0]["quantitative_data"] = {"value": 1000, "unit": "chickens"}
-    record_data["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "RCT/Meta-Analysis"
-    record_data["impact"]["metrics"]["metrics"][0]["source"]["quote"] = "Rescued 1000 chickens."
+    # Metric 1: Annual metric, to be matched via fuzzy name matching. Low evidence quality.
+    record_data["impact"]["metrics"]["metrics"][0]["metric_name"] = "Corporate Cage-Free Commitments Secured"
+    record_data["impact"]["metrics"]["metrics"][0]["quantitative_data"] = {"value": 1000000, "unit": "hens impacted by commitments"}
+    record_data["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "Anecdotal" # Mock discount is 0.3
+    record_data["impact"]["metrics"]["metrics"][0]["timeframe"] = "annual"
+    record_data["impact"]["metrics"]["metrics"][0]["source"]["quote"] = "Secured commitments impacting 1M hens."
 
-    # Metric 2: Another metric to be ignored (no matching event)
+    # Metric 2: Cumulative metric, should be ignored by the calculation (Task 4.1)
     record_data["impact"]["metrics"]["metrics"].append(deepcopy(record_data["impact"]["metrics"]["metrics"][0]))
-    record_data["impact"]["metrics"]["metrics"][1]["metric_name"] = "Dogs Helped"
-    record_data["impact"]["metrics"]["metrics"][1]["source"]["quote"] = "Helped some dogs."
+    record_data["impact"]["metrics"]["metrics"][1]["metric_name"] = "Historical Rescues"
+    record_data["impact"]["metrics"]["metrics"][1]["quantitative_data"]["value"] = 5000
+    record_data["impact"]["metrics"]["metrics"][1]["timeframe"] = "cumulative"
 
-    # Event matching Metric 1
-    record_data["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["individual_rescue_and_sanctuary"]
-    record_data["impact"]["interventions"]["significant_events"][0]["source"]["quote"] = "Rescued 1000 chickens."
+    # Metric 3: A metric which would be matched with Beneficiary data if it were annual
+    record_data["impact"]["metrics"]["metrics"].append(deepcopy(record_data["impact"]["metrics"]["metrics"][0]))
+    record_data["impact"]["metrics"]["metrics"][2]["metric_name"] = "Beneficiary-Based Metric"
+    record_data["impact"]["metrics"]["metrics"][2]["quantitative_data"]["value"] = 200000
+    record_data["impact"]["metrics"]["metrics"][2]["quantitative_data"]["unit"] = "animals helped"
+    record_data["impact"]["metrics"]["metrics"][2]["evidence_quality"] = "Pre-Post"
+    record_data["impact"]["metrics"]["metrics"][2]["timeframe"] = "annual"
+    record_data["impact"]["metrics"]["metrics"][2]["source"]["quote"] = "Helped 200,000 animals."
 
-    # Beneficiary data
+    # Event to be matched with Metric 1 via fuzzy matching on summary (Task 4.2)
+    record_data["impact"]["interventions"]["significant_events"] = [
+        {
+            "event_name": "Campaign Alpha",
+            "summary": "Focused on securing corporate cage-free commitments for laying hens.",
+            "intervention_type": ["corporate_welfare_campaigns", "policy_and_legal_advocacy"],
+            "primary_intervention_type": "corporate_welfare_campaigns", # Task 4.3
+            "intervention_type_other_description": None,
+            "timeframe": "annual",
+            "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "Our campaign for cage-free commitments was a success.", "resolved_url": None}
+        }
+    ]
+
+    # Beneficiary data to establish 'farmed_animals' as dominant type for fallback (Task 4.4)
     record_data["impact"]["beneficiaries"]["beneficiaries"] = [
         {"location": "Global", "population": 1000, "beneficiary_type": "farmed_animals", "source": None}
     ]
 
     response = client.post("/audit", json=record_data)
     assert response.status_code == 200
-    result = response.json()
+    ies_metric = get_calculated_metric(response.json(), "impact_equivalency_score")
 
-    ies_metric = get_calculated_metric(result, "impact_equivalency_score")
     assert ies_metric is not None
     assert ies_metric["confidence_tier"] == "MEDIUM"
-    # Expected IES = outcome * w_species * w_leverage * d_evidence
-    # 1000 * 1.0 (chicken) * 0.2 (rescue) * 1.0 (RCT) = 200
-    assert ies_metric["value"] == 200
+
+    # --- Verify Calculation (Task 4.5) ---
+    # Metric 1: Outcome 1,000,000, W_species 0.5 (generic_farmed), W_leverage 0.8, D_evidence 0.3
+    # Claimed IES_1 = 1,000,000 * 0.5 * 0.8 = 400,000
+    # Evaluated IES_1 = 400,000 * 0.3 = 120,000
+    #
+    # Metric 3: Outcome 200,000, W_species 0.5 (fallback), W_leverage 0.1 (fallback), D_evidence 0.6
+    # Claimed IES_3 = 200,000 * 0.5 * 0.1 = 10,000
+    # Evaluated IES_3 = 10,000 * 0.6 = 6,000
+    #
+    # Total Claimed IES = 400,000 + 10,000 = 410,000
+    # Total Evaluated IES = 120,000 + 6,000 = 126,000
+
+    assert ies_metric["claimed_ies"] == 410000
+    assert ies_metric["evaluated_ies"] == 126000
+    assert ies_metric["value"] == 126000 # For backwards compatibility
+
+    # Verify breakdown
+    breakdown = ies_metric["details"]["breakdown"]
+    assert len(breakdown) == 2 # Metrics 1 and 3 processed, 2 ignored (cumulative)
+    assert breakdown[0]["metric_name"] == "Corporate Cage-Free Commitments Secured"
+    assert breakdown[0]["claimed_ies_i"] == 400000
+    assert breakdown[1]["metric_name"] == "Beneficiary-Based Metric"
+    assert breakdown[1]["claimed_ies_i"] == 10000
+    assert breakdown[0]["ies"] == 120000
+    assert breakdown[0]["w_species"]["key"] == "generic_farmed"
+    assert breakdown[0]["w_leverage"]["key"] == "corporate_welfare_campaigns"
+    assert breakdown[0]["d_evidence"]["key"] == "Anecdotal"

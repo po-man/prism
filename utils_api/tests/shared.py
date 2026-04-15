@@ -95,6 +95,7 @@ VALID_BASE_RECORD = {
                     "event_name": "Project Shelter",
                     "summary": "Built a new shelter facility.",
                     "intervention_type": ["individual_rescue_and_sanctuary"],
+                    "primary_intervention_type": "individual_rescue_and_sanctuary",
                     "intervention_type_other_description": None,
                     "timeframe": "annual",
                     "source": {
