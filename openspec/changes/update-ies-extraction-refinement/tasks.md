@@ -10,7 +10,7 @@
 - [x] 2.3 Run `scripts/generate_extraction_schemas.py` to compile the new extraction schemas for the LLM.
 
 ## 3. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 3.1 In `impact.system.md`, append the strict zero-hallucination constraints:
+- [x] 3.1 In `impact.system.md`, append the strict zero-hallucination constraints:
     - Explicitly mandate the inclusion of egg counts as valid biological beneficiaries.
     - Add strict negative constraints against extracting "potential/capacity" numbers and financial/currency figures as outcome/beneficiary counts.
     - Clarify that human-facing advocacy and education programs do not trigger the `multi_domain_operations` flag unless core budget is diverted.
