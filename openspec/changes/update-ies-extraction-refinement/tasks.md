@@ -1,8 +1,8 @@
 # openspec/changes/update-ies-extraction-refinement/tasks.md
 
 ## 1. PocketBase Data Architecture
-- [ ] 1.1 Insert new baseline records into the `ref_moral_weights` collection (or update migration scripts) for: `generic_companion`, `generic_farmed`, `generic_wild`, and `generic_unspecified`, assigning EA-consensus median moral weights.
-- [ ] 1.2 Update the `ref_evidence_discounts` collection/migrations to adjust multipliers (e.g., raising `Pre-Post` to 0.6 and `Anecdotal` to 0.3) to better reflect sector realities.
+- [x] 1.1 Insert new baseline records into the `ref_moral_weights` collection (or update migration scripts) for: `generic_companion`, `generic_farmed`, `generic_wild`, and `generic_unspecified`, assigning EA-consensus median moral weights.
+- [x] 1.2 Update the `ref_evidence_discounts` collection/migrations to adjust multipliers (e.g., raising `Pre-Post` to 0.6 and `Anecdotal` to 0.3) to better reflect sector realities.
 
 ## 2. Schema Updates (`schemas/v1/`)
 - [ ] 2.1 In `impact_interventions.schema.json`, add a `primary_intervention_type` string field (using the `InterventionTypeEnum`) to the `SignificantEvent` object to designate the core driver of the event.

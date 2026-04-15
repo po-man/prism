@@ -193,6 +193,22 @@ migrate((app) => {
     {
       "species_key": "silkworm", "species_name": "Silkworm", "weight": 0.0020, "source_citation": "Rethink Priorities, 2023",
       "notes": "Reflects the lowest intensity of cognitive proxies in reviewed literature."
+    },
+    {
+      "species_key": "generic_companion", "species_name": "Generic Companion Animal", "weight": 1.0, "source_citation": "EA Consensus (Median)",
+      "notes": "Baseline for companion animals when specific species is unknown."
+    },
+    {
+      "species_key": "generic_farmed", "species_name": "Generic Farmed Animal", "weight": 0.3, "source_citation": "EA Consensus (Median)",
+      "notes": "Conservative median for farmed animals when specific species is unknown."
+    },
+    {
+      "species_key": "generic_wild", "species_name": "Generic Wild Animal", "weight": 0.2, "source_citation": "EA Consensus (Median)",
+      "notes": "Conservative median for wild animals when specific species is unknown."
+    },
+    {
+      "species_key": "generic_unspecified", "species_name": "Generic Unspecified Animal", "weight": 0.1, "source_citation": "EA Consensus (Conservative Baseline)",
+      "notes": "General low baseline for animals when species and domain are unknown."
     }
   ];
 
