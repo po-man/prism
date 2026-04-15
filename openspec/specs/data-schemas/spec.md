@@ -6,11 +6,10 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Extracting Multiple Explicit Unit Costs
-- **WHEN** validating the `context` object within `impact.schema.json`
-- **THEN** the schema MUST define `explicit_unit_costs` as an array of objects, rather than a single object.
-- **AND** each object in the array MUST contain an `intervention_type` field referencing the `InterventionTypeEnum` to link the cost to a specific EA cause area.
-- **AND** each object MUST retain the `amount`, `currency`, `description`, and `source` fields to ensure strict provenance.
+#### Scenario: Extracting IES Empirical Variables
+- **WHEN** validating the `impact.schema.json` and its corresponding extraction schema
+- **THEN** the schema MUST strictly require the extraction of `species` (Beneficiary Category), `intervention_typology`, `evidence_claim` (methodology), and `raw_scale` ($Outcomes_{raw}$).
+- **AND** if a value is not explicitly stated in the source document, the schema MUST enforce a `null` return to prevent LLM hallucinations.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
@@ -91,4 +90,13 @@ The system SHALL define a deterministic build process to transform canonical val
 - **THEN** the build script MUST replace the canonical property key with the value of `x-extract-key` in the resulting extraction schema.
 - **AND** it MUST humanise the original canonical key name (e.g., "Unintended Consequences Reported") and prepend it to the field's `description` followed by a colon and a space, ensuring the LLM retains the exact semantic context of the abbreviated key.
 - **AND** the build script MUST output a deterministic mapping artifact (e.g., `key_mapping.json`) linking the abbreviated keys back to their canonical counterparts.
+
+### Requirement: Reference Data Collections for IES Constants
+The system SHALL define static reference collections in PocketBase to store philosophical and epistemic constants, ensuring they are decoupled from individual charity records and can be updated globally.
+
+#### Scenario: Storing EA Moral Weights and Evidence Discounts
+- **WHEN** the system calculates the IES
+- **THEN** it MUST reference a `ref_moral_weights` collection containing species-specific welfare capacities (e.g., `chicken: 0.1`).
+- **AND** it MUST reference a `ref_evidence_discounts` collection containing epistemic penalty multipliers (e.g., `RCT: 1.0`, `Anecdotal: 0.1`).
+- **AND** it MUST reference a `ref_intervention_baselines` collection for historical success probabilities of systemic interventions.
 
