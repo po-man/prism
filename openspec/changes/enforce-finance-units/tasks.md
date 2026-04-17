@@ -16,8 +16,8 @@
 - [x] 3.6 Update `utils_api/tests/test_audit_impact.py` to include a mock record with a `value` of `20` and a `scale_multiplier` of `1000000`, asserting that the calculated USD cost scales correctly.
 
 ## 4. Hugo UI Updates (`web/`)
-- [ ] 4.1 Open `web/layouts/partials/impact-pathway.html`.
-- [ ] 4.2 Locate the Inputs card where `$financials.expenditure.total.value` is processed.
-- [ ] 4.3 Add Hugo math to resolve the true local value: `{{ $multiplier := .scale_multiplier | default 1 }}` and `{{ $true_local := mul .value $multiplier }}`.
-- [ ] 4.4 Update the USD math to use `$true_local`: `{{ $usd_total := mul $true_local $rate }}`.
-- [ ] 4.5 Update the tooltip `title` attribute to explicitly declare the math for provenance: `title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 $true_local }} (Extracted as {{ .value }} x {{ $multiplier }}). Rate: {{ $rate }}"`.
+- [x] 4.1 Open `web/layouts/partials/impact-pathway.html`.
+- [x] 4.2 Locate the Inputs card where `$financials.expenditure.total.value` is processed.
+- [x] 4.3 Add Hugo math to resolve the true local value: `{{ $multiplier := .scale_multiplier | default 1 }}` and `{{ $true_local := mul .value $multiplier }}`.
+- [x] 4.4 Update the USD math to use `$true_local`: `{{ $usd_total := mul $true_local $rate }}`.
+- [x] 4.5 Update the tooltip `title` attribute to explicitly declare the math for provenance: `title="Original: {{ $financials.currency.original_code }} {{ lang.FormatNumber 0 $true_local }} (Extracted as {{ .value }} x {{ $multiplier }}). Rate: {{ $rate }}"`.
