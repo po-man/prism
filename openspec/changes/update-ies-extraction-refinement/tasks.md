@@ -24,7 +24,7 @@
 - [x] 4.6 Update `tests/test_audit_impact.py` to verify the dual IES return, the bounding cap logic, and the fuzzy matching.
 
 ## 5. UI / Hugo Refactoring (`web/`)
-- [ ] 5.1 In `web/layouts/partials/ies-scorecard.html`, restructure the UI to present "Claimed IES" prominently.
-- [ ] 5.2 Add a sub-component (e.g., a badge or progress bar style element) titled "Epistemic Confidence Rating" that illustrates the $D_{evidence}$ discount.
-- [ ] 5.3 Display the final "Evaluated IES" as the definitive bottom-line EA score.
-- [ ] 5.4 Update the breakdown table to display both the claimed row score and the evaluated row score for full transparency.
+- [x] 5.1 In `web/layouts/partials/ies-scorecard.html`, restructure the UI to present "Claimed IES" prominently.
+- [x] 5.2 Add a sub-component (e.g., a badge or progress bar style element) titled "Epistemic Confidence Rating" that illustrates the $D_{evidence}$ discount.
+- [x] 5.3 Display the final "Evaluated IES" as the definitive bottom-line EA score.
+- [x] 5.4 Update the breakdown table to display both the claimed row score and the evaluated row score for full transparency.
