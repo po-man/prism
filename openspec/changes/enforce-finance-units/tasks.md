@@ -4,8 +4,8 @@
 - [x] 1.3 Add a new integer property `"scale_multiplier"` with a guidance in description to list the possible values `[1, 1000, 1000000]` and a default of `1`.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates/`)
-- [ ] 2.1 Open `n8n/prompt-templates/financials.system.md`.
-- [ ] 2.2 Add an instruction under the strict extraction rules: "CRITICAL: Look carefully at table headers, column names, or footnotes for scale indicators like 'in thousands', 'in HK$ \'000', 'in millions', or 'mn'. If found, extract the number EXACTLY as written in the cell into the `value` field (do not manually add zeroes). Then, set the `scale_multiplier` field to `1000` or `1000000` accordingly. If no scale is indicated, set it to `1`."
+- [x] 2.1 Open `n8n/prompt-templates/financials.system.md`.
+- [x] 2.2 Add an instruction under the strict extraction rules: "CRITICAL: Look carefully at table headers, column names, or footnotes for scale indicators like 'in thousands', 'in HK$ \'000', 'in millions', or 'mn'. If found, extract the number EXACTLY as written in the cell into the `value` field (do not manually add zeroes). Then, set the `scale_multiplier` field to `1000` or `1000000` accordingly. If no scale is indicated, set it to `1`."
 
 ## 3. Python Audit Engine (`utils_api/app/audits/`)
 - [ ] 3.1 Open `utils_api/app/audits/impact.py`.
