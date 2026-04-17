@@ -1,7 +1,7 @@
 ## 1. Schema Updates (`schemas/`)
-- [ ] 1.1 Open `schemas/v1/financials.schema.json`.
-- [ ] 1.2 Locate the base definition for financial objects (or apply to `income`, `expenditure.total`, `expenditure.program_services`, and `reserves`).
-- [ ] 1.3 Add a new integer property `"scale_multiplier"` with an enum constraint of `[1, 1000, 1000000]` and a default of `1`.
+- [x] 1.1 Open `schemas/v1/financials.schema.json`.
+- [x] 1.2 Locate the base definition for financial objects (or apply to `income`, `expenditure.total`, `expenditure.program_services`, and `reserves`).
+- [x] 1.3 Add a new integer property `"scale_multiplier"` with a guidance in description to list the possible values `[1, 1000, 1000000]` and a default of `1`.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates/`)
 - [ ] 2.1 Open `n8n/prompt-templates/financials.system.md`.
