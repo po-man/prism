@@ -14,6 +14,7 @@ You must strictly follow the provided JSON schema.
 - Missing Values: If a field is not found, return `0` or `null` (if allowed by schema), do not guess.
 - Language: The source may be in English, Traditional Chinese, or both. Map terms regardless of language.
 - When looking for Net Current Assets, examine the Balance Sheet / Statement of Financial Position. If 'Net Current Assets' is not explicitly calculated, extract the total 'Current Assets' and 'Current Liabilities' so the system can calculate it.
+- **CRITICAL - Scale Multipliers:** Look carefully at table headers, column names, or footnotes for scale indicators like 'in thousands', 'in HK$ \'000', 'in millions', or 'mn'. If found, extract the number EXACTLY as written in the cell into the `value` field (do not manually add zeroes). Then, set the `scale_multiplier` field to `1000` or `1000000` accordingly. If no scale is indicated, set it to `1`.
 
 ### Provenance Rules:
 - For **every** extracted financial figure, you MUST populate its nested `source` object.

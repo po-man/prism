@@ -1,5 +1,6 @@
 from app.schemas.organisation import OrganisationRecord
 from app.schemas.analytics import CheckItem, Details
+from app.audits.utils import resolve_value
 
 
 def check_reserve_cap(record: OrganisationRecord) -> CheckItem:
@@ -28,8 +29,8 @@ def check_reserve_cap(record: OrganisationRecord) -> CheckItem:
         base_item.details.calculation = "Required financial data is missing."
         return base_item
 
-    reserve = record.financials.reserves.total_reserves.value
-    expenditure = record.financials.expenditure.total.value
+    reserve = resolve_value(record.financials.reserves.total_reserves)
+    expenditure = resolve_value(record.financials.expenditure.total)
 
     if expenditure <= 0:
         base_item.status = "warning"
@@ -69,8 +70,8 @@ def check_liquidity(record: OrganisationRecord) -> CheckItem:
         return base_item
 
     ratio_inputs = record.financials.ratio_inputs
-    net_assets = ratio_inputs.net_current_assets.value if ratio_inputs.net_current_assets else None
-    monthly_expenses = ratio_inputs.monthly_operating_expenses.value if ratio_inputs.monthly_operating_expenses else None
+    net_assets = resolve_value(ratio_inputs.net_current_assets) if ratio_inputs.net_current_assets else None
+    monthly_expenses = resolve_value(ratio_inputs.monthly_operating_expenses) if ratio_inputs.monthly_operating_expenses else None
     calculation_string = ""
 
     if (
@@ -80,8 +81,8 @@ def check_liquidity(record: OrganisationRecord) -> CheckItem:
         and ratio_inputs.current_liabilities
         and ratio_inputs.current_liabilities.value is not None
     ):
-        current_assets = ratio_inputs.current_assets.value
-        current_liabilities = ratio_inputs.current_liabilities.value
+        current_assets = resolve_value(ratio_inputs.current_assets)
+        current_liabilities = resolve_value(ratio_inputs.current_liabilities)
         net_assets = current_assets - current_liabilities
         if monthly_expenses is not None:
             calculation_string = f"((${current_assets:,.0f} - ${current_liabilities:,.0f}) / ${monthly_expenses:,.0f})"

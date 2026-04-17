@@ -58,6 +58,11 @@
             "null"
           ]
         },
+        "scale_multiplier": {
+          "type": "integer",
+          "default": 1,
+          "description": "The scale multiplier for the financial figure (e.g., 1 for units, 1000 for thousands, 1000000 for millions)."
+        },
         "source": {
           "$ref": "#/definitions/source"
         }

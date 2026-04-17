@@ -306,6 +306,56 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     assert "($0 USD / 500 total beneficiaries) = $0.00 USD per outcome" in item["details"]["calculation"]
 
 
+def test_calculate_cost_per_outcome_with_scale_multiplier(client: TestClient):
+    """Tests that scale_multiplier is correctly applied to financial figures before cost calculation."""
+    # Test case: Raw value of 20 with scale_multiplier of 1000000 should be treated as 20,000,000
+    record_with_scale = deepcopy(VALID_BASE_RECORD)
+    record_with_scale["impact"]["interventions"]["context"]["operating_scope"] = {
+        "value": "pure_animal_advocacy",
+        "source": {
+            "source_type": "web_search",
+            "source_index": None,
+            "page_number": None,
+            "search_result_index": 0,
+            "quote": "We are an organisation dedicated to animal advocacy.",
+            "resolved_url": None
+        }
+    }
+    record_with_scale["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
+
+    # Set program_services with raw value 20 and scale_multiplier 1000000
+    # True local value = 20 * 1000000 = 20,000,000
+    record_with_scale["financials"]["expenditure"]["program_services"]["value"] = 20
+    record_with_scale["financials"]["expenditure"]["program_services"]["scale_multiplier"] = 1000000
+
+    # Keep the default exchange rate from base record (0.128)
+    # USD value = 20,000,000 * 0.128 = 2,560,000
+    # Cost per outcome = 2,560,000 / 500 = 5120
+    record_with_scale["impact"]["beneficiaries"]["beneficiaries"] = [
+        {
+            "location": "HK",
+            "population": 500,
+            "beneficiary_type": "companion_animals",
+            "source": {
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 1,
+                "search_result_index": None,
+                "quote": "We provided services to 500 animals.",
+                "resolved_url": None
+            }
+        }
+    ]
+
+    response = client.post("/audit", json=record_with_scale)
+    assert response.status_code == 200, response.text
+    item = get_calculated_metric(response.json(), "cost_per_outcome")
+    assert item["confidence_tier"] == "MEDIUM"
+    assert item["value"] == 5120.0, f"Expected 5120.0, got {item['value']}"
+    assert "estimated by PRISM" in item["confidence_note"]
+    assert "($2,560,000 USD / 500 total beneficiaries) = $5,120.00 USD per outcome" in item["details"]["calculation"]
+
+
 def test_check_funding_neglectedness(client: TestClient):
     """Tests the check_funding_neglectedness audit."""
 
