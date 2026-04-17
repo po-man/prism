@@ -244,16 +244,16 @@
               }
             }
           }
-        },
-        "required": [
-          "id",
-          "claimed_ies",
-          "evaluated_ies",
-          "confidence_tier",
-          "confidence_note",
-          "details"
-        ]
-      }
+        }
+      },
+      "required": [
+        "id",
+        "claimed_ies",
+        "evaluated_ies",
+        "confidence_tier",
+        "confidence_note",
+        "details"
+      ]
     }
   }
 }
