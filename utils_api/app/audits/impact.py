@@ -638,7 +638,7 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
         if not metric.timeframe or metric.timeframe.value != 'annual':
             continue
 
-        if not metric.quantitative_data or metric.quantitative_data.value is None or metric.quantitative_data.value <= 0 :
+        if not metric.quantitative_data or metric.quantitative_data.value is None or metric.quantitative_data.value <= 0 or metric.quantitative_data.unit_is_individual_animal is False:
             continue
 
         # 1. Outcome
