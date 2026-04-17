@@ -6,10 +6,9 @@ This specification defines the data contracts for the entire system. It provides
 ### Requirement: Impact Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
 
-#### Scenario: Extracting IES Empirical Variables
-- **WHEN** validating the `impact.schema.json` and its corresponding extraction schema
-- **THEN** the schema MUST strictly require the extraction of `species` (Beneficiary Category), `intervention_typology`, `evidence_claim` (methodology), and `raw_scale` ($Outcomes_{raw}$).
-- **AND** if a value is not explicitly stated in the source document, the schema MUST enforce a `null` return to prevent LLM hallucinations.
+#### Scenario: Primary Intervention Designation
+- **WHEN** validating the `significant_events.items.properties` within `impact_interventions.schema.json`
+- **THEN** the schema MUST include a new `primary_intervention_type` field (string, referencing the intervention enum) alongside the existing `intervention_type` array, to prevent leverage inflation from secondary tags.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
@@ -23,10 +22,10 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.
 
-#### Scenario: Advanced Check Taxonomy
-- **WHEN** validating the `analytics.schema.json`
-- **THEN** the `category` enum MUST include `"Transparency"`.
-- **AND** the `status` enum MUST support Advanced Checks by allowing `"bonus"`, `"not_disclosed"`, and `"n_a"`, alongside the existing `"pass"`, `"warning"`, and `"fail"`.
+#### Scenario: Dual IES Return Values
+- **WHEN** validating the `iesMetric` definition within `analytics.schema.json`
+- **THEN** it MUST be expanded to include both `claimed_ies` (integer, calculated without epistemic discounts) and `evaluated_ies` (integer, calculated with the $D_{evidence}$ multiplier applied).
+- **AND** the `breakdown` array items MUST reflect both the claimed outcome score and the final evaluated score.
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.
@@ -94,9 +93,8 @@ The system SHALL define a deterministic build process to transform canonical val
 ### Requirement: Reference Data Collections for IES Constants
 The system SHALL define static reference collections in PocketBase to store philosophical and epistemic constants, ensuring they are decoupled from individual charity records and can be updated globally.
 
-#### Scenario: Storing EA Moral Weights and Evidence Discounts
-- **WHEN** the system calculates the IES
-- **THEN** it MUST reference a `ref_moral_weights` collection containing species-specific welfare capacities (e.g., `chicken: 0.1`).
-- **AND** it MUST reference a `ref_evidence_discounts` collection containing epistemic penalty multipliers (e.g., `RCT: 1.0`, `Anecdotal: 0.1`).
-- **AND** it MUST reference a `ref_intervention_baselines` collection for historical success probabilities of systemic interventions.
+#### Scenario: Expanding Generic Species Fallbacks
+- **WHEN** seeding or updating the `ref_moral_weights` collection
+- **THEN** it MUST be populated with generic baseline records: `generic_companion`, `generic_farmed`, `generic_wild`, and `generic_unspecified`.
+- **AND** the `ref_evidence_discounts` multipliers MUST be updated to reflect animal advocacy sector realities (e.g., `Pre-Post` adjusted to 0.6, `Anecdotal` to 0.3).
 

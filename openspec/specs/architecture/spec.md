@@ -20,11 +20,10 @@ The project SHALL maintain a strict monorepo structure to organize and isolate o
 ### Requirement: Separation of Concerns
 The architecture SHALL strictly decouple orchestration, intelligence extraction, data validation, and frontend rendering.
 
-#### Scenario: Centralising URL Resolution Logic
-- **WHEN** unstructured references (like PDF page numbers or web search indices) need to be converted into clickable deep-links
-- **THEN** this transformation MUST NOT occur within the Orchestrator (n8n) using inline JavaScript nodes.
-- **AND** the Orchestrator MUST pass the raw extracted JSON and the necessary contextual URLs (report URLs and web search arrays) to a dedicated endpoint in the Logic layer (`utils_api`).
-- **AND** the `utils_api` MUST deterministically construct and inject the `resolved_url` into every `source` object before it is persisted to the Data Vault.
+#### Scenario: Generic Species Fallback Decoupling
+- **WHEN** the `utils_api` calculates the Impact Equivalency Score (IES) and encounters an unmapped species
+- **THEN** it MUST NOT rely on hardcoded Python dictionaries to resolve the fallback.
+- **AND** it MUST query the `ref_moral_weights` reference collection in PocketBase for generic baseline records (e.g., `generic_companion`, `generic_farmed`, `generic_wild`, `generic_unspecified`) based on the charity's dominant beneficiary domain.
 
 ### Requirement: Schema Centralization
 The `schemas/` directory SHALL serve as the single source of truth for data validation across all services.

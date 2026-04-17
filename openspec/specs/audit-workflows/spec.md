@@ -6,12 +6,15 @@ This specification defines the system's core data processing pipelines, managed 
 ### Requirement: EA Animal Advocacy Audit Logic
 The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system, separating intervention-level tractability from organisation-level monitoring capabilities.
 
-#### Scenario: Aggregating an Intervention Leverage Portfolio
-- **WHEN** the `check_intervention_tractability` function evaluates the `significant_events` array
-- **THEN** it MUST map all interventions with verifiable source quotes to their corresponding "Intervention Leverage Tiers" (Tier 1: Systemic Change, Tier 2: Preventative Scale, Tier 3: Direct Care & Indirect Action).
-- **AND** it MUST determine the highest tier achieved and inject it as a string into the `details.calculation` field.
-- **AND** it MUST compile all verified interventions, grouped by tier, into a single structured list of dictionaries. This list MUST be serialized into a JSON string and injected into the `details.elaboration` field so the UI can parse and render the complete portfolio.
-- **AND** it MUST assign a "pass" status if the organisation possesses at least one verified Tier 1 or Tier 2 intervention, and a "warning" if the portfolio consists solely of Tier 3 interventions or if no verifiable interventions are present.
+#### Scenario: Metric-to-Intervention Attribution
+- **WHEN** the impact engine attempts to map a metric to a significant event to determine the Leverage Multiplier ($W_{leverage}$)
+- **THEN** it MUST utilise a fuzzy matching heuristic (e.g., substring normalisation or Levenshtein distance) rather than strict exact-string matching.
+- **AND** if an explicit match still fails, the engine MUST NOT drop the metric; instead, it MUST assign the metric to the charity's primary intervention or apply a conservative sector-average baseline probability.
+
+#### Scenario: Leverage Multiplier ($W_{leverage}$) Resolution
+- **WHEN** an event is tagged with multiple interventions
+- **THEN** the engine MUST identify the intervention marked as `is_primary` and exclusively apply its $W_{leverage}$.
+- **AND** it MUST NOT default to selecting the maximum $W_{leverage}$ from the array.
 
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, dynamically assigning a Confidence Tier to prevent misrepresentation of multi-domain charities.
@@ -40,10 +43,13 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.
 
-#### Scenario: Instructing the LLM on Epistemic Humility
+#### Scenario: Enforcing Zero-Hallucination Constraints
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST explicitly instruct the LLM to search for admissions of failure, unintended consequences, or negative impacts within the text.
-- **AND** it MUST instruct the LLM to search for exact euthanasia or live-release numbers, explicitly warning the LLM *not* to infer these numbers from generic "animals saved" metrics.
+- **THEN** the system prompt MUST explicitly enforce the following constraints to prevent data hallucinations:
+  1. **Beneficiary Classification:** "Egg counts (e.g., '10,000 eggs secured') MUST be quantified and classified as individual beneficiaries and outcomes, subject to standard moral weighting."
+  2. **Exclusion of Potential Impact:** "Metrics regarding 'potential' animals helped, 'capacity to hold', or 'future targets' MUST NOT be extracted as outcome counts or beneficiaries. Only historically realised, explicit physical counts are permitted."
+  3. **Financial Value Disambiguation:** "Dollar amounts, funds raised, or monetary values MUST NEVER be extracted as quantitative animal counts. Differentiate strictly between a currency symbol/word and a biological organism."
+  4. **Operating Scope Definition:** "Conducting humane education, managing human volunteers, or running awareness campaigns about animals DOES NOT constitute a multi-domain operation. The organisation remains `pure_animal_advocacy` unless a significant portion of its core financial budget is diverted to non-animal sectors (e.g., human humanitarian aid)."
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
