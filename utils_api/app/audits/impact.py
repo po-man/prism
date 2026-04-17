@@ -8,6 +8,7 @@ from app.schemas.custom_json_encoder import CustomEncoder
 from typing import Optional
 from app.services.pocketbase_client import pb_client
 from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
+from app.audits.utils import resolve_value
 
 
 def check_monitoring_and_evaluation(record: OrganisationRecord) -> CheckItem:
@@ -330,7 +331,8 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
             if population <= 0:
                 continue
 
-            cost_usd = _to_usd(breakdown.amount.value, None) / population
+            amount = resolve_value(breakdown.amount)
+            cost_usd = _to_usd(amount, None) / population
             program_matches.append(
                 {
                     "programme_name": breakdown.programme_name,
@@ -373,7 +375,8 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
         and record.impact.beneficiaries.beneficiaries
         and record.financials.expenditure.program_services.value is not None
     ):
-        program_spend = record.financials.expenditure.program_services.value
+        program_spend = resolve_value(record.financials.expenditure.program_services)
+
         rate = (
             record.financials.currency.usd_exchange_rate
             if record.financials.currency and record.financials.currency.usd_exchange_rate
@@ -402,11 +405,11 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
         # If breakdown data exists, attempt to use pure-play logic
         if has_breakdowns:
-            breakdown_values = [
-                b.amount.value
-                for b in record.financials.expenditure.program_breakdowns
-                if b and b.amount and b.amount.value is not None
-            ]
+            breakdown_values = []
+            for b in record.financials.expenditure.program_breakdowns:
+                if not b or not b.amount or b.amount.value is None:
+                    continue
+                breakdown_values.append(resolve_value(b.amount))
             if breakdown_values and program_spend > 0:
                 max_breakdown = max(breakdown_values)
                 if max_breakdown / program_spend >= 0.8:
@@ -460,8 +463,8 @@ def check_funding_neglectedness(record: OrganisationRecord) -> CheckItem:
         base_item.details.calculation = "Financials with income breakdown are missing."
         return base_item
 
-    gov_grants = record.financials.income.government_grants.value
-    total_income = record.financials.income.total.value
+    gov_grants = resolve_value(record.financials.income.government_grants)
+    total_income = resolve_value(record.financials.income.total)
 
     if total_income <= 0:
         base_item.details.calculation = f"Total income (${total_income:,.0f}) is not a positive number."

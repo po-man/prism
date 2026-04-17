@@ -8,12 +8,12 @@
 - [x] 2.2 Add an instruction under the strict extraction rules: "CRITICAL: Look carefully at table headers, column names, or footnotes for scale indicators like 'in thousands', 'in HK$ \'000', 'in millions', or 'mn'. If found, extract the number EXACTLY as written in the cell into the `value` field (do not manually add zeroes). Then, set the `scale_multiplier` field to `1000` or `1000000` accordingly. If no scale is indicated, set it to `1`."
 
 ## 3. Python Audit Engine (`utils_api/app/audits/`)
-- [ ] 3.1 Open `utils_api/app/audits/impact.py`.
-- [ ] 3.2 In the `check_cost_per_outcome` function, locate the extraction of program spend (e.g., `program_spend = record.financials.expenditure.program_services.value`).
-- [ ] 3.3 Update the extraction to factor in the scale: `raw_spend = record.financials.expenditure.program_services.value` and `multiplier = record.financials.expenditure.program_services.scale_multiplier or 1`. 
-- [ ] 3.4 Calculate the true local spend: `true_local_spend = raw_spend * multiplier`.
-- [ ] 3.5 Pass `true_local_spend` into the existing `usd_exchange_rate` conversion logic. Ensure total expenditure calculations (if used elsewhere in the API) follow this same pattern.
-- [ ] 3.6 Update `utils_api/tests/test_audit_impact.py` to include a mock record with a `value` of `20` and a `scale_multiplier` of `1000000`, asserting that the calculated USD cost scales correctly.
+- [x] 3.1 Open `utils_api/app/audits/impact.py`.
+- [x] 3.2 In the `check_cost_per_outcome` function, locate the extraction of program spend.
+- [x] 3.3 Update the extraction to factor in the scale: `raw_spend = record.financials.expenditure.program_services.value` and `multiplier = record.financials.expenditure.program_services.scale_multiplier or 1`.
+- [x] 3.4 Calculate the true local spend: `true_local_spend = raw_spend * multiplier`.
+- [x] 3.5 Pass `true_local_spend` into the existing `usd_exchange_rate` conversion logic. Ensure total expenditure calculations (if used elsewhere in the API) follow this same pattern.
+- [x] 3.6 Update `utils_api/tests/test_audit_impact.py` to include a mock record with a `value` of `20` and a `scale_multiplier` of `1000000`, asserting that the calculated USD cost scales correctly.
 
 ## 4. Hugo UI Updates (`web/`)
 - [ ] 4.1 Open `web/layouts/partials/impact-pathway.html`.
