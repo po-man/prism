@@ -17,28 +17,12 @@ The `utils_api` microservice SHALL execute deterministic audit functions, utiliz
 - **AND** it MUST NOT default to selecting the maximum $W_{leverage}$ from the array.
 
 ### Requirement: Cost Per Outcome Audit Calculation
-The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalized translation for a standard retail donation amount, dynamically assigning a Confidence Tier to prevent misrepresentation of multi-domain charities.
+The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalised translation for a standard retail donation amount, ensuring all cross-charity comparisons use a unified USD baseline and accurate mathematical scaling.
 
-#### Scenario: Evaluating High Confidence Unit Costs from Arrays
-- **WHEN** `check_cost_per_outcome` executes AND the `explicit_unit_costs` array contains one or more valid entries
-- **THEN** the audit function MUST evaluate and convert each explicitly stated amount to USD.
-- **AND** it MUST set the `confidence_tier` to `HIGH` and output a structured list of these costs, explicitly noting the intervention type they apply to.
-
-#### Scenario: Medium Confidence via Programmatic Financial Matching
-- **WHEN** `explicit_unit_costs` is empty AND `program_breakdowns` contains valid financial data
-- **THEN** the system MUST attempt to match the `programme_name` to a reported intervention in `significant_events` or a specific beneficiary group.
-- **AND** if a reasonable match is found, it MUST divide that specific programmatic spend by the specific outcome population to calculate an intervention-specific cost.
-- **AND** it MUST set the `confidence_tier` to `MEDIUM` with a note explaining the programmatic derivation.
-
-#### Scenario: Medium Confidence via Pure-Play Cohorts
-- **WHEN** granular programmatic matching is not possible
-- **THEN** the system MUST evaluate if the charity is a "Pure-Play" organisation (defined as allocating >80% of its `program_services` expenditure to a single, identifiable intervention type).
-- **AND** if it qualifies as a Pure-Play, the system MUST divide total programmatic spend by the primary outcome, labelling the result as a benchmarkable Pure-Play cost with `MEDIUM` confidence.
-
-#### Scenario: Aborting Low Confidence Unit Costs for Unattributable Multi-Domain Charities
-- **WHEN** the charity is multi-domain, lacks explicit unit costs, is not a Pure-Play, and lacks attributable programmatic financial breakdowns
-- **THEN** the system MUST set the metric `value` to `null`.
-- **AND** it MUST set the `confidence_tier` to `LOW`, explaining that dividing a multi-domain budget by a lumped sum of outcomes would produce a mathematically distorted and misleading cost.
+#### Scenario: Applying the Scale Multiplier Before Currency Conversion
+- **WHEN** the `utils_api` retrieves financial data to compute total expenditures or `check_cost_per_outcome`
+- **THEN** the engine MUST first calculate the true local value by multiplying the `value` by the `scale_multiplier`.
+- **AND** this scaled local value MUST then be used for the subsequent `usd_exchange_rate` conversion and final cost-per-outcome division.
 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations, maintaining strict data provenance, identifying organizational operating scope, and classifying events using strict semantic definitions.
@@ -119,4 +103,13 @@ The orchestration pipeline SHALL execute a rigid, multi-stage data lineage to co
 - **THEN** the `utils_api` MUST query PocketBase for the corresponding $W_{species}$ and $D_{evidence}$ multipliers.
 - **AND** the `utils_api` MUST query PocketBase for the programmatic BOTEC probability multiplier ($W_{leverage}$).
 - **AND** the `utils_api` MUST compute the final IES integer using the explicitly extracted $Outcomes_i$ claims and append the detailed mathematical breakdown to the `calculated_metrics` array before persistence.
+
+### Requirement: LLM Prompt Injection for Financials
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate financial data while adhering to a strict "no-inference" policy.
+
+#### Scenario: Extracting Header and Footnote Unit Scales
+- **WHEN** generating prompts for the Gemini model in the Financial extraction node
+- **THEN** the system prompt MUST explicitly instruct the model to scan table headers, sub-headers, and footnotes for phrasing such as "in thousands", "'000", "in millions", or "mn".
+- **AND** the prompt MUST instruct the model to extract the raw number exactly as written into the `value` field, without attempting to perform mental arithmetic (e.g., adding zeroes).
+- **AND** the prompt MUST instruct the model to set the `scale_multiplier` field to `1000` or `1000000` corresponding to the discovered scale, or `1` if no scale is specified.
 

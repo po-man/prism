@@ -42,12 +42,12 @@ The UI SHALL present the estimated cost per outcome alongside a tangible retail 
 - **AND** if the metric was derived via the Pure-Play cohort logic, it MUST display a specific badge or text indicating it as a "Pure-Play Benchmark".
 
 ### Requirement: Impact Pathway Display
-The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion, and rendering granular provenance.
+The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion, whilst maintaining full data provenance via tooltips.
 
-#### Scenario: Rendering Line-Item Financial Provenance
-- **WHEN** rendering the "Inputs" card (Total Annual Expenditure) or the "Value for Money" (Expense Breakdown) sections
-- **THEN** the Hugo template MUST read the `.value` property of the respective financial figure.
-- **AND** if a `.source` object is populated for that specific figure, the template MUST render the `provenance-badge.html` partial immediately adjacent to the printed figure, allowing users to verify individual income or expense metrics independently.
+#### Scenario: Rendering Normalized Inputs with Scaling Context
+- **WHEN** rendering the "Inputs" card (Total Annual Expenditure)
+- **THEN** the underlying Hugo template MUST compute the true local value by multiplying the raw `.value` by the `.scale_multiplier`.
+- **AND** the hover tooltip MUST reflect the mathematically scaled local currency for maximum transparency (e.g., "Original: HKD 20,000,000 (Extracted as 20 x 1,000,000). Rate: 0.128").
 
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.

@@ -11,13 +11,14 @@ The system SHALL define a canonical JSON schema for extracting and persisting ch
 - **THEN** the schema MUST include a new `primary_intervention_type` field (string, referencing the intervention enum) alongside the existing `intervention_type` array, to prevent leverage inflation from secondary tags.
 
 ### Requirement: Financials Schema Definition
-The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and granular data provenance.
+The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and accurate mathematical scaling.
 
-#### Scenario: Extracting Programmatic Financial Breakdowns
-- **WHEN** validating the `expenditure` object within `financials.schema.json`
-- **THEN** the schema MUST include a `program_breakdowns` array.
-- **AND** this array MUST accept objects containing `programme_name` (string) and `amount` (referencing the `financial_figure` definition).
-- **AND** this allows the system to capture granular line-item spending (e.g., "Mobile Spay Clinic Operations: $50,000") beyond the aggregated `program_services` total.
+#### Scenario: Preserving Raw Integers with Table Multipliers
+- **WHEN** validating the `financials.schema.json`
+- **THEN** any object representing a financial figure (e.g., items within `income`, `expenditure`, `reserves`) MUST include a `scale_multiplier` property.
+- **AND** the `scale_multiplier` MUST be an integer constrained to a strict enum: `[1, 1000, 1000000]`.
+- **AND** the default value of `scale_multiplier` MUST be `1`.
+- **AND** the primary `value` property MUST continue to store the raw integer exactly as it appears in the tabular source data.
 
 ### Requirement: EA Analytics Schema Expansion
 The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.
