@@ -43,7 +43,8 @@
             "type": "object",
             "properties": {
               "value": { "type": ["number", "null"] },
-              "unit": { "type": "string" }
+              "unit": { "type": "string" },
+              "unit_is_individual_animal": {  "type": "boolean", "description": "Whether the unit refers to an individual animal (e.g., 'lives saved', 'vaccinations administered') or a different quantity (e.g., 'tons of feed saved', 'fund raised', 'eggs laid'). This is important for accurate aggregation and comparison across metrics." }
             },
             "required": ["value", "unit"]
           },

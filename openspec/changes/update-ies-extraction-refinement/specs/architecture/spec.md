@@ -11,12 +11,6 @@ The architecture SHALL strictly decouple orchestration, intelligence extraction,
 ### Requirement: EA Animal Advocacy Audit Logic
 The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system, separating intervention-level tractability from organisation-level monitoring capabilities.
 
-#### Scenario: IES Calculation Bounding & Filtering
-- **WHEN** the impact engine processes the `impact.metrics.metrics` array for IES calculation
-- **THEN** it MUST apply a pre-processing filter to exclude any metric where `timeframe != 'annual'`.
-- **AND** it MUST calculate the sum of `outcome.value` for all processed annual metrics.
-- **AND** if this sum exceeds the sum of all unique individuals defined in `impact.beneficiaries.beneficiaries`, the engine MUST apply a bounding cap (ratio) to the total outcome pool to prevent mathematical inflation via duplicated metrics.
-
 #### Scenario: Metric-to-Intervention Attribution
 - **WHEN** the impact engine attempts to map a metric to a significant event to determine the Leverage Multiplier ($W_{leverage}$)
 - **THEN** it MUST utilise a fuzzy matching heuristic (e.g., substring normalisation or Levenshtein distance) rather than strict exact-string matching.

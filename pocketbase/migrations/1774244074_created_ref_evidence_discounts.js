@@ -111,8 +111,8 @@ migrate((app) => {
   const discountData = [
     { "evidence_key": "RCT/Meta-Analysis", "multiplier": 1.00, "description": "Randomised control and treatment groups; highest epistemic confidence.", "source_citation": "GiveWell / ACE Baseline" },
     { "evidence_key": "Quasi-Experimental", "multiplier": 0.70, "description": "Non-randomised control group; moderate risk of selection bias.", "source_citation": "Extrapolated from GiveWell validity adjustments" },
-    { "evidence_key": "Pre-Post", "multiplier": 0.40, "description": "Same group measured before and after; high risk of confounding variables.", "source_citation": "ACE Epistemic Discounting" },
-    { "evidence_key": "Anecdotal", "multiplier": 0.10, "description": "Self-reported, uncontrolled claims; used purely as existence proof.", "source_citation": "Standard EA Epistemic Penalty" },
+    { "evidence_key": "Pre-Post", "multiplier": 0.60, "description": "Same group measured before and after; high risk of confounding variables.", "source_citation": "ACE Epistemic Discounting" },
+    { "evidence_key": "Anecdotal", "multiplier": 0.30, "description": "Self-reported, uncontrolled claims; used purely as existence proof.", "source_citation": "Standard EA Epistemic Penalty" },
     { "evidence_key": "None", "multiplier": 0.00, "description": "No verifiable evidence provided; mathematical nullification.", "source_citation": "PRISM Strict Compliance" }
   ];
 

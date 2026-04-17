@@ -84,6 +84,7 @@ VALID_IMPACT = {
             "event_name": "Project Shelter",
             "summary": "Built a new shelter facility.",
             "intervention_type": ["individual_rescue_and_sanctuary"],
+            "primary_intervention_type": "individual_rescue_and_sanctuary",
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {
@@ -168,6 +169,7 @@ ABBREVIATED_IMPACT_PAYLOAD = {
         "significant_events": [{
             "event_name": "A special event",
             "intervention_type": ["other"],
+            "primary_intervention_type": "other",
             "other_desc": "A custom intervention type."
         }]
     },
@@ -191,6 +193,7 @@ CANONICAL_IMPACT_PAYLOAD = {
         "significant_events": [{
             "event_name": "A special event",
             "intervention_type": ["other"],
+            "primary_intervention_type": "other",
             "intervention_type_other_description": "A custom intervention type."
         }]
     },
