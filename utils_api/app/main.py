@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import validation, audit, url_resolver, provenance
+from app.routers import validation, audit, provenance
 
 app = FastAPI(
     title="Prism Utils API",
@@ -9,5 +9,4 @@ app = FastAPI(
 
 app.include_router(validation.router)
 app.include_router(audit.router)
-app.include_router(url_resolver.router)
 app.include_router(provenance.router)

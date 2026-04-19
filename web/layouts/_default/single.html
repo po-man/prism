@@ -75,20 +75,6 @@
                 </span>
               {{ end }}
 
-              {{/* Check if any impact data has a source_url, indicating web search was used */}}
-              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
-
-              {{ if $has_web_source }}
-                <span class="flex items-center text-sm text-gray-700" title="Web Intelligence Search Performed">
-                  {{ partial "icons/web-search.svg" $org }}
-                  <span class="ml-0.5">Web Search</span>
-                </span>
-              {{ else }}
-                <span class="flex items-center text-sm text-gray-600 grayscale" title="Web Intelligence Search Performed (No impact data found from web sources)" style="opacity: 0.2;">
-                  {{ partial "icons/web-search.svg" $org }}
-                  <span class="ml-0.5">Web Search</span>
-                </span>
-              {{ end }}
             </div>
           </div>
 

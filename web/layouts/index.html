@@ -48,10 +48,8 @@
               {{ $s.Set "sourceCount" 0 }}
               {{ $annual_report_url := $org.expand.annual_report.url }}
               {{ $financial_report_url := $org.expand.financial_report.url }}
-              {{ $has_web_source := partial "logic/has-web-source.html" $org }}
               {{ if and $org.annual_report $annual_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if and $org.financial_report $financial_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
-              {{ if $has_web_source }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Data Sources" data-sort-value="{{ $s.Get "sourceCount" }}">
                 <div class="flex items-center justify-center space-x-2 text-gray-600 ">
                   {{ if and $org.annual_report $annual_report_url }}
@@ -64,9 +62,6 @@
                   {{ else }}
                     <span title="Financial Report Missing" class="grayscale" style="opacity: 0.2;">{{- partial "icons/financials.svg" . | safeHTML -}}</span>
                   {{ end }}
-                  <span title="Web Search Performed{{ if not $has_web_source }} (No impact data found from web sources){{ end }}" class="{{ if not $has_web_source }}grayscale{{ end }}" {{ if not $has_web_source }}style="opacity: 0.2;"{{ end }}>
-                    {{- partial "icons/web-search.svg" . | safeHTML -}}
-                  </span>
                 </div>
               </td>
               {{/* Task 3.2: Target Species (Neglectedness) Column */}}
