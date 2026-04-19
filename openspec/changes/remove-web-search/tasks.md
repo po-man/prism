@@ -10,12 +10,11 @@
 - [x] 2.2 Open `impact.system.md`. Under "Context Hierarchy and Provenance", remove references to `<web_context>` snippets and the instruction to "Prioritize PDF data over web snippets". Remove instructions to populate `search_result_index`.
 
 ## 3. n8n Orchestrator Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
-- [ ] 3.1 Open the main Charity Analysis workflow.
-- [ ] 3.2 Delete the entire Impact Search branch: `Search for Impact Snippets`, `Call 'Prompt Injection' - Impact Search`, `Schema Validation (Impact Search)`, `Parsed Content (Impact Search)`, `Resolve URLs (Impact Search)`.
-- [ ] 3.3 Update the `Storage API - Update Charity - Impact` node. Remove `impact_search` from the payload body.
-- [ ] 3.4 Update all `Merge` nodes that previously waited on the Impact Search branch (e.g., `Merge (Impact - Beneficiaries)`) to only combine inputs from the PDF extractions.
-- [ ] 3.5 Update all `Resolve Provenance` HTTP Request nodes. Remove `web_search_results` from the JSON body payload.
-- [ ] 3.6 Update all `Extract Impact - [Domain]` HTTP Request nodes. Remove the dynamic injection of the `impact_search` data into the Gemini prompt payload.
+- [x] 3.1 Open the main Charity Analysis workflow.
+- [x] 3.2 Delete the entire Impact Search branch: `Search for Impact Snippets`, `Call 'Prompt Injection' - Impact Search`, `Schema Validation (Impact Search)`, `Parsed Content (Impact Search)`, `Resolve URLs (Impact Search)`.
+- [x] 3.3 Update all `Merge` nodes that previously waited on the Impact Search branch (e.g., `Merge (Impact - Beneficiaries)`) to only combine inputs from the PDF extractions.
+- [x] 3.4 Update all `Resolve Provenance` HTTP Request nodes. Remove `web_search_results` from the JSON body payload.
+- [x] 3.5 Update all `Extract Impact - [Domain]` HTTP Request nodes. Remove the dynamic injection of the `impact_search` data into the Gemini prompt payload.
 
 ## 4. Python Audit Engine (`utils_api`)
 - [x] 4.1 Delete `utils_api/app/routers/url_resolver.py` and remove its router inclusion from `utils_api/app/main.py`. Delete `utils_api/app/schemas/url_resolver.py` and `search.py`.
