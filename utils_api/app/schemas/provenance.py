@@ -1,22 +1,13 @@
 from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, AnyHttpUrl, Field
 
-
-class WebSearchResult(BaseModel):
-    """A model for a single item in the web_search_results context array."""
-
-    original_text: str
-    url: AnyHttpUrl
-
-
 class ProvenanceContext(BaseModel):
     """
     Contextual information required to resolve provenance, including base URLs
-    for reports and the original web search results.
+    for attached reports.
     """
 
     attached_reports: List[AnyHttpUrl] = Field(default_factory=list)
-    web_search_results: List[WebSearchResult] = Field(default_factory=list)
 
 
 class ProvenanceRequest(BaseModel):

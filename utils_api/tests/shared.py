@@ -6,7 +6,6 @@ FINANCIAL_FIGURE_SOURCE_TEMPLATE = {
     "source_type": "attached_report",
     "source_index": 0,
     "page_number": 5,
-    "search_result_index": None,
     "quote": "Statement of Financial Activities for the year ended 31 March 2024.",
     "resolved_url": None,
 }
@@ -60,7 +59,6 @@ VALID_BASE_RECORD = {
                     "source_type": "attached_report",
                     "source_index": 0,
                     "page_number": 15,
-                    "search_result_index": None,
                     "quote": "We provided services to 500 companion animals in the Hong Kong area.",
                     "resolved_url": None
                 }
@@ -82,7 +80,6 @@ VALID_BASE_RECORD = {
                         "source_type": "attached_report",
                         "source_index": 0,
                         "page_number": 12,
-                        "search_result_index": None,
                         "quote": "The study showed a significant increase in animal welfare, with 1,000 animals rescued.",
                         "resolved_url": None
                     }
@@ -99,11 +96,10 @@ VALID_BASE_RECORD = {
                     "intervention_type_other_description": None,
                     "timeframe": "annual",
                     "source": {
-                        "source_type": "web_search",
-                        "source_index": None,
-                        "page_number": None,
-                        "search_result_index": 0,
-                        "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
+                        "source_type": "attached_report",
+                        "source_index": 0,
+                        "page_number": 2,
+                        "quote": "Our new shelter facility, 'Project Shelter', opened this year on page 2.",
                         "resolved_url": None
                     }
                 }
@@ -112,11 +108,10 @@ VALID_BASE_RECORD = {
                 "operating_scope": {
                     "value": "pure_animal_advocacy",
                     "source": {
-                        "source_type": "web_search",
-                        "source_index": None,
-                        "page_number": None,
-                        "search_result_index": 0,
-                        "quote": "We are an organisation dedicated to animal advocacy.",
+                        "source_type": "attached_report",
+                        "source_index": 0,
+                        "page_number": 1,
+                        "quote": "We are an organisation dedicated to pure animal advocacy.",
                         "resolved_url": None
                     }
                 },
@@ -130,7 +125,6 @@ VALID_BASE_RECORD = {
                             "source_type": "attached_report",
                             "source_index": 0,
                             "page_number": 18,
-                            "search_result_index": None,
                             "quote": "It costs just $25 to spay one dog.",
                             "resolved_url": None
                         }
@@ -149,7 +143,6 @@ VALID_BASE_RECORD = {
                         "source_type": "attached_report",
                         "source_index": 0,
                         "page_number": 1,
-                        "search_result_index": None,
                         "quote": "The euthanasia is 2%",
                         "resolved_url": None
                     }

@@ -1,30 +1,14 @@
-import httpx
-import asyncio
-from urllib.parse import quote as url_quote
 from typing import Any, Dict, List, Union
 
-from fastapi import APIRouter, Body, HTTPException, status
-from pydantic import AnyHttpUrl
+from fastapi import APIRouter, Body
 
 from app.schemas.provenance import ProvenanceContext, ProvenanceRequest
 
 router = APIRouter()
 
 
-async def _resolve_redirect(url: AnyHttpUrl, client: httpx.AsyncClient) -> AnyHttpUrl:
-    """Follows a redirect to find the final URL."""
-    try:
-        response = await client.head(str(url), follow_redirects=True, timeout=10.0)
-        response.raise_for_status()
-        return response.url
-    except httpx.RequestError as e:
-        # If resolution fails, return the original URL but it might not work.
-        # Consider logging this event.
-        return url
-
-
 def _find_and_resolve_sources(
-    data: Union[Dict, List], context: ProvenanceContext, web_search_urls: Dict[int, AnyHttpUrl]
+    data: Union[Dict, List], context: ProvenanceContext
 ) -> None:
     """Recursively traverses the data to find and resolve 'source' objects."""
     if isinstance(data, dict):
@@ -33,39 +17,25 @@ def _find_and_resolve_sources(
             source_type = source.get("source_type")
             page_number = source.get("page_number")
             source_index = source.get("source_index")
-            search_index = source.get("search_result_index")
-            quote = source.get("quote")
 
             if source_type == "attached_report" and source_index is None:
                 if context.attached_reports and len(context.attached_reports) == 1:
                     source_index = 0
                     source["source_index"] = source_index
 
-            if source_type == "web_search" and search_index is None and source_index is not None:
-                # Handle case where web_search source is missing search_result_index but has source_index
-                search_index = source_index
-                source["search_result_index"] = search_index
-                source["source_index"] = None
-
             if source_type == "attached_report" and page_number:
                 base_url = context.attached_reports[source_index]
                 if base_url:
                     source["resolved_url"] = f"{base_url}#page={page_number}"
 
-            elif source_type == "web_search" and search_index is not None and quote:
-                if search_index in web_search_urls:
-                    base_url = web_search_urls[search_index]
-                    encoded_quote = url_quote(quote)
-                    source["resolved_url"] = f"{base_url}#:~:text={encoded_quote}"
-
         for key, value in data.items():
-            _find_and_resolve_sources(value, context, web_search_urls)
+            _find_and_resolve_sources(value, context)
             if key == "source" and isinstance(value, dict) and "resolved_url" not in value:
                 data[key] = None
 
     elif isinstance(data, list):
         for item in data:
-            _find_and_resolve_sources(item, context, web_search_urls)
+            _find_and_resolve_sources(item, context)
 
 
 @router.post(
@@ -80,10 +50,5 @@ async def resolve_provenance(payload: ProvenanceRequest = Body(...)):
     page numbers or text fragments. It also resolves any redirecting URLs for
     web sources.
     """
-    web_search_urls = {
-        index: result.url
-        for index, result in enumerate(payload.context.web_search_results)
-    }
-
-    _find_and_resolve_sources(payload.data, payload.context, web_search_urls)
+    _find_and_resolve_sources(payload.data, payload.context)
     return dict(data=payload.data)

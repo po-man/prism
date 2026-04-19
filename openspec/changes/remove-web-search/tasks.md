@@ -18,13 +18,13 @@
 - [ ] 3.6 Update all `Extract Impact - [Domain]` HTTP Request nodes. Remove the dynamic injection of the `impact_search` data into the Gemini prompt payload.
 
 ## 4. Python Audit Engine (`utils_api`)
-- [ ] 4.1 Delete `utils_api/app/routers/url_resolver.py` and remove its router inclusion from `utils_api/app/main.py`. Delete `utils_api/app/schemas/url_resolver.py` and `search.py`.
-- [ ] 4.2 In `utils_api/app/schemas/provenance.py`, remove `web_search_results` and `WebSearchResult` from the `ProvenanceContext`.
-- [ ] 4.3 In `utils_api/app/routers/provenance.py`:
+- [x] 4.1 Delete `utils_api/app/routers/url_resolver.py` and remove its router inclusion from `utils_api/app/main.py`. Delete `utils_api/app/schemas/url_resolver.py` and `search.py`.
+- [x] 4.2 In `utils_api/app/schemas/provenance.py`, remove `web_search_results` and `WebSearchResult` from the `ProvenanceContext`.
+- [x] 4.3 In `utils_api/app/routers/provenance.py`:
     - Remove the `_resolve_redirect` function.
     - Remove all logic pertaining to `source_type == "web_search"`, `search_result_index`, and W3C Text Fragment encoding.
     - Update the `/resolve-provenance` endpoint to remove `web_search_urls` mapping.
-- [ ] 4.4 Update `utils_api/tests/test_provenance.py` and `utils_api/tests/shared.py` to remove web search mocked data and corresponding assertions.
+- [x] 4.4 Update `utils_api/tests/test_provenance.py` and `utils_api/tests/shared.py` to remove web search mocked data and corresponding assertions.
 
 ## 5. UI / Hugo Refactoring (`web`)
 - [ ] 5.1 Delete `web/layouts/partials/logic/has-web-source.html`.

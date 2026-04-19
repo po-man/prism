@@ -49,7 +49,6 @@ VALID_IMPACT = {
                 "source_type": "attached_report",
                 "source_index": 0,
                 "page_number": 15,
-                "search_result_index": None,
                 "quote": "We provided services to 500 companion animals.",
                 "resolved_url": None
             }
@@ -73,7 +72,6 @@ VALID_IMPACT = {
                 "source_type": "attached_report",
                 "source_index": 0,
                 "page_number": 12,
-                "search_result_index": None,
                 "quote": "The study showed a significant increase in animal welfare.",
                 "resolved_url": None
             }
@@ -88,11 +86,10 @@ VALID_IMPACT = {
             "intervention_type_other_description": None,
             "timeframe": "annual",
             "source": {
-                "source_type": "web_search",
-                "source_index": None,
-                "page_number": None,
-                "search_result_index": 0,
-                "quote": "Our new shelter facility, 'Project Shelter', opened this year.",
+                "source_type": "attached_report",
+                "source_index": 0,
+                "page_number": 2,
+                "quote": "Our new shelter facility, 'Project Shelter', opened this year on page 2.",
                 "resolved_url": None
             }
         }],
@@ -103,7 +100,6 @@ VALID_IMPACT = {
                     "source_type": "attached_report",
                     "source_index": 0,
                     "page_number": 1,
-                    "search_result_index": None,
                     "quote": "We are an organisation dedicated to animal advocacy.",
                     "resolved_url": None
                 }
@@ -118,7 +114,6 @@ VALID_IMPACT = {
                         "source_type": "attached_report",
                         "source_index": 0,
                         "page_number": 1,
-                        "search_result_index": None,
                         "quote": "It costs just $25 to spay one dog.",
                         "resolved_url": None
                     }
@@ -134,7 +129,6 @@ VALID_IMPACT = {
                     "source_type": "attached_report",
                     "source_index": 0,
                     "page_number": 1,
-                    "search_result_index": None,
                     "quote": "We admit this was a failure.",
                     "resolved_url": None
                 }
@@ -145,7 +139,6 @@ VALID_IMPACT = {
                     "source_type": "attached_report",
                     "source_index": 0,
                     "page_number": 1,
-                    "search_result_index": None,
                     "quote": "The euthanasia is 2%",
                     "resolved_url": None
                 }
