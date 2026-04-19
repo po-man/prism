@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-03T17:54:23.461Z",
+  "updatedAt": "2026-04-19T08:30:06.355Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -1844,221 +1844,6 @@
     },
     {
       "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "={{ $('Vars - Gemini').first().json.gemini_model }}",
-          "mode": "id"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact Search').first().json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Impact Search').first().json.injected_prompts[1] }}\n</user prompt>"
-            }
-          ]
-        },
-        "builtInTools": {
-          "googleSearch": true
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        -144,
-        5920
-      ],
-      "id": "ec14daa2-11f1-4135-a82b-528c032c4202",
-      "name": "Search for Impact Snippets",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "7EY3kWdzHSKXrfnm",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "KyDtBHSVI5wyX2KM",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
-          "cachedResultName": "Prepare Prompts"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/impact-search.system.md\",\n  \"/home/node/.n8n-files/prompt-templates/impact-search.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  CHARITY_NAME: $('Exists? (Domains)1').first().json.name.replaceAll(\"'\", \"\\\\'\")\n} }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "prompt_file_paths",
-              "displayName": "prompt_file_paths",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "array",
-              "removed": false
-            },
-            {
-              "id": "injection_dict",
-              "displayName": "injection_dict",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "object",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        -336,
-        5920
-      ],
-      "id": "9acfbd33-e0d9-4f7a-8c5d-37b77f25d823",
-      "name": "Call 'Prompt Injection' - Impact Search"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/validate",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "schema_name",
-              "value": "={{ $('Vars - Utils API & Schemas').first().json.search_schema }}"
-            },
-            {
-              "name": "data",
-              "value": "={{$('Parsed Content (Impact Search)').first().json.parsedContentObject}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        352,
-        5920
-      ],
-      "id": "a80dcfd1-3c15-4110-b065-eee0e6d8516e",
-      "name": "Schema Validation (Impact Search)"
-    },
-    {
-      "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        128,
-        5920
-      ],
-      "id": "0827e856-078e-4dce-b8b2-0c568fbba8be",
-      "name": "Parsed Content (Impact Search)"
-    },
-    {
-      "parameters": {
-        "method": "PATCH",
-        "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').first().json.items[0].id }}",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "impact_search",
-              "value": "={{\n  {\n    data: $('Resolve URLs (Impact Search)').first().json.search_results,\n    schema: $('Schema Validation (Impact Search)').first().json,\n    audit_trails: $('Parsed Content (Impact Search)').first().json.search_results\n  }\n}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        848,
-        5920
-      ],
-      "id": "988a1edc-8224-47c1-ae80-accb08f677c9",
-      "name": "Storage API - Update Charity - Impact1",
-      "credentials": {
-        "httpBearerAuth": {
-          "id": "WyFKTClpRg732Kwj",
-          "name": "Storage API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "149c8aba-2888-4050-a306-81d084f62afa",
-              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact_search }}",
-              "rightValue": "",
-              "operator": {
-                "type": "object",
-                "operation": "exists",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "7a488dba-5e14-4e2c-bfce-021936fce94b",
-              "leftValue": "={{ $('Storage API - Get Charity').first().json.impact_search?.schema?.valid }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "8ee2443a-923d-4ef9-86e3-0bd18f94b256",
-              "leftValue": "={{ $('Vars - Input Data').first().json.force_rerun }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "false",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -544,
-        5920
-      ],
-      "id": "eb5bdda3-fc5e-48f3-b575-d33a35367536",
-      "name": "Exists? (Impact Search)"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "ULknetjfaAGl3dwG",
@@ -2190,30 +1975,6 @@
       ],
       "id": "990306ed-df6d-48d4-ab1d-58fe3ee14c11",
       "name": "Resolve Provenance (Financials)"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-search-urls",
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "search_results",
-              "value": "={{ $('Parsed Content (Impact Search)').item.json.parsedContentObject.search_results }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        576,
-        5920
-      ],
-      "id": "e7fe9ce2-17e6-4e41-b0f6-929c6ae30c83",
-      "name": "Resolve URLs (Impact Search)"
     },
     {
       "parameters": {
@@ -2761,7 +2522,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n{{ $('Merge (Impact - Beneficiaries)').first().json?.impact_search?.data ? `{\n  \"text\": ${JSON.stringify(JSON.stringify($('Merge (Impact - Beneficiaries)').first().json.impact_search.data))}\n},` : \"\" }}\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Beneficiaries)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Beneficiaries)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2815,7 +2576,7 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge (Impact - Beneficiaries)').first().json.impact_search.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2863,7 +2624,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n{{ $('Merge (Impact - Interventions)').first().json?.impact_search?.data ? `{\n  \"text\": ${JSON.stringify(JSON.stringify($('Merge (Impact - Interventions)').first().json.impact_search.data))}\n},` : \"\" }}\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2973,7 +2734,7 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge (Impact - Interventions)').first().json.impact_search.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3021,7 +2782,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n{{ $('Merge (Impact - Metrics)').first().json?.impact_search?.data ? `{\n  \"text\": ${JSON.stringify(JSON.stringify($('Merge (Impact - Metrics)').first().json.impact_search.data))}\n},` : \"\" }}\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3103,7 +2864,7 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge (Impact - Metrics)').first().json.impact_search.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3114,57 +2875,6 @@
       ],
       "id": "235430a4-4a6e-4041-8266-d65ddd1f2c17",
       "name": "Resolve Provenance (Impact - Metrics)"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "options": {
-          "includeUnpaired": true
-        }
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1072,
-        5472
-      ],
-      "id": "d4c2d694-f965-4283-8aed-98c15c300b84",
-      "name": "Merge (Impact - Metrics)"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "options": {
-          "includeUnpaired": true
-        }
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1072,
-        5264
-      ],
-      "id": "8546b8d6-1d02-40b5-a81c-ea3804068b61",
-      "name": "Merge (Impact - Interventions)"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "options": {
-          "includeUnpaired": true
-        }
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1072,
-        5072
-      ],
-      "id": "73825109-c66f-4d22-b63d-9f4193e0ac8f",
-      "name": "Merge (Impact - Beneficiaries)"
     },
     {
       "parameters": {
@@ -3196,30 +2906,13 @@
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "options": {
-          "includeUnpaired": true
-        }
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1072,
-        5680
-      ],
-      "id": "35fc249d-6697-4472-b5d3-435e3d50b2ff",
-      "name": "Merge (Impact - Transparency)"
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:streamGenerateContent?alt=sse",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n{{ $('Merge (Impact - Transparency)').first().json?.impact_search?.data ? `{\n  \"text\": ${JSON.stringify(JSON.stringify($('Merge (Impact - Transparency)').first().json.impact_search.data))}\n},` : \"\" }}\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Transparency').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Transparency)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Transparency').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Transparency)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3301,7 +2994,7 @@
         "url": "={{ $('Vars - Utils API & Schemas').first().json.utils_api_host }}/resolve-provenance",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }},\n    \"web_search_results\": {{ JSON.stringify($('Merge (Impact - Transparency)').first().json.impact_search.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"data\": {{ JSON.stringify($json) }},\n  \"context\": {\n    \"attached_reports\": {{ JSON.stringify([\n      ... ($('Storage API - Get Charity').first().json.expand?.annual_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.annual_report.url]\n        : []),\n      ... ($('Storage API - Get Charity').first().json.expand?.financial_report?.url\n        ? [$('Storage API - Get Charity').first().json.expand.financial_report.url]\n        : []),\n]) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3660,11 +3353,6 @@
         [
           {
             "node": "Read JSON schema (Impact - Beneficiaries)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Exists? (Impact Search)",
             "type": "main",
             "index": 0
           },
@@ -4143,109 +3831,6 @@
         ]
       ]
     },
-    "Search for Impact Snippets": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Impact Search)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call 'Prompt Injection' - Impact Search": {
-      "main": [
-        [
-          {
-            "node": "Search for Impact Snippets",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Schema Validation (Impact Search)": {
-      "main": [
-        [
-          {
-            "node": "Resolve URLs (Impact Search)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parsed Content (Impact Search)": {
-      "main": [
-        [
-          {
-            "node": "Schema Validation (Impact Search)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Storage API - Update Charity - Impact1": {
-      "main": [
-        [
-          {
-            "node": "Merge (Impact - Beneficiaries)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Interventions)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Metrics)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Transparency)",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Exists? (Impact Search)": {
-      "main": [
-        [
-          {
-            "node": "Merge (Impact - Beneficiaries)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Interventions)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Metrics)",
-            "type": "main",
-            "index": 1
-          },
-          {
-            "node": "Merge (Impact - Transparency)",
-            "type": "main",
-            "index": 1
-          }
-        ],
-        [
-          {
-            "node": "Call 'Prompt Injection' - Impact Search",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If Financials Schema Valid": {
       "main": [
         [
@@ -4312,17 +3897,6 @@
         [
           {
             "node": "If Financials Schema Valid",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Resolve URLs (Impact Search)": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Impact1",
             "type": "main",
             "index": 0
           }
@@ -4404,7 +3978,7 @@
       "main": [
         [
           {
-            "node": "Merge (Impact - Beneficiaries)",
+            "node": "Extract Impact - Beneficiaries",
             "type": "main",
             "index": 0
           }
@@ -4526,7 +4100,7 @@
       "main": [
         [
           {
-            "node": "Merge (Impact - Interventions)",
+            "node": "Extract Impact - Interventions",
             "type": "main",
             "index": 0
           }
@@ -4632,50 +4206,6 @@
         ]
       ]
     },
-    "Merge (Impact - Metrics)": {
-      "main": [
-        [
-          {
-            "node": "Extract Impact - Metrics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge (Impact - Interventions)": {
-      "main": [
-        [
-          {
-            "node": "Extract Impact - Interventions",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge (Impact - Beneficiaries)": {
-      "main": [
-        [
-          {
-            "node": "Extract Impact - Beneficiaries",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge (Impact - Transparency)": {
-      "main": [
-        [
-          {
-            "node": "Extract Impact - Transparency",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract Impact - Transparency": {
       "main": [
         [
@@ -4724,7 +4254,7 @@
       "main": [
         [
           {
-            "node": "Merge (Impact - Metrics)",
+            "node": "Extract Impact - Metrics",
             "type": "main",
             "index": 0
           }
@@ -4735,7 +4265,7 @@
       "main": [
         [
           {
-            "node": "Merge (Impact - Transparency)",
+            "node": "Extract Impact - Transparency",
             "type": "main",
             "index": 0
           }
@@ -4814,9 +4344,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "a87faea8-20b6-4540-9f5f-298a73c9ea61",
-  "activeVersionId": "9a570968-71b2-4212-8ac9-0d5fb8eccfe2",
-  "versionCounter": 462,
+  "versionId": "2d040f64-a663-440b-b6f1-1b80a2970155",
+  "activeVersionId": "2d040f64-a663-440b-b6f1-1b80a2970155",
+  "versionCounter": 468,
   "triggerCount": 1,
   "tags": [],
   "shared": [
