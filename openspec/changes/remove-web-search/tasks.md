@@ -27,16 +27,14 @@
 - [x] 4.4 Update `utils_api/tests/test_provenance.py` and `utils_api/tests/shared.py` to remove web search mocked data and corresponding assertions.
 
 ## 5. UI / Hugo Refactoring (`web`)
-- [ ] 5.1 Delete `web/layouts/partials/logic/has-web-source.html`.
-- [ ] 5.2 Delete `web/layouts/partials/icons/web-search.svg`.
-- [ ] 5.3 In `web/layouts/_default/single.html`:
+- [x] 5.1 Delete `web/layouts/partials/logic/has-web-source.html`.
+- [x] 5.2 Delete `web/layouts/partials/icons/web-search.svg`.
+- [x] 5.3 In `web/layouts/_default/single.html`:
     - Remove the "Web Search" icon rendering logic and the `$has_web_source` variable block under Data Sources.
-- [ ] 5.4 In `web/layouts/index.html` (Master Table):
+- [x] 5.4 In `web/layouts/index.html` (Master Table):
     - Remove the `$has_web_source` variable evaluation.
     - Remove the "Web Search" icon from the "Data Sources" column.
     - Update `$s.Add "sourceCount" 1` logic to only count to a maximum of 2 (Annual and Financial).
-- [ ] 5.5 In `web/layouts/partials/provenance-badge.html`:
+- [x] 5.5 In `web/layouts/partials/provenance-badge.html`:
     - Delete the `{{ else if eq .source_type "web_search" }}` block entirely.
     - Update the tooltip text to remove web specific terminology if present.
-- [ ] 5.6 In `web/layouts/partials/index-how-to-read.html` (How to Read This Table):
-    - Update any mention of web search in the Data Sources explanation.
