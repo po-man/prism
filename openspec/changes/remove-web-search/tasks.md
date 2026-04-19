@@ -6,9 +6,8 @@
 - [x] 1.3 Create a new PocketBase migration script in `pocketbase/migrations/` to drop the `impact_search` JSON column from the `organisations` collection.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
-- [ ] 2.1 Delete `impact-search.system.md` and `impact-search.user.md`.
-- [ ] 2.2 Open `impact.system.md`. Under "Context Hierarchy and Provenance", remove references to `<web_context>` snippets and the instruction to "Prioritize PDF data over web snippets". Remove instructions to populate `search_result_index`.
-- [ ] 2.3 Open `impact.user.md`. Ensure it only references the attached document(s).
+- [x] 2.1 Delete `impact-search.system.md` and `impact-search.user.md`.
+- [x] 2.2 Open `impact.system.md`. Under "Context Hierarchy and Provenance", remove references to `<web_context>` snippets and the instruction to "Prioritize PDF data over web snippets". Remove instructions to populate `search_result_index`.
 
 ## 3. n8n Orchestrator Updates (`n8n/workflows/SUjUpjve9Vj6aJSbbuIWL.json`)
 - [ ] 3.1 Open the main Charity Analysis workflow.
