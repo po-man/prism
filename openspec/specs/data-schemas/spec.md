@@ -47,15 +47,15 @@ The system SHALL define a canonical `source` object to standardize data provenan
     "properties": {
       "source_type": { 
         "type": "string", 
-        "enum": ["annual_report", "financial_report", "web_search"] 
+        "enum": ["attached_report"] 
+      },
+      "source_index": {
+        "type": ["integer", "null"],
+        "description": "0-based index of the attached document."
       },
       "page_number": { 
         "type": ["integer", "null"],
         "description": "1-based absolute PDF page index."
-      },
-      "search_result_index": { 
-        "type": ["integer", "null"],
-        "description": "0-based index of the search result array."
       },
       "quote": { 
         "type": ["string", "null"],
@@ -67,9 +67,10 @@ The system SHALL define a canonical `source` object to standardize data provenan
         "description": "Computed deep-link URL (populated by the Utils API)."
       }
     },
-    "required": ["source_type", "page_number", "search_result_index", "quote", "resolved_url"]
+    "required": ["source_type", "quote", "resolved_url"]
   }
   ```
+- **AND** it MUST NOT include `web_search` in the `source_type` enum or support a `search_result_index` field.
 
 ### Requirement: Dynamic Extraction Schema Transformation
 The system SHALL define a deterministic build process to transform canonical validation schemas into LLM-optimised extraction schemas by flattening enums, pruning downstream computational fields, and shortening high-token property names whilst preserving semantic context.

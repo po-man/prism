@@ -13,11 +13,13 @@ The static site generator (Hugo) SHALL render the Importance, Tractability, and 
 - **AND** for every listed intervention, it MUST append an interactive `provenance-badge.html` using the exact source object provided in the payload, allowing users to verify the exact text validating that classification.
 
 ### Requirement: Data Provenance Indicators
-The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency, including temporal bounding.
+The UI SHALL display the data sources used to generate the charity's evaluation to establish immediate transparency, including temporal bounding, strictly limited to formal documentation.
 
-#### Scenario: Displaying the Financial Year
+#### Scenario: Displaying the Financial Year and Attached Reports
 - **WHEN** rendering a charity's profile page and Impact Pathway
-- **THEN** the UI MUST explicitly display the `financial_year` associated with the extracted data to ensure users understand the temporal snapshot of the financial metrics.
+- **THEN** the UI MUST explicitly display the `financial_year` associated with the extracted data.
+- **AND** it MUST ONLY display provenance icons for the "Annual Report" and "Financial Report".
+- **AND** it MUST NOT render any visual indicators or icons suggesting web searches were performed.
 
 ### Requirement: Animal Beneficiary Badges
 The UI SHALL visually categorize the charity's beneficiaries to immediately communicate cause-area neglectedness.
@@ -61,19 +63,18 @@ The UI SHALL render the deterministic audit results, filtering out noise and pro
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually.
 
-#### Scenario: Including Bonuses in the Audit Summary Column
-- **WHEN** rendering the "Audit Summary" column in the Master Directory (`index.html`)
-- **THEN** the UI MUST parse and display the count of `bonus` checks achieved by the organisation alongside the existing pass/warn/fail counts.
-- **AND** the vanilla JavaScript table sorting logic MUST be updated to account for the bonus count, prioritizing organisations with a higher number of bonuses when sorted descending (best to worst).
+#### Scenario: Comparing ITN and Financial Metrics
+- **WHEN** a user visits the root `/` directory (Landing Page)
+- **THEN** the "Data Sources" column in the Master Table MUST display icons exclusively for "Annual Report" and "Financial Report", greying out missing sources.
+- **AND** the column's sorting logic MUST calculate the score out of a maximum of 2 sources (Annual and Financial).
 
 ### Requirement: Interactive Provenance Badges
 The UI SHALL render explicit, interactive citation badges for all quantitative figures and claims to facilitate immediate human verification against source documents.
 
-#### Scenario: Rendering Document vs. Web Citations
+#### Scenario: Rendering Document Citations
 - **WHEN** the Hugo template iterates over `beneficiaries`, `metrics`, `significant_events`, or `financials` that contain a populated `source` object
-- **THEN** it MUST render a small UI badge adjacent to the claim (e.g., an icon with "📄 p. 12" for PDFs, or "🌐 Web" for web searches).
-- **AND** the badge MUST be an anchor tag (`<a>`) linking to the `resolved_url`, ensuring the link opens in a new browser tab.
-- **AND** the UI MUST expose the verbatim `quote` text either via a tooltip (e.g., standard `title` attribute) on the badge, or a collapsible `<details>` element beneath the claim, allowing the human reviewer to know exactly what text to scan for once the deep-link resolves.
+- **THEN** it MUST render a small UI badge adjacent to the claim (e.g., an icon with "📄 p. 12" for PDFs).
+- **AND** it MUST NOT check for or render web search specific formatting or icons.
 
 ### Requirement: IES Transparent Breakdown Card
 The UI SHALL render the calculated Impact Equivalency Score ($IES$) in a dedicated, self-explanatory component on the individual charity profile, breaking down the deterministic variables used in the calculation.
