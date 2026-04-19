@@ -1,9 +1,9 @@
 ## 1. Schema & Database Updates
-- [ ] 1.1 Delete `schemas/v1/search.schema.json` and `schemas/v1/search.schema.extract.schema.json`.
-- [ ] 1.2 Open all remaining schemas (`impact.schema.json`, `financials.schema.json`, etc.) and their extraction counterparts. 
+- [x] 1.1 Delete `schemas/v1/search.schema.json` and `schemas/v1/search.schema.extract.schema.json`.
+- [x] 1.2 Open all remaining schemas (`impact.schema.json`, `financials.schema.json`, etc.) and their extraction counterparts. 
     - In the `source` definition, remove `"web_search"` from the `source_type` enum.
     - Delete the `search_result_index` property.
-- [ ] 1.3 Create a new PocketBase migration script in `pocketbase/migrations/` to drop the `impact_search` JSON column from the `organisations` collection.
+- [x] 1.3 Create a new PocketBase migration script in `pocketbase/migrations/` to drop the `impact_search` JSON column from the `organisations` collection.
 
 ## 2. Prompt Engineering (`n8n/prompt-templates`)
 - [ ] 2.1 Delete `impact-search.system.md` and `impact-search.user.md`.

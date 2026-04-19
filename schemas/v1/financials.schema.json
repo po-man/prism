@@ -10,7 +10,7 @@
       "properties": {
         "source_type": {
           "type": "string",
-          "enum": ["attached_report", "web_search"],
+          "enum": ["attached_report"],
           "description": "The strict category of the source document."
         },
         "source_index": {
@@ -20,10 +20,6 @@
         "page_number": {
           "type": ["integer", "null"],
           "description": "For attached PDF document sources, the 1-based absolute index of the page (in that attached document) where the data was found."
-        },
-        "search_result_index": {
-          "type": ["integer", "null"],
-          "description": "For web_search sources, the 0-based index of the search result snippet used."
         },
         "quote": { "type": ["string", "null"], "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation." },
         "resolved_url": { "type": ["string", "null"], "format": "uri", "description": "The fully resolved deep-link URL (e.g., with #page=N or #:~:text=...) to the specific source evidence. This is populated programmatically." }
