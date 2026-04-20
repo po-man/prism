@@ -200,7 +200,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 2. MEDIUM confidence: Pure animal advocacy, PRISM calculates
     record_medium = deepcopy(VALID_BASE_RECORD)
-    record_medium["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_medium["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium["financials"]["expenditure"]["program_services"]["value"] = 400000 # HKD
     record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
@@ -209,6 +209,8 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
     # Beneficiaries = 500
     # Cost per outcome = 40,000 / 500 = 80
     response = client.post("/audit", json=record_medium)
+    from pprint import pprint
+    pprint(response.json())
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item["confidence_tier"] == "MEDIUM"
@@ -218,7 +220,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 3. MEDIUM confidence: Programmatic matching from program_breakdowns to significant events
     record_programmatic = deepcopy(VALID_BASE_RECORD)
-    record_programmatic["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_programmatic["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_programmatic["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_programmatic["impact"]["interventions"]["significant_events"] = [
         {
@@ -244,7 +246,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 4. MEDIUM confidence: Pure-play cohort benchmark
     record_pure_play = deepcopy(VALID_BASE_RECORD)
-    record_pure_play["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_pure_play["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_pure_play["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_pure_play["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
     record_pure_play["financials"]["expenditure"]["program_services"]["value"] = 100000
@@ -262,7 +264,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 5. LOW confidence: Multi-domain operations, calculation is aborted
     record_low_multidomain = deepcopy(VALID_BASE_RECORD)
-    record_low_multidomain["impact"]["interventions"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_low_multidomain["impact"]["interventions"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_low_multidomain["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     response = client.post("/audit", json=record_low_multidomain)
     assert response.status_code == 200
@@ -274,7 +276,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 6. No metric calculated: Missing essential data for MEDIUM calculation
     record_medium_fail = deepcopy(VALID_BASE_RECORD)
-    record_medium_fail["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium_fail["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_medium_fail["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium_fail["financials"]["expenditure"]["program_services"]["value"] = None # Missing spend
     response = client.post("/audit", json=record_medium_fail)
@@ -284,7 +286,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 7. No metric calculated: Beneficiary population is zero
     record_zero_beneficiaries = deepcopy(VALID_BASE_RECORD)
-    record_zero_beneficiaries["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_beneficiaries["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_zero_beneficiaries["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_zero_beneficiaries["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_beneficiaries)
@@ -294,7 +296,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 8. MEDIUM confidence: Handles zero program spend correctly
     record_zero_spend = deepcopy(VALID_BASE_RECORD)
-    record_zero_spend["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_spend["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_zero_spend["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_zero_spend["financials"]["expenditure"]["program_services"]["value"] = 0
     record_zero_spend["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
@@ -313,10 +315,9 @@ def test_calculate_cost_per_outcome_with_scale_multiplier(client: TestClient):
     record_with_scale["impact"]["interventions"]["context"]["operating_scope"] = {
         "value": "pure_animal_advocacy",
         "source": {
-            "source_type": "web_search",
+            "source_type": "attached_report",
             "source_index": None,
             "page_number": None,
-            "search_result_index": 0,
             "quote": "We are an organisation dedicated to animal advocacy.",
             "resolved_url": None
         }
@@ -520,7 +521,7 @@ def test_calculate_ies_metric(client: TestClient):
             "primary_intervention_type": "corporate_welfare_campaigns", # Task 4.3
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "web_search", "source_index": None, "page_number": None, "search_result_index": 0, "quote": "Our campaign for cage-free commitments was a success.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "Our campaign for cage-free commitments was a success.", "resolved_url": None}
         }
     ]
 
