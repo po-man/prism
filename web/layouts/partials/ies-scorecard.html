@@ -12,8 +12,12 @@
 {{ if $ies_metric }}
 <div class="my-8 p-6 bg-purple-50 rounded-lg border border-purple-200">
   <div class="mb-4">
-    <h2 class="text-2xl font-bold text-gray-800">Impact Equivalency Score (IES)</h2>
-    <p class="text-sm text-gray-600 max-w-3xl">{{ $ies_metric.confidence_note }}</p>
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-gray-800">Impact Equivalency Score (IES)</h2>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Annual</span>
+    </div>
+    <p class="text-sm text-gray-600">{{ $ies_metric.confidence_note }}</p>
+    <p class="text-sm text-gray-600 mt-2">This model exposes the 'ingredients' of impact calculation. The resulting scores are provided as a reference point to standardise impact across different species and interventions, rather than declaring an absolute 'golden' score.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center bg-white p-4 rounded-lg shadow-inner border border-purple-100">
@@ -40,7 +44,7 @@
     <!-- Evaluated IES -->
     <div class="p-4">
       <p class="text-sm font-semibold text-purple-800">Evaluated Impact</p>
-      <p class="text-4xl font-extrabold text-purple-700">{{ $ies_metric.evaluated_ies | default 0 | lang.FormatNumber 0 }}</p>
+      <p class="text-3xl font-bold text-purple-700">{{ $ies_metric.evaluated_ies | default 0 | lang.FormatNumber 0 }}</p>
       <p class="text-xs text-gray-400">Final EA Score</p>
     </div>
   </div>

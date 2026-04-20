@@ -58,14 +58,25 @@
   {{ $neglectednessColor = "bg-red-100 text-red-800" }}
 {{ end }}
 
+{{/* Logic for Beyond Pets Focus */}}
+{{ $farmed_pop := index ($s.Get "popMap") "farmed_animals" }}
+{{ $wild_pop := index ($s.Get "popMap") "wild_animals" }}
+{{ $neglected_pop := add $farmed_pop $wild_pop }}
+{{ $neglected_pct := 0.0 }}
+{{ if gt $totalPop 0.0 }}
+  {{ $neglected_pct = div (mul $neglected_pop 100.0) $totalPop }}
+{{ end }}
+{{ $is_beyond_pets_focus := ge $neglected_pct 50.0 }}
+
 <div class="my-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
-  <h2 class="text-2xl font-bold text-gray-800 mb-4">ITN Scorecard</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-4">Impact Profile</h2>
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
     <!-- Importance -->
     <div class="p-4 bg-white rounded-lg shadow">
       <div class="flex justify-between items-start">
-        <h3 class="font-bold text-lg text-gray-700">Importance</h3>
+        <h3 class="font-bold text-lg text-gray-700">Scale of Reach</h3>
         <span class="text-[10px] font-mono tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>
       </div>
       <p class="text-sm text-gray-500 mb-2">Scale of beneficiaries</p>
@@ -100,51 +111,18 @@
       {{ end }}
     </div>
 
-    <!-- Tractability -->
-    <div class="p-4 bg-white rounded-lg shadow">
-      <h3 class="font-bold text-lg text-gray-700">Highest Intervention Leverage</h3>
-      <p class="text-sm text-gray-500 mb-2">Verified intervention portfolio</p>
-      <p class="text-xl font-semibold text-gray-900">{{ $tractabilityTier }}</p>
-      {{ if gt (len $tractabilityElaboration) 0 }}
-        <div class="mt-2 pt-2 border-t">
-          {{ range $tractabilityElaboration }}
-            <div class="mt-2">
-              <h4 class="text-sm font-bold text-gray-700 border-b pb-1">{{ .tier_name }}</h4>
-              {{/* Group interventions by name to consolidate provenance badges */}}
-              {{ $groupedInterventions := newScratch }}
-              {{ range .interventions }}
-                {{ $name := .name }}
-                {{ $sources := $groupedInterventions.Get $name | default (slice) }}
-                {{ $groupedInterventions.Set $name ( $sources | append .source ) }}
-              {{ end }}
-              <ul class="mt-1 space-y-2">
-                {{ range $name, $sources := $groupedInterventions.Values }}
-                  <li class="text-sm text-gray-600 flex items-start">
-                    <span class="flex-shrink-0 mt-px mr-1">{{ $name }}:</span>
-                    <div class="flex flex-wrap items-center">
-                      {{ range $sources }}{{ partial "provenance-badge.html" . }}{{ end }}
-                    </div>
-                  </li>
-                {{ end }}
-              </ul>
-            </div>
-          {{ end }}
-        </div>
-      {{ end }}
-    </div>
-
     <!-- Neglectedness -->
     <div class="p-4 bg-white rounded-lg shadow">
       <div class="flex justify-between items-start">
-        <h3 class="font-bold text-lg text-gray-700">Neglectedness</h3>
+        <h3 class="font-bold text-lg text-gray-700">Beneficiary Demographics</h3>
         <span class="text-[10px] font-mono tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">Annual</span>
       </div>
-      <p class="text-sm text-gray-500 mb-2">Focus on underfunded areas</p>
-      <p class="text-xl font-semibold text-gray-900">
-        <span class="px-3 py-1 text-base font-semibold rounded-full {{ $neglectednessColor }}">
-          {{ $neglectednessText }} Neglectedness
-        </span>
-      </p>
+      <div class="flex items-start justify-between">
+        <p class="text-sm text-gray-500 mb-2">Target population distribution</p>
+        {{ if $is_beyond_pets_focus }}
+          <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Beyond Pets Focus</span>
+        {{ end }}
+      </div>
       <div class="text-gray-600 mt-2">
         <span class="text-sm font-semibold">Beneficiaries:</span>
         <div class="flex flex-col space-y-2 mt-2">
@@ -179,7 +157,47 @@
           {{ end }}
         </div>
       </div>
+      {{ if $is_beyond_pets_focus }}
+      <div class="mt-auto pt-3">
+        <div class="bg-green-50 border-l-4 border-green-400 p-3 rounded-r-md">
+          <p class="text-sm font-semibold text-green-800">Beyond Pets Focus: >50% of beneficiary populations are farmed or wild animals.</p>
+        </div>
+      </div>
+      {{ end }}
     </div>
 
   </div>
+
+  <!-- Tractability -->
+  <div class="p-4 bg-white rounded-lg shadow">
+    <h3 class="font-bold text-lg text-gray-700">Intervention Portfolio</h3>
+    <p class="text-sm text-gray-500 mb-2">What kinds of interventions the organisation implements</p>
+    {{ if gt (len $tractabilityElaboration) 0 }}
+      <div class="mt-2 pt-2 border-t">
+        {{ $interventionMap := newScratch }}
+        {{ range $tractabilityElaboration }}
+          {{ range .interventions }}
+            {{ $name := .name }}
+            {{ $currentSources := $interventionMap.Get $name | default (slice) }}
+            {{ $interventionMap.Set $name ( $currentSources | append .source ) }}
+          {{ end }}
+        {{ end }}
+        <div class="flex flex-wrap gap-2">
+          {{ range $name, $sources := $interventionMap.Values }}
+            <div class="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm font-medium">
+              <span>{{ $name }}</span>
+            {{ range $sources }}
+              {{ if . }}{{ partial "provenance-badge.html" . }}{{ end }}
+            {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      </div>
+    {{ else }}
+      <p class="text-sm text-gray-500 mt-2">No verified interventions documented.</p>
+    {{ end }}
+  </div>
+
+  </div>
+
 </div>
