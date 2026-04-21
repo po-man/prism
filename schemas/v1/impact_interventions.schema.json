@@ -79,8 +79,7 @@
               "humane_education_and_community_support",
               "other"
             ],
-            "description": "The primary intervention type for this event, used for leverage multiplier resolution."
-          },
+            "description": "The primary intervention type for this event, used for leverage multiplier resolution. Pick the single most specific intervention type if multiple are listed. Do not combine multiple intervention types into one."},
           "timeframe": {
             "type": "string",
             "enum": ["annual", "cumulative", "unspecified"]
