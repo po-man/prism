@@ -83,13 +83,11 @@ The `utils_api` microservice SHALL intercept LLM extraction payloads and determi
 - **AND** only after this structural restoration is complete SHALL the payload be passed to the `jsonschema.validate()` method against the canonical validation schema.
 
 ### Requirement: Impact Equivalency Score (IES) Processing Flow
-The orchestration pipeline SHALL execute a rigid, multi-stage data lineage to compute the IES using the formula $IES_i = Outcomes_i \times W_{species} \times W_{leverage} \times D_{evidence}$.
+The orchestration pipeline SHALL execute a rigid, multi-stage data lineage to compute the IES, ensuring every component of the calculation retains its traceability to source documents.
 
-#### Scenario: Executing the IES Data Lineage
-- **WHEN** the n8n orchestrator passes the extracted impact payload to the `utils_api`
-- **THEN** the `utils_api` MUST query PocketBase for the corresponding $W_{species}$ and $D_{evidence}$ multipliers.
-- **AND** the `utils_api` MUST query PocketBase for the programmatic BOTEC probability multiplier ($W_{leverage}$).
-- **AND** the `utils_api` MUST compute the final IES integer using the explicitly extracted $Outcomes_i$ claims and append the detailed mathematical breakdown to the `calculated_metrics` array before persistence.
+#### Scenario: Mapping Source Lineage for IES Metrics
+- **WHEN** the `utils_api` computes the breakdown for the IES metric
+- **THEN** the function MUST map the `metric.source` object from the ingested impact payload directly into the top-level `source` field of the corresponding breakdown item in the output analytics schema.
 
 ### Requirement: LLM Prompt Injection for Financials
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate financial data while adhering to a strict "no-inference" policy.

@@ -73,13 +73,12 @@ The UI SHALL render explicit, interactive citation badges for all quantitative f
 - **AND** it MUST NOT check for or render web search specific formatting or icons.
 
 ### Requirement: IES Transparent Breakdown Card
-The UI SHALL render the calculated Impact Equivalency Score (IES) in a dedicated component on the individual charity profile, explicitly framing it as an exploratory, temporally bounded model rather than an absolute truth.
+The UI SHALL render the calculated Impact Equivalency Score (IES) in a dedicated component on the individual charity profile, explicitly framing it as an exploratory, temporally bounded model rather than an absolute truth, and providing immediate verifiability for all claims.
 
-#### Scenario: Contextualising the Score and its Ingredients
-- **WHEN** rendering the IES Scorecard on a charity's profile page
-- **THEN** the UI MUST include explanatory text making it clear to the audience that PRISM is exposing the "ingredients" of the calculation (empirical data vs. philosophical assumptions) for reference, rather than declaring a golden score.
-- **AND** the UI MUST render an "Annual" badge (or similar temporal indicator) prominently within the scorecard header or near the final score to reinforce that the metric represents a single year's impact.
-- **AND** the UI MUST visually balance the "Evaluated Impact" figure, ensuring its font size and weight do not disproportionately overshadow the underlying contextual breakdown or the "Claimed Impact".
+#### Scenario: Rendering Provenance on Impact Claims
+- **WHEN** iterating through the IES Calculation Breakdown table rows
+- **THEN** the UI MUST render the `metric_name` string.
+- **AND** if a `source` object is present at the breakdown item level, it MUST render the interactive provenance badge immediately succeeding the metric name.
 
 ### Requirement: Impact Profile Rendering
 The static site generator (Hugo) SHALL render an Impact Profile for each charity, accurately reflecting cumulative impact and verbatim evidence, while explicitly bounding and labelling temporal scopes, adopting layman demographic terminology, and visually separating programmatic scale from intervention types.

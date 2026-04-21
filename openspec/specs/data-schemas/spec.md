@@ -23,12 +23,12 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 - **AND** the primary `value` property MUST continue to store the raw integer exactly as it appears in the tabular source data.
 
 ### Requirement: EA Analytics Schema Expansion
-The system SHALL define check items specific to Effective Altruism principles, supporting detailed elaborations and explicitly storing the criteria used for evaluation.
+The system SHALL define check items and calculated metrics specific to Effective Altruism principles, supporting detailed elaborations and explicitly storing the data lineage used for evaluation.
 
-#### Scenario: Storing Evaluation Thresholds
-- **WHEN** validating the `analytics.schema.json`
-- **THEN** the `details` object within the `checkItem` definition MUST include a `criteria` field (string).
-- **AND** this field MUST be used by the Python Audit Engine to pass the static Pass/Warn/Fail rules down to the frontend UI.
+#### Scenario: Propagating Metric Provenance to IES Breakdown
+- **WHEN** validating the `analytics.schema.json` for the `impact_equivalency_score` metric
+- **THEN** the items within the `details.breakdown` array MUST include an optional `source` object.
+- **AND** this `source` object MUST support the standard provenance fields (`source_type`, `page_number`, `quote`, `resolved_url`) to enable the frontend to trace the high-level impact claim back to its origin.
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.
