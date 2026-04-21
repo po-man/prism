@@ -10,8 +10,8 @@
 - [x] 2.4 Add `"source": metric.source.model_dump(exclude_unset=True) if metric.source else None` to the appended dictionary.
 
 ## 3. UI / Hugo Refactoring (`web`)
-- [ ] 3.1 In `web/layouts/partials/ies-scorecard.html`, locate the `Impact Claim` column rendering: `<td class="p-3 font-medium text-gray-800 italic w-1/3">"{{ .metric_name }}"</td>`.
-- [ ] 3.2 Update the markup to wrap the metric name in an italicised span, and conditionally render the provenance badge adjacent to it:
+- [x] 3.1 In `web/layouts/partials/ies-scorecard.html`, locate the `Impact Claim` column rendering: `<td class="p-3 font-medium text-gray-800 italic w-1/3">"{{ .metric_name }}"</td>`.
+- [x] 3.2 Update the markup to wrap the metric name in an italicised span, and conditionally render the provenance badge adjacent to it:
   ```html
   <td class="p-3 font-medium text-gray-800 w-1/3">
     <span class="italic">"{{ .metric_name }}"</span>
