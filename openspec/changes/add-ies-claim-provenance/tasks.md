@@ -1,7 +1,7 @@
 ## 1. Schema Refactoring (`schemas`)
-- [ ] 1.1 In `schemas/v1/analytics.schema.json`, locate `definitions.iesMetric.properties.details.properties.breakdown.items.properties`.
-- [ ] 1.2 Add a new `"source"` property that accepts an object or null, mimicking the standard provenance structure (containing `source_type`, `page_number`, `quote`, `resolved_url`).
-- [ ] 1.3 Run the extraction schema generation script: `python scripts/generate_extraction_schemas.py` to ensure build artifacts remain synchronized.
+- [x] 1.1 In `schemas/v1/analytics.schema.json`, locate `definitions.iesMetric.properties.details.properties.breakdown.items.properties`.
+- [x] 1.2 Add a new `"source"` property that accepts an object or null, mimicking the standard provenance structure (containing `source_type`, `page_number`, `quote`, `resolved_url`).
+- [x] 1.3 Run the extraction schema generation script: `python scripts/generate_extraction_schemas.py` to ensure build artifacts remain synchronized.
 
 ## 2. Python Audit Engine Updates (`utils_api`)
 - [ ] 2.1 In `utils_api/app/schemas/analytics.py`, update the `BreakdownItem` Pydantic model to include `source: dict | None = None` (or map it to a defined `Source` model if preferred).
