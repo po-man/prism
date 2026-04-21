@@ -10,6 +10,7 @@ def check_negative_impact_disclosure(record: OrganisationRecord) -> CheckItem:
     details = Details(
         formula="Check for self-reported unintended consequences or failures.",
         calculation="Not computed",
+        criteria="Bonus: Organisation self-reported on unintended negative impacts. | Not Disclosed: No disclosure found.",
         elaboration="This check rewards epistemic humility. Non-disclosure is standard and not a failure.",
     )
     item = CheckItem(
@@ -51,6 +52,7 @@ def check_live_release_transparency(record: OrganisationRecord) -> CheckItem:
     details = Details(
         formula="For direct rescue orgs, check for euthanasia/live-release rate disclosure.",
         calculation="Not computed",
+        criteria="Bonus: Euthanasia/live-release data is disclosed. | Not Disclosed: No disclosure found. | N/A: Not applicable for non-sheltering organisations.",
         elaboration=None,
     )
     item = CheckItem(

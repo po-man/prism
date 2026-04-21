@@ -11,63 +11,6 @@ from app.audits.constants import INTERVENTION_LEVERAGE_MAP, EVIDENCE_HIERARCHY
 from app.audits.utils import resolve_value
 
 
-def check_monitoring_and_evaluation(record: OrganisationRecord) -> CheckItem:
-    """
-    Checks the quality of self-reported evidence (M&E) in a charity's impact claims.
-    This evaluates the organisation's capacity for rigorous self-assessment,
-    independent of the general tractability of the interventions they perform.
-    """
-    base_details = Details(
-        formula="Highest level of self-reported evidence cited in impact metrics",
-        elaboration=None,
-        calculation="Not computed",
-    )
-    base_item = CheckItem(
-        id="check_monitoring_and_evaluation", status="warning", significance="MEDIUM", category="Impact Awareness", details=base_details
-    )
-
-    if not record.impact:
-        base_item.details.calculation = "Impact data with metrics is missing."
-        return base_item
-
-    # Now we know record.impact exists. Check for metrics.
-    if not record.impact.metrics or not record.impact.metrics.metrics:
-        # This case is different from no evidence *specified*. It means there are no impact claims at all.
-        base_item.status = "warning"
-        base_item.details.calculation = "No impact metrics were provided to assess evidence quality."
-        return base_item
-
-    evidence_levels = [metric.evidence_quality.value for metric in record.impact.metrics.metrics if metric.evidence_quality]
-
-    if not any(evidence_levels) or not record.impact.metrics.metrics:
-        base_item.status = "warning"
-        base_item.details.calculation = "No evidence quality was specified in any impact claim."
-        return base_item
-
-    highest_evidence = "None"
-    highest_evidence_metric: Metric | None = None
-
-    for level in EVIDENCE_HIERARCHY:  # Find the highest evidence level present
-        for metric in record.impact.metrics.metrics:
-            if metric.evidence_quality.value == level:
-                highest_evidence = level
-                highest_evidence_metric = metric
-                break
-        if highest_evidence_metric:
-            break # Found the highest, stop searching
-
-    base_item.details.calculation = f"Highest evidence found: '{highest_evidence}'."
-
-    if highest_evidence in ["RCT/Meta-Analysis", "Quasi-Experimental"]:
-        base_item.status = "pass"
-    else:
-        base_item.status = "warning"
-    if highest_evidence_metric and highest_evidence_metric.source and highest_evidence_metric.source.quote:
-        base_item.details.elaboration = f"Quote: '{highest_evidence_metric.source.quote}'"
-
-    return base_item
-
-
 def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
     """
     Evaluates the tractability of a charity's interventions by mapping them to
@@ -77,6 +20,7 @@ def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
     base_details = Details(
         formula="Mapping of verified intervention types to the Intervention Leverage Tier framework.",
         elaboration=None,
+        criteria="Pass: At least one intervention is classified as Tier 1 (Systemic Change) or Tier 2 (Prevention & Scalable Care). | Warn: All verifiable interventions are Tier 3 (Direct Care & Indirect Action).",
         calculation="Not computed",
     )
     base_item = CheckItem(
@@ -141,8 +85,11 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
     Pass if description and value are populated.
     """
     base_details = Details(
-        formula="Presence of a quantified counterfactual baseline", elaboration=None,
+        formula="Presence of a quantified counterfactual baseline with a source quote.",
+        elaboration=None,
+        criteria="Pass: At least one impact metric includes a quantified counterfactual baseline with a source quote. | Fail: No quantified counterfactual baseline is provided.",
         calculation="Not computed",
+
     )
     base_item = CheckItem(
         id="check_counterfactual_baseline", status="fail", significance="MEDIUM", category="Impact Awareness", details=base_details
@@ -153,8 +100,9 @@ def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
         return base_item
 
     for metric in record.impact.metrics.metrics:
-        if metric.counterfactual_baseline and metric.counterfactual_baseline.description and metric.counterfactual_baseline.value is not None:
+        if metric.counterfactual_baseline and metric.counterfactual_baseline.value is not None and metric.counterfactual_baseline.source and metric.counterfactual_baseline.source.quote:
             base_item.status = "pass"
+            base_item.details.elaboration = f"Quote: '{metric.counterfactual_baseline.source.quote}'"
             base_item.details.calculation = "A quantified counterfactual baseline was provided."
             return base_item
 
@@ -446,6 +394,7 @@ def check_funding_neglectedness(record: OrganisationRecord) -> CheckItem:
     """
     base_details = Details(
         formula="government_grants / total_income", elaboration=None,
+        criteria="Pass: Government grants are < 80% of total income. | Fail: Government grants are >= 80% of total income.",
         calculation="Not computed",
     )
     base_item = CheckItem(
@@ -496,6 +445,7 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
     """
     base_details = Details(
         formula="Proportional analysis of beneficiary populations (farmed/wild vs. companion)", elaboration=None,
+        criteria="Pass: >= 50% of beneficiaries are high-neglectedness (farmed/wild). | Warn: 1-49% are high-neglectedness. | Fail: 0% are high-neglectedness.",
         calculation="Not computed",
     )
     base_item = CheckItem(

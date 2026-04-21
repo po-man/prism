@@ -8,10 +8,10 @@
 - [ ] 2.2 Update the counterfactual extraction instructions: "Do NOT invent or synthesise descriptions for the counterfactual baseline. You MUST extract the exact verbatim quote from the text that indicates what would happen without the intervention and place it in `counterfactual_baseline.source.quote`."
 
 ## 3. Python Audit Engine (`utils_api/`)
-- [ ] 3.1 Open `utils_api/app/audits/registry.py` and remove `check_monitoring_and_evaluation` from the `AUDIT_CHECKS` list.
-- [ ] 3.2 Open `utils_api/app/audits/impact.py`. Delete the `check_monitoring_and_evaluation` function entirely.
-- [ ] 3.3 In `utils_api/app/audits/impact.py`, iterate through every remaining `check_*` function. Update the instantiation of the `AuditDetails` Pydantic model to include the new `criteria` field. (e.g., `criteria="Pass: >= 50% High-Neglect Species | Warn: 1-49% | Fail: 0%"`).
-- [ ] 3.4 In `check_counterfactual_baseline`, extract `record.impact.counterfactual_baseline.source.quote` and assign it to `base_item.details.elaboration = f"Quote: '{extracted_quote}'"`.
+- [x] 3.1 Open `utils_api/app/audits/registry.py` and remove `check_monitoring_and_evaluation` from the `AUDIT_CHECKS` list.
+- [x] 3.2 Open `utils_api/app/audits/impact.py`. Delete the `check_monitoring_and_evaluation` function entirely.
+- [x] 3.3 In `utils_api/app/audits/impact.py`, iterate through every remaining `check_*` function. Update the instantiation of the `AuditDetails` Pydantic model to include the new `criteria` field. (e.g., `criteria="Pass: >= 50% High-Neglect Species | Warn: 1-49% | Fail: 0%"`).
+- [x] 3.4 In `check_counterfactual_baseline`, extract `record.impact.counterfactual_baseline.source.quote` and assign it to `base_item.details.elaboration = f"Quote: '{extracted_quote}'"`.
 - [ ] 3.5 Open `utils_api/tests/test_audit_impact.py`. Delete tests related to M&E. Update remaining tests to expect the `criteria` string in the output dictionary and the modified counterfactual elaboration.
 
 ## 4. Hugo UI Refactoring (`web/layouts/partials/`)

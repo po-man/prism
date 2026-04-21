@@ -8,7 +8,6 @@ AUDIT_CHECKS = [
     financial.check_liquidity,
     # Impact & Tractability Checks
     impact.check_intervention_tractability,
-    impact.check_monitoring_and_evaluation,
     impact.check_counterfactual_baseline,
     impact.check_funding_neglectedness,
     impact.check_cause_area_neglectedness,
