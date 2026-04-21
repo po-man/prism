@@ -10,22 +10,24 @@
 {{ $impact := .impact.data }}
 {{ $financials := .financials.data }}
 
-{{/* Find the first available counterfactual description for the callout */}}
+{{/* Find the first available counterfactual for the callout */}}
 {{ $counterfactual := "" }}
 {{ range $impact.metrics.metrics }}
-  {{ if and (not $counterfactual) .counterfactual_baseline .counterfactual_baseline.value }}
-    {{ $counterfactual = .counterfactual_baseline.description }}
+  {{ if and (not $counterfactual) .counterfactual_baseline .counterfactual_baseline.source .counterfactual_baseline.source.quote }}
+    {{ $counterfactual = .counterfactual_baseline }}
   {{ end }}
 {{ end }}
 
 <div class="my-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Impact Pathway</h2>
 
-  {{/* Task 2.5: Counterfactual Callout */}}
   {{ with $counterfactual }}
   <div class="mb-8 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
-    <p class="font-bold">What would happen without this charity?</p>
-    <p class="mt-1">"{{ . }}"</p>
+    <div class="flex items-center mb-1">
+      <p class="font-bold">What would happen without this charity?</p>
+      {{ partial "provenance-badge.html" .source }}
+    </div>
+    <p class="mt-1 italic">"{{ .source.quote }}"</p>
   </div>
   {{ end }}
 

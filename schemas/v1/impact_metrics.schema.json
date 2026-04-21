@@ -48,10 +48,10 @@
           "counterfactual_baseline": {
             "type": "object",
             "properties": {
-              "description": { "type": "string" },
-              "value": { "type": ["number", "null"] }
+              "value": { "type": ["number", "null"] },
+              "source": { "$ref": "#/definitions/source" }
             },
-            "required": ["description"]
+            "required": ["value", "source"]
           },
           "evidence_quality": {
             "type": "string",

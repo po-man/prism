@@ -13,6 +13,7 @@ def check_reserve_cap(record: OrganisationRecord) -> CheckItem:
     base_details = Details(
         formula="total_reserves / total_expenditure",
         elaboration=None,
+        criteria="Pass: <= 2 years of expenditure. | Warn: 2-5 years. | Fail: > 5 years.",
         calculation="Not computed",
     )
     base_item = CheckItem(id="check_reserve_cap", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)
@@ -61,6 +62,7 @@ def check_liquidity(record: OrganisationRecord) -> CheckItem:
     base_details = Details(
         formula="(current_assets - current_liabilities) / monthly_operating_expenses",
         elaboration=None,
+        criteria="Pass: >= 6 months of operating expenses. | Warn: 3-6 months. | Fail: < 3 months.",
         calculation="Not computed",
     )
     base_item = CheckItem(id="check_liquidity", status="fail", significance="MEDIUM", category="Financial Health", details=base_details)

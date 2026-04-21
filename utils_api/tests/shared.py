@@ -71,8 +71,14 @@ VALID_BASE_RECORD = {
                     "quantitative_data": {"value": 1000, "unit": "animals"},
                     "context_qualifier": "Rescued from unsafe conditions.",
                     "counterfactual_baseline": {
-                        "description": "Without intervention, these animals would have remained at risk.",
                         "value": 50,
+                        "source": {
+                            "source_type": "attached_report",
+                            "source_index": 0,
+                            "page_number": 13,
+                            "quote": "Without our intervention, at least 50 of these animals would have perished.",
+                            "resolved_url": None
+                        }
                     },
                     "evidence_quality": "RCT/Meta-Analysis",
                     "timeframe": "annual",

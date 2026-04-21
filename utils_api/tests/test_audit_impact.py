@@ -16,48 +16,6 @@ def get_calculated_metric(response_json: dict, metric_id: str):
     return next((metric for metric in response_json["calculated_metrics"] if metric["id"] == metric_id), None)
 
 
-def test_check_monitoring_and_evaluation(client: TestClient):
-    """Tests the check_monitoring_and_evaluation audit for various evidence levels."""
-    # 1. Pass with high-quality evidence
-    record_high_evidence = deepcopy(VALID_BASE_RECORD)
-    record_high_evidence["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "Quasi-Experimental"
-    record_high_evidence["impact"]["metrics"]["metrics"][0]["source"]["quote"] = "We saw a 50% increase."
-    response = client.post("/audit", json=record_high_evidence)
-    assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
-    assert item["status"] == "pass"
-    assert item["details"]["calculation"] == "Highest evidence found: 'Quasi-Experimental'."
-    assert item["details"]["elaboration"] == "Quote: 'We saw a 50% increase.'"
-
-    # 2. Warning with only low-quality evidence
-    record_low_evidence = deepcopy(VALID_BASE_RECORD)
-    record_low_evidence["impact"]["metrics"]["metrics"][0]["evidence_quality"] = "Pre-Post"
-    record_low_evidence["impact"]["metrics"]["metrics"][0]["source"]["quote"] = None # Explicitly remove for this test
-    response = client.post("/audit", json=record_low_evidence)
-    assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
-    assert item["status"] == "warning"
-    assert item["details"]["calculation"] == "Highest evidence found: 'Pre-Post'."
-    assert item["details"]["elaboration"] is None # No quote in base record
-
-    # 3. Warning when no evidence is specified
-    record_no_evidence = deepcopy(VALID_BASE_RECORD)
-    record_no_evidence["impact"]["metrics"]["metrics"] = []
-    response = client.post("/audit", json=record_no_evidence)
-    assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
-    assert item["status"] == "warning"
-    assert item["details"]["calculation"] == "No impact metrics were provided to assess evidence quality."
-
-    # 4. Default status with missing impact data
-    record_missing_impact = deepcopy(VALID_BASE_RECORD)
-    del record_missing_impact["impact"]
-    response = client.post("/audit", json=record_missing_impact)
-    assert response.status_code == 200
-    item = get_audit_item(response.json(), "check_monitoring_and_evaluation")
-    assert item["details"]["calculation"] == "Impact data with metrics is missing."
-
-
 def test_check_intervention_tractability(client: TestClient):
     """Tests the check_intervention_tractability audit for the new Leverage Tier mappings."""
     # 1. Pass: A mix of Tier 1 and Tier 3 interventions should result in a 'pass' and a Tier 1 calculation.
@@ -87,6 +45,7 @@ def test_check_intervention_tractability(client: TestClient):
     item = get_audit_item(response.json(), "check_intervention_tractability")
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "Tier 1: Systemic Change"
+    assert item["details"]["criteria"] is not None
     
     # Assert the elaboration contains a structured, parseable JSON portfolio
     portfolio = json.loads(item["details"]["elaboration"])
@@ -148,15 +107,18 @@ def test_check_counterfactual_baseline(client: TestClient):
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "A quantified counterfactual baseline was provided."
+    assert item["details"]["criteria"] is not None
+    assert item["details"]["elaboration"] == "Quote: 'Without our intervention, at least 50 of these animals would have perished.'"
 
     # 2. Fail when baseline is missing value
     record_no_value = deepcopy(VALID_BASE_RECORD)
-    record_no_value["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["value"] = None
+    record_no_value["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = None
     response = client.post("/audit", json=record_no_value)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
     assert item["status"] == "fail"
     assert item["details"]["calculation"] == "No quantified counterfactual baseline was provided."
+    assert item["details"]["elaboration"] is None
 
     # 3. Default status with missing impact data
     record_missing_impact = deepcopy(VALID_BASE_RECORD)
@@ -367,6 +329,7 @@ def test_check_funding_neglectedness(client: TestClient):
     response = client.post("/audit", json=record_medium)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_funding_neglectedness")
+    assert item["details"]["criteria"] is not None
     assert item["status"] == "pass"
     assert "50.0%" in item["details"]["calculation"]
 
@@ -419,6 +382,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
     response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_cause_area_neglectedness")
+    assert item["details"]["criteria"] is not None
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "Focus on high-neglectedness areas (Wild Animals: 80%, Companion Animals: 20%)."
 

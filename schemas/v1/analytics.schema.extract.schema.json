@@ -68,12 +68,19 @@
                 "string",
                 "null"
               ]
+            },
+            "criteria": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "required": [
             "formula",
             "calculation",
-            "elaboration"
+            "elaboration",
+            "criteria"
           ]
         }
       },
