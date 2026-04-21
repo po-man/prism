@@ -1,0 +1,18 @@
+{{/*
+  Tooltip Partial
+  Renders a hoverable tooltip around a given element.
+
+  @param {template.HTML} .inner - The content that triggers the tooltip.
+  @param {string} .text - The text to display inside the tooltip bubble.
+  @param {string} [.class] - Optional classes for the tooltip bubble. Defaults to a dark style.
+  @param {string} [.style] - Optional inline styles for the tooltip bubble.
+
+  @example
+  {{ partial "tooltip.html" (dict "inner" (partial "icons/info.svg" .) "text" "More information here.") }}
+*/}}
+<div class="relative group inline-flex items-center justify-center">
+  {{ .inner }}
+  <div class="absolute z-10 w-max p-2 text-xs text-center rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible {{ .class | default "text-gray-700 bg-white border border-gray-200" }}" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem; {{ .style }}">
+    {{ .text }}
+  </div>
+</div>

@@ -50,17 +50,20 @@
               {{ if and $org.annual_report $annual_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               {{ if and $org.financial_report $financial_report_url }}{{ $s.Add "sourceCount" 1 }}{{ end }}
               <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Data Sources" data-sort-value="{{ $s.Get "sourceCount" }}">
-                <div class="flex items-center justify-center space-x-2 text-gray-600 ">
+                <div class="flex items-center justify-center space-x-2 text-gray-600">
+                  {{ $annual_report_inner := "" }}{{ $annual_report_text := "Annual Report Missing" }}
                   {{ if and $org.annual_report $annual_report_url }}
-                    <a href="{{ $annual_report_url }}" target="_blank" rel="noopener noreferrer" title="Annual Report Provided (Click to view)">{{- partial "icons/annual-report.svg" . | safeHTML -}}</a>
-                  {{ else }}
-                    <span title="Annual Report Missing" class="grayscale" style="opacity: 0.2;">{{- partial "icons/annual-report.svg" . | safeHTML -}}</span>
-                  {{ end }}
+                    {{ $annual_report_inner = printf `<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>` $annual_report_url (partial "icons/annual-report.svg" .) }}
+                    {{ $annual_report_text = "Annual Report Provided" }}
+                  {{ else }}{{ $annual_report_inner = printf `<span class="grayscale" style="opacity: 0.2;">%s</span>` (partial "icons/annual-report.svg" .) }}{{ end }}
+                  {{ partial "tooltip.html" (dict "inner" ($annual_report_inner | safeHTML) "text" $annual_report_text) }}
+
+                  {{ $financial_report_inner := "" }}{{ $financial_report_text := "Financial Report Missing" }}
                   {{ if and $org.financial_report $financial_report_url }}
-                    <a href="{{ $financial_report_url }}" target="_blank" rel="noopener noreferrer" title="Financial Report Provided (Click to view)">{{- partial "icons/financials.svg" . | safeHTML -}}</a>
-                  {{ else }}
-                    <span title="Financial Report Missing" class="grayscale" style="opacity: 0.2;">{{- partial "icons/financials.svg" . | safeHTML -}}</span>
-                  {{ end }}
+                    {{ $financial_report_inner = printf `<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>` $financial_report_url (partial "icons/financials.svg" .) }}
+                    {{ $financial_report_text = "Financial Report Provided" }}
+                  {{ else }}{{ $financial_report_inner = printf `<span class="grayscale" style="opacity: 0.2;">%s</span>` (partial "icons/financials.svg" .) }}{{ end }}
+                  {{ partial "tooltip.html" (dict "inner" ($financial_report_inner | safeHTML) "text" $financial_report_text) }}
                 </div>
               </td>
               {{/* Task 3.2: Target Species (Neglectedness) Column */}}
@@ -89,25 +92,22 @@
                   {{ $farmed_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $farmed_pct_raw = div (mul $farmed_pop 100.0) $totalPop }}{{ end }}
                   {{ $farmed_pct_rounded := int (math.Round $farmed_pct_raw) }}
                   {{ $farmed_opacity := 0.2 }}{{ if gt $farmed_pct_raw 0.0 }}{{ $farmed_opacity = math.Max 0.2 (div $farmed_pct_raw 100.0) }}{{ end }}
-                  <span title="Farmed Animals: {{ $farmed_pct_rounded }}%" class="text-gray-600 {{ if le $farmed_pop 0 }}grayscale{{ end }}" style="opacity: {{ $farmed_opacity }};">
-                    {{- partial "icons/farmed-animals.svg" . | safeHTML -}}
-                  </span>
+                  {{ $farmed_inner := printf `<span class="text-gray-600 %s" style="opacity: %f;">%s</span>` (cond (le $farmed_pop 0) "grayscale" "") $farmed_opacity (partial "icons/farmed-animals.svg" .) }}
+                  {{ partial "tooltip.html" (dict "inner" ($farmed_inner | safeHTML) "text" (printf "Farmed Animals: %d%%" $farmed_pct_rounded)) }}
 
                   {{ $wild_pop := index ($s.Get "popMap") "wild_animals" }}
                   {{ $wild_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $wild_pct_raw = div (mul $wild_pop 100.0) $totalPop }}{{ end }}
                   {{ $wild_pct_rounded := int (math.Round $wild_pct_raw) }}
                   {{ $wild_opacity := 0.2 }}{{ if gt $wild_pct_raw 0.0 }}{{ $wild_opacity = math.Max 0.2 (div $wild_pct_raw 100.0) }}{{ end }}
-                  <span title="Wild Animals: {{ $wild_pct_rounded }}%" class="text-gray-600 {{ if le $wild_pop 0 }}grayscale{{ end }}" style="opacity: {{ $wild_opacity }};">
-                    {{- partial "icons/wild-animals.svg" . | safeHTML -}}
-                  </span>
+                  {{ $wild_inner := printf `<span class="text-gray-600 %s" style="opacity: %f;">%s</span>` (cond (le $wild_pop 0) "grayscale" "") $wild_opacity (partial "icons/wild-animals.svg" .) }}
+                  {{ partial "tooltip.html" (dict "inner" ($wild_inner | safeHTML) "text" (printf "Wild Animals: %d%%" $wild_pct_rounded)) }}
 
                   {{ $companion_pop := index ($s.Get "popMap") "companion_animals" }}
                   {{ $companion_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $companion_pct_raw = div (mul $companion_pop 100.0) $totalPop }}{{ end }}
                   {{ $companion_pct_rounded := int (math.Round $companion_pct_raw) }}
                   {{ $companion_opacity := 0.2 }}{{ if gt $companion_pct_raw 0.0 }}{{ $companion_opacity = math.Max 0.2 (div $companion_pct_raw 100.0) }}{{ end }}
-                  <span title="Companion Animals: {{ $companion_pct_rounded }}%" class="text-gray-600 {{ if le $companion_pop 0 }}grayscale{{ end }}" style="opacity: {{ $companion_opacity }};">
-                    {{- partial "icons/companion-animals.svg" . | safeHTML -}}
-                  </span>
+                  {{ $companion_inner := printf `<span class="text-gray-600 %s" style="opacity: %f;">%s</span>` (cond (le $companion_pop 0) "grayscale" "") $companion_opacity (partial "icons/companion-animals.svg" .) }}
+                  {{ partial "tooltip.html" (dict "inner" ($companion_inner | safeHTML) "text" (printf "Companion Animals: %d%%" $companion_pct_rounded)) }}
                 </div>
               </td>
               <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Total Beneficiaries (Importance)">
