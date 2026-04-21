@@ -17,15 +17,13 @@
         },
         "source_index": {
           "type": [
-            "integer",
-            "null"
+            "integer"
           ],
           "description": "For attached PDF document sources, the 0-based index of the attached document (among all attached documents) where the data was found."
         },
         "page_number": {
           "type": [
-            "integer",
-            "null"
+            "integer"
           ],
           "description": "For attached PDF document sources, the 1-based absolute index of the page (in that attached document) where the data was found."
         },
