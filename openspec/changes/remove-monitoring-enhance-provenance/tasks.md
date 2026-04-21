@@ -12,7 +12,7 @@
 - [x] 3.2 Open `utils_api/app/audits/impact.py`. Delete the `check_monitoring_and_evaluation` function entirely.
 - [x] 3.3 In `utils_api/app/audits/impact.py`, iterate through every remaining `check_*` function. Update the instantiation of the `AuditDetails` Pydantic model to include the new `criteria` field. (e.g., `criteria="Pass: >= 50% High-Neglect Species | Warn: 1-49% | Fail: 0%"`).
 - [x] 3.4 In `check_counterfactual_baseline`, extract `record.impact.counterfactual_baseline.source.quote` and assign it to `base_item.details.elaboration = f"Quote: '{extracted_quote}'"`.
-- [ ] 3.5 Open `utils_api/tests/test_audit_impact.py`. Delete tests related to M&E. Update remaining tests to expect the `criteria` string in the output dictionary and the modified counterfactual elaboration.
+- [x] 3.5 Open `utils_api/tests/test_audit_impact.py`. Delete tests related to M&E. Update remaining tests to expect the `criteria` string in the output dictionary and the modified counterfactual elaboration.
 
 ## 4. Hugo UI Refactoring (`web/layouts/partials/`)
 - [x] 4.1 Open `web/layouts/partials/impact-pathway.html`.
