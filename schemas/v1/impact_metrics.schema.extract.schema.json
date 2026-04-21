@@ -81,18 +81,19 @@
           "counterfactual_baseline": {
             "type": "object",
             "properties": {
-              "description": {
-                "type": "string"
-              },
               "value": {
                 "type": [
                   "number",
                   "null"
                 ]
+              },
+              "source": {
+                "$ref": "#/definitions/source"
               }
             },
             "required": [
-              "description"
+              "value",
+              "source"
             ]
           },
           "evidence_quality": {

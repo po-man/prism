@@ -1,7 +1,7 @@
 ## 1. Schema Refactoring (`schemas/`)
-- [ ] 1.1 In `schemas/v1/impact_metrics.schema.json`, locate the `counterfactual_baseline` object. Delete the `description` string property.
-- [ ] 1.2 In the same object, add a `source` property referencing a new or existing provenance object containing `quote` (string) and `url` (string, nullable).
-- [ ] 1.3 In `schemas/v1/analytics.schema.json`, locate `definitions.checkItem.properties.details.properties`. Add a `"criteria"` property (type: `["string", "null"]`).
+- [x] 1.1 In `schemas/v1/impact_metrics.schema.json`, locate the `counterfactual_baseline` object. Delete the `description` string property.
+- [x] 1.2 In the same object, add a `source` property referencing a new or existing provenance object containing `quote` (string) and `url` (string, nullable).
+- [x] 1.3 In `schemas/v1/analytics.schema.json`, locate `definitions.checkItem.properties.details.properties`. Add a `"criteria"` property (type: `["string", "null"]`).
 
 ## 2. Prompt Engineering (`n8n/prompt-templates/`)
 - [ ] 2.1 Open `n8n/prompt-templates/impact.system.md`.
