@@ -37,6 +37,8 @@
       },
       "required": [
         "source_type",
+        "source_index",
+        "page_number",
         "quote"
       ]
     },

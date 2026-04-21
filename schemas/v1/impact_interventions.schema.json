@@ -24,7 +24,7 @@
         "quote": { "type": ["string", "null"], "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation." },
         "resolved_url": { "type": ["string", "null"], "format": "uri", "description": "The fully resolved deep-link URL (e.g., with #page=N or #:~:text=...) to the specific source evidence. This is populated programmatically." }
       },
-      "required": ["source_type", "quote", "resolved_url"]
+      "required": ["source_type", "source_index", "page_number", "quote", "resolved_url"]
     }
   },
   "properties": {
@@ -79,8 +79,7 @@
               "humane_education_and_community_support",
               "other"
             ],
-            "description": "The primary intervention type for this event, used for leverage multiplier resolution."
-          },
+            "description": "The primary intervention type for this event, used for leverage multiplier resolution. Pick the single most specific intervention type if multiple are listed. Do not combine multiple intervention types into one."},
           "timeframe": {
             "type": "string",
             "enum": ["annual", "cumulative", "unspecified"]

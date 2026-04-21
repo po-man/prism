@@ -24,7 +24,7 @@
         "quote": { "type": ["string", "null"], "description": "The exact verbatim wording quoted from the source, used for verification and text-fragment generation." },
         "resolved_url": { "type": ["string", "null"], "format": "uri", "description": "The fully resolved deep-link URL (e.g., with #page=N or #:~:text=...) to the specific source evidence. This is populated programmatically." }
       },
-      "required": ["source_type", "quote", "resolved_url"]
+      "required": ["source_type", "source_index", "page_number", "quote", "resolved_url"]
     }
   },
   "properties": {
