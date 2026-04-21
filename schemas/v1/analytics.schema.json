@@ -24,6 +24,30 @@
   },
   "required": ["check_items", "calculated_metrics"],
   "definitions": {
+    "source": {
+      "type": ["object", "null"],
+      "description": "Provenance of the metric claim, linking back to the source document.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["attached_report"]
+        },
+        "source_index": {
+          "type": ["integer"]
+        },
+        "page_number": {
+          "type": ["integer"]
+        },
+        "quote": {
+          "type": ["string", "null"]
+        },
+        "resolved_url": {
+          "type": ["string", "null"],
+          "format": "uri"
+        }
+      },
+      "required": ["source_type", "quote", "resolved_url"]
+    },
     "checkItem": {
       "type": "object",
       "description": "A single audit check-item result.",
@@ -179,7 +203,8 @@
                   },
                   "claimed_ies_i": { "type": "number", "description": "The claimed IES for this individual metric, before epistemic discounts." },
                   "ies": { "type": "number" },
-                  "calculation": { "type": "string" }
+                  "calculation": { "type": "string" },
+                  "source": { "$ref": "#/definitions/source" }
                 }
               }
             }

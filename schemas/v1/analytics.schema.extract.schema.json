@@ -31,6 +31,39 @@
     "calculated_metrics"
   ],
   "definitions": {
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Provenance of the metric claim, linking back to the source document.",
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "description": "[ALLOWED VALUES: 'attached_report']"
+        },
+        "source_index": {
+          "type": [
+            "integer"
+          ]
+        },
+        "page_number": {
+          "type": [
+            "integer"
+          ]
+        },
+        "quote": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "source_type",
+        "quote"
+      ]
+    },
     "checkItem": {
       "type": "object",
       "description": "A single audit check-item result.",
@@ -246,6 +279,9 @@
                   },
                   "calculation": {
                     "type": "string"
+                  },
+                  "source": {
+                    "$ref": "#/definitions/source"
                   }
                 }
               }

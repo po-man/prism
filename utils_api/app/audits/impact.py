@@ -655,6 +655,7 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
         ies_breakdown.append({
             "claimed_ies_i": round(claimed_ies_i),
             "metric_name": metric.metric_name,
+            "source": metric.source.model_dump(exclude_unset=True) if metric.source else None,
             "outcome": {
                 "value": outcome,
                 "source_quote": metric.source.quote if metric.source else None,
