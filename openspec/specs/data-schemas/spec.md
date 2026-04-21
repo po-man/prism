@@ -4,11 +4,13 @@
 This specification defines the data contracts for the entire system. It provides canonical JSON schemas for all data entities, including ingestion payloads, extracted financial and impact metrics, and the final `analytics` object. These schemas ensure data integrity and consistency as information moves from extraction to persistence and final presentation.
 ## Requirements
 ### Requirement: Impact Schema Definition
-The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, including proportional beneficiary breakdowns, exact evidence citations, temporal bounding, and granular intervention classification.
+The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, strictly enforcing the extraction of verbatim evidence over LLM-synthesised summaries.
 
-#### Scenario: Primary Intervention Designation
-- **WHEN** validating the `significant_events.items.properties` within `impact_interventions.schema.json`
-- **THEN** the schema MUST include a new `primary_intervention_type` field (string, referencing the intervention enum) alongside the existing `intervention_type` array, to prevent leverage inflation from secondary tags.
+#### Scenario: Counterfactual Baseline Provenance
+- **WHEN** validating the `impact_metrics.schema.json`
+- **THEN** the `counterfactual_baseline` object MUST include a `source` object.
+- **AND** the `source` object MUST contain an optional `url` (string, uri format) and a required `quote` (string) field to store the exact text fragment justifying the baseline.
+- **AND** the legacy `description` field MUST be deprecated to prevent structural hallucinations.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and accurate mathematical scaling.
@@ -21,12 +23,12 @@ The system SHALL define a canonical JSON schema for extracting and persisting fi
 - **AND** the primary `value` property MUST continue to store the raw integer exactly as it appears in the tabular source data.
 
 ### Requirement: EA Analytics Schema Expansion
-The system SHALL define check items specific to Effective Altruism principles, strictly separating compliance-style checks from informational calculations, and qualifying calculations with confidence metadata.
+The system SHALL define check items specific to Effective Altruism principles, supporting detailed elaborations and explicitly storing the criteria used for evaluation.
 
-#### Scenario: Dual IES Return Values
-- **WHEN** validating the `iesMetric` definition within `analytics.schema.json`
-- **THEN** it MUST be expanded to include both `claimed_ies` (integer, calculated without epistemic discounts) and `evaluated_ies` (integer, calculated with the $D_{evidence}$ multiplier applied).
-- **AND** the `breakdown` array items MUST reflect both the claimed outcome score and the final evaluated score.
+#### Scenario: Storing Evaluation Thresholds
+- **WHEN** validating the `analytics.schema.json`
+- **THEN** the `details` object within the `checkItem` definition MUST include a `criteria` field (string).
+- **AND** this field MUST be used by the Python Audit Engine to pass the static Pass/Warn/Fail rules down to the frontend UI.
 
 ### Requirement: Charity Metadata Schema
 The system SHALL define a canonical JSON schema for extracting core identifying metadata applicable to charities worldwide, rather than restricted to a single jurisdiction.

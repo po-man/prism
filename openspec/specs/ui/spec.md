@@ -35,21 +35,23 @@ The UI SHALL present the estimated cost per outcome alongside a tangible retail 
 - **AND** if the metric was derived via the Pure-Play cohort logic, it MUST display a specific badge or text indicating it as a "Pure-Play Benchmark".
 
 ### Requirement: Impact Pathway Display
-The UI SHALL present the charity's logic model hierarchically, normalising all financial inputs to USD to prevent user confusion, whilst maintaining full data provenance via tooltips.
+The UI SHALL present the charity's logic model hierarchically, providing direct, highlighted verification links for web-sourced claims and counterfactual baselines.
 
-#### Scenario: Rendering Normalized Inputs with Scaling Context
-- **WHEN** rendering the "Inputs" card (Total Annual Expenditure)
-- **THEN** the underlying Hugo template MUST compute the true local value by multiplying the raw `.value` by the `.scale_multiplier`.
-- **AND** the hover tooltip MUST reflect the mathematically scaled local currency for maximum transparency (e.g., "Original: HKD 20,000,000 (Extracted as 20 x 1,000,000). Rate: 0.128").
+#### Scenario: Rendering Counterfactual Provenance
+- **WHEN** rendering the "What would happen without this charity?" section in the Impact Pathway
+- **THEN** the UI MUST display the verbatim `source.quote` instead of a synthesised description.
+- **AND** the UI MUST render a provenance badge next to the quote.
+- **AND** if a `source.url` is present, the badge MUST be hyperlinked using W3C Text Fragment syntax (`#:~:text=`) to highlight the quote on the target page.
 
 ### Requirement: Audit Checklist Presentation
-The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organization page.
+The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organisation page.
 
-#### Scenario: Rendering Advanced Check Statuses
-- **WHEN** rendering items in the Audit Checklist (`audit-checklist.html`)
-- **THEN** the template MUST map the `bonus` status to a distinct positive visual indicator (e.g., a purple dot and `bg-purple-100` background).
-- **AND** it MUST map `not_disclosed` and `n_a` statuses to a neutral visual indicator (e.g., a grey dot and `bg-gray-100` background).
-- **AND** the internal sorting logic MUST place `bonus` items at the top of their respective category blocks, followed by `pass`, `warning`, `fail`, `not_disclosed`, and `n_a`.
+#### Scenario: Exposing Audit Evaluation Rules
+- **WHEN** a user clicks to expand a `<details>` element in the Audit Checklist
+- **THEN** the expanded area MUST cleanly separate into a top "Evaluation Criteria" block and a bottom "Result" block.
+- **AND** the top block MUST render the `details.criteria` string provided by the audit engine, styled with a muted background (e.g., `bg-gray-50`) to indicate it is a static rule.
+- **AND** the bottom block MUST render the charity-specific `details.calculation` and `details.elaboration` (rendered as an italicised blockquote) to show how they performed against the rule.
+- **AND** all hardcoded threshold tooltips (`$tooltips` dictionary) MUST be removed from the Hugo template.
 
 ### Requirement: Master Comparative Table (Landing Page)
 The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually while avoiding over-simplified hierarchical rankings.

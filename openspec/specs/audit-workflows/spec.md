@@ -4,17 +4,15 @@
 This specification defines the system's core data processing pipelines, managed by the n8n orchestrator. It covers the entire workflow from data ingestion and parallel extraction (document parsing and web search) to the final evaluation by the "Audit Checklist Engine." This includes the logic for calling external services (like Gemini for AI extraction and PocketBase for persistence) and the deterministic rules for generating the standardised `check_items` array based on financial, impact, and risk criteria.
 ## Requirements
 ### Requirement: EA Animal Advocacy Audit Logic
-The `utils_api` microservice SHALL execute deterministic audit functions, utilizing a standardized Pass/Warn/Fail three-tier thresholding system, separating intervention-level tractability from organisation-level monitoring capabilities.
+The `utils_api` microservice SHALL execute deterministic audit functions, explicitly declaring the threshold rules for every evaluation to ensure complete auditability.
 
-#### Scenario: Metric-to-Intervention Attribution
-- **WHEN** the impact engine attempts to map a metric to a significant event to determine the Leverage Multiplier ($W_{leverage}$)
-- **THEN** it MUST utilise a fuzzy matching heuristic (e.g., substring normalisation or Levenshtein distance) rather than strict exact-string matching.
-- **AND** if an explicit match still fails, the engine MUST NOT drop the metric; instead, it MUST assign the metric to the charity's primary intervention or apply a conservative sector-average baseline probability.
+#### Scenario: Injecting Evaluation Criteria
+- **WHEN** any check function within `utils_api/app/audits/impact.py` or `financials.py` instantiates an `AuditDetails` model
+- **THEN** it MUST populate the `criteria` field with a concise, human-readable explanation of the Pass/Warn/Fail thresholds specific to that check.
 
-#### Scenario: Leverage Multiplier ($W_{leverage}$) Resolution
-- **WHEN** an event is tagged with multiple interventions
-- **THEN** the engine MUST identify the intervention marked as `is_primary` and exclusively apply its $W_{leverage}$.
-- **AND** it MUST NOT default to selecting the maximum $W_{leverage}$ from the array.
+#### Scenario: Counterfactual Baseline Elaboration
+- **WHEN** executing `check_counterfactual_baseline`
+- **THEN** the function MUST map the newly extracted `counterfactual_baseline.source.quote` directly into the `base_item.details.elaboration` field so it renders in the checklist UI.
 
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalised translation for a standard retail donation amount, ensuring all cross-charity comparisons use a unified USD baseline and accurate mathematical scaling.
@@ -27,10 +25,10 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
 
-#### Scenario: Enforcing Zero-Hallucination Constraints
+#### Scenario: Extracting Counterfactual Quotes
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST NOT reference `<web_context>` or instruct the model to reconcile web snippets against PDF text.
-- **AND** the prompt MUST strictly constrain the model to extract facts exclusively from the provided, audited document context.
+- **THEN** the system prompt MUST strictly instruct the model to locate the exact verbatim text justifying the `counterfactual_baseline`.
+- **AND** it MUST place this exact sentence in the `source.quote` field, rather than paraphrasing or synthesising a description.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
