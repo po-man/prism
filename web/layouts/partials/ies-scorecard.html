@@ -12,8 +12,12 @@
 {{ if $ies_metric }}
 <div class="my-8 p-6 bg-purple-50 rounded-lg border border-purple-200">
   <div class="mb-4">
-    <h2 class="text-2xl font-bold text-gray-800">Impact Equivalency Score (IES)</h2>
-    <p class="text-sm text-gray-600 max-w-3xl">{{ $ies_metric.confidence_note }}</p>
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold text-gray-800">Impact Equivalency Score (IES)</h2>
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">Annual</span>
+    </div>
+    <p class="text-sm text-gray-600">{{ $ies_metric.confidence_note }}</p>
+    <p class="text-sm text-gray-600 mt-2">This model exposes the 'ingredients' of impact calculation. The resulting scores are provided as a reference point to standardise impact across different species and interventions, rather than declaring an absolute 'golden' score.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center bg-white p-4 rounded-lg shadow-inner border border-purple-100">
@@ -40,7 +44,7 @@
     <!-- Evaluated IES -->
     <div class="p-4">
       <p class="text-sm font-semibold text-purple-800">Evaluated Impact</p>
-      <p class="text-4xl font-extrabold text-purple-700">{{ $ies_metric.evaluated_ies | default 0 | lang.FormatNumber 0 }}</p>
+      <p class="text-3xl font-bold text-purple-700">{{ $ies_metric.evaluated_ies | default 0 | lang.FormatNumber 0 }}</p>
       <p class="text-xs text-gray-400">Final EA Score</p>
     </div>
   </div>
@@ -68,7 +72,7 @@
             <!-- Outcome -->
             <td class="p-3 text-center relative group">
               <p class="text-lg font-bold text-blue-600">{{ .outcome.value | lang.FormatNumber 0 }}</p>
-              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
                 <p class="font-bold text-blue-700">Empirical Data</p>
                 <p>This value was extracted directly from the charity's reporting.</p>
                 <p class="mt-1 italic border-l-2 pl-2">"{{ .outcome.source_quote }}"</p>
@@ -77,7 +81,7 @@
             <!-- W_species -->
             <td class="p-3 text-center relative group">
               <p class="text-lg font-bold text-orange-600">{{ .w_species.value }}</p>
-              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
                 <p class="font-bold text-orange-700">Philosophical Assumption</p>
                 <p>This is a moral weight based on estimated welfare capacity.</p>
                 <p class="mt-1 italic border-l-2 pl-2">{{ .w_species.source }}</p>
@@ -86,7 +90,7 @@
             <!-- W_leverage -->
             <td class="p-3 text-center relative group">
               <p class="text-lg font-bold text-orange-600">{{ .w_leverage.value }}</p>
-              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
                 <p class="font-bold text-orange-700">Probabilistic Assumption</p>
                 <p>This is a baseline probability of success for the intervention type.</p>
                 <p class="mt-1 italic border-l-2 pl-2">{{ .w_leverage.source }}</p>
@@ -95,7 +99,7 @@
             <!-- D_evidence -->
             <td class="p-3 text-center relative group">
               <p class="text-lg font-bold text-orange-600">{{ .d_evidence.value }}</p>
-              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-opacity duration-300" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
+              <div class="absolute z-10 w-64 p-2 mt-1 text-xs text-left text-gray-700 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible" style="bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem;">
                 <p class="font-bold text-orange-700">Epistemic Discount</p>
                 <p>This is a penalty multiplier based on the quality of evidence provided.</p>
                 <p class="mt-1 italic border-l-2 pl-2">{{ .d_evidence.source }}</p>
