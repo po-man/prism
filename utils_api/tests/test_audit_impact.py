@@ -489,10 +489,31 @@ def test_calculate_ies_metric(client: TestClient):
         }
     ]
 
-    # Beneficiary data to establish 'farmed_animals' as dominant type for fallback (Task 4.4)
+    # Beneficiary data to establish a companion-dominant organisation with a smaller farmed cohort.
+    # This lets us verify intermediate beneficiary quote matching instead of defaulting to the dominant type.
     record_data["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "Global", "population": 1000, "beneficiary_type": "farmed_animals", "source": None}
+        {
+            "location": "Global",
+            "population": 800,
+            "beneficiary_type": "companion_animals",
+            "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "Our shelter cares for 800 cats and dogs.", "resolved_url": None}
+        },
+        {
+            "location": "Global",
+            "population": 200,
+            "beneficiary_type": "farmed_animals",
+            "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "Our farm supports 200 hens and broiler chickens.", "resolved_url": None}
+        }
     ]
+
+    # Metric 4: Should use beneficiary-based species resolution via fuzzy matching on the source quote.
+    record_data["impact"]["metrics"]["metrics"].append(deepcopy(record_data["impact"]["metrics"]["metrics"][0]))
+    record_data["impact"]["metrics"]["metrics"][3]["metric_name"] = "Annual farm animal assistance"
+    record_data["impact"]["metrics"]["metrics"][3]["quantitative_data"]["value"] = 50000
+    record_data["impact"]["metrics"]["metrics"][3]["quantitative_data"]["unit"] = "animals"
+    record_data["impact"]["metrics"]["metrics"][3]["evidence_quality"] = "Anecdotal"
+    record_data["impact"]["metrics"]["metrics"][3]["timeframe"] = "annual"
+    record_data["impact"]["metrics"]["metrics"][3]["source"]["quote"] = "We helped 50,000 hens on the farm."
 
     response = client.post("/audit", json=record_data)
     assert response.status_code == 200
@@ -502,29 +523,38 @@ def test_calculate_ies_metric(client: TestClient):
     assert ies_metric["confidence_tier"] == "MEDIUM"
 
     # --- Verify Calculation (Task 4.5) ---
-    # Metric 1: Outcome 1,000,000, W_species 0.5 (generic_farmed), W_leverage 0.8, D_evidence 0.3
+    # Metric 1: Outcome 1,000,000, W_species 0.5 (generic_companion via dominant fallback), W_leverage 0.8, D_evidence 0.3
     # Claimed IES_1 = 1,000,000 * 0.5 * 0.8 = 400,000
     # Evaluated IES_1 = 400,000 * 0.3 = 120,000
     #
-    # Metric 3: Outcome 200,000, W_species 0.5 (fallback), W_leverage 0.1 (fallback), D_evidence 0.6
+    # Metric 3: Outcome 200,000, W_species 0.5 (generic_companion via dominant fallback), W_leverage 0.1 (fallback), D_evidence 0.6
     # Claimed IES_3 = 200,000 * 0.5 * 0.1 = 10,000
     # Evaluated IES_3 = 10,000 * 0.6 = 6,000
     #
-    # Total Claimed IES = 400,000 + 10,000 = 410,000
-    # Total Evaluated IES = 120,000 + 6,000 = 126,000
+    # Metric 4: Outcome 50,000, W_species 0.5 (generic_farmed via beneficiary quote match), W_leverage 0.1 (fallback), D_evidence 0.3
+    # Claimed IES_4 = 50,000 * 0.5 * 0.1 = 2,500
+    # Evaluated IES_4 = 2,500 * 0.3 = 750
+    #
+    # Total Claimed IES = 400,000 + 10,000 + 2,500 = 412,500
+    # Total Evaluated IES = 120,000 + 6,000 + 750 = 126,750
 
-    assert ies_metric["claimed_ies"] == 410000
-    assert ies_metric["evaluated_ies"] == 126000
-    assert ies_metric["value"] == 126000 # For backwards compatibility
+    assert ies_metric["claimed_ies"] == 412500
+    assert ies_metric["evaluated_ies"] == 126750
+    assert ies_metric["value"] == 126750 # For backwards compatibility
 
     # Verify breakdown
     breakdown = ies_metric["details"]["breakdown"]
-    assert len(breakdown) == 2 # Metrics 1 and 3 processed, 2 ignored (cumulative)
+    assert len(breakdown) == 3 # Metrics 1, 3 and 4 processed; 2 ignored (cumulative)
     assert breakdown[0]["metric_name"] == "Corporate Cage-Free Commitments Secured"
     assert breakdown[0]["claimed_ies_i"] == 400000
     assert breakdown[1]["metric_name"] == "Beneficiary-Based Metric"
     assert breakdown[1]["claimed_ies_i"] == 10000
     assert breakdown[0]["ies"] == 120000
-    assert breakdown[0]["w_species"]["key"] == "generic_farmed"
+    assert breakdown[0]["w_species"]["key"] == "generic_companion"
+    assert breakdown[1]["w_species"]["key"] == "generic_companion"
+    assert breakdown[2]["metric_name"] == "Annual farm animal assistance"
+    assert breakdown[2]["claimed_ies_i"] == 2500
+    assert breakdown[2]["ies"] == 750
+    assert breakdown[2]["w_species"]["key"] == "generic_farmed"
     assert breakdown[0]["w_leverage"]["key"] == "corporate_welfare_campaigns"
     assert breakdown[0]["d_evidence"]["key"] == "Anecdotal"
