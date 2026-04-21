@@ -24,17 +24,6 @@
          Order: bonus, pass, warning, fail, not_disclosed, n_a */}}
     {{ $statusOrder := dict "bonus" 1 "pass" 2 "warning" 3 "fail" 4 "not_disclosed" 5 "n_a" 6 }}
 
-
-    {{/* Task 3.1: Create a dictionary for threshold tooltips */}}
-    {{ $tooltips := dict
-      "check_liquidity" "Pass: >=6 mos | Warn: 3-6 mos | Fail: <3 mos"
-      "check_reserve_cap" "Pass: <=2 yrs | Warn: 2-5 yrs | Fail: >5 yrs"
-      "check_funding_neglectedness" "Pass: <80% gov't funding | Fail: >=80%"
-      "check_cause_area_neglectedness" "Pass: >=50% focus on high-neglectedness areas | Warn: <50% | Fail: 0%"
-      "check_evidence_quality" "Pass: High-quality evidence (RCT, Quasi-Experimental) found"
-      "check_counterfactual_baseline" "Pass: A quantified counterfactual baseline was provided"
-    }}
-
     {{ range $category, $items := $groupedItems.Values }}
       <div class="space-y-3">
         <h4 class="text-lg font-semibold text-gray-600 border-b pb-2">{{ $category }}</h4>
@@ -49,7 +38,7 @@
 
           <details class="{{ $bgClass }} border border-gray-200 rounded-md transition hover:bg-gray-100">
             <summary class="flex items-center justify-between p-4 cursor-pointer list-none">
-              <div class="flex items-center" title="{{ index $tooltips $item.id }}">
+              <div class="flex items-center">
                 {{/* Task 4.1: Update traffic light indicator for new statuses */}}
                 {{ if eq $item.status "fail" }}
                   <span class="w-4 h-4 rounded-full bg-red-500 mr-3 flex-shrink-0"></span>
@@ -73,42 +62,46 @@
               </div>
             </summary>
             <div class="p-4 border-t border-gray-200 bg-white">
-              <p class="text-gray-700">{{ $item.details.calculation | default "No calculation details available." }}</p>
-              {{ with $item.details.elaboration }}
-                {{ $elaboration := . }}
-                {{ if and (findRE `^\[.*\]$` (string $elaboration)) (findRE `"tier_name"` (string $elaboration)) }}
-                  {{/* It's the new structured portfolio JSON */}}
-                  {{ $elaborationList := $elaboration | unmarshal }}
-                  <div class="mt-2 pt-2 border-t">
-                    {{ range $elaborationList }}
-                      <div class="mt-2">
-                        <h4 class="text-sm font-bold text-gray-700 border-b pb-1">{{ .tier_name }}</h4>
-                        {{/* Group interventions by name to consolidate provenance badges */}}
-                        {{ $groupedInterventions := newScratch }}
-                        {{ range .interventions }}
-                          {{ $name := .name }}
-                          {{ $sources := $groupedInterventions.Get $name | default (slice) }}
-                          {{ $groupedInterventions.Set $name ( $sources | append .source ) }}
-                        {{ end }}
-                        <ul class="mt-1 space-y-2">
-                          {{ range $name, $sources := $groupedInterventions.Values }}
-                            <li class="text-sm text-gray-600 flex items-start">
-                              <span class="flex-shrink-0 mt-px mr-1">{{ $name }}:</span>
-                              <div class="flex flex-wrap items-center">
-                                {{ range $sources }}{{ partial "provenance-badge.html" . }}{{ end }}
-                              </div>
-                            </li>
+              <div class="bg-gray-50 border border-gray-100 rounded p-3 mb-3 text-sm">
+                <p class="font-bold text-gray-600">Evaluation Criteria:</p>
+                <p class="text-gray-700 mt-1">{{ $item.details.criteria | default "No criteria specified." }}</p>
+              </div>
+              <div>
+                <p class="font-bold text-gray-600 text-sm">Result:</p>
+                <p class="text-gray-800 mt-1">{{ $item.details.calculation | default "No calculation details available." }}</p>
+                {{ with $item.details.elaboration }}
+                  {{ $elaboration := . }}
+                  {{ if and (findRE `^\[.*\]$` (string $elaboration)) (findRE `"tier_name"` (string $elaboration)) }}
+                    {{/* It's the structured portfolio JSON for intervention tractability */}}
+                    {{ $elaborationList := $elaboration | unmarshal }}
+                    <div class="mt-3 pt-3 border-t">
+                      {{ range $elaborationList }}
+                        <div class="mt-2">
+                          <h4 class="text-sm font-bold text-gray-700 border-b pb-1">{{ .tier_name }}</h4>
+                          {{ $groupedInterventions := newScratch }}
+                          {{ range .interventions }}
+                            {{ $name := .name }}
+                            {{ $sources := $groupedInterventions.Get $name | default (slice) }}
+                            {{ $groupedInterventions.Set $name ( $sources | append .source ) }}
                           {{ end }}
-                        </ul>
-                      </div>
-                    {{ end }}
-                  </div>
-                {{ else }}
-                  {{/* It's a simple string or an old-style list of strings */}}
-                  <p class="mt-2 text-sm text-gray-700 italic border-l-2 border-gray-300 pl-2">{{ $elaboration }}</p>
+                          <ul class="mt-1 space-y-2">
+                            {{ range $name, $sources := $groupedInterventions.Values }}
+                              <li class="text-sm text-gray-600 flex items-start">
+                                <span class="flex-shrink-0 mt-px mr-1">{{ $name }}:</span>
+                                <div class="flex flex-wrap items-center">
+                                  {{ range $sources }}{{ partial "provenance-badge.html" . }}{{ end }}
+                                </div>
+                              </li>
+                            {{ end }}
+                          </ul>
+                        </div>
+                      {{ end }}
+                    </div>
+                  {{ else }}
+                    <blockquote class="mt-2 border-l-4 border-gray-300 pl-3 italic text-gray-700">{{ $elaboration }}</blockquote>
+                  {{ end }}
                 {{ end }}
-              {{ end }}
-              {{ with $item.details.formula }}<p class="mt-2 text-sm text-gray-500 font-mono bg-gray-100 p-2 rounded">Formula: {{ . }}</p>{{ end }}
+              </div>
             </div>
           </details>
         {{ end }}
