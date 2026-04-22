@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-19T08:30:06.355Z",
+  "updatedAt": "2026-04-22T16:08:15.403Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2522,7 +2522,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Beneficiaries)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Beneficiaries)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2624,7 +2624,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2782,7 +2782,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Interventions)').first().json.modelParts) }}\n    },\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2912,7 +2912,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Transparency').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Transparency)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Interventions)').first().json.modelParts) }}\n    },\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Metrics)').first().json.modelParts) }}\n    },\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Transparency').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Transparency)').first().json.data) }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3033,24 +3033,6 @@
       ],
       "id": "5d067e91-4bef-4805-89a3-a8b7195ce406",
       "name": "Schema Validation (Impact - Transparency)"
-    },
-    {
-      "parameters": {
-        "mode": "combine",
-        "combineBy": "combineByPosition",
-        "numberInputs": 4,
-        "options": {
-          "includeUnpaired": false
-        }
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        2624,
-        5328
-      ],
-      "id": "62877729-bd54-4f43-865f-5e1cd5631407",
-      "name": "Merge"
     },
     {
       "parameters": {
@@ -3353,21 +3335,6 @@
         [
           {
             "node": "Read JSON schema (Impact - Beneficiaries)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Read JSON schema (Impact - Interventions)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Read JSON schema (Impact - Metrics)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Read JSON schema (Impact - Transparency)",
             "type": "main",
             "index": 0
           }
@@ -4088,7 +4055,7 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Read JSON schema (Impact - Interventions)",
             "type": "main",
             "index": 0
           }
@@ -4272,24 +4239,13 @@
         ]
       ]
     },
-    "Merge": {
-      "main": [
-        [
-          {
-            "node": "Storage API - Update Charity - Impact",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Schema Validation (Impact - Interventions)": {
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Read JSON schema (Impact - Metrics)",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
@@ -4298,9 +4254,9 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Read JSON schema (Impact - Transparency)",
             "type": "main",
-            "index": 2
+            "index": 0
           }
         ]
       ]
@@ -4309,9 +4265,9 @@
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Storage API - Update Charity - Impact",
             "type": "main",
-            "index": 3
+            "index": 0
           }
         ]
       ]
@@ -4344,9 +4300,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "2d040f64-a663-440b-b6f1-1b80a2970155",
-  "activeVersionId": "2d040f64-a663-440b-b6f1-1b80a2970155",
-  "versionCounter": 468,
+  "versionId": "0fa53602-c10b-4b3b-a48c-9b30805c7a52",
+  "activeVersionId": "0fa53602-c10b-4b3b-a48c-9b30805c7a52",
+  "versionCounter": 472,
   "triggerCount": 1,
   "tags": [],
   "shared": [
