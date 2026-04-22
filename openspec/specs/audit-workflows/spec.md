@@ -4,15 +4,15 @@
 This specification defines the system's core data processing pipelines, managed by the n8n orchestrator. It covers the entire workflow from data ingestion and parallel extraction (document parsing and web search) to the final evaluation by the "Audit Checklist Engine." This includes the logic for calling external services (like Gemini for AI extraction and PocketBase for persistence) and the deterministic rules for generating the standardised `check_items` array based on financial, impact, and risk criteria.
 ## Requirements
 ### Requirement: EA Animal Advocacy Audit Logic
-The `utils_api` microservice SHALL execute deterministic audit functions, explicitly declaring the threshold rules for every evaluation to ensure complete auditability.
+The `utils_api` microservice SHALL execute deterministic audit functions, strictly validating data to prevent false positives from LLM hallucinations.
 
-#### Scenario: Injecting Evaluation Criteria
-- **WHEN** any check function within `utils_api/app/audits/impact.py` or `financials.py` instantiates an `AuditDetails` model
-- **THEN** it MUST populate the `criteria` field with a concise, human-readable explanation of the Pass/Warn/Fail thresholds specific to that check.
-
-#### Scenario: Counterfactual Baseline Elaboration
+#### Scenario: Multi-Tier Counterfactual Baseline with Heuristic Sanitisation
 - **WHEN** executing `check_counterfactual_baseline`
-- **THEN** the function MUST map the newly extracted `counterfactual_baseline.source.quote` directly into the `base_item.details.elaboration` field so it renders in the checklist UI.
+- **THEN** the function MUST evaluate all metrics for counterfactual data.
+- **AND** it MUST sanitise any provided `source.quote` by checking against a blacklist of denial phrases and ensuring a minimum character length (e.g., > 10 characters).
+- **AND** if a metric contains a `counterfactual_baseline` with a `value` AND a valid sanitised `source.quote`, the status MUST be `pass`.
+- **AND** if no quantified baseline exists, but a metric contains a valid sanitised `source.quote` (qualitative baseline), the status MUST be `warning`.
+- **AND** if the quote fails sanitisation (e.g., "No statement found"), it MUST be treated as `null`, resulting in a `fail`.
 
 ### Requirement: Cost Per Outcome Audit Calculation
 The `utils_api` SHALL calculate the cost per outcome and additionally provide a normalised translation for a standard retail donation amount, ensuring all cross-charity comparisons use a unified USD baseline and accurate mathematical scaling.
@@ -23,12 +23,12 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 - **AND** this scaled local value MUST then be used for the subsequent `usd_exchange_rate` conversion and final cost-per-outcome division.
 
 ### Requirement: LLM Prompt Injection for Impact
-The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs and maintain strict data provenance.
 
-#### Scenario: Strict Extraction of Per-Animal Unit Costs
-- **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST instruct the model to ONLY extract an `explicit_unit_cost` if the cost is explicitly stated per individual animal or a discrete, singular outcome.
-- **AND** the prompt MUST explicitly prohibit extracting aggregate budgets, total grant awards, monthly operational costs, or overall fundraising campaign goals into this array.
+#### Scenario: Enforcing Strict Nulls for Missing Evidence
+- **WHEN** the LLM cannot locate explicit evidence for a requested field (such as a counterfactual quote)
+- **THEN** the system prompt MUST strictly instruct the model to output a native JSON `null`.
+- **AND** the model MUST be explicitly forbidden from populating string fields with denial phrases like "Not found", "None", "Unspecified", or "N/A".
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
