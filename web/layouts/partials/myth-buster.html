@@ -21,25 +21,24 @@
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Value for Money</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-    {{ $total_exp := .financials.data.expenditure.total.value }}
-    {{ if ne $total_exp nil }}
-      {{ $prog_exp := .financials.data.expenditure.program_services.value }}
-      {{ $admin_exp := .financials.data.expenditure.administration.value }}
-      {{ $fundraising_exp := .financials.data.expenditure.fundraising.value }}
+    <!-- Left Column: Overhead Ratio -->
+    <div class="p-4 bg-white rounded-lg shadow flex flex-col">
+      <h3 class="font-bold text-lg text-gray-700">Expense Breakdown</h3>
+      {{ $total_exp := .financials.data.expenditure.total.value }}
+      {{ if ne $total_exp nil }}
+        {{ $prog_exp := .financials.data.expenditure.program_services.value }}
+        {{ $admin_exp := .financials.data.expenditure.administration.value }}
+        {{ $fundraising_exp := .financials.data.expenditure.fundraising.value }}
 
-      {{/* Logic for Expense Ratios */}}
-      {{ $prog_pct := 0 }}
-      {{ $admin_pct := 0 }}
-      {{ $fundraising_pct := 0 }}
-      {{ if gt $total_exp 0 }}
-        {{ if $prog_exp }}{{ $prog_pct = mul (div $prog_exp $total_exp) 100 }}{{ end }}
-        {{ if $admin_exp }}{{ $admin_pct = mul (div $admin_exp $total_exp) 100 }}{{ end }}
-        {{ if $fundraising_exp }}{{ $fundraising_pct = mul (div $fundraising_exp $total_exp) 100 }}{{ end }}
-      {{ end }}
-
-      <!-- Left Column: Overhead Ratio -->
-      <div class="p-4 bg-white rounded-lg shadow flex flex-col">
-        <h3 class="font-bold text-lg text-gray-700">Expense Breakdown</h3>
+        {{/* Logic for Expense Ratios */}}
+        {{ $prog_pct := 0 }}
+        {{ $admin_pct := 0 }}
+        {{ $fundraising_pct := 0 }}
+        {{ if gt $total_exp 0 }}
+          {{ if $prog_exp }}{{ $prog_pct = mul (div $prog_exp $total_exp) 100 }}{{ end }}
+          {{ if $admin_exp }}{{ $admin_pct = mul (div $admin_exp $total_exp) 100 }}{{ end }}
+          {{ if $fundraising_exp }}{{ $fundraising_pct = mul (div $fundraising_exp $total_exp) 100 }}{{ end }}
+        {{ end }}
         <p class="text-sm text-gray-500 mb-2">
           As a percentage of total expenditure
         </p>
@@ -63,8 +62,14 @@
         <div class="mt-auto pt-3 text-xs text-gray-500 italic">
           <p class="mt-1"><span class="font-bold not-italic">The Overhead Myth</span> Low overhead does not automatically mean high impact. Effective charities invest in systems, staff, and evaluation to maximise their results. Focusing solely on a low admin ratio can inadvertently penalise organisations for being well-managed.</p>
         </div>
-      </div>
-    {{ end }}
+      {{ else }}
+        <div class="flex-grow flex items-center justify-center">
+          <div class="p-4 bg-gray-100 border border-gray-200 rounded-md text-center">
+            <p class="text-gray-600 text-sm">Insufficient financial data to compute expense breakdown.</p>
+          </div>
+        </div>
+      {{ end }}
+    </div>
 
     <!-- Right Column: Cost Per Outcome -->
     <div class="p-4 bg-white rounded-lg shadow flex flex-col">

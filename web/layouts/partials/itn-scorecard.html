@@ -186,7 +186,7 @@
           {{ range $name, $sources := $interventionMap.Values }}
             <div class="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm font-medium">
               <span>{{ $name }}</span>
-            {{ range $sources }}
+            {{ range first 3 $sources }}
               {{ if . }}{{ partial "provenance-badge.html" . }}{{ end }}
             {{ end }}
             </div>
