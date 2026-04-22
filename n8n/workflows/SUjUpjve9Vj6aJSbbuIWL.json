@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-22T16:08:15.403Z",
+  "updatedAt": "2026-04-22T16:23:59.544Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -991,19 +991,6 @@
     },
     {
       "parameters": {
-        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.content.parts[0].text);\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -496,
-        3328
-      ],
-      "id": "4fd035b9-58be-45db-acf7-10d9c6b2f7d0",
-      "name": "Parsed Content (Metadata)"
-    },
-    {
-      "parameters": {
         "method": "PATCH",
         "url": "=http://storage_api:8090/api/collections/organisations/records/{{ $('Storage API - Get Charity Record').item.json.items[0].id }}",
         "authentication": "genericCredentialType",
@@ -1377,42 +1364,6 @@
       ],
       "id": "c30db9fc-4f48-49bc-b042-6d5a6296227f",
       "name": "Call 'Prompt Injection' - Financials"
-    },
-    {
-      "parameters": {
-        "modelId": {
-          "__rl": true,
-          "value": "={{ $('Vars - Gemini').item.json.gemini_model }}",
-          "mode": "id"
-        },
-        "messages": {
-          "values": [
-            {
-              "content": "=<system prompt>\n{{ $('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[0] }}\n</system prompt>\n<user prompt>\n{{ $('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[1] }}\n</user prompt>"
-            }
-          ]
-        },
-        "builtInTools": {
-          "googleSearch": true
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.googleGemini",
-      "typeVersion": 1.1,
-      "position": [
-        -848,
-        3328
-      ],
-      "id": "10e19ddb-bb47-4936-9fcf-7cd33dab55d6",
-      "name": "Find Metadata",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "7EY3kWdzHSKXrfnm",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
     },
     {
       "parameters": {
@@ -3137,6 +3088,47 @@
       ],
       "id": "d38179e7-5c66-4e0a-80ba-bc501562c217",
       "name": "Exists? (Financials+Impact)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Vars - Gemini').first().json.gemini_url }}/{{ $('Vars - Gemini').first().json.gemini_model }}:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[1]) }} }\n      ]\n    }\n  ],\n  \"systemInstruction\": {\n    \"parts\": [\n      {\n        \"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Meta').first().json.injected_prompts[0]) }}\n      }\n    ]\n  },\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Meta)').first().json.data) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -800,
+        3328
+      ],
+      "id": "c4d392d8-1522-409e-8d0e-7ad3932ab1b4",
+      "name": "Extract Metadata",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7EY3kWdzHSKXrfnm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Extracts and parses JSON from a string, removing Markdown code blocks if present.\n * @param {string} llmOutput - The raw string returned by the LLM.\n * @returns {object} - The parsed JSON object.\n * @throws {Error} - If no JSON can be found or parsed.\n */\nfunction parseLlmJson(llmOutput) {\n  // 1. Regex to find content inside ```json ... ``` or just ``` ... ```\n  //    Matches: ```(optional language) (content) ```\n  const jsonCodeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)\\s*```/i;\n  \n  const match = llmOutput.match(jsonCodeBlockRegex);\n  let jsonString = '';\n\n  if (match && match[1]) {\n    // We found a code block, use the content inside capture group 1\n    jsonString = match[1];\n  } else {\n    // 2. Fallback: If no code block found, try to extract from first '{' to last '}'\n    // This handles cases where the LLM just returns raw JSON or text mixed with JSON without markdown.\n    const firstBrace = llmOutput.indexOf('{');\n    const lastBrace = llmOutput.lastIndexOf('}');\n\n    if (firstBrace !== -1 && lastBrace !== -1) {\n      jsonString = llmOutput.substring(firstBrace, lastBrace + 1);\n    } else {\n      throw new Error(\"No JSON structure found in input string.\");\n    }\n  }\n\n  // 3. Parse the extracted string\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.error(\"Extraction successful, but JSON.parse failed on:\", jsonString);\n    throw new Error(`Invalid JSON content: ${error.message}`);\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.parsedContentObject = parseLlmJson(item.json.candidates[0].content.parts[0].text);\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        3328
+      ],
+      "id": "d74241c3-9fb1-4727-bde1-14d09f84b3f8",
+      "name": "Parsed Content (Metadata)"
     }
   ],
   "connections": {
@@ -3476,17 +3468,6 @@
         ]
       ]
     },
-    "Parsed Content (Metadata)": {
-      "main": [
-        [
-          {
-            "node": "Schema Validation (Metadata)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Storage API - Update Charity - Metadata": {
       "main": [
         [
@@ -3625,17 +3606,6 @@
         ]
       ]
     },
-    "Find Metadata": {
-      "main": [
-        [
-          {
-            "node": "Parsed Content (Metadata)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Vars - Gemini": {
       "main": [
         [
@@ -3744,7 +3714,7 @@
       "main": [
         [
           {
-            "node": "Find Metadata",
+            "node": "Extract Metadata",
             "type": "main",
             "index": 0
           }
@@ -4289,6 +4259,28 @@
           }
         ]
       ]
+    },
+    "Extract Metadata": {
+      "main": [
+        [
+          {
+            "node": "Parsed Content (Metadata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsed Content (Metadata)": {
+      "main": [
+        [
+          {
+            "node": "Schema Validation (Metadata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4300,9 +4292,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "0fa53602-c10b-4b3b-a48c-9b30805c7a52",
-  "activeVersionId": "0fa53602-c10b-4b3b-a48c-9b30805c7a52",
-  "versionCounter": 472,
+  "versionId": "1b891191-f166-49b2-9d15-b508e2ab1b5f",
+  "activeVersionId": "1b891191-f166-49b2-9d15-b508e2ab1b5f",
+  "versionCounter": 476,
   "triggerCount": 1,
   "tags": [],
   "shared": [
