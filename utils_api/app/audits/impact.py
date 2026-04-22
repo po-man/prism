@@ -79,35 +79,64 @@ def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
     return base_item
 
 
+def is_genuine_qualitative_quote(quote: str | None) -> bool:
+    if not quote or len(quote.strip()) < 10:
+        return False
+
+    lower_quote = quote.lower()
+    denial_phrases = [
+        "not found", "no statement", "no counterfactual",
+        "not specified", "unspecified", "none", "n/a",
+        "not reported", "no baseline"
+    ]
+
+    if any(phrase in lower_quote for phrase in denial_phrases):
+        return False
+
+    return True
+
+
 def check_counterfactual_baseline(record: OrganisationRecord) -> CheckItem:
     """
-    Checks if a quantified counterfactual baseline is provided.
-    Pass if description and value are populated.
+    Checks for a counterfactual baseline.
+    - Pass: A quantified baseline with a valid source quote is found.
+    - Warn: A qualitative baseline (quote only) is found.
+    - Fail: No valid baseline is found.
     """
     base_details = Details(
         formula="Presence of a quantified counterfactual baseline with a source quote.",
         elaboration=None,
-        criteria="Pass: At least one impact metric includes a quantified counterfactual baseline with a source quote. | Fail: No quantified counterfactual baseline is provided.",
+        criteria="Pass: At least one metric has a quantified counterfactual baseline. | Warn: A qualitative baseline is provided, but lacks quantified data. | Fail: No valid counterfactual baseline is provided.",
         calculation="Not computed",
-
     )
     base_item = CheckItem(
         id="check_counterfactual_baseline", status="fail", significance="MEDIUM", category="Impact Awareness", details=base_details
     )
 
     if not record.impact or not record.impact.metrics or not record.impact.metrics.metrics:
-        base_item.details.calculation = "Impact data with metrics is missing."
+        base_item.details.calculation = "No impact metrics were provided to evaluate."
         return base_item
 
-    for metric in record.impact.metrics.metrics:
-        if metric.counterfactual_baseline and metric.counterfactual_baseline.value is not None and metric.counterfactual_baseline.source and metric.counterfactual_baseline.source.quote:
-            base_item.status = "pass"
-            base_item.details.elaboration = f"Quote: '{metric.counterfactual_baseline.source.quote}'"
-            base_item.details.calculation = "A quantified counterfactual baseline was provided."
-            return base_item
+    qualitative_quote = None
 
-    base_item.status = "fail"
-    base_item.details.calculation = "No quantified counterfactual baseline was provided."
+    for metric in record.impact.metrics.metrics:
+        cb = metric.counterfactual_baseline
+        if cb and cb.source and is_genuine_qualitative_quote(cb.source.quote):
+            if cb.value is not None:
+                base_item.status = "pass"
+                base_item.details.elaboration = f"Quote: '{cb.source.quote}'"
+                base_item.details.calculation = "A quantified counterfactual baseline was provided."
+                return base_item
+            elif qualitative_quote is None:
+                qualitative_quote = cb.source.quote
+
+    if qualitative_quote:
+        base_item.status = "warning"
+        base_item.details.elaboration = f"Quote: '{qualitative_quote}'"
+        base_item.details.calculation = "A qualitative counterfactual baseline was provided, but lacked quantified data."
+        return base_item
+
+    base_item.details.calculation = "No valid counterfactual baseline was provided."
     return base_item
 
 

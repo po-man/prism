@@ -3,8 +3,8 @@
 - [x] 1.2 Locate the instructions regarding strict extraction (Principle 2 or similar). Add the following explicit directive: "If a specific data point, quote, or counterfactual is NOT found in the text, you MUST output a native JSON `null`. Under NO circumstances should you output filler text such as 'Not found', 'None', 'N/A', or 'Not specified'."
 
 ## 2. Python Audit Engine Updates (`utils_api`)
-- [ ] 2.1 Open `utils_api/app/audits/impact.py` and locate the `check_counterfactual_baseline` function.
-- [ ] 2.2 Define a helper function or lambda within the scope to sanitise the quote:
+- [x] 2.1 Open `utils_api/app/audits/impact.py` and locate the `check_counterfactual_baseline` function.
+- [x] 2.2 Define a helper function or lambda within the scope to sanitise the quote:
     ```python
     def is_genuine_qualitative_quote(quote: str) -> bool:
         if not quote or len(quote.strip()) < 10:
@@ -22,7 +22,7 @@
             
         return True
     ```
-- [ ] 2.3 Refactor the evaluation loop to utilise the sanitisation check:
+- [x] 2.3 Refactor the evaluation loop to utilise the sanitisation check:
     ```python
     qualitative_quote = None
     
@@ -55,6 +55,6 @@
     base_item.details.calculation = "No counterfactual baseline was provided."
     return base_item
     ```
-- [ ] 2.4 Open `utils_api/tests/test_audit_impact.py`.
-- [ ] 2.5 Update the `test_check_counterfactual_baseline` unit test to assert the new `warning` state when `value` is `None` but a valid narrative `quote` exists.
-- [ ] 2.6 Add a specific assertion to ensure that passing a `quote` like `"No counterfactual statement found."` correctly results in a `fail`.
+- [x] 2.4 Open `utils_api/tests/test_audit_impact.py`.
+- [x] 2.5 Update the `test_check_counterfactual_baseline` unit test to assert the new `warning` state when `value` is `None` but a valid narrative `quote` exists.
+- [x] 2.6 Add a specific assertion to ensure that passing a `quote` like `"No counterfactual statement found."` correctly results in a `fail`.
