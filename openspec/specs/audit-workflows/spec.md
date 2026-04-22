@@ -25,10 +25,10 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 ### Requirement: LLM Prompt Injection for Impact
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and maintaining strict data provenance.
 
-#### Scenario: Extracting Counterfactual Quotes
+#### Scenario: Strict Extraction of Per-Animal Unit Costs
 - **WHEN** generating prompts for the Gemini model in the Impact extraction node
-- **THEN** the system prompt MUST strictly instruct the model to locate the exact verbatim text justifying the `counterfactual_baseline`.
-- **AND** it MUST place this exact sentence in the `source.quote` field, rather than paraphrasing or synthesising a description.
+- **THEN** the system prompt MUST instruct the model to ONLY extract an `explicit_unit_cost` if the cost is explicitly stated per individual animal or a discrete, singular outcome.
+- **AND** the prompt MUST explicitly prohibit extracting aggregate budgets, total grant awards, monthly operational costs, or overall fundraising campaign goals into this array.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
