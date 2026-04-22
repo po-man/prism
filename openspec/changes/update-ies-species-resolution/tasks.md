@@ -1,6 +1,6 @@
 ## 1. Audit Engine Logic Update (`utils_api`)
-- [ ] 1.1 Open `utils_api/app/audits/impact.py` and locate the `calculate_ies` function.
-- [ ] 1.2 Replace the current `species_key` search block (around Step 5) with an expanded text search:
+- [x] 1.1 Open `utils_api/app/audits/impact.py` and locate the `calculate_ies` function.
+- [x] 1.2 Replace the current `species_key` search block (around Step 5) with an expanded text search:
     ```python
     # 5. Species Weight (W_species)
     species_key = None
@@ -13,7 +13,7 @@
             species_key = key
             break
     ```
-- [ ] 1.3 Implement the intermediate fuzzy-matching fallback immediately below:
+- [x] 1.3 Implement the intermediate fuzzy-matching fallback immediately below:
     ```python
     if not species_key:
         matched_beneficiary = None
@@ -31,9 +31,9 @@
         if not species_key or species_key not in moral_weights:
             species_key = "generic_unspecified"
     ```
-- [ ] 1.4 Update the `w_species` source explanation string to accurately reflect whether the fallback came from a matched beneficiary or the dominant organisation type.
+- [x] 1.4 Update the `w_species` source explanation string to accurately reflect whether the fallback came from a matched beneficiary or the dominant organisation type.
 
 ## 2. Unit Testing
-- [ ] 2.1 Open `utils_api/tests/test_audit_impact.py`.
-- [ ] 2.2 In `test_calculate_ies_metric`, add a new mock metric and beneficiary to `record_data` representing a multi-domain overlap (e.g., metric unit is simply `"animals"`, but the quote matches a `farmed_animals` beneficiary).
-- [ ] 2.3 Add assertions to verify that the `w_species` assigned to this new metric correctly maps to `generic_farmed` rather than falling back to the dominant `generic_companion`.
+- [x] 2.1 Open `utils_api/tests/test_audit_impact.py`.
+- [x] 2.2 In `test_calculate_ies_metric`, add a new mock metric and beneficiary to `record_data` representing a multi-domain overlap (e.g., metric unit is simply `"animals"`, but the quote matches a `farmed_animals` beneficiary).
+- [x] 2.3 Add assertions to verify that the `w_species` assigned to this new metric correctly maps to `generic_farmed` rather than falling back to the dominant `generic_companion`.

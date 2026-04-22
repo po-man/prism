@@ -630,19 +630,43 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
             w_leverage = 0.1  # Conservative baseline probability
 
         # 5. Species Weight (W_species)
-        # Attempt to find a species from the metric's unit, otherwise fallback to dominant beneficiary
+        # Attempt to find a species from the metric text fields first, otherwise match beneficiaries, and only then fallback to the dominant beneficiary type.
         species_key = None
-        unit_lower = metric.quantitative_data.unit.lower() if metric.quantitative_data.unit else ""
+        species_source_description = None
+
+        search_text = " ".join(filter(None, [
+            metric.metric_name or "",
+            metric.quantitative_data.unit or "",
+            metric.context_qualifier or "",
+            metric.source.quote if metric.source and metric.source.quote else ""
+        ])).lower()
+
         for key in moral_weights:
-            if key in unit_lower or key.rstrip('s') in unit_lower:
+            if key in search_text or key.rstrip('s') in search_text:
                 species_key = key
+                species_source_description = f"Found species keyword '{key}' in metric text."
                 break
 
+        matched_beneficiary = None
+        if not species_key and metric.source and metric.source.quote:
+            for b in record.impact.beneficiaries.beneficiaries:
+                if b.source and b.source.quote and _fuzzy_match(metric.source.quote, b.source.quote):
+                    matched_beneficiary = b
+                    break
+
         if not species_key:
-            species_key = beneficiary_to_species_map.get(dominant_beneficiary_type)
-            # Task 4.4: Refactor species mapping to query generic_* keys
-            if not species_key or species_key not in moral_weights:
-                species_key = "generic_unspecified"
+            if matched_beneficiary:
+                beneficiary_type_value = getattr(matched_beneficiary.beneficiary_type, "value", matched_beneficiary.beneficiary_type)
+                species_key = beneficiary_to_species_map.get(beneficiary_type_value)
+                species_source_description = f"Matched metric quote to beneficiary record with beneficiary_type '{beneficiary_type_value}'."
+            else:
+                species_key = beneficiary_to_species_map.get(dominant_beneficiary_type)
+                species_source_description = f"Falling back to dominant beneficiary type '{dominant_beneficiary_type}'."
+
+        if not species_key or species_key not in moral_weights:
+            species_key = "generic_unspecified"
+            if not species_source_description:
+                species_source_description = "Falling back to generic_unspecified."
 
         w_species = moral_weights.get(species_key, 0.0) if species_key else 0.0
 
@@ -663,7 +687,7 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
             "w_species": {
                 "key": species_key,
                 "value": w_species,
-                "source": f"Moral weight for '{species_key}'. Fallback: dominant beneficiary type '{dominant_beneficiary_type}'.",
+                "source": species_source_description or f"Moral weight for '{species_key}'.",
             },
             "w_leverage": {
                 "key": leverage_key,

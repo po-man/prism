@@ -28,7 +28,7 @@ def test_check_intervention_tractability(client: TestClient):
             "primary_intervention_type": "individual_rescue_and_sanctuary",
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We rescued animals.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We rescued animals.", "resolved_url": None}
         },
         {
             "event_name": "Corporate Campaign",
@@ -37,7 +37,7 @@ def test_check_intervention_tractability(client: TestClient):
             "primary_intervention_type": "corporate_welfare_campaigns",
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Our campaign was successful.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "quote": "Our campaign was successful.", "resolved_url": None}
         }
     ]
     response = client.post("/audit", json=record_tier1)
@@ -65,7 +65,7 @@ def test_check_intervention_tractability(client: TestClient):
             "primary_intervention_type": "veterinary_care_and_treatment",
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "search_result_index": None, "quote": "We did a mixed event.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "quote": "We did a mixed event.", "resolved_url": None}
         }
     ]
     response = client.post("/audit", json=record_tier3)
@@ -162,17 +162,15 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 2. MEDIUM confidence: Pure animal advocacy, PRISM calculates
     record_medium = deepcopy(VALID_BASE_RECORD)
-    record_medium["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_medium["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium["financials"]["expenditure"]["program_services"]["value"] = 400000 # HKD
     record_medium["financials"]["currency"]["usd_exchange_rate"] = 0.1 # Simple rate
-    record_medium["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_medium["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}}]
     # Program spend USD = 400,000 * 0.1 = 40,000
     # Beneficiaries = 500
     # Cost per outcome = 40,000 / 500 = 80
     response = client.post("/audit", json=record_medium)
-    from pprint import pprint
-    pprint(response.json())
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
     assert item["confidence_tier"] == "MEDIUM"
@@ -182,7 +180,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 3. MEDIUM confidence: Programmatic matching from program_breakdowns to significant events
     record_programmatic = deepcopy(VALID_BASE_RECORD)
-    record_programmatic["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_programmatic["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_programmatic["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_programmatic["impact"]["interventions"]["significant_events"] = [
         {
@@ -192,11 +190,12 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
             "primary_intervention_type": "high_volume_spay_neuter",
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "We ran mobile spay clinics.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We ran mobile spay clinics.", "resolved_url": None}
         }
     ]
-    record_programmatic["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
-    record_programmatic["financials"]["expenditure"]["program_breakdowns"] = [{"programme_name": "Mobile Spay Clinic Operations", "amount": {"value": 100000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Mobile spay clinic ops cost 100,000.", "resolved_url": None}}}]
+    record_programmatic["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "Helped 1000 animals.", "resolved_url": None}}]
+    record_programmatic["financials"]["expenditure"]["program_breakdowns"] = [{"programme_name": "Mobile Spay Clinic Operations", "amount": {"value": 100000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "quote": "Mobile spay clinic ops cost 100,000.", "resolved_url": None}}}]
+
     record_programmatic["financials"]["currency"]["usd_exchange_rate"] = 0.1
     response = client.post("/audit", json=record_programmatic)
     assert response.status_code == 200
@@ -208,14 +207,14 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 4. MEDIUM confidence: Pure-play cohort benchmark
     record_pure_play = deepcopy(VALID_BASE_RECORD)
-    record_pure_play["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_pure_play["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_pure_play["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
-    record_pure_play["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "Helped 1000 animals.", "resolved_url": None}}]
+    record_pure_play["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "Helped 1000 animals.", "resolved_url": None}}]
     record_pure_play["financials"]["expenditure"]["program_services"]["value"] = 100000
     record_pure_play["financials"]["currency"]["usd_exchange_rate"] = 0.1
     record_pure_play["financials"]["expenditure"]["program_breakdowns"] = [
-        {"programme_name": "Primary Programme", "amount": {"value": 90000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "search_result_index": None, "quote": "Primary programme spend.", "resolved_url": None}}},
-        {"programme_name": "Secondary Programme", "amount": {"value": 10000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "search_result_index": None, "quote": "Secondary programme spend.", "resolved_url": None}}}
+        {"programme_name": "Primary Programme", "amount": {"value": 90000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 2, "quote": "Primary programme spend.", "resolved_url": None}}},
+        {"programme_name": "Secondary Programme", "amount": {"value": 10000, "source": {"source_type": "attached_report", "source_index": 0, "page_number": 3, "quote": "Secondary programme spend.", "resolved_url": None}}}
     ]
     response = client.post("/audit", json=record_pure_play)
     assert response.status_code == 200
@@ -226,7 +225,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 5. LOW confidence: Multi-domain operations, calculation is aborted
     record_low_multidomain = deepcopy(VALID_BASE_RECORD)
-    record_low_multidomain["impact"]["interventions"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_low_multidomain["impact"]["interventions"]["context"]["operating_scope"] = {"value": "multi_domain_operations", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_low_multidomain["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     response = client.post("/audit", json=record_low_multidomain)
     assert response.status_code == 200
@@ -238,7 +237,7 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 6. No metric calculated: Missing essential data for MEDIUM calculation
     record_medium_fail = deepcopy(VALID_BASE_RECORD)
-    record_medium_fail["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_medium_fail["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_medium_fail["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_medium_fail["financials"]["expenditure"]["program_services"]["value"] = None # Missing spend
     response = client.post("/audit", json=record_medium_fail)
@@ -248,9 +247,9 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 7. No metric calculated: Beneficiary population is zero
     record_zero_beneficiaries = deepcopy(VALID_BASE_RECORD)
-    record_zero_beneficiaries["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_beneficiaries["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_zero_beneficiaries["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
-    record_zero_beneficiaries["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_zero_beneficiaries["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 0, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_beneficiaries)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -258,10 +257,10 @@ def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
 
     # 8. MEDIUM confidence: Handles zero program spend correctly
     record_zero_spend = deepcopy(VALID_BASE_RECORD)
-    record_zero_spend["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
+    record_zero_spend["impact"]["interventions"]["context"]["operating_scope"] = {"value": "pure_animal_advocacy", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "We are an organisation dedicated to animal advocacy.", "resolved_url": None}}
     record_zero_spend["impact"]["interventions"]["context"]["explicit_unit_costs"] = []
     record_zero_spend["financials"]["expenditure"]["program_services"]["value"] = 0
-    record_zero_spend["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}]
+    record_zero_spend["impact"]["beneficiaries"]["beneficiaries"] = [{"location": "HK", "population": 500, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}}]
     response = client.post("/audit", json=record_zero_spend)
     assert response.status_code == 200
     item = get_calculated_metric(response.json(), "cost_per_outcome")
@@ -278,8 +277,8 @@ def test_calculate_cost_per_outcome_with_scale_multiplier(client: TestClient):
         "value": "pure_animal_advocacy",
         "source": {
             "source_type": "attached_report",
-            "source_index": None,
-            "page_number": None,
+            "source_index": 0,
+            "page_number": 1,
             "quote": "We are an organisation dedicated to animal advocacy.",
             "resolved_url": None
         }
@@ -303,7 +302,6 @@ def test_calculate_cost_per_outcome_with_scale_multiplier(client: TestClient):
                 "source_type": "attached_report",
                 "source_index": 0,
                 "page_number": 1,
-                "search_result_index": None,
                 "quote": "We provided services to 500 animals.",
                 "resolved_url": None
             }
@@ -376,8 +374,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 1. Pass for >= 50% high-neglectedness population
     record_pass = deepcopy(VALID_BASE_RECORD)
     record_pass["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "HK", "population": 800, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
-        {"location": "HK", "population": 200, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 800, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 200, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
@@ -389,8 +387,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 2. Warning for < 50% high-neglectedness population
     record_warning_mixed = deepcopy(VALID_BASE_RECORD)
     record_warning_mixed["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
-        {"location": "HK", "population": 850, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 150, "beneficiary_type": "farmed_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": 850, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_warning_mixed)
     assert response.status_code == 200
@@ -401,7 +399,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 3. Fail for 100% low-neglectedness population
     record_warning_low = deepcopy(VALID_BASE_RECORD)
     record_warning_low["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
+        {"location": "HK", "population": 1000, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_warning_low)
     assert response.status_code == 200
@@ -412,8 +410,8 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 4. Fallback to presence check (pass) when population is null
     record_fallback_pass = deepcopy(VALID_BASE_RECORD)
     record_fallback_pass["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "HK", "population": None, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
-        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": None, "beneficiary_type": "wild_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}},
     ]
     response = client.post("/audit", json=record_fallback_pass)
     assert response.status_code == 200
@@ -424,7 +422,7 @@ def test_check_cause_area_neglectedness(client: TestClient):
     # 5. Fallback to presence check (warning) when population is null
     record_fallback_warning = deepcopy(VALID_BASE_RECORD)
     record_fallback_warning["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "search_result_index": None, "quote": "...", "resolved_url": None}}
+        {"location": "HK", "population": None, "beneficiary_type": "companion_animals", "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "...", "resolved_url": None}}
     ]
     response = client.post("/audit", json=record_fallback_warning)
     assert response.status_code == 200
@@ -485,14 +483,35 @@ def test_calculate_ies_metric(client: TestClient):
             "primary_intervention_type": "corporate_welfare_campaigns", # Task 4.3
             "intervention_type_other_description": None,
             "timeframe": "annual",
-            "source": {"source_type": "attached_report", "source_index": None, "page_number": None, "quote": "Our campaign for cage-free commitments was a success.", "resolved_url": None}
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "Our campaign for cage-free commitments was a success.", "resolved_url": None}
         }
     ]
 
-    # Beneficiary data to establish 'farmed_animals' as dominant type for fallback (Task 4.4)
+    # Beneficiary data to establish a companion-dominant organisation with a smaller farmed cohort.
+    # This lets us verify intermediate beneficiary quote matching instead of defaulting to the dominant type.
     record_data["impact"]["beneficiaries"]["beneficiaries"] = [
-        {"location": "Global", "population": 1000, "beneficiary_type": "farmed_animals", "source": None}
+        {
+            "location": "Global",
+            "population": 800,
+            "beneficiary_type": "companion_animals",
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "Our shelter cares for 800 cats and dogs.", "resolved_url": None}
+        },
+        {
+            "location": "Global",
+            "population": 200,
+            "beneficiary_type": "farmed_animals",
+            "source": {"source_type": "attached_report", "source_index": 0, "page_number": 1, "quote": "Our farm supports 200 hens and broiler chickens.", "resolved_url": None}
+        }
     ]
+
+    # Metric 4: Should use beneficiary-based species resolution via fuzzy matching on the source quote.
+    record_data["impact"]["metrics"]["metrics"].append(deepcopy(record_data["impact"]["metrics"]["metrics"][0]))
+    record_data["impact"]["metrics"]["metrics"][3]["metric_name"] = "Annual farm animal assistance"
+    record_data["impact"]["metrics"]["metrics"][3]["quantitative_data"]["value"] = 50000
+    record_data["impact"]["metrics"]["metrics"][3]["quantitative_data"]["unit"] = "animals"
+    record_data["impact"]["metrics"]["metrics"][3]["evidence_quality"] = "Anecdotal"
+    record_data["impact"]["metrics"]["metrics"][3]["timeframe"] = "annual"
+    record_data["impact"]["metrics"]["metrics"][3]["source"]["quote"] = "We helped 50,000 hens on the farm."
 
     response = client.post("/audit", json=record_data)
     assert response.status_code == 200
@@ -502,29 +521,38 @@ def test_calculate_ies_metric(client: TestClient):
     assert ies_metric["confidence_tier"] == "MEDIUM"
 
     # --- Verify Calculation (Task 4.5) ---
-    # Metric 1: Outcome 1,000,000, W_species 0.5 (generic_farmed), W_leverage 0.8, D_evidence 0.3
+    # Metric 1: Outcome 1,000,000, W_species 0.5 (generic_companion via dominant fallback), W_leverage 0.8, D_evidence 0.3
     # Claimed IES_1 = 1,000,000 * 0.5 * 0.8 = 400,000
     # Evaluated IES_1 = 400,000 * 0.3 = 120,000
     #
-    # Metric 3: Outcome 200,000, W_species 0.5 (fallback), W_leverage 0.1 (fallback), D_evidence 0.6
+    # Metric 3: Outcome 200,000, W_species 0.5 (generic_companion via dominant fallback), W_leverage 0.1 (fallback), D_evidence 0.6
     # Claimed IES_3 = 200,000 * 0.5 * 0.1 = 10,000
     # Evaluated IES_3 = 10,000 * 0.6 = 6,000
     #
-    # Total Claimed IES = 400,000 + 10,000 = 410,000
-    # Total Evaluated IES = 120,000 + 6,000 = 126,000
+    # Metric 4: Outcome 50,000, W_species 0.5 (generic_farmed via beneficiary quote match), W_leverage 0.1 (fallback), D_evidence 0.3
+    # Claimed IES_4 = 50,000 * 0.5 * 0.1 = 2,500
+    # Evaluated IES_4 = 2,500 * 0.3 = 750
+    #
+    # Total Claimed IES = 400,000 + 10,000 + 2,500 = 412,500
+    # Total Evaluated IES = 120,000 + 6,000 + 750 = 126,750
 
-    assert ies_metric["claimed_ies"] == 410000
-    assert ies_metric["evaluated_ies"] == 126000
-    assert ies_metric["value"] == 126000 # For backwards compatibility
+    assert ies_metric["claimed_ies"] == 412500
+    assert ies_metric["evaluated_ies"] == 126750
+    assert ies_metric["value"] == 126750 # For backwards compatibility
 
     # Verify breakdown
     breakdown = ies_metric["details"]["breakdown"]
-    assert len(breakdown) == 2 # Metrics 1 and 3 processed, 2 ignored (cumulative)
+    assert len(breakdown) == 3 # Metrics 1, 3 and 4 processed; 2 ignored (cumulative)
     assert breakdown[0]["metric_name"] == "Corporate Cage-Free Commitments Secured"
     assert breakdown[0]["claimed_ies_i"] == 400000
     assert breakdown[1]["metric_name"] == "Beneficiary-Based Metric"
     assert breakdown[1]["claimed_ies_i"] == 10000
     assert breakdown[0]["ies"] == 120000
-    assert breakdown[0]["w_species"]["key"] == "generic_farmed"
+    assert breakdown[0]["w_species"]["key"] == "generic_companion"
+    assert breakdown[1]["w_species"]["key"] == "generic_companion"
+    assert breakdown[2]["metric_name"] == "Annual farm animal assistance"
+    assert breakdown[2]["claimed_ies_i"] == 2500
+    assert breakdown[2]["ies"] == 750
+    assert breakdown[2]["w_species"]["key"] == "generic_farmed"
     assert breakdown[0]["w_leverage"]["key"] == "corporate_welfare_campaigns"
     assert breakdown[0]["d_evidence"]["key"] == "Anecdotal"
