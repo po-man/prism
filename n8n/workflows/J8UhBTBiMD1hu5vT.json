@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-23T08:09:54.325Z",
+  "updatedAt": "2026-04-22T15:51:42.892Z",
   "createdAt": "2026-03-23T08:07:38.414Z",
   "id": "J8UhBTBiMD1hu5vT",
   "name": "Parse Content from Gemini",
@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "function parseStreamedJSON(rawStreamText) {\n  const lines = rawStreamText.split('\\n');\n  let accumulatedString = '';\n\n  for (const line of lines) {\n    const trimmedLine = line.trim();\n    \n    // Process only lines that start with \"data: \"\n    if (trimmedLine.startsWith('data: ')) {\n      // Remove \"data: \" to get the raw JSON chunk\n      const jsonChunk = trimmedLine.slice(6); \n      \n      try {\n        const parsedChunk = JSON.parse(jsonChunk);\n        \n        // Safely extract the text fragment using optional chaining\n        const textFragment = parsedChunk.candidates?.[0]?.content?.parts?.[0]?.text;\n        \n        if (textFragment) {\n          accumulatedString += textFragment;\n        }\n      } catch (error) {\n        console.warn(\"Failed to parse an individual chunk:\", error);\n      }\n    }\n  }\n\n  // Parse the fully assembled string into the final JSON object\n  try {\n    const finalData = JSON.parse(accumulatedString);\n    return finalData;\n  } catch (error) {\n    console.error(\"Failed to parse the final assembled string. The combined JSON might be invalid.\", error);\n    return null;\n  }\n}\n\n\n// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  let data = parseStreamedJSON(item.json.data);\n  console.log(data)\n  item.json.parsedContentObject = data;\n}\n\nreturn $input.all();"
+        "jsCode": "function parseStreamedJSON(rawStreamText) {\n  const lines = rawStreamText.split('\\n');\n  let accumulatedString = '';\n\n  for (const line of lines) {\n    const trimmedLine = line.trim();\n    \n    // Process only lines that start with \"data: \" (Server-Sent Events)\n    if (trimmedLine.startsWith('data: ')) {\n      const jsonChunk = trimmedLine.slice(6); \n      \n      try {\n        const parsedChunk = JSON.parse(jsonChunk);\n        // Safely extract the text fragment using optional chaining\n        const textFragment = parsedChunk.candidates?.[0]?.content?.parts?.[0]?.text;\n        \n        if (textFragment) {\n          accumulatedString += textFragment;\n        }\n      } catch (error) {\n        console.warn(\"Failed to parse an individual chunk:\", error);\n      }\n    }\n  }\n\n  // Parse the fully assembled string into the final JSON object\n  try {\n    const finalData = JSON.parse(accumulatedString);\n    return {\n        parsedObject: finalData,\n        // Construct the parts array exactly as required by the Gemini API contents schema\n        modelParts: [{ text: accumulatedString }] \n    };\n  } catch (error) {\n    console.error(\"Failed to parse the final assembled string. The combined JSON might be invalid.\", error);\n    return {\n        parsedObject: null,\n        // Return the raw accumulated string even on failure to assist with pipeline debugging\n        modelParts: [{ text: accumulatedString }] \n    };\n  }\n}\n\n// Loop over input items and append both the parsed data and the model parts\nfor (const item of $input.all()) {\n  let result = parseStreamedJSON(item.json.data);\n  \n  // The structured data for PocketBase persistence\n  item.json.parsedContentObject = result.parsedObject;\n  \n  // The conversational history payload for the next Gemini HTTP request\n  item.json.modelParts = result.modelParts; \n}\n\nreturn $input.all();"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -59,9 +59,9 @@
   "staticData": null,
   "meta": null,
   "pinData": {},
-  "versionId": "f685b388-d62f-434a-b155-5b6287251289",
-  "activeVersionId": "f685b388-d62f-434a-b155-5b6287251289",
-  "versionCounter": 9,
+  "versionId": "60e2cb69-9a69-4f0f-a735-e0af94591dc6",
+  "activeVersionId": "60e2cb69-9a69-4f0f-a735-e0af94591dc6",
+  "versionCounter": 12,
   "triggerCount": 0,
   "tags": [],
   "shared": [
