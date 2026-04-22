@@ -1,6 +1,6 @@
 ## 1. Prompt Engineering (`n8n/prompt-templates`)
-- [ ] 1.1 Open `n8n/prompt-templates/impact.system.md`.
-- [ ] 1.2 Locate the instructions regarding strict extraction (Principle 2 or similar). Add the following explicit directive: "If a specific data point, quote, or counterfactual is NOT found in the text, you MUST output a native JSON `null`. Under NO circumstances should you output filler text such as 'Not found', 'None', 'N/A', or 'Not specified'."
+- [x] 1.1 Open `n8n/prompt-templates/impact.system.md`.
+- [x] 1.2 Locate the instructions regarding strict extraction (Principle 2 or similar). Add the following explicit directive: "If a specific data point, quote, or counterfactual is NOT found in the text, you MUST output a native JSON `null`. Under NO circumstances should you output filler text such as 'Not found', 'None', 'N/A', or 'Not specified'."
 
 ## 2. Python Audit Engine Updates (`utils_api`)
 - [ ] 2.1 Open `utils_api/app/audits/impact.py` and locate the `check_counterfactual_baseline` function.
