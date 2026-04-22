@@ -99,34 +99,63 @@ def test_check_intervention_tractability(client: TestClient):
 
 def test_check_counterfactual_baseline(client: TestClient):
     """Tests the check_counterfactual_baseline audit."""
-
-    # 1. Pass when a quantified baseline is present
+    # 1. Pass: Quantified baseline with a valid quote
     record_pass = deepcopy(VALID_BASE_RECORD)
     response = client.post("/audit", json=record_pass)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
     assert item["status"] == "pass"
     assert item["details"]["calculation"] == "A quantified counterfactual baseline was provided."
-    assert item["details"]["criteria"] is not None
     assert item["details"]["elaboration"] == "Quote: 'Without our intervention, at least 50 of these animals would have perished.'"
 
-    # 2. Fail when baseline is missing value
-    record_no_value = deepcopy(VALID_BASE_RECORD)
-    record_no_value["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = None
-    response = client.post("/audit", json=record_no_value)
+    # 2. Warning: Qualitative baseline (valid quote) but no quantified value
+    record_warn = deepcopy(VALID_BASE_RECORD)
+    record_warn["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["value"] = None
+    record_warn["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = "We believe the situation would have been much worse without us."
+    response = client.post("/audit", json=record_warn)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_counterfactual_baseline")
+    assert item["status"] == "warning"
+    assert item["details"]["calculation"] == "A qualitative counterfactual baseline was provided, but lacked quantified data."
+    assert item["details"]["elaboration"] == "Quote: 'We believe the situation would have been much worse without us.'"
+
+    # 3. Fail: Quote is a denial phrase
+    record_fail_denial = deepcopy(VALID_BASE_RECORD)
+    record_fail_denial["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["value"] = None
+    record_fail_denial["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = "No counterfactual statement found."
+    response = client.post("/audit", json=record_fail_denial)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
     assert item["status"] == "fail"
-    assert item["details"]["calculation"] == "No quantified counterfactual baseline was provided."
+    assert item["details"]["calculation"] == "No valid counterfactual baseline was provided."
     assert item["details"]["elaboration"] is None
 
-    # 3. Default status with missing impact data
+    # 4. Fail: Quote is too short
+    record_fail_short = deepcopy(VALID_BASE_RECORD)
+    record_fail_short["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["value"] = None
+    record_fail_short["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = "N/A"
+    response = client.post("/audit", json=record_fail_short)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_counterfactual_baseline")
+    assert item["status"] == "fail"
+    assert item["details"]["calculation"] == "No valid counterfactual baseline was provided."
+
+    # 5. Fail: No quote at all
+    record_fail_no_quote = deepcopy(VALID_BASE_RECORD)
+    record_fail_no_quote["impact"]["metrics"]["metrics"][0]["counterfactual_baseline"]["source"]["quote"] = None
+    response = client.post("/audit", json=record_fail_no_quote)
+    assert response.status_code == 200
+    item = get_audit_item(response.json(), "check_counterfactual_baseline")
+    assert item["status"] == "fail"
+    assert item["details"]["calculation"] == "No valid counterfactual baseline was provided."
+
+    # 6. Fail: Missing impact data
     record_missing_impact = deepcopy(VALID_BASE_RECORD)
     del record_missing_impact["impact"]
     response = client.post("/audit", json=record_missing_impact)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_counterfactual_baseline")
-    assert item["details"]["calculation"] == "Impact data with metrics is missing."
+    assert item["details"]["calculation"] == "No impact metrics were provided to evaluate."
 
 
 def test_calculate_cost_per_outcome_confidence_tiers(client: TestClient):
