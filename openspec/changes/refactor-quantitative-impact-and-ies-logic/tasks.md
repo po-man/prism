@@ -3,9 +3,9 @@
 - [ ] 1.2 In the same migration, remove the `None`, `Anecdotal`, and `Pre-Post` records from `ref_evidence_discounts`. Insert a new record: `{"evidence_key": "Self-Reported", "multiplier": 0.3, "description": "Self-reported claims without rigorous external control groups.", "source_citation": "PRISM Standard"}`.
 
 ## 2. Schema Refactoring (`schemas/`)
-- [ ] 2.1 In `schemas/v1/impact_metrics.schema.json` (and its `.extract` counterpart), update the `evidence_quality` enum to `["RCT/Meta-Analysis", "Quasi-Experimental", "Self-Reported"]`.
-- [ ] 2.2 Add `species_key` (type: string) and `intervention_key` (type: string) properties to the metric object.
-- [ ] 2.3 In `schemas/v1/impact_interventions.schema.json` (and its `.extract` counterpart), delete the `significant_events` array entirely, leaving only the `context` object.
+- [x] 2.1 In `schemas/v1/impact_metrics.schema.json` (and its `.extract` counterpart), update the `evidence_quality` enum to `["RCT/Meta-Analysis", "Quasi-Experimental", "Self-Reported"]`.
+- [x] 2.2 Add `species_key` (type: string) and `intervention_key` (type: string) properties to the metric object.
+- [x] 2.3 In `schemas/v1/impact_interventions.schema.json` (and its `.extract` counterpart), delete the `significant_events` array entirely, leaving only the `context` object.
 
 ## 3. n8n Orchestration Updates (`n8n/workflows/`)
 - [ ] 3.1 In `SUjUpjve9Vj6aJSbbuIWL.json`, add HTTP Request nodes to query PocketBase for all records in `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines`.
