@@ -24,8 +24,8 @@
         <tr>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer w-1/4 text-center" data-sort-dir="desc">Organisation Name</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Data Sources</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Target Species (Neglectedness)</th>
-          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Total Beneficiaries (Importance)</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Target Species</th>
+          <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Total Beneficiaries</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="number">Cost per Outcome (USD)</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="audit">Audit Summary</th>
           <th class="px-4 py-3 font-semibold text-gray-600 cursor-pointer text-center" data-sort-dir="desc" data-sort-type="date">Last Updated</th>
@@ -86,7 +86,7 @@
 
                 {{ $weighted_score := add $companion_pct (mul $wild_pct 2) (mul $farm_pct 3) }}
                 {{ $sort_val := $weighted_score }}
-              <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Target Species (Neglectedness)" data-sort-value="{{ $sort_val }}">
+              <td class="px-4 py-3 text-center whitespace-nowrap" data-label="Target Species" data-sort-value="{{ $sort_val }}">
                 <div class="flex items-center justify-center space-x-2">
       {{ $farmed_pop := index ($s.Get "popMap") "farmed_animals" }}
                   {{ $farmed_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $farmed_pct_raw = div (mul $farmed_pop 100.0) $totalPop }}{{ end }}
@@ -108,9 +108,16 @@
                   {{ $companion_opacity := 0.2 }}{{ if gt $companion_pct_raw 0.0 }}{{ $companion_opacity = math.Max 0.2 (div $companion_pct_raw 100.0) }}{{ end }}
                   {{ $companion_inner := printf `<span class="text-gray-600 %s" style="opacity: %f;">%s</span>` (cond (le $companion_pop 0) "grayscale" "") $companion_opacity (partial "icons/companion-animals.svg" .) }}
                   {{ partial "tooltip.html" (dict "inner" ($companion_inner | safeHTML) "text" (printf "Companion Animals: %d%%" $companion_pct_rounded)) }}
+
+                  {{ $unspecified_pop := index ($s.Get "popMap") "unspecified" }}
+                  {{ $unspecified_pct_raw := 0.0 }}{{ if gt $totalPop 0 }}{{ $unspecified_pct_raw = div (mul $unspecified_pop 100.0) $totalPop }}{{ end }}
+                  {{ $unspecified_pct_rounded := int (math.Round $unspecified_pct_raw) }}
+                  {{ $unspecified_opacity := 0.2 }}{{ if gt $unspecified_pct_raw 0.0 }}{{ $unspecified_opacity = math.Max 0.2 (div $unspecified_pct_raw 100.0) }}{{ end }}
+                  {{ $unspecified_inner := printf `<span class="text-gray-600 %s" style="opacity: %f;">%s</span>` (cond (le $unspecified_pop 0) "grayscale" "") $unspecified_opacity (partial "icons/unspecified-animals.svg" .) }}
+                  {{ partial "tooltip.html" (dict "inner" ($unspecified_inner | safeHTML) "text" (printf "Unspecified Animals: %d%%" $unspecified_pct_rounded)) }}
                 </div>
               </td>
-              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Total Beneficiaries (Importance)">
+              <td class="px-4 py-3 text-gray-700 text-right font-mono whitespace-nowrap" data-label="Total Beneficiaries">
                 {{ $total_beneficiaries := 0 }}
                 {{ range $org.impact.data.beneficiaries.beneficiaries }}
                   {{ $total_beneficiaries = add $total_beneficiaries (.population | default 0) }}
