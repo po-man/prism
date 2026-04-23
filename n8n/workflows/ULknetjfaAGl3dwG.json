@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-19T08:15:57.000Z",
+  "updatedAt": "2026-04-23T12:36:33.311Z",
   "createdAt": "2026-03-06T15:01:58.898Z",
   "id": "ULknetjfaAGl3dwG",
   "name": "Fill Exchange Rate",
@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// This script should be placed in a new n8n \"Code\" node\n// following the \"Get Exchange Rate\" HTTP Request node.\n\nfor (const item of $input.all()) {\n  // The original financial data is nested from a previous step.\n  const { original_code: originalCode } = $('Start').first().json;\n  \n  // The API response from the HTTP Request node is at the top level of the item's JSON.\n  const { date, rates, target_date: targetDate, skip_api_call: skipApiCall } = item.json;\n\n  if (skipApiCall) {\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: 1.0,\n      rate_date: targetDate,\n    }\n  } else {\n    if (!rates || typeof rates.USD === 'undefined' || !date) {\n      throw new Error(\"API response from Frankfurter is missing 'rates.USD' or 'date'.\");\n    }\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: rates.USD,\n      rate_date: date,\n    };\n  }\n}\n\n// Return the modified items, which now contain the complete currency object.\n// The structure is ready for the \"Schema Validation (Financials)\" node.\nreturn $input.all();\n"
+        "jsCode": "// This script should be placed in a new n8n \"Code\" node\n// following the \"Get Exchange Rate\" HTTP Request node.\n\nfor (const item of $input.all()) {\n  // The original financial data is nested from a previous step.\n  const { original_code: originalCode } = $('Start').first().json;\n  \n  // The API response from the HTTP Request node is at the top level of the item's JSON.\n  const { date, rate, target_date: targetDate, skip_api_call: skipApiCall } = item.json;\n\n  if (skipApiCall) {\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: 1.0,\n      rate_date: targetDate,\n    }\n  } else {\n    if (!rate || !date) {\n      throw new Error(\"API response from Frankfurter is missing 'rate' or 'date'.\");\n    }\n    item.json = {\n      original_code: originalCode,\n      usd_exchange_rate: rate,\n      rate_date: date,\n    };\n  }\n}\n\n// Return the modified items, which now contain the complete currency object.\n// The structure is ready for the \"Schema Validation (Financials)\" node.\nreturn $input.all();\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -35,7 +35,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.frankfurter.dev/v1/{{ $json.target_date }}",
+        "url": "=https://api.frankfurter.dev/v2/rates",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -44,8 +44,12 @@
               "value": "={{ $json.original_code }}"
             },
             {
-              "name": "symbols",
+              "name": "quotes",
               "value": "USD"
+            },
+            {
+              "name": "date",
+              "value": "={{ $json.target_date }}"
             }
           ]
         },
@@ -176,10 +180,19 @@
   },
   "staticData": null,
   "meta": null,
-  "pinData": {},
-  "versionId": "2cc9a24e-766c-4123-ac66-6d971643f195",
-  "activeVersionId": "2cc9a24e-766c-4123-ac66-6d971643f195",
-  "versionCounter": 17,
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "financial_year": "2023-2024",
+          "original_code": "NPR"
+        }
+      }
+    ]
+  },
+  "versionId": "db850296-1f58-4f22-acd5-80aa942b176c",
+  "activeVersionId": "db850296-1f58-4f22-acd5-80aa942b176c",
+  "versionCounter": 20,
   "triggerCount": 0,
   "tags": [],
   "shared": [
