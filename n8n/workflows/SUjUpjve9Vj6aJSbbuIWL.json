@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-22T16:23:59.544Z",
+  "updatedAt": "2026-04-23T06:48:50.202Z",
   "createdAt": "2026-01-21T04:40:29.603Z",
   "id": "SUjUpjve9Vj6aJSbbuIWL",
   "name": "Charity Analysis",
@@ -2227,34 +2227,6 @@
     },
     {
       "parameters": {
-        "fileSelector": "/home/node/.n8n-files/schemas/v1/impact_interventions.schema.extract.schema.json",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        -448,
-        5280
-      ],
-      "id": "5d29de24-749c-43be-962a-dced4b2e6f92",
-      "name": "Read JSON schema (Impact - Interventions)"
-    },
-    {
-      "parameters": {
-        "operation": "fromJson",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        -224,
-        5280
-      ],
-      "id": "e743e3a1-274a-4b9f-a5ed-89deb56ea8e5",
-      "name": "Binary to Text (JSON schema, Impact - Interventions)"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "KyDtBHSVI5wyX2KM",
@@ -2266,7 +2238,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/impact.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data)\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: $('Call \\'Prompt Injection\\' - Impact - Interventions Schema').first().json.injected_prompts\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2300,41 +2272,13 @@
       "typeVersion": 1.3,
       "position": [
         0,
-        5280
+        5296
       ],
       "id": "714a9b87-db44-4351-986d-ce9828ba583d",
       "name": "Call 'Prompt Injection' - Impact - Interventions"
     },
     {
       "parameters": {
-        "fileSelector": "/home/node/.n8n-files/schemas/v1/impact_metrics.schema.extract.schema.json",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.readWriteFile",
-      "typeVersion": 1.1,
-      "position": [
-        -448,
-        5488
-      ],
-      "id": "457f8907-67b9-4c7d-bf75-7f28e38523dc",
-      "name": "Read JSON schema (Impact - Metrics)"
-    },
-    {
-      "parameters": {
-        "operation": "fromJson",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
-      "position": [
-        -224,
-        5488
-      ],
-      "id": "dacc8e88-12a2-4990-889d-3eddadd3a01c",
-      "name": "Binary to Text (JSON schema, Impact - Metrics)"
-    },
-    {
-      "parameters": {
         "workflowId": {
           "__rl": true,
           "value": "KyDtBHSVI5wyX2KM",
@@ -2346,7 +2290,7 @@
           "mappingMode": "defineBelow",
           "value": {
             "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/prompt-templates/impact.user.md\"\n] }}",
-            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data)\n} }}"
+            "injection_dict": "={{ {\n  STRINGIFIED_JSON_SCHEMA: $('Call \\'Prompt Injection\\' - Impact - Metrics Schema').first().json.injected_prompts\n} }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -2380,7 +2324,7 @@
       "typeVersion": 1.3,
       "position": [
         0,
-        5488
+        5520
       ],
       "id": "08082941-4bfb-48fc-9791-0c4e12cf3ba4",
       "name": "Call 'Prompt Injection' - Impact - Metrics"
@@ -2394,7 +2338,7 @@
       "typeVersion": 1.1,
       "position": [
         -448,
-        5696
+        5744
       ],
       "id": "d121e916-4881-4112-9225-8d205ab3f3de",
       "name": "Read JSON schema (Impact - Transparency)"
@@ -2408,7 +2352,7 @@
       "typeVersion": 1.1,
       "position": [
         -224,
-        5696
+        5744
       ],
       "id": "2984d253-eb20-45d9-8d87-f624515793b0",
       "name": "Binary to Text (JSON schema, Impact - Transparency)"
@@ -2460,7 +2404,7 @@
       "typeVersion": 1.3,
       "position": [
         0,
-        5696
+        5744
       ],
       "id": "1a6c754e-211c-43ad-8fc2-541899871220",
       "name": "Call 'Prompt Injection' - Impact - Transparency"
@@ -2575,7 +2519,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Interventions)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ $('Call \\'Prompt Injection\\' - Impact - Interventions Schema').item.json.injected_prompts[0] }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -2733,7 +2677,7 @@
         "nodeCredentialType": "googlePalmApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Interventions)').first().json.modelParts) }}\n    },\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ JSON.stringify($('Binary to Text (JSON schema, Impact - Metrics)').first().json.data) }}\n  }\n}",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Beneficiaries').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Beneficiaries)').first().json.modelParts) }}\n    },\n    {\n      \"role\": \"user\",\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Interventions').first().json.injected_prompts[0]) }} }\n      ]\n    },\n    {\n      \"role\": \"model\",\n      \"parts\": {{ JSON.stringify($('Call Parse Content from Gemini (Impact - Interventions)').first().json.modelParts) }}\n    },\n    {\n      \"parts\": [\n        {\"text\": {{ JSON.stringify($('Call \\'Prompt Injection\\' - Impact - Metrics').first().json.injected_prompts[0]) }} }\n      ]\n    }\n  ],\n  \"cachedContent\": \"{{ $('Call \\'Ensure Context Cache is on Gemini\\'').item.json.gemini_cache_name }}\",\n  \"generationConfig\": {\n    \"temperature\": 0,\n    \"responseMimeType\": \"application/json\",\n    \"responseJsonSchema\": {{ $('Call \\'Prompt Injection\\' - Impact - Metrics Schema').item.json.injected_prompts[0] }}\n  }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -3129,6 +3073,233 @@
       ],
       "id": "d74241c3-9fb1-4727-bde1-14d09f84b3f8",
       "name": "Parsed Content (Metadata)"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/ref_moral_weights/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        944,
+        3808
+      ],
+      "id": "ded48b4d-06c3-4fff-b4a9-8badee04c655",
+      "name": "Storage API - Get Ref Moral Weights",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = {\n    species_keys: item.json.items.map(({ species_key }) => species_key)\n  };\n}\n\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        3808
+      ],
+      "id": "27751acb-e47a-4294-bfba-c817859607c0",
+      "name": "Extract Species Keys"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/ref_evidence_discounts/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        944,
+        4032
+      ],
+      "id": "7eefd247-63b6-4bcd-9d20-91a1c4eef2e3",
+      "name": "Storage API - Get Ref Evidence Discounts",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = {\n    evidence_keys: item.json.items.map(({ evidence_key }) => evidence_key)\n  };\n}\n\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        4032
+      ],
+      "id": "dd7692b6-8441-4747-8ca4-3cc0d48aadc4",
+      "name": "Extract Evidence Keys"
+    },
+    {
+      "parameters": {
+        "url": "=http://storage_api:8090/api/collections/ref_intervention_baselines/records",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        944,
+        4256
+      ],
+      "id": "6fbf1149-a624-4b5e-992b-46a006456d80",
+      "name": "Storage API - Get Ref Intervention Baselines",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "WyFKTClpRg732Kwj",
+          "name": "Storage API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1440,
+        4016
+      ],
+      "id": "af0bd4fc-f7ea-4156-b5f7-faef72af726f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json = {\n    intervention_keys: item.json.items.map(({ intervention_key }) => intervention_key)\n  };\n}\n\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        4256
+      ],
+      "id": "9e612248-03ef-4ade-93bf-17c5e711b028",
+      "name": "Extract Intervention Keys"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prepare Prompts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/schemas/v1/impact_metrics.schema.extract.schema.json\"\n] }}",
+            "injection_dict": "={{ {\n  CONCATENATED_SPECIES_KEY_VALUES: $('Extract Species Keys').first().json.species_keys,\n  CONCATENATED_EVIDENCE_KEY_VALUES: $('Extract Evidence Keys').first().json.evidence_keys,\n  CONCATENATED_INTERVENTION_KEY_VALUES: $('Extract Intervention Keys').first().json.intervention_keys\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        5520
+      ],
+      "id": "d9b62ad9-60dd-4496-8481-a5feb2374f2b",
+      "name": "Call 'Prompt Injection' - Impact - Metrics Schema"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KyDtBHSVI5wyX2KM",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/KyDtBHSVI5wyX2KM",
+          "cachedResultName": "Prepare Prompts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt_file_paths": "={{ [\n  \"/home/node/.n8n-files/schemas/v1/impact_interventions.schema.extract.schema.json\"\n] }}",
+            "injection_dict": "={{ {\n  CONCATENATED_SPECIES_KEY_VALUES: $('Extract Species Keys').first().json.species_keys,\n  CONCATENATED_EVIDENCE_KEY_VALUES: $('Extract Evidence Keys').first().json.evidence_keys,\n  CONCATENATED_INTERVENTION_KEY_VALUES: $('Extract Intervention Keys').first().json.intervention_keys\n} }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt_file_paths",
+              "displayName": "prompt_file_paths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            },
+            {
+              "id": "injection_dict",
+              "displayName": "injection_dict",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        5296
+      ],
+      "id": "964d6fa5-0880-4498-aa8e-d21342f794ca",
+      "name": "Call 'Prompt Injection' - Impact - Interventions Schema"
     }
   ],
   "connections": {
@@ -3681,7 +3852,17 @@
       "main": [
         [
           {
-            "node": "Storage API - Get Charity",
+            "node": "Storage API - Get Ref Moral Weights",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Storage API - Get Ref Evidence Discounts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Storage API - Get Ref Intervention Baselines",
             "type": "main",
             "index": 0
           }
@@ -3922,50 +4103,6 @@
         ]
       ]
     },
-    "Read JSON schema (Impact - Interventions)": {
-      "main": [
-        [
-          {
-            "node": "Binary to Text (JSON schema, Impact - Interventions)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to Text (JSON schema, Impact - Interventions)": {
-      "main": [
-        [
-          {
-            "node": "Call 'Prompt Injection' - Impact - Interventions",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Read JSON schema (Impact - Metrics)": {
-      "main": [
-        [
-          {
-            "node": "Binary to Text (JSON schema, Impact - Metrics)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Binary to Text (JSON schema, Impact - Metrics)": {
-      "main": [
-        [
-          {
-            "node": "Call 'Prompt Injection' - Impact - Metrics",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Read JSON schema (Impact - Transparency)": {
       "main": [
         [
@@ -4025,7 +4162,7 @@
       "main": [
         [
           {
-            "node": "Read JSON schema (Impact - Interventions)",
+            "node": "Call 'Prompt Injection' - Impact - Interventions Schema",
             "type": "main",
             "index": 0
           }
@@ -4213,7 +4350,7 @@
       "main": [
         [
           {
-            "node": "Read JSON schema (Impact - Metrics)",
+            "node": "Call 'Prompt Injection' - Impact - Metrics Schema",
             "type": "main",
             "index": 0
           }
@@ -4281,6 +4418,105 @@
           }
         ]
       ]
+    },
+    "Storage API - Get Ref Moral Weights": {
+      "main": [
+        [
+          {
+            "node": "Extract Species Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Ref Evidence Discounts": {
+      "main": [
+        [
+          {
+            "node": "Extract Evidence Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Storage API - Get Ref Intervention Baselines": {
+      "main": [
+        [
+          {
+            "node": "Extract Intervention Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Species Keys": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Evidence Keys": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Storage API - Get Charity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Intervention Keys": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Impact - Metrics Schema": {
+      "main": [
+        [
+          {
+            "node": "Call 'Prompt Injection' - Impact - Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt Injection' - Impact - Interventions Schema": {
+      "main": [
+        [
+          {
+            "node": "Call 'Prompt Injection' - Impact - Interventions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
@@ -4292,9 +4528,9 @@
     "templateCredsSetupCompleted": true
   },
   "pinData": {},
-  "versionId": "1b891191-f166-49b2-9d15-b508e2ab1b5f",
-  "activeVersionId": "1b891191-f166-49b2-9d15-b508e2ab1b5f",
-  "versionCounter": 476,
+  "versionId": "7bb5154c-ddc2-41d9-9333-cd2b8cdcca4e",
+  "activeVersionId": "7bb5154c-ddc2-41d9-9333-cd2b8cdcca4e",
+  "versionCounter": 483,
   "triggerCount": 1,
   "tags": [],
   "shared": [

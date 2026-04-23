@@ -8,10 +8,9 @@
 - [x] 2.3 In `schemas/v1/impact_interventions.schema.json` (and its `.extract` counterpart), delete the `significant_events` array entirely, leaving only the `context` object.
 
 ## 3. n8n Orchestration Updates (`n8n/workflows/`)
-- [ ] 3.1 In `SUjUpjve9Vj6aJSbbuIWL.json`, add HTTP Request nodes to query PocketBase for all records in `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines`.
-- [ ] 3.2 In the Code node preceding the Gemini Impact extraction, extract the keys from the PocketBase responses into Javascript arrays.
-- [ ] 3.3 Dynamically inject these arrays into the `enum` fields for `species_key`, `intervention_key`, and `evidence_quality` within the parsed `impact_metrics` schema object before passing it into the Gemini API call.
-- [ ] 3.4 Remove the "Impact - Interventions" Gemini extraction block, as `significant_events` no longer exists and `context` can be merged into the Beneficiaries or Metrics prompt step.
+- [x] 3.1 In `SUjUpjve9Vj6aJSbbuIWL.json`, add HTTP Request nodes to query PocketBase for all records in `ref_moral_weights`, `ref_evidence_discounts`, and `ref_intervention_baselines`.
+- [x] 3.2 In the Code node preceding the Gemini Impact extraction, extract the keys from the PocketBase responses into Javascript arrays.
+- [x] 3.3 Dynamically inject these arrays into the `enum` fields for `species_key`, `intervention_key`, and `evidence_quality` within the parsed `impact_metrics` schema object before passing it into the Gemini API call.
 
 ## 4. Python Audit Engine (`utils_api/`)
 - [ ] 4.1 In `app/audits/impact.py`, locate `calculate_ies`.
