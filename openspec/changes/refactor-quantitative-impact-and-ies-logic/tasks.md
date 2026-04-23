@@ -19,7 +19,7 @@
 - [x] 4.4 Update `tests/test_audit_impact.py` (and relevant tests, if any) to reflect the new strict mapping and the removal of the fuzzy matching tests. Update mock data to use the "Self-Reported" evidence key.
 
 ## 5. UI/UX Refactoring (`web/`)
-- [ ] 5.1 Delete `web/layouts/partials/impact-pathway.html`.
-- [ ] 5.2 In `web/layouts/_default/single.html`, remove the `{{ partial "impact-pathway.html" $org }}` inclusion.
-- [ ] 5.3 In `web/layouts/partials/itn-scorecard.html`, migrate the "What would happen without this charity?" (counterfactual) UI block from the deleted impact pathway, placing it directly beneath the "Impact Profile" header.
-- [ ] 5.4 In `web/layouts/partials/myth-buster.html`, migrate the "Inputs" (Total Annual Expenditure) UI block from the deleted impact pathway, integrating it cleanly inside or above the "Expense Breakdown" column.
+- [x] 5.1 Delete `web/layouts/partials/impact-pathway.html`.
+- [x] 5.2 In `web/layouts/_default/single.html`, remove the `{{ partial "impact-pathway.html" $org }}` inclusion.
+- [x] 5.3 In `web/layouts/partials/itn-scorecard.html`, migrate the "What would happen without this charity?" (counterfactual) UI block from the deleted impact pathway, placing it directly beneath the "Impact Profile" header.
+- [x] 5.4 In `web/layouts/partials/myth-buster.html`, migrate the "Inputs" (Total Annual Expenditure) UI block from the deleted impact pathway, integrating it cleanly inside or above the "Expense Breakdown" column.
