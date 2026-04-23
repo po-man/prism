@@ -13,10 +13,10 @@
 - [x] 3.3 Dynamically inject these arrays into the `enum` fields for `species_key`, `intervention_key`, and `evidence_quality` within the parsed `impact_metrics` schema object before passing it into the Gemini API call.
 
 ## 4. Python Audit Engine (`utils_api/`)
-- [ ] 4.1 In `app/audits/impact.py`, locate `calculate_ies`.
-- [ ] 4.2 Delete the `_fuzzy_match` helper function and all fuzzy matching logic within the metric loop.
-- [ ] 4.3 Refactor the loop to retrieve the `w_species`, `w_leverage`, and `d_evidence` multipliers directly using `metric.species_key`, `metric.intervention_key`, and `metric.evidence_quality` from the reference dictionaries.
-- [ ] 4.4 Update `tests/test_audit_impact.py` to reflect the new strict mapping and the removal of the fuzzy matching tests. Update mock data to use the "Self-Reported" evidence key.
+- [x] 4.1 In `app/audits/impact.py`, locate `calculate_ies`.
+- [x] 4.2 Delete the `_fuzzy_match` helper function and all fuzzy matching logic within the metric loop.
+- [x] 4.3 Refactor the loop to retrieve the `w_species`, `w_leverage`, and `d_evidence` multipliers directly using `metric.species_key`, `metric.intervention_key`, and `metric.evidence_quality` from the reference dictionaries.
+- [x] 4.4 Update `tests/test_audit_impact.py` (and relevant tests, if any) to reflect the new strict mapping and the removal of the fuzzy matching tests. Update mock data to use the "Self-Reported" evidence key.
 
 ## 5. UI/UX Refactoring (`web/`)
 - [ ] 5.1 Delete `web/layouts/partials/impact-pathway.html`.

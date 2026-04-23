@@ -68,7 +68,9 @@ VALID_BASE_RECORD = {
             "metrics": [
                 {
                     "metric_name": "Animals Rescued",
-                    "quantitative_data": {"value": 1000, "unit": "animals"},
+                    "species_key": "companion_animals",
+                    "intervention_key": "individual_rescue_and_sanctuary",
+                    "quantitative_data": {"value": 1000, "unit": "animals", "unit_is_individual_animal": True},
                     "context_qualifier": "Rescued from unsafe conditions.",
                     "counterfactual_baseline": {
                         "value": 50,
@@ -93,23 +95,6 @@ VALID_BASE_RECORD = {
             ],
         },
         "interventions": {
-            "significant_events": [
-                {
-                    "event_name": "Project Shelter",
-                    "summary": "Built a new shelter facility.",
-                    "intervention_type": ["individual_rescue_and_sanctuary"],
-                    "primary_intervention_type": "individual_rescue_and_sanctuary",
-                    "intervention_type_other_description": None,
-                    "timeframe": "annual",
-                    "source": {
-                        "source_type": "attached_report",
-                        "source_index": 0,
-                        "page_number": 2,
-                        "quote": "Our new shelter facility, 'Project Shelter', opened this year on page 2.",
-                        "resolved_url": None
-                    }
-                }
-            ],
             "context": {
                 "operating_scope": {
                     "value": "pure_animal_advocacy",

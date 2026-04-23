@@ -27,23 +27,21 @@ def check_intervention_tractability(record: OrganisationRecord) -> CheckItem:
         id="check_intervention_tractability", status="warning", significance="HIGH", category="Impact Awareness", details=base_details
     )
 
-    if not record.impact or not record.impact.interventions or not record.impact.interventions.significant_events:
-        base_item.details.calculation = "No significant events were reported to assess tractability."
+    if not record.impact or not record.impact.metrics or not record.impact.metrics.metrics:
+        base_item.details.calculation = "No impact metrics were reported to assess tractability."
         return base_item
 
-    # 1. Filter for verified events and map them to tiers
+    # 1. Filter for verified metric interventions and map them to tiers
     verified_interventions = []
-    for event in record.impact.interventions.significant_events:
-        if event.source and event.source.quote:
-            for intervention_type in event.intervention_type:
-                if intervention_type.value in INTERVENTION_LEVERAGE_MAP:
-                    tier_info = INTERVENTION_LEVERAGE_MAP[intervention_type.value]
-                    verified_interventions.append({
-                        "name": intervention_type.value.replace('_', ' ').title(),
-                        "tier": tier_info["tier"],
-                        "tier_name": tier_info["tier_name"],
-                        "source": event.source.model_dump(exclude_unset=True)
-                    })
+    for metric in record.impact.metrics.metrics:
+        if metric.source and metric.source.quote and metric.intervention_key in INTERVENTION_LEVERAGE_MAP:
+            tier_info = INTERVENTION_LEVERAGE_MAP[metric.intervention_key]
+            verified_interventions.append({
+                "name": metric.intervention_key.replace('_', ' ').title(),
+                "tier": tier_info["tier"],
+                "tier_name": tier_info["tier_name"],
+                "source": metric.source.model_dump(exclude_unset=True)
+            })
 
     if not verified_interventions:
         base_item.details.calculation = "No verifiable interventions found to assess tractability."
@@ -247,7 +245,7 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
 
     if (
         has_breakdowns
-        and record.impact.interventions and record.impact.interventions.significant_events
+        and record.impact.metrics and record.impact.metrics.metrics
         and record.impact.beneficiaries and record.impact.beneficiaries.beneficiaries
     ):
         # Map intervention types to beneficiary types for population allocation
@@ -286,24 +284,26 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
                 continue
 
             name_lower = breakdown.programme_name.lower()
-            matched_event = None
-            for event in record.impact.interventions.significant_events:
-                if not event or not event.event_name:
+            matched_metric = None
+            for metric in record.impact.metrics.metrics:
+                if not metric or not metric.metric_name:
                     continue
                 if (
-                    name_lower in event.event_name.lower()
-                    or event.event_name.lower() in name_lower
-                    or (event.summary and name_lower in event.summary.lower())
-                    or (event.summary and event.summary.lower() in name_lower)
+                    name_lower in metric.metric_name.lower()
+                    or metric.metric_name.lower() in name_lower
+                    or (metric.context_qualifier and name_lower in metric.context_qualifier.lower())
+                    or (metric.context_qualifier and metric.context_qualifier.lower() in name_lower)
+                    or (metric.source and metric.source.quote and name_lower in metric.source.quote.lower())
+                    or (metric.source and metric.source.quote and metric.source.quote.lower() in name_lower)
                 ):
-                    matched_event = event
+                    matched_metric = metric
                     break
 
-            if not matched_event:
+            if not matched_metric:
                 continue
 
             population = _population_for_interventions(
-                [it.value if hasattr(it, "value") else it for it in (matched_event.intervention_type or [])]
+                [matched_metric.intervention_key] if matched_metric.intervention_key else []
             )
             if population <= 0:
                 continue
@@ -313,11 +313,8 @@ def calculate_cost_per_outcome(record: OrganisationRecord) -> Optional[Calculate
             program_matches.append(
                 {
                     "programme_name": breakdown.programme_name,
-                    "matched_event": matched_event.event_name,
-                    "intervention_types": [
-                        it.value if hasattr(it, "value") else it
-                        for it in (matched_event.intervention_type or [])
-                    ],
+                    "matched_metric": matched_metric.metric_name,
+                    "intervention_types": [matched_metric.intervention_key],
                     "population": population,
                     "cost_usd": round(cost_usd, 2),
                     "source": breakdown.amount.source.model_dump(exclude_unset=True) if breakdown.amount.source else None,
@@ -533,45 +530,6 @@ def check_cause_area_neglectedness(record: OrganisationRecord) -> CheckItem:
     return base_item
 
 
-def _fuzzy_match(str1: str, str2: str) -> bool:
-    """
-    Performs a case-insensitive fuzzy match by checking for keyword overlap.
-    Returns True if the strings share enough keywords (at least 2 words in common).
-    Also supports substring matching as a fallback.
-    """
-    if not str1 or not str2:
-        return False
-
-    s1_lower = str1.lower()
-    s2_lower = str2.lower()
-
-    # First try exact substring matching
-    if s1_lower in s2_lower or s2_lower in s1_lower:
-        return True
-
-    # Then try keyword/word overlap matching
-    # Split on whitespace, remove punctuation, and compare
-    words1 = set(re.findall(r'\b\w+(?:-\w+)*\b', s1_lower))
-    words2 = set(re.findall(r'\b\w+(?:-\w+)*\b', s2_lower))
-
-    # Remove common stop words
-    stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'was', 'were', 'be', 'been'}
-    words1 = words1 - stop_words
-    words2 = words2 - stop_words
-
-    # Check if there's significant overlap (at least 2 common words or more than 50% of shorter string)
-    common_words = words1 & words2
-    if len(common_words) >= 2:
-        return True
-
-    # Alternative: if more than 40% of the shorter string's words are in the longer string
-    min_len = min(len(words1), len(words2))
-    if min_len > 0 and len(common_words) >= min_len * 0.4:
-        return True
-
-    return False
-
-
 async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
     """
     Calculates the Impact Equivalency Score (IES) for a charity.
@@ -583,7 +541,6 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
     if not all([
         record.impact,
         record.impact and record.impact.metrics and record.impact.metrics.metrics,
-        record.impact and record.impact.interventions and record.impact.interventions.significant_events,
         record.impact and record.impact.beneficiaries and record.impact.beneficiaries.beneficiaries,
     ]):
         return None
@@ -614,6 +571,7 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
         "wild_animals": sum(b.population for b in record.impact.beneficiaries.beneficiaries if b.beneficiary_type.value == "wild_animals" and b.population),
     }
     dominant_beneficiary_type = max(populations, key=populations.get) if any(populations.values()) else "unspecified"
+    species_source_description = None
 
     for metric in record.impact.metrics.metrics:
         # Task 4.1: Pre-processing filter to exclude non-annual metrics
@@ -627,77 +585,17 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
         outcome = metric.quantitative_data.value
 
         # 2. Evidence Discount (D_evidence)
-        d_evidence = evidence_discounts.get(metric.evidence_quality.value, 0.0) if metric.evidence_quality else 0.0
+        d_evidence = evidence_discounts.get(metric.evidence_quality, 0.0) if metric.evidence_quality else 0.0
 
-        # 3. Find associated event to get intervention_type for W_leverage
-        # Task 4.2: Refactor Metric-to-Event matching to use fuzzy string matching
-        matched_event = None
-        if metric.source and metric.source.quote:
-            for event in record.impact.interventions.significant_events:
-                # Fuzzy match on quote, event_name, or summary
-                if event.source and event.source.quote and _fuzzy_match(metric.source.quote, event.source.quote):
-                    matched_event = event
-                    break
-                if event.event_name and _fuzzy_match(metric.metric_name, event.event_name):
-                    matched_event = event
-                    break
-                if event.summary and _fuzzy_match(metric.metric_name, event.summary):
-                    matched_event = event
-                    break
+        # 3. Leverage Weight (W_leverage)
+        leverage_key = metric.intervention_key if metric.intervention_key else "fallback"
+        w_leverage = leverage_multipliers.get(leverage_key, 0.1)  # Conservative baseline probability
 
-        if not matched_event:
-            # Task 4.2: If match fails, assign conservative fallback leverage
-            leverage_key = "fallback"
-            w_leverage = 0.1
-        else:
-            # Task 4.3: Update leverage multiplier to use primary_intervention_type
-            leverage_key = matched_event.primary_intervention_type.value if matched_event.primary_intervention_type else "other"
-            w_leverage = leverage_multipliers.get(leverage_key, 0.0)
-
-        # If no event matched, use conservative fallback leverage (Task 4.2)
-        if not matched_event:
-            w_leverage = 0.1  # Conservative baseline probability
-
-        # 5. Species Weight (W_species)
-        # Attempt to find a species from the metric text fields first, otherwise match beneficiaries, and only then fallback to the dominant beneficiary type.
-        species_key = None
-        species_source_description = None
-
-        search_text = " ".join(filter(None, [
-            metric.metric_name or "",
-            metric.quantitative_data.unit or "",
-            metric.context_qualifier or "",
-            metric.source.quote if metric.source and metric.source.quote else ""
-        ])).lower()
-
-        for key in moral_weights:
-            if key in search_text or key.rstrip('s') in search_text:
-                species_key = key
-                species_source_description = f"Found species keyword '{key}' in metric text."
-                break
-
-        matched_beneficiary = None
-        if not species_key and metric.source and metric.source.quote:
-            for b in record.impact.beneficiaries.beneficiaries:
-                if b.source and b.source.quote and _fuzzy_match(metric.source.quote, b.source.quote):
-                    matched_beneficiary = b
-                    break
-
-        if not species_key:
-            if matched_beneficiary:
-                beneficiary_type_value = getattr(matched_beneficiary.beneficiary_type, "value", matched_beneficiary.beneficiary_type)
-                species_key = beneficiary_to_species_map.get(beneficiary_type_value)
-                species_source_description = f"Matched metric quote to beneficiary record with beneficiary_type '{beneficiary_type_value}'."
-            else:
-                species_key = beneficiary_to_species_map.get(dominant_beneficiary_type)
-                species_source_description = f"Falling back to dominant beneficiary type '{dominant_beneficiary_type}'."
-
+        # 4. Species Weight (W_species)
+        species_key = metric.species_key if metric.species_key else beneficiary_to_species_map.get(dominant_beneficiary_type, "generic_unspecified")
         if not species_key or species_key not in moral_weights:
             species_key = "generic_unspecified"
-            if not species_source_description:
-                species_source_description = "Falling back to generic_unspecified."
-
-        w_species = moral_weights.get(species_key, 0.0) if species_key else 0.0
+        w_species = moral_weights.get(species_key, 0.0)
 
         # Task 4.5: Calculate and supply both claimed_ies and evaluated_ies
         claimed_ies_i = outcome * w_species * w_leverage
@@ -724,9 +622,9 @@ async def calculate_ies(record: OrganisationRecord) -> Optional[IesMetric]:
                 "source": f"Baseline probability for intervention '{leverage_key}'.",
             },
             "d_evidence": {
-                "key": metric.evidence_quality.value if metric.evidence_quality else "None",
+                "key": metric.evidence_quality if metric.evidence_quality else "Self-Reported",
                 "value": d_evidence,
-                "source": f"Epistemic discount for '{metric.evidence_quality.value if metric.evidence_quality else 'None'}' evidence.",
+                "source": f"Epistemic discount for '{metric.evidence_quality if metric.evidence_quality else 'Self-Reported'}' evidence.",
             },
             "ies": round(evaluated_ies_i),
             "calculation": f"{outcome} * {w_species} * {w_leverage} * {d_evidence} = {round(evaluated_ies_i)}"

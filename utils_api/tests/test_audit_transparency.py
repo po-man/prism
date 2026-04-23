@@ -55,7 +55,7 @@ def test_check_live_release_transparency(client: TestClient):
     """
     # 1. N/A: Org does not engage in applicable interventions
     record_na = deepcopy(VALID_BASE_RECORD)
-    record_na["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["corporate_welfare_campaigns"]
+    record_na["impact"]["metrics"]["metrics"][0]["intervention_key"] = "corporate_welfare_campaigns"
     response = client.post("/audit", json=record_na)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")
@@ -86,7 +86,7 @@ def test_check_live_release_transparency(client: TestClient):
 
     # 4. Bonus: Applicable via 'veterinary_care_and_treatment'
     record_bonus_vet = deepcopy(VALID_BASE_RECORD)
-    record_bonus_vet["impact"]["interventions"]["significant_events"][0]["intervention_type"] = ["veterinary_care_and_treatment"]
+    record_bonus_vet["impact"]["metrics"]["metrics"][0]["intervention_key"] = "veterinary_care_and_treatment"
     record_bonus_vet["impact"]["transparency"]["transparency_indicators"]["euthanasia_statistics_reported"]["value"] = True
     response = client.post("/audit", json=record_bonus_vet)
     assert response.status_code == 200
@@ -94,9 +94,9 @@ def test_check_live_release_transparency(client: TestClient):
     assert item is not None
     assert item["status"] == "bonus"
 
-    # 5. N/A: No significant events at all
+    # 5. N/A: No applicable metrics at all
     record_no_events = deepcopy(VALID_BASE_RECORD)
-    record_no_events["impact"]["interventions"]["significant_events"] = []
+    record_no_events["impact"]["metrics"]["metrics"] = []
     response = client.post("/audit", json=record_no_events)
     assert response.status_code == 200
     item = get_audit_item(response.json(), "check_live_release_transparency")
