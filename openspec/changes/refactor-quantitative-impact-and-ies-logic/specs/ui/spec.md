@@ -6,7 +6,7 @@
 
 ## MODIFIED Requirements
 
-### Requirement: ITN Scorecard Rendering
+### Requirement: Impact Profile Rendering
 The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence, while immediately establishing the counterfactual baseline.
 
 #### Scenario: Displaying the Counterfactual Context
