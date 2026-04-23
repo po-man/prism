@@ -123,10 +123,6 @@ migrate((app) => {
 
   const data = [
     {
-      "species_key": "human", "species_name": "Human", "weight": 1.0, "source_citation": "Baseline",
-      "notes": "Standardized baseline for Disability-Adjusted Life Year (DALY) comparisons."
-    },
-    {
       "species_key": "pig", "species_name": "Pig", "weight": 0.5150, "source_citation": "Rethink Priorities, 2023",
       "notes": "Median estimate; reflects high cognitive/affective complexity and limb similarity."
     },

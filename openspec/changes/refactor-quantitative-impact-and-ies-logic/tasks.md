@@ -1,6 +1,6 @@
 ## 1. Database Migrations (`pocketbase/migrations/`)
-- [ ] 1.1 Create a new JS migration to delete the `human` record from the `ref_moral_weights` collection.
-- [ ] 1.2 In the same migration, remove the `None`, `Anecdotal`, and `Pre-Post` records from `ref_evidence_discounts`. Insert a new record: `{"evidence_key": "Self-Reported", "multiplier": 0.3, "description": "Self-reported claims without rigorous external control groups.", "source_citation": "PRISM Standard"}`.
+- [x] 1.1 Create a new JS migration to delete the `human` record from the `ref_moral_weights` collection.
+- [x] 1.2 In the same migration, remove the `None`, `Anecdotal`, and `Pre-Post` records from `ref_evidence_discounts`. Insert a new record: `{"evidence_key": "Self-Reported", "multiplier": 0.3, "description": "Self-reported claims without rigorous external control groups.", "source_citation": "PRISM Standard"}`.
 
 ## 2. Schema Refactoring (`schemas/`)
 - [x] 2.1 In `schemas/v1/impact_metrics.schema.json` (and its `.extract` counterpart), update the `evidence_quality` enum to `["RCT/Meta-Analysis", "Quasi-Experimental", "Self-Reported"]`.
