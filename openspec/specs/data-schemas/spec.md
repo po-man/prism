@@ -4,13 +4,17 @@
 This specification defines the data contracts for the entire system. It provides canonical JSON schemas for all data entities, including ingestion payloads, extracted financial and impact metrics, and the final `analytics` object. These schemas ensure data integrity and consistency as information moves from extraction to persistence and final presentation.
 ## Requirements
 ### Requirement: Impact Schema Definition
-The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, strictly enforcing the extraction of verbatim evidence over LLM-synthesised summaries.
+The system SHALL define a canonical JSON schema for extracting and persisting charity impact data, strictly enforcing the extraction of verbatim evidence and explicitly mapping metrics to global reference keys.
 
-#### Scenario: Counterfactual Baseline Provenance
+#### Scenario: Strict Metric Classification Keys
 - **WHEN** validating the `impact_metrics.schema.json`
-- **THEN** the `counterfactual_baseline` object MUST include a `source` object.
-- **AND** the `source` object MUST contain an optional `url` (string, uri format) and a required `quote` (string) field to store the exact text fragment justifying the baseline.
-- **AND** the legacy `description` field MUST be deprecated to prevent structural hallucinations.
+- **THEN** each metric MUST require a `species_key` and an `intervention_key` (both strings).
+- **AND** these fields MUST conform to the exact enums injected dynamically by the orchestrator at runtime.
+
+#### Scenario: Merging Self-Reported Evidence Types
+- **WHEN** validating the `evidence_quality` of a metric
+- **THEN** the allowed enum values MUST strictly be `["RCT/Meta-Analysis", "Quasi-Experimental", "Self-Reported"]`.
+- **AND** any legacy unstructured or anecdotal evidence MUST be classified exclusively under `Self-Reported`.
 
 ### Requirement: Financials Schema Definition
 The system SHALL define a canonical JSON schema for extracting and persisting financial data, strictly preserving original values while enabling standardized multi-currency comparisons and accurate mathematical scaling.
@@ -97,8 +101,11 @@ The system SHALL define a deterministic build process to transform canonical val
 ### Requirement: Reference Data Collections for IES Constants
 The system SHALL define static reference collections in PocketBase to store philosophical and epistemic constants, ensuring they are decoupled from individual charity records and can be updated globally.
 
-#### Scenario: Expanding Generic Species Fallbacks
-- **WHEN** seeding or updating the `ref_moral_weights` collection
-- **THEN** it MUST be populated with generic baseline records: `generic_companion`, `generic_farmed`, `generic_wild`, and `generic_unspecified`.
-- **AND** the `ref_evidence_discounts` multipliers MUST be updated to reflect animal advocacy sector realities (e.g., `Pre-Post` adjusted to 0.6, `Anecdotal` to 0.3).
+#### Scenario: Pruning Out-of-Scope Moral Weights
+- **WHEN** the `ref_moral_weights` collection is queried
+- **THEN** it MUST NOT contain a `human` species key, enforcing the platform's strict focus on animal advocacy.
+
+#### Scenario: Normalising Epistemic Discounts
+- **WHEN** the `ref_evidence_discounts` collection is queried
+- **THEN** it MUST return a single `Self-Reported` category with a unified penalty multiplier, eliminating the artificial distinction between `Pre-Post`, `Anecdotal`, and `None` for self-published charity reports.
 

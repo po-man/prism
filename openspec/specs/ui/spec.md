@@ -26,21 +26,12 @@ The UI SHALL visually categorize the charity's beneficiaries to immediately comm
 - **AND** the `unspecified` type MUST remain entirely hidden from this view to preserve the column's comparative focus on EA cause areas, regardless of its population value.
 
 ### Requirement: Overhead vs. Impact Myth-Buster Display
-The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, dynamically suppressing the calculation if the data confidence is low.
+The UI SHALL present the estimated cost per outcome alongside a tangible retail donation equivalent, contextualizing administrative overhead with the absolute total financial inputs.
 
-#### Scenario: Missing Expense Data Fallback
-- **WHEN** rendering the Expense Breakdown column on a charity's individual profile (`myth-buster.html`)
-- **THEN** the UI MUST always render the component structure to maintain visual symmetry with the Cost per Outcome column.
-- **AND** if total expenditure data is `nil` or unavailable, it MUST display a greyed-out placeholder indicating missing data, mirroring the visual style of the "Not Calculated" state.
-
-### Requirement: Impact Pathway Display
-The UI SHALL present the charity's logic model hierarchically, providing direct, highlighted verification links for web-sourced claims and counterfactual baselines.
-
-#### Scenario: Rendering Counterfactual Provenance
-- **WHEN** rendering the "What would happen without this charity?" section in the Impact Pathway
-- **THEN** the UI MUST display the verbatim `source.quote` instead of a synthesised description.
-- **AND** the UI MUST render a provenance badge next to the quote.
-- **AND** if a `source.url` is present, the badge MUST be hyperlinked using W3C Text Fragment syntax (`#:~:text=`) to highlight the quote on the target page.
+#### Scenario: Integrating Total Annual Expenditure
+- **WHEN** rendering the Expense Breakdown column within the Value for Money section
+- **THEN** the UI MUST dynamically calculate and render the Total Annual Expenditure in USD at the top of the card.
+- **AND** it MUST include the original local currency and exchange rate as a hover-able tooltip on the total figure.
 
 ### Requirement: Audit Checklist Presentation
 The UI SHALL render the deterministic audit results, filtering out noise and providing immediate threshold transparency to the user on a dedicated organisation page.
@@ -77,13 +68,10 @@ The UI SHALL render the calculated Impact Equivalency Score (IES) in a dedicated
 - **AND** if a `source` object is present at the breakdown item level, it MUST render the interactive provenance badge immediately succeeding the metric name.
 
 ### Requirement: Impact Profile Rendering
-The static site generator (Hugo) SHALL render an Impact Profile for each charity, accurately reflecting cumulative impact and verbatim evidence, while explicitly bounding and labelling temporal scopes, adopting layman demographic terminology, and visually separating programmatic scale from intervention types.
+The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence, while immediately establishing the counterfactual baseline.
 
-#### Scenario: Displaying a Deduplicated Intervention Portfolio
-- **WHEN** rendering the "Intervention Portfolio" block on the Impact Profile
-- **THEN** the UI MUST label the block "Intervention Portfolio".
-- **AND** it MUST parse the stringified JSON array in the `details.elaboration` field to dynamically render the verified portfolio of interventions.
-- **AND** the UI MUST programmatically deduplicate the interventions to ensure each unique intervention name is only listed once.
-- **AND** the UI MUST visually present these unique interventions as an accessible cluster of tags or badges, entirely removing the prominent display of the "Tier" hierarchy.
-- **AND** it MUST cap the number of interactive provenance badges rendered alongside each intervention name to a maximum of 3, preventing visual clutter.
+#### Scenario: Displaying the Counterfactual Context
+- **WHEN** rendering the Impact Profile section
+- **THEN** the UI MUST display the "What would happen without this charity?" block (if a valid counterfactual exists).
+- **AND** it MUST be positioned prominently before the quantitative demographic breakdowns, rendering the exact source quote and its interactive provenance badge.
 

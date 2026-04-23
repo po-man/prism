@@ -23,12 +23,13 @@ The `utils_api` SHALL calculate the cost per outcome and additionally provide a 
 - **AND** this scaled local value MUST then be used for the subsequent `usd_exchange_rate` conversion and final cost-per-outcome division.
 
 ### Requirement: LLM Prompt Injection for Impact
-The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs and maintain strict data provenance.
+The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate demographic populations and forcing the model to explicitly assign reference keys from the database.
 
-#### Scenario: Enforcing Strict Nulls for Missing Evidence
-- **WHEN** the LLM cannot locate explicit evidence for a requested field (such as a counterfactual quote)
-- **THEN** the system prompt MUST strictly instruct the model to output a native JSON `null`.
-- **AND** the model MUST be explicitly forbidden from populating string fields with denial phrases like "Not found", "None", "Unspecified", or "N/A".
+#### Scenario: Dynamic Reference Enum Injection
+- **WHEN** generating prompts for the Gemini model in the Impact extraction node
+- **THEN** the orchestrator MUST dynamically fetch the live `species_key` and `intervention_key` lists from the Data Vault.
+- **AND** it MUST inject these live lists into the JSON schema as strict enum constraints.
+- **AND** the system prompt MUST instruct the model to evaluate the qualitative context of the metric and select the single most appropriate `species_key` and `intervention_key` from the provided enums.
 
 ### Requirement: LLM Prompt Injection for Impact and Metadata
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs for pan-Asian contexts, prioritised impact models, and highly traceable data provenance.
@@ -83,14 +84,13 @@ The `utils_api` microservice SHALL intercept LLM extraction payloads and determi
 - **AND** only after this structural restoration is complete SHALL the payload be passed to the `jsonschema.validate()` method against the canonical validation schema.
 
 ### Requirement: Impact Equivalency Score (IES) Processing Flow
-The orchestration pipeline SHALL execute a rigid, multi-stage data lineage to compute the IES, ensuring every component of the calculation retains its traceability to source documents and accurately reflects species-specific moral weights.
+The orchestration pipeline SHALL execute a rigid, multi-stage data lineage to compute the IES, ensuring every component of the calculation retains its traceability to source documents and relies on explicitly assigned classifications rather than inferred string matching.
 
-#### Scenario: Resolving Species Weights via Text Expansion and Beneficiary Matching
-- **WHEN** the `utils_api` computes the `w_species` for an IES metric
-- **THEN** it MUST first search for a direct species key by evaluating a combined string of the metric's `unit`, `metric_name`, `context_qualifier`, and `source.quote`.
-- **AND** if a direct species key is not found, it MUST attempt to link the metric to a specific demographic by fuzzy-matching the metric's text/quote against the quotes in the `beneficiaries` array.
-- **AND** if a matching beneficiary record is found, it MUST apply the moral weight corresponding to that specific `beneficiary_type` (e.g., `generic_farmed`).
-- **AND** it MUST ONLY fall back to the organisation-wide `dominant_beneficiary_type` if both the keyword search and the fuzzy beneficiary match fail.
+#### Scenario: Deterministic Reference Key Lookups
+- **WHEN** the `utils_api` computes the `w_species`, `w_leverage`, and `d_evidence` for an IES metric
+- **THEN** it MUST directly query the reference dictionaries using the `metric.species_key`, `metric.intervention_key`, and `metric.evidence_quality` extracted deterministically by the LLM.
+- **AND** the pipeline MUST immediately bypass any fuzzy matching heuristics or substring overlap logic.
+- **AND** if an exact match is not found in the reference tables, it MUST fall back to a predefined conservative baseline without attempting to infer context.
 
 ### Requirement: LLM Prompt Injection for Financials
 The system SHALL utilise prompt templates injected with JSON schemas to ensure deterministic LLM outputs, capturing accurate financial data while adhering to a strict "no-inference" policy.
