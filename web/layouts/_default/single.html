@@ -27,11 +27,13 @@
           <div class="flex justify-between items-start">
             <div class="flex-grow">
               <h2 class="text-3xl font-bold text-gray-800">{{ $org.name | default "Unnamed Organisation" }}</h2>
-              {{ with $org.meta.chinese_name }}
-                <p class="text-xl text-gray-500">{{ . }}</p>
-              {{ end }}
-              {{ with $org.meta.registration_id }}
-                <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
+              {{ with $org.meta }}
+                {{ with .chinese_name }}
+                  <p class="text-xl text-gray-500">{{ . }}</p>
+                {{ end }}
+                {{ with .registration_id }}
+                  <p class="mt-1 text-sm text-gray-400 font-mono">ID: {{ . }}</p>
+                {{ end }}
               {{ end }}
               {{ with $org.financials.data.financial_year }}
                 <p class="mt-1 text-sm text-gray-500 font-mono">FY: {{ . }}</p>
