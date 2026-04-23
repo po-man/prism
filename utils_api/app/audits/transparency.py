@@ -65,11 +65,11 @@ def check_live_release_transparency(record: OrganisationRecord) -> CheckItem:
 
     applicable_interventions = {"individual_rescue_and_sanctuary", "veterinary_care_and_treatment"}
     is_applicable = False
-    if record.impact and record.impact.interventions and record.impact.interventions.significant_events:
+    if record.impact and record.impact.metrics and record.impact.metrics.metrics:
         is_applicable = any(
-            intervention.value in applicable_interventions
-            for event in record.impact.interventions.significant_events
-            for intervention in event.intervention_type
+            metric.intervention_key in applicable_interventions
+            for metric in record.impact.metrics.metrics
+            if metric.intervention_key
         )
 
     if not is_applicable:

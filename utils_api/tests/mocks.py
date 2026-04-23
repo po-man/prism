@@ -29,7 +29,7 @@ class MockPocketBaseClient:
 
     async def get_evidence_discounts(self) -> Dict[str, float]:
         """Returns mock evidence discounts."""
-        return {"RCT/Meta-Analysis": 1.0, "Quasi-Experimental": 0.8, "Pre-Post": 0.6, "Anecdotal": 0.3, "None": 0.0}
+        return {"RCT/Meta-Analysis": 1.0, "Quasi-Experimental": 0.8, "Self-Reported": 0.3 }
 
     async def get_intervention_baselines(self) -> Dict[str, float]:
         """Returns mock intervention baselines."""

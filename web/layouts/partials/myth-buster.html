@@ -26,6 +26,10 @@
       <h3 class="font-bold text-lg text-gray-700">Expense Breakdown</h3>
       {{ $total_exp := .financials.data.expenditure.total.value }}
       {{ if ne $total_exp nil }}
+        <div class="mb-4">
+          <p class="text-sm text-gray-500">Total Annual Expenditure</p>
+          <p class="text-lg font-semibold text-gray-900">{{ $total_exp | lang.FormatNumber 0 }} {{ .financials.data.currency.original_code }}</p>
+        </div>
         {{ $prog_exp := .financials.data.expenditure.program_services.value }}
         {{ $admin_exp := .financials.data.expenditure.administration.value }}
         {{ $fundraising_exp := .financials.data.expenditure.fundraising.value }}

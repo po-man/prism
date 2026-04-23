@@ -12,6 +12,14 @@
 {{ $analytics := .analytics }}
 {{ $s := newScratch }}
 
+{{/* Find the first available counterfactual for the callout */}}
+{{ $counterfactual := "" }}
+{{ range $impact.metrics.metrics }}
+  {{ if and (not $counterfactual) .counterfactual_baseline .counterfactual_baseline.source .counterfactual_baseline.source.quote }}
+    {{ $counterfactual = .counterfactual_baseline }}
+  {{ end }}
+{{ end }}
+
 {{/* Logic to calculate population totals and find the primary beneficiary */}}
 {{ $s.Set "maxPop" 0.0 }}
 {{ $s.Set "primaryBeneficiary" "N/A" }}
@@ -70,6 +78,17 @@
 
 <div class="my-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Impact Profile</h2>
+
+  {{ with $counterfactual }}
+  <div class="mb-8 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800">
+    <div class="flex items-center mb-1">
+      <p class="font-bold">What would happen without this charity?</p>
+      {{ partial "provenance-badge.html" .source }}
+    </div>
+    <p class="mt-1 italic">"{{ .source.quote }}"</p>
+  </div>
+  {{ end }}
+
   <div class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 

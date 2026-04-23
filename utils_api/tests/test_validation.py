@@ -57,6 +57,8 @@ VALID_IMPACT = {
     "metrics": {
         "metrics": [{
             "metric_name": "Animals Rescued",
+            "species_key": "companion_animals",
+            "intervention_key": "individual_rescue_and_sanctuary",
             "quantitative_data": {
                 "value": 1000,
                 "unit": "animals"
@@ -84,21 +86,6 @@ VALID_IMPACT = {
         }]
     },
     "interventions": {
-        "significant_events": [{
-            "event_name": "Project Shelter",
-            "summary": "Built a new shelter facility.",
-            "intervention_type": ["individual_rescue_and_sanctuary"],
-            "primary_intervention_type": "individual_rescue_and_sanctuary",
-            "intervention_type_other_description": None,
-            "timeframe": "annual",
-            "source": {
-                "source_type": "attached_report",
-                "source_index": 0,
-                "page_number": 2,
-                "quote": "Our new shelter facility, 'Project Shelter', opened this year on page 2.",
-                "resolved_url": None
-            }
-        }],
         "context": {
             "operating_scope": {
                 "value": "pure_animal_advocacy",
@@ -119,12 +106,12 @@ VALID_IMPACT = {
                     "source": {
                         "source_type": "attached_report",
                         "source_index": 0,
-                        "page_number": 1,
-                        "quote": "It costs just $25 to spay one dog.",
+                        "page_number": 2,
+                        "quote": "Our new shelter facility, 'Project Shelter', opened this year on page 2.",
                         "resolved_url": None
                     }
                 }
-            ],
+            ]
         }
     },
     "transparency": {
@@ -165,12 +152,10 @@ ABBREVIATED_IMPACT_PAYLOAD = {
         }]
     },
     "interventions": {
-        "significant_events": [{
-            "event_name": "A special event",
-            "intervention_type": ["other"],
-            "primary_intervention_type": "other",
-            "other_desc": "A custom intervention type."
-        }]
+        "context": {
+            "operating_scope": {"value": "pure_animal_advocacy"},
+            "explicit_unit_costs": []
+        }
     },
     "transparency": {
         "transparency_indicators": {
@@ -189,12 +174,10 @@ CANONICAL_IMPACT_PAYLOAD = {
         }]
     },
     "interventions": {
-        "significant_events": [{
-            "event_name": "A special event",
-            "intervention_type": ["other"],
-            "primary_intervention_type": "other",
-            "intervention_type_other_description": "A custom intervention type."
-        }]
+        "context": {
+            "operating_scope": {"value": "pure_animal_advocacy"},
+            "explicit_unit_costs": []
+        }
     },
     "transparency": {
         "transparency_indicators": {

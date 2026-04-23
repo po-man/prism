@@ -53,6 +53,14 @@
           "metric_name": {
             "type": "string"
           },
+          "species_key": {
+            "type": "string",
+            "description": "The species key for moral weight lookup. [ALLOWED VALUES: {{CONCATENATED_SPECIES_KEY_VALUES}}]"
+          },
+          "intervention_key": {
+            "type": "string",
+            "description": "The intervention key for leverage multiplier lookup. [ALLOWED VALUES: {{CONCATENATED_INTERVENTION_KEY_VALUES}}]"
+          },
           "quantitative_data": {
             "type": "object",
             "properties": {
@@ -98,7 +106,7 @@
           },
           "evidence_quality": {
             "type": "string",
-            "description": "[ALLOWED VALUES: 'RCT/Meta-Analysis', 'Quasi-Experimental', 'Pre-Post', 'Anecdotal', 'None']"
+            "description": "The quality of evidence supporting the metric. [ALLOWED VALUES: {{CONCATENATED_EVIDENCE_KEY_VALUES}}]"
           },
           "timeframe": {
             "type": "string",
@@ -110,6 +118,8 @@
         },
         "required": [
           "metric_name",
+          "species_key",
+          "intervention_key",
           "quantitative_data",
           "context_qualifier",
           "counterfactual_baseline",
