@@ -44,12 +44,13 @@ The UI SHALL render the deterministic audit results, filtering out noise and pro
 - **AND** all hardcoded threshold tooltips (`$tooltips` dictionary) MUST be removed from the Hugo template.
 
 ### Requirement: Master Comparative Table (Landing Page)
-The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, displaying metric confidence visually while avoiding over-simplified hierarchical rankings.
+The UI SHALL provide a high-level, sortable directory of all audited charities to facilitate rapid EA-aligned comparative analysis, avoiding over-simplified hierarchical rankings and academic jargon.
 
-#### Scenario: Proportional Audit Summary Opacity
-- **WHEN** rendering the "Audit Summary" column in the Master Table
-- **THEN** the UI MUST dynamically adjust the opacity of the pass, warning, and fail indicator dots.
-- **AND** the opacity MUST scale proportionally based on the number of checks in each category over the total number of checks, using a baseline minimum opacity of 20% and a maximum of 100% (e.g., `(Count / Total * 0.8) + 0.2`).
+#### Scenario: Comparing ITN and Financial Metrics
+- **WHEN** a user visits the root `/` directory (Landing Page)
+- **THEN** the system MUST display a Master Table listing all organisations.
+- **AND** the column headers MUST use layman terminology, explicitly avoiding jargon such as "(Neglectedness)" and "(Importance)".
+- **AND** the "Target Species" column MUST visually indicate the proportionate breakdown of beneficiaries using species-specific SVG icons, explicitly including the `unspecified` beneficiary type alongside companion, farmed, and wild animals, mapping the percentage to the visual opacity.
 
 ### Requirement: Interactive Provenance Badges
 The UI SHALL render explicit, interactive citation badges for all quantitative figures and claims to facilitate immediate human verification against source documents.
@@ -60,18 +61,19 @@ The UI SHALL render explicit, interactive citation badges for all quantitative f
 - **AND** it MUST NOT check for or render web search specific formatting or icons.
 
 ### Requirement: IES Transparent Breakdown Card
-The UI SHALL render the calculated Impact Equivalency Score (IES) in a dedicated component on the individual charity profile, explicitly framing it as an exploratory, temporally bounded model rather than an absolute truth, and providing immediate verifiability for all claims.
+The UI SHALL render the calculated Impact Equivalency Score (IES) in a dedicated component on the individual charity profile, explicitly framing it as an exploratory, temporally bounded model.
 
-#### Scenario: Rendering Provenance on Impact Claims
-- **WHEN** iterating through the IES Calculation Breakdown table rows
-- **THEN** the UI MUST render the `metric_name` string.
-- **AND** if a `source` object is present at the breakdown item level, it MUST render the interactive provenance badge immediately succeeding the metric name.
+#### Scenario: Simplifying the Header
+- **WHEN** rendering the IES Scorecard header
+- **THEN** the UI MUST NOT display redundant "Annual" tags, streamlining the visual interface.
 
 ### Requirement: Impact Profile Rendering
-The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence, while immediately establishing the counterfactual baseline.
+The static site generator (Hugo) SHALL render the Importance, Tractability, and Neglectedness scorecard for each charity, accurately reflecting cumulative impact and verbatim evidence.
 
-#### Scenario: Displaying the Counterfactual Context
-- **WHEN** rendering the Impact Profile section
-- **THEN** the UI MUST display the "What would happen without this charity?" block (if a valid counterfactual exists).
-- **AND** it MUST be positioned prominently before the quantitative demographic breakdowns, rendering the exact source quote and its interactive provenance badge.
+#### Scenario: Visualising Intervention Tractability Tiers
+- **WHEN** rendering the Tractability section ("Intervention Portfolio") of the scorecard
+- **THEN** the UI MUST group and display the verified interventions as badges.
+- **AND** the UI MUST dynamically apply distinct colour schemes to the badges based on their Leverage Tier (e.g., Tier 1: Purple, Tier 2: Blue, Tier 3: Grey).
+- **AND** the UI MUST render a contextual key beneath the portfolio explaining the colour mapping to the respective tiers.
+- **AND** the UI MUST NOT display redundant "Annual" tags on the scorecard headers, assuming the report's temporal bounding is globally understood.
 
